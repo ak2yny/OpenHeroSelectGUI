@@ -1,10 +1,10 @@
 # OpenHeroSelect GUI
  GUI to modify the herostat in Marvel Ultimate Alliance based on MUAOpenHeroSelect by adamatti
-<br/><br/>
+ 
  The goal is to eventually change this GUI to use [OpenHeroSelect](https://github.com/TheRealPSV/OpenHeroSelect) and add features.
-<br/><br/>
+ 
  This is heavily influenced by HeroSelect by Norrin Radd.
-
+<br/><br/>
 
 ## Original Source
  Developed by @adamatti 2008-2009
