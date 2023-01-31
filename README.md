@@ -29,7 +29,9 @@
 
  Run "WFA_MUA.exe" and click a menulocation (white or black numbers). Then assign a character to that location by double-clicking on its name on the left list. If the number is black, it means that it is already assigned. Remove assigned heroes with the `Remove All` button (I couldn't get removing single characters working on Windows 11).
  
- Click `Run Marvel Ultimate Alliance` to build the herostat.engb. Note: this currently displays and error, if the Game.exe isn't in the location we defined. The error can be ignored (Continue).
+ To add different locations (for 50RH etc), type the number in the "Current Position" field and double-click on the hero you want to place there.
+ 
+ Click `Run Marvel Ultimate Alliance` to build the herostat.engb. Note: this currently displays and error, if the MUA.exe isn't in the location we defined. The error can be ignored (Continue).
  
  You can select save slots, but I haven't tested these. I'm not sure if they're connected to the save files or not.
  
@@ -81,6 +83,7 @@
 - Add support for the unlocked characters and starting characters feature of OHS.
 - Add support for Mod Organizer 2.
 - Add support for custom stages, including support for a preview image and an ini file with their locations and layout coordinates for the GUI.
+- Add support for custom order (currently only supports sorted by menulocation and character name ascending and descending).
 - Possibly add features that ak2yny's Stage & Herostat Helper has:
   - Effect duplication
   - EXE hex-editing (removal of effects in the F12 pause menu and changing the Spidey upside-down arrow)
