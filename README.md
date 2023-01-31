@@ -1,5 +1,5 @@
 # OpenHeroSelect GUI
- GUI to modify the herostat in Marvel Ultimate Alliance based on MUAOpenHeroSelect by adamatti
+ GUI to modify the herostat in Marvel Ultimate Alliance based on MUAOpenHeroSelect by adamatti.
  
  The goal is to eventually change this GUI to use [OpenHeroSelect](https://github.com/TheRealPSV/OpenHeroSelect) and add features.
  
@@ -8,10 +8,13 @@
 
 ## Original Source
  Developed by @adamatti 2008-2009
+ 
  https://code.google.com/archive/p/muaopenheroselect/
+ 
  Developed with [Visual Studio C# Express Edition(VSCEE)](https://visualstudio.microsoft.com/vs/express/) and .Net framework 2.0 (this version of Dotnet is outdated but the framework is included in Windows).
+ 
  With the motivation to be an alternative open source to everyone contribute (and more).
-
+<br/><br/>
 
 ## Features
 - Capability to config all using config files
@@ -25,13 +28,18 @@
 ## Usage Instructions (v. 0.0.3)
 
  Run "WFA_MUA.exe" and click a menulocation (white or black numbers). Then assign a character to that location by double-clicking on its name on the left list. If the number is black, it means that it is already assigned. Remove assigned heroes with the `Remove All` button (I couldn't get removing single characters working on Windows 11).
+ 
  Click `Run Marvel Ultimate Alliance` to build the herostat.engb. Note: this currently displays and error, if the Game.exe isn't in the location we defined. The error can be ignored (Continue).
+ 
  You can select save slots, but I haven't tested these. I'm not sure if they're connected to the save files or not.
+ 
  Other features will hopefully be changed, so I'm not mentioning these.
 
 #### How can I add more characters?
  There is a folder called `chars` in the MUAOpenHeroSelect folder. You can create a new .txt file with the character's herostat (or simply copy and rename the herostat.txt file) and this character will be available in the program.
+ 
  You can use the reload button to update the list when MUA Open Hero Select is running.
+ 
  Examples:
  - Creating `chars/Ant-Man.txt` will make `Ant-Man` available without tree-structure.
  - Creating `chars/MCU/Ant-Man.txt` will make `Ant-Man` available with a tree-structure, in the `MCU` sub-menu.
@@ -40,20 +48,22 @@
  There is a file called "Config.ini" in "sys" folder. You can change paths to MUA and the herostat files in the `[mua]` section.
  - `path` changes the path to MUA
  - `chars` changes the path to the herostats (`chars` is the default)
+ 
  Paths can be absolute (eg. `C:\Program Files (x86)\Activision\Marvel - Ultimate Alliance`) or relative (eg. `herostats`). Relative paths are sub-folders to the executable (WFA_MUA.exe).
-
+<br/><br/>
 
 ## Coding Instructions (v. 0.0.3)
 - [Tree View](https://www.c-sharpcorner.com/article/treeview-control-in-C-Sharp/)
 - [Read INI File? ](https://www.codeproject.com/Articles/1966/An-INI-file-handling-class-using-C)
 - [Work with Events](https://web.archive.org/web/20080215231303/http://www.csharphelp.com/archives/archive253.html)
 - ["Order by" functions](https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.listview.sort?redirectedfrom=MSDN&view=windowsdesktop-7.0#System_Windows_Forms_ListView_Sort)
-
+<br/><br/>
 
 ## Build Instructions
  I have no idea, sorry.
+ 
  It probably has something to do with [SVN](https://subversion.apache.org/) and/or [VSCEE](https://visualstudio.microsoft.com/vs/express/)
-
+<br/><br/>
 
 ## Planned Features
 
@@ -75,9 +85,11 @@
   - Effect duplication
   - EXE hex-editing (removal of effects in the F12 pause menu and changing the Spidey upside-down arrow)
   - etc.
-
+<br/><br/>
 
 ## Changelog
- |19.09.2009|Beta 0.0.3: Implemented capability to index save slots and roosters and fixed issues|
- |02.09.2009|Beta 0.0.2: Implemented import/export |
- |31.08.2008|First version |
+ |19.09.2009|Beta 0.0.3: Implemented capability to index save slots and roosters and fixed issues
+ 
+ |02.09.2009|Beta 0.0.2: Implemented import/export
+ 
+ |31.08.2008|First version
