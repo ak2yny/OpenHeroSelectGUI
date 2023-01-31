@@ -33,5 +33,20 @@ namespace WFA_MUA
             return res;
         }
 
+        /// <summary>
+        /// Run an elevated command for OHS. No comments (read them above). No standard output needed, OHS uses the error.log. We may want to use the error output instead?
+        /// </summary>
+        /// <param name="cmd"></param>
+        /// <param name="vars"></param>
+        public static string runElevated(string cmd, string vars)
+        {
+            string ecmd = 'cmd /c "set __COMPAT_LAYER=RUNASINVOKER && "' + cmd;
+            System.Diagnostics.ProcessStartInfo sinf = new System.Diagnostics.ProcessStartInfo(ecmd, vars);
+            sinf.CreateNoWindow = true;
+            System.Diagnostics.Process p = new System.Diagnostics.Process();
+            p.StartInfo = sinf;
+            p.Start();
+        }
+
     }
 }

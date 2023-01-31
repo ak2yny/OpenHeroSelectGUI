@@ -6,6 +6,7 @@ using System.Data;
 using System.Text;
 using System.Windows.Forms;
 
+/// Should the name WFA_MUA be changed?
 namespace WFA_MUA
 {
     /// <summary>
@@ -22,6 +23,7 @@ namespace WFA_MUA
         {
             InitializeComponent();
             
+            /// This needs to be reworked, the list should support infinite (or at least 50) characters.
             all = new TextboxChar[] { null, 
                 txtC01, txtC02, txtC03, txtC04, txtC05, txtC06, txtC07, txtC08, txtC09, txtC10, 
                 txtC11, txtC12, txtC13, txtC14, txtC15, txtC16, txtC17, txtC18, txtC19, txtC20, 
@@ -29,6 +31,7 @@ namespace WFA_MUA
                 txtC96 
             };
 
+            /// OHS uses XML and JSON file extension. The txt variable should probably be changed.
             foreach (TextboxChar txt in all)
             {
                 if (txt != null)
@@ -43,6 +46,7 @@ namespace WFA_MUA
         }
 
         void txt_MouseLeave(object sender, EventArgs e)
+        /// The box displays black text on a black background in W11. Maybe it should be removed?
         {
             txtCurrent.Text = "(put the mouse over some block)";
         }
@@ -62,9 +66,7 @@ namespace WFA_MUA
 
         }
         private void Menu_Load(object sender, EventArgs e)
-        {
 
-        }
         public TextboxChar getTextbox(int i)
         {
             if (i >= 1 && i <= 27)

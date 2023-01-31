@@ -21,6 +21,7 @@ namespace WFA_MUA
             mnuMenu.Items.Add(saveSlots);
 
             EXE_PATH = System.IO.Directory.GetCurrentDirectory();
+            /// We will not need that, since OHS will handle the compilation.
             tmpFile = EXE_PATH + "/tmp/test.txt";
         }
         /// <summary>
@@ -270,11 +271,11 @@ namespace WFA_MUA
                         }
 
                         //Run MUA
-                        Util.runDosCommnand(mua + "/MUA.exe", "");
+                        Util.runDosCommnand(mua + "/Game.exe", "");
 
                         if (saveSlots.SelectedItems.Count>0)
                         {
-                            MessageBox.Show("Press ok to restore saves (after close MUA.exe)","Waiting...");
+                            MessageBox.Show("Press ok to restore saves (after close Game.exe)","Waiting...");
                             setSaves(true);
                         }
                     }
@@ -290,7 +291,7 @@ namespace WFA_MUA
             }
             else
             {
-                log("ERROR: there is not char selected");
+                log("ERROR: No character selected");
             }
         }
         /// <summary>
@@ -317,6 +318,9 @@ namespace WFA_MUA
             writer.WriteLine("}");
             writer.Close();
         }
+        /// We need a function which writes all information to the OHS cfg files.
+        /// Let OHS handle that part (needs to run with admin permission): OpenHeroSelect.exe -a
+        /// Util.runElevated("OpenHeroSelect.exe", "-a");
         /// <summary>
         /// Return all file content and replace the <b>menulocation</b> information
         /// </summary>
@@ -350,6 +354,7 @@ namespace WFA_MUA
         private void log(string msg){
             txtDebug.Text= msg + "\r\n" + txtDebug.Text;
         }
+        /// What is this duplicate?
         /// <summary>
         /// Same as log
         /// </summary>
