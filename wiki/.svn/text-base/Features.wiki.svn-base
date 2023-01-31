@@ -1,0 +1,17 @@
+#labels Featured
+  * Capability to config all using config files;
+  * Create groups based on folder structure;
+  * Just "replace" a character;
+  * See better log messages;
+  * You can change [http://code.google.com/p/muaopenheroselect/source/checkout the code] =)
+  * Import/Export Selection
+  * Capability to index save games + roosters
+
+=== User Suggestions===
+
+|| *Suggestion* || *Suggested by* || *Status* ||
+||Index save games + roosters|| [http://marvelmods.com/forum/index.php?action=profile;u=511 Sasquatch]||DONE||
+||Allows users to change their items based on their roster (by modifying items.engb)||[http://marvelmods.com/forum/index.php?action=profile;u=310 Norrin Radd]|| Investigating ||
+
+=== Planned Features ===
+  * Random (do you guys really want it?)

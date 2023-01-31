@@ -1,0 +1,18 @@
+   stats {
+   autospend = support_heavy ;
+   body = 1 ;
+   characteranims = 00_testguy ;
+   charactername = defaultman ;
+   level = 1 ;
+   menulocation = 0 ;
+   mind = 1 ;
+   name = default ;
+   skin = 0002 ;
+   strength = 1 ;
+   team = enemy ;
+      talent {
+      level = 1 ;
+      name = fightstyle_default ;
+      }
+
+   }

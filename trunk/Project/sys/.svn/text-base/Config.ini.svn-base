@@ -1,0 +1,35 @@
+﻿[about]
+site=http://muaopenheroselect.googlecode.com
+
+[mua]
+path=temp
+chars=C:\Documents and Settings\marcelo_adamatti\Desktop\txt\heroselect\Chars
+
+[defaultchars]
+1=System Groups/Original/Ms Marvel
+2=System Groups/Original/Default Locked/Dr Strange
+3=System Groups/Original/Default Locked/Ghost Rider
+4=System Groups/Original/Default Locked/Dare Devil
+5=System Groups/Original/Thor
+6=System Groups/Original/Captain America
+7=System Groups/Original/Wolverine
+8=System Groups/Original/Default Locked/Blade
+9=System Groups/Original/Elektra
+10=System Groups/Original/Default Locked/Black Panther
+11=System Groups/Original/Dead Pool
+12=System Groups/Original/Spider Woman
+13=System Groups/Original/Default Locked/Silver Surfer
+14=System Groups/Original/Storm
+15=System Groups/Original/Invisible Woman
+16=System Groups/Original/Spiderman
+17=System Groups/Original/Ironman
+18=System Groups/Original/Luke Cage
+19=System Groups/Original/Iceman
+20=System Groups/Original/Default Locked/Nick Fury
+21=System Groups/Original/Mr Fantastic
+22=System Groups/Official Pack/Colossus
+23=System Groups/Original/Thing
+24=System Groups/Original/Human Torch
+25=System Groups/Official Pack/Moon Knight
+26=System Groups/Official Pack/Hulk
+96=System Groups/Official Pack/Hankeye

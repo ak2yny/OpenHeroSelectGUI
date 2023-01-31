@@ -1,0 +1,7 @@
+   stats {
+   autospend = support ;
+   isteam = true ;
+   name = team_character ;
+   skin = 0002 ;
+   xpexempt = true ;
+   }

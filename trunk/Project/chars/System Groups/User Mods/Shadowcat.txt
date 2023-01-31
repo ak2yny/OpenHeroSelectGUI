@@ -1,0 +1,72 @@
+   stats {
+   autospend = bruiser_light ;
+   body = 7 ;
+   characteranims = 73_shadowcat_hero ;
+   charactername = Shadowcat ;
+   level = 1 ;
+   menulocation = XX ;
+   mind = 7 ;
+   name = shadowcat_hero ;
+   playable = true ;
+   power1 = power3 ;
+   power2 = power4 ;
+   power3 = power6 ;
+   power4 = power9 ;
+   powerstyle = ps_shadowcat_hero ;
+   scriptlevel = 3 ;
+   skin = 7302 ;
+   skin_01_name = Astonishing ;
+   skin_02 = 03 ;
+   skin_02_name = Classic ;
+   skin_03 = 05 ;
+   skin_03_name = X3 ;
+   skin_04 = 06 ;
+   skin_04_name = SHIELD ;
+   sounddir = shadca_m ;
+   strength = 7 ;
+   team = hero ;
+   textureicon = 5 ;
+      Race {
+      name = Mutant ;
+      }
+
+      Race {
+      name = XMen ;
+      }
+
+      talent {
+      level = 1 ;
+      name = phase ;
+      }
+
+      talent {
+      level = 1 ;
+      name = phase_out ;
+      }
+
+      talent {
+      level = 1 ;
+      name = kitty_slice ;
+      }
+
+      talent {
+      level = 1 ;
+      name = fightstyle_shadow ;
+      }
+
+      talent {
+      level = 1 ;
+      name = block ;
+      }
+
+      talent {
+      level = 1 ;
+      name = grab ;
+      }
+
+      talent {
+      level = 1 ;
+      name = melee_moves ;
+      }
+
+   }

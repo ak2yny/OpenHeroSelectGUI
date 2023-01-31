@@ -1,0 +1,86 @@
+   stats {
+   ailevel = 2 ;
+   autospend = support ;
+   body = 5 ;
+   characteranims = 152_polaris ;
+   charactername = Polaris ;
+   ignoreboundsscaling = true ;
+   level = 1 ;
+   menulocation = XX ;
+   mind = 12 ;
+   moveset1 = moveset_flying ;
+   name = Polaris ;
+   playable = true ;
+   power1 = power5 ;
+   power2 = power2 ;
+   power3 = power1 ;
+   power4 = power9 ;
+   powerstyle = ps_polaris ;
+   scale_factor = 1 ;
+   scriptlevel = 3 ;
+   skin = 15201 ;
+   skin_01_name = Uncanny ;
+   skin_02 = 02 ;
+   skin_02_name = Modern ;
+   skin_03 = 03 ;
+   skin_03_name = X-Factor ;
+   skin_04 = 04 ;
+   skin_04_name = Ultimate ;
+   sounddir = polari_m ;
+   speed = 10 ;
+   strength = 4 ;
+   team = hero ;
+   textureicon = 3 ;
+      StatEffect {
+      anim = flying ;
+      bolt = Bip01 L Hand ;
+      effect = char/pol/ability_fly_hand ;
+      fxlevel = 1 ;
+      }
+
+      StatEffect {
+      anim = flying ;
+      bolt = Bip01 R Hand ;
+      effect = char/pol/ability_fly_hand ;
+      fxlevel = 1 ;
+      }
+
+      Race {
+      name = Mutant ;
+      }
+
+      Race {
+      name = XMen ;
+      }
+
+      talent {
+      level = 1 ;
+      name = pol_telekinesis ;
+      }
+
+      talent {
+      level = 1 ;
+      name = pol_resist ;
+      }
+
+      talent {
+      level = 1 ;
+      name = block ;
+      }
+
+      talent {
+      level = 1 ;
+      name = flight ;
+      }
+
+      talent {
+      level = 1 ;
+      name = fightstyle_default ;
+      }
+
+      talent {
+      level = 1 ;
+      name = melee_moves ;
+      }
+
+   }

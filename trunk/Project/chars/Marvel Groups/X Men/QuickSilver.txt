@@ -1,0 +1,59 @@
+   stats {
+   ailevel = 1 ;
+   autospend = bruiser_light ;
+   body = 7 ;
+   characteranims = 189_quicksilver ;
+   charactername = Quicksilver ;
+   level = 1 ;
+   menulocation = XXXX ;
+   mind = 4 ;
+   name = Quicksilver ;
+   playable = true ;
+   powerstyle = ps_quicksilver ;
+   scriptlevel = 3 ;
+   skin = 18901 ;
+   skin_01_name = Classic ;
+   skin_02 = 02 ;
+   skin_02_name = Original ;
+   skin_03 = 03 ;
+   skin_03_name = Ultimate ;
+   skin_04 = 04 ;
+   skin_04_name = Modern ;
+   sounddir = quicks_m ;
+   strength = 10 ;
+   team = hero ;
+   textureicon = 7 ;
+      Race {
+      name = Mutant ;
+      }
+
+      Race {
+      name = Brotherhood ;
+      }
+
+      talent {
+      level = 1 ;
+      name = quick_strike ;
+      }
+
+      talent {
+      level = 1 ;
+      name = grab ;
+      }
+
+      talent {
+      level = 1 ;
+      name = fightstyle_default ;
+      }
+
+      talent {
+      level = 1 ;
+      name = block ;
+      }
+
+      talent {
+      level = 1 ;
+      name = melee_moves ;
+      }
+
+   }

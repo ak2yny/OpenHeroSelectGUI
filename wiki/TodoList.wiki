@@ -1,0 +1,2 @@
+#labels Deprecated
+  * Create a Captivate/Cantasia/etc Presentation

@@ -1,0 +1,74 @@
+   stats {
+   ailevel = 1 ;
+   autospend = support ;
+   body = 5 ;
+   characteranims = 144_visionp ;
+   charactername = The Vision ;
+   level = 1 ;
+   menulocation = xx ;
+   mind = 12 ;
+   moveset1 = moveset_flying ;
+   name = Visionp ;
+   playable = true ;
+   powerstyle = ps_vision ;
+   scriptlevel = 3 ;
+   skin = 14401 ;
+   skin_01_name = Classic ;
+   skin_02 = 02 ;
+   skin_02_name = White ;
+   skin_03 = 03 ;
+   skin_03_name = Gatherer ;
+   skin_04 = 04 ;
+   skin_04_name = Iron Lad ;
+   skin_05 = 05 ;
+   skin_05_name = Green Lantern ;
+   skin_06 = 06 ;
+   skin_06_name = Quasar ;
+   sounddir = iron_m ;
+   strength = 4 ;
+   team = hero ;
+   textureicon = 6 ;
+      Race {
+      name = Mutant ;
+      }
+
+      Race {
+      name = XMen ;
+      }
+
+      talent {
+      level = 1 ;
+      name = war_power4 ;
+      }
+
+      talent {
+      level = 1 ;
+      name = war_passive1 ;
+      }
+
+      talent {
+      level = 1 ;
+      name = block ;
+      }
+
+      talent {
+      level = 1 ;
+      name = might ;
+      }
+
+      talent {
+      level = 1 ;
+      name = flight ;
+      }
+
+      talent {
+      level = 1 ;
+      name = melee_moves ;
+      }
+
+      talent {
+      level = 1 ;
+      name = fightstyle_default ;
+      }
+
+   }

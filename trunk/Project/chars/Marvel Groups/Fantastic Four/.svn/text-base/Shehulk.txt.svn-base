@@ -1,0 +1,85 @@
+   stats {
+   ailevel = 1 ;
+   autospend = bruiser ;
+   body = 7 ;
+   canthrowally = true ;
+   characteranims = 159_shehulk ;
+   charactername = She-Hulk ;
+   ignoreboundsscaling = true ;
+   level = 1 ;
+   menulocation = XX ;
+   mind = 4 ;
+   name = SheHulk ;
+   playable = true ;
+   powerstyle = ps_shehulk ;
+   scale_factor = 1.15 ;
+   scaleattacks = true ;
+   scriptlevel = 3 ;
+   skin = 15905 ;
+   skin_01_name = Modern ;
+   skin_02 = 06 ;
+   skin_02_name = Agent of S.H.I.E.L.D. ;
+   skin_03 = 07 ;
+   skin_03_name = Classic ;
+   skin_04 = 08 ;
+   skin_04_name = Fantastic Four ;
+   skin_05 = 09 ;
+   skin_05_name = Attorney ;
+   sounddir = shehlk_m ;
+   strength = 10 ;
+   team = hero ;
+   textureicon = 5 ;
+      Race {
+      name = Mutant ;
+      }
+
+      Race {
+      name = XMen ;
+      }
+
+      talent {
+      level = 1 ;
+      name = block ;
+      }
+
+      talent {
+      level = 1 ;
+      name = might ;
+      }
+
+      talent {
+      level = 1 ;
+      name = healing_factor ;
+      }
+
+      talent {
+      level = 1 ;
+      name = grab ;
+      }
+
+      talent {
+      level = 1 ;
+      name = lukec_grabsma ;
+      }
+
+      talent {
+      level = 1 ;
+      name = melee_moves ;
+      }
+
+      talent {
+      level = 1 ;
+      name = fightstyle_default ;
+      }
+
+      talent {
+      level = 1 ;
+      name = shehulk_p1 ;
+      }
+
+      talent {
+      level = 1 ;
+      name = shehulk_p6 ;
+      }
+
+   }
