@@ -7,7 +7,7 @@
 <br/><br/>
 
 ## Original Source
- Developed by @adamatti 2008-2009
+ Developed by [@adamatti](https://github.com/adamatti) 2008-2009
  
  https://code.google.com/archive/p/muaopenheroselect/
  
