@@ -23,7 +23,7 @@
 - See better log messages
 - Import/Export Selection
 - Capability to index save games + roosters
-
+<br/><br/>
 
 ## Usage Instructions (v. 0.0.3)
 
