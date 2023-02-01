@@ -6,6 +6,19 @@
  This is heavily influenced by HeroSelect by Norrin Radd.
 <br/><br/>
 
+## Table of contents:
+
+* [Original Source](#original-source)
+* [Features](#features)
+* [Usage Instructions](#usage-instructions-v-003)
+  * [How can I add more characters?](#how-can-i-add-more-characters)
+  * [How can I change the path to MUA?](#how-can-i-change-the-path-to-mua)
+* [Coding Instructions (v. 0.0.3)](#coding-instructions-v-003)
+* [Build Instructions](#build-instructions)
+* [Planned Features](#planned-features)
+* [Changelog](#changelog)
+<br/><br/>
+
 ## Original Source
  Developed by [@adamatti](https://github.com/adamatti) 2008-2009
  
