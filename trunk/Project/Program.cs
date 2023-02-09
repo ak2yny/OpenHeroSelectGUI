@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
-namespace WFA_MUA
+namespace OpenHeroSelectGUI
 {
     static class Program
     {

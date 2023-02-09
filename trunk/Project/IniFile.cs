@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace WFA_MUA
+namespace OpenHeroSelectGUI
 {
     /// <summary>
     /// Create a New INI file to store or load data

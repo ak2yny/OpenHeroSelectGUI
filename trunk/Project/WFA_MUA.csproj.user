@@ -1,17 +1,20 @@
-﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup>
-    <PublishUrlHistory>publish\</PublishUrlHistory>
-    <InstallUrlHistory>
-    </InstallUrlHistory>
-    <SupportUrlHistory>
-    </SupportUrlHistory>
-    <UpdateUrlHistory>
-    </UpdateUrlHistory>
-    <BootstrapperUrlHistory>
-    </BootstrapperUrlHistory>
-    <ErrorReportUrlHistory>
-    </ErrorReportUrlHistory>
-    <FallbackCulture>en-US</FallbackCulture>
-    <VerifyUploadedFiles>false</VerifyUploadedFiles>
-  </PropertyGroup>
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup />
+  <ItemGroup>
+    <Compile Update="Main.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Update="Menu.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Update="SaveSlots.cs">
+      <SubType>Component</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Update="Main.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
 </Project>

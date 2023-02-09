@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Collections;
-namespace WFA_MUA
+namespace OpenHeroSelectGUI
 {
     public class SaveSlots : ToolStripMenuItem
     {
@@ -14,38 +14,41 @@ namespace WFA_MUA
             this.Size = new System.Drawing.Size(69, 20);
             this.Text = "Save Slots";
 
-            addSaveSlots(this.DropDownItems);
+            AddSaveSlots(this.DropDownItems);
         }
-        private void addSaveSlots(ToolStripItemCollection items)
+        private void AddSaveSlots(ToolStripItemCollection items)
         {
             //test(mnuSaveSlots.DropDownItems);
-            ToolStripMenuItem mnuAll = new ToolStripMenuItem();
-            // 
-            // mnuAll
-            // 
-            mnuAll.Name = "mnuAll";
-            mnuAll.Size = new System.Drawing.Size(152, 22);
-            mnuAll.Text = "All";
-            mnuAll.Click += new EventHandler(this.mnuAll_Click);
+            ToolStripMenuItem mnuAll = new ToolStripMenuItem
+            {
+                BackColor = System.Drawing.SystemColors.Window,
+                Name = "mnuAll",
+                Size = new System.Drawing.Size(152, 22),
+                Text = "All"
+            };
+            mnuAll.Click += new EventHandler(this.MnuAll_Click);
             items.Add(mnuAll);
             
-            for (int i = 1; i <= 20; i++)
+            for (int i = 1; i <= 10; i++)
             {
                 ToolStripMenuItem mnuSlot;
-                mnuSlot = new ToolStripMenuItem();
-                mnuSlot.Name = "mnuSlot" + i;
-                mnuSlot.Size = new System.Drawing.Size(152, 22);
-                mnuSlot.Text = "Slot " + i;
-                mnuSlot.Click += new System.EventHandler(this.mnuSlot_Click);
+                mnuSlot = new ToolStripMenuItem
+                {
+                    BackColor = System.Drawing.SystemColors.Window,
+                    Name = "mnuSlot" + i,
+                    Size = new System.Drawing.Size(152, 22),
+                    Text = "Slot " + i
+                };
+                mnuSlot.Click += new System.EventHandler(this.MnuSlot_Click);
                 items.Add(mnuSlot);
             }
         }
-        private void mnuSlot_Click(object sender, EventArgs e)
+        private void MnuSlot_Click(object sender, EventArgs e)
         {
             ToolStripMenuItem slot = sender as ToolStripMenuItem;
             slot.Checked = !slot.Checked;
         }
-        private void mnuAll_Click(object sender, EventArgs e)
+        private void MnuAll_Click(object sender, EventArgs e)
         {
             foreach (ToolStripMenuItem slot in this.DropDownItems) 
             {
@@ -53,11 +56,11 @@ namespace WFA_MUA
                     slot.Checked = false;
             }
         }
-        public void cleanAll()
+        public void CleanAll()
         {
-            mnuAll_Click(null, null);
+            MnuAll_Click(null, null);
         }
-        public void setChecked(int i)
+        public void SetChecked(int i)
         {
             foreach (ToolStripMenuItem slot in this.DropDownItems) 
             {

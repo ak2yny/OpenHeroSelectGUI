@@ -1,89 +1,78 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Text;
 using System.Windows.Forms;
 
-/// Should the name WFA_MUA be changed?
-namespace WFA_MUA
+namespace OpenHeroSelectGUI
 {
     /// <summary>
-    /// 
+    /// Menulocations. Should be adjusted to accept location setup from ini files.
     /// </summary>
     /// <seealso cref="http://marvelmods.com/forum/index.php?topic=732.196 "/>
     public partial class Menu : UserControl
     {
         public delegate void delegateDoubleClickChar (string name, int pos);
-        public event delegateDoubleClickChar OnDoubleClickChar;
+        public event delegateDoubleClickChar? OnDoubleClickChar;
 
-        private TextboxChar[] all;
+        private readonly MenulocationBoxes[] all;
         public Menu()
         {
             InitializeComponent();
             
             /// This needs to be reworked, the list should support infinite (or at least 50) characters.
-            all = new TextboxChar[] { null, 
-                txtC01, txtC02, txtC03, txtC04, txtC05, txtC06, txtC07, txtC08, txtC09, txtC10, 
-                txtC11, txtC12, txtC13, txtC14, txtC15, txtC16, txtC17, txtC18, txtC19, txtC20, 
-                txtC21, txtC22, txtC23, txtC24, txtC25, txtC26, 
-                txtC96 
+            all = new MenulocationBoxes[] { txtC01,
+                txtC01, txtC02, txtC03, txtC04, txtC05, txtC06, txtC07, txtC08, txtC09, txtC10,
+                txtC11, txtC12, txtC13, txtC14, txtC15, txtC16, txtC17, txtC18, txtC19, txtC20,
+                txtC21, txtC22, txtC23, txtC24, txtC25, txtC26,
+                txtC96
             };
 
             /// OHS uses XML and JSON file extension. The txt variable should probably be changed.
-            foreach (TextboxChar txt in all)
+            foreach (MenulocationBoxes loc in all)
             {
-                if (txt != null)
+                if (loc != null)
                 {
-                    txt.Click += new EventHandler(txt_Click);
-                    txt.DoubleClick += new EventHandler(txt_Click);
-                    txt.MouseMove += new MouseEventHandler(txt_MouseHover);
-                    txt.MouseHover += new EventHandler(txt_MouseHover);
-                    txt.MouseLeave += new EventHandler(txt_MouseLeave);
+                    loc.Click += new EventHandler(Box_Click);
+                    loc.DoubleClick += new EventHandler(Box_Click);
+                    loc.MouseMove += new MouseEventHandler(Box_MouseHover);
+                    loc.MouseHover += new EventHandler(Box_MouseHover);
+                    loc.MouseLeave += new EventHandler(Box_MouseLeave);
                 }
             }
         }
 
-        void txt_MouseLeave(object sender, EventArgs e)
-        /// The box displays black text on a black background in W11. Maybe it should be removed?
+        void Box_MouseLeave(object sender, EventArgs e)
         {
-            txtCurrent.Text = "(put the mouse over some block)";
+            txtCurrent.Text = "";
         }
-        private void txt_MouseHover(object sender, EventArgs e)
+        private void Box_MouseHover(object sender, EventArgs e)
         {
-            TextboxChar txt = (TextboxChar)sender;
+            MenulocationBoxes txt = (MenulocationBoxes)sender;
             txtCurrent.Text = txt.CharName;
         }
-        private void txt_Click(object sender, EventArgs e)
+        private void Box_Click(object sender, EventArgs e)
         {
-            TextboxChar txt = (TextboxChar)sender;
+            MenulocationBoxes txt = (MenulocationBoxes)sender;
             string name = txt.CharName;
             int pos = Int32.Parse(txt.Text);
-            
-            if (OnDoubleClickChar!=null)
-                OnDoubleClickChar(name, pos);
+
+            OnDoubleClickChar?.Invoke(name, pos);
 
         }
         private void Menu_Load(object sender, EventArgs e)
-
-        public TextboxChar getTextbox(int i)
         {
-            if (i >= 1 && i <= 27)
-            {
-                return all[i];
-            }
-            else if (i == 96)
-            {
-                return all[27];
-            }
-            return null;
+            /// Nothing declared. I had to fix an error message, no idea what this does, yet.
         }
-        public void setTextbox(int i, string text)
+
+        public MenulocationBoxes GetMenulocationBox(int i)
         {
-            TextboxChar txt = getTextbox(i);
-            if (txt != null)
+            if (i == 96) return all[27];
+            return all[i];
+        }
+        public void SetMenulocationBox(int i, string text)
+        {
+            if (i == 96 || (i > 0 && i < 27))
             {
+                MenulocationBoxes txt = GetMenulocationBox(i);
                 txt.CharName = text;
                 if (text != "")
                 {
@@ -99,14 +88,14 @@ namespace WFA_MUA
         }
 
     }
-    public class TextboxChar : System.Windows.Forms.TextBox
+    public class MenulocationBoxes : System.Windows.Forms.TextBox
     {
-        private string charName;
+        private string? charName;
         public string CharName
         {
             get
             {
-                return charName;
+                return charName is null ? "" : charName;
             }
             set
             {

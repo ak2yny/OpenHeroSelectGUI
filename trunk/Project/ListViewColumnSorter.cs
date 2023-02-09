@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Windows.Forms;
 
-namespace WFA_MUA
+namespace OpenHeroSelectGUI
 {
     /// <summary>
     /// This class is an implementation of the 'IComparer' interface.
