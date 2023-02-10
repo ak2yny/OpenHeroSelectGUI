@@ -43,6 +43,8 @@
 
 ## Usage Instructions (v. 0.1.0)
 
+ "OpenHeroSelectGUI.exe" and "Newtonsoft.JSON.dll" must be extracted to the same location as "OpenHeroSelect.exe".
+
  Run "OpenHeroSelectGUI.exe" and click a menulocation (white or black numbers). Then assign a character to that location by double-clicking on its name on the left list. If the number is black, it means that it is already assigned. Remove assigned heroes with the `Remove All` button or by selecting them in the list and pressing the Delete key.
  
  To add different locations (for 50RH etc), type the number in the "Current Position" field and double-click on the hero you want to place there.
