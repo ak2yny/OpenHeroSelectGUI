@@ -107,7 +107,7 @@
 
 ## Changelog
 
- |XX.02.2023|Beta 0.1.0: Changed from xmlb-compile to OpenHeroSelect
+ |09.02.2023|Beta 0.1.0: Changed from xmlb-compile to OpenHeroSelect
  - Remove files that are no longer required (.svn folders)
  - A few touch ups
 
