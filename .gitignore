@@ -1,6 +1,8 @@
 # Visual Studio folders
 .vs/
 .vscode/
+cs_source/bin/
+cs_source/obj/
 
 # Prerequisites
 *.d
