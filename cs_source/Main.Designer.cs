@@ -135,7 +135,7 @@ namespace OpenHeroSelectGUI
             this.btnRun.Name = "btnRun";
             this.btnRun.Size = new System.Drawing.Size(535, 58);
             this.btnRun.TabIndex = 6;
-            this.btnRun.Text = "Run Marvel Ultimate Alliance";
+            this.btnRun.Text = "Run Open Hero Select";
             this.btnRun.UseVisualStyleBackColor = true;
             this.btnRun.Click += new System.EventHandler(this.BtnRun_Click);
             // 

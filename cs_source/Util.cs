@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace OpenHeroSelectGUI
 {
@@ -13,7 +14,7 @@ namespace OpenHeroSelectGUI
         /// <returns></returns>
         public static string RunDosCommnand(string cmd, string vars)
         {
-            System.Diagnostics.ProcessStartInfo sinf = new System.Diagnostics.ProcessStartInfo(cmd, vars)
+            ProcessStartInfo sinf = new ProcessStartInfo(cmd, vars)
             {
                 // The following commands are needed to redirect the standard output. This means that it will be redirected to the Process.StandardOutput StreamReader.
                 RedirectStandardOutput = true,
@@ -22,7 +23,7 @@ namespace OpenHeroSelectGUI
                 CreateNoWindow = true
             };
             // Now we create a process, assign its ProcessStartInfo and start it
-            System.Diagnostics.Process p = new System.Diagnostics.Process { StartInfo = sinf };
+            Process p = new Process { StartInfo = sinf };
             p.Start(); // well, we should check the return value here...
             // We can now capture the output into a string...
             string res = p.StandardOutput.ReadToEnd();
@@ -34,14 +35,15 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Run an elevated command for OHS. OHS uses the error.log...
         /// </summary>
-        /// <param name="cmd"></param>
-        /// <param name="vars"></param>
-        public static string RunElevated(string cmd, string vars)
+        public static string RunElevated(string ecmd, string vars)
         {
-            System.Diagnostics.ProcessStartInfo sinf = new System.Diagnostics.ProcessStartInfo(cmd, vars) { Verb = "runas" };
-            System.Diagnostics.Process p = new System.Diagnostics.Process { StartInfo = sinf };
+            string cmd = "cmd";
+            string ev = "/c \"set __COMPAT_LAYER=RUNASINVOKER && \"" + ecmd + " " + vars;
+            ProcessStartInfo sinf = new ProcessStartInfo(cmd, ev) { CreateNoWindow = true };
+            Process p = new Process { StartInfo = sinf };
             p.Start();
-            return "OHS is running.";
+            p.WaitForExit();
+            return "OHS has finished.";
         }
 
     }

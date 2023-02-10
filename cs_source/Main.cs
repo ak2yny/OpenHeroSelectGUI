@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using System.ComponentModel;
 using System.Linq;
 using System.Collections.Generic;
-using System.Xml.Linq;
+using System.Diagnostics;
 
 namespace OpenHeroSelectGUI
 {
@@ -349,17 +349,24 @@ namespace OpenHeroSelectGUI
             {
                 if (GIP != null)
                 {
-                    /// Util.RunDosCommnand(cdPath + "/sys/xmlb-compile.exe", aux);
                     GenerateCfgFiles("temp.OHSGUI", iniOHS);
-                    /// For XML2, add argument -x > "-a -x"
+                    // For XML2, add argument -x > "-a -x"
                     Util.RunElevated("OpenHeroSelect.exe", "-a");
-
-                    //Check saves
-                    if (OHScfg.launchGame && saveSlots.SelectedItems.Count > 0)
+                    string elog = cdPath + "\\error.log";
+                    if (!File.Exists(elog))
                     {
-                        SetSaves(false);
-                        MessageBox.Show("Press OK to restore saves (after closing the game).", "Waiting...");
-                        SetSaves(true);
+                        //Check saves
+                        if (OHScfg.launchGame && saveSlots.SelectedItems.Count > 0)
+                        {
+                            SetSaves(false);
+                            MessageBox.Show("Press OK to restore saves (after closing the game).", "Waiting...");
+                            SetSaves(true);
+                        }
+                    }
+                    else
+                    {
+                        Log(File.ReadAllText(elog));
+                        Process.Start("explorer.exe", "/select, \"" + elog + "\"");
                     }
                 }
                 else

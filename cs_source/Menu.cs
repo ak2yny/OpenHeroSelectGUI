@@ -88,7 +88,7 @@ namespace OpenHeroSelectGUI
         }
 
     }
-    public class MenulocationBoxes : System.Windows.Forms.TextBox
+    public class MenulocationBoxes : TextBox
     {
         private string? charName;
         public string CharName

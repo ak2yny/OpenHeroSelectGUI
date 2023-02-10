@@ -39,7 +39,7 @@ namespace OpenHeroSelectGUI
                     Size = new System.Drawing.Size(152, 22),
                     Text = "Slot " + i
                 };
-                mnuSlot.Click += new System.EventHandler(this.MnuSlot_Click);
+                mnuSlot.Click += new EventHandler(this.MnuSlot_Click);
                 items.Add(mnuSlot);
             }
         }
