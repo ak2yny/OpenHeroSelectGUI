@@ -11,7 +11,7 @@
 * [Credits](#credits)
 * [Requirements](#requirements)
 * [Features](#features)
-* [Usage Instructions](#usage-instructions-v-003)
+* [Usage Instructions](#usage-instructions-v-010)
   * [How can I add more characters?](#how-can-i-add-more-characters)
   * [How can I change the path to MUA?](#how-can-i-change-the-path-to-mua)
 * [Coding Instructions (v. 0.0.3)](#coding-instructions-v-003)
