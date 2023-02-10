@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build",
+            "command":"C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "type":"shell",
+            "args":[
+                "${workspaceFolder}/OpenHeroSelectGUI.csproj",
+                "/t:Build",
+                "/p:Configuration=Release",
+                "/p:Platform=\"AnyCPU\""
+            ]
+        },
+        {
+            "label": "dbgbuild",
+            "command":"C:\\Program Files (x86)\\Microsoft Visual Studio\\2022\\BuildTools\\MSBuild\\Current\\Bin\\MSBuild.exe",
+            "type":"shell",
+            "args":[
+                "${workspaceFolder}/OpenHeroSelectGUI.csproj",
+                "/t:Build",
+                "/p:Configuration=Debug",
+                "/p:Platform=\"AnyCPU\""
+            ]
+        }
+    ]
+}

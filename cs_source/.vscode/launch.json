@@ -1,0 +1,26 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Test Build OHS (ignore error)",
+            "type": "clr",
+            "request": "launch",
+            "preLaunchTask": "build",
+            "program": "${workspaceFolder}/bin/Release/OpenHeroSelectGUI.exe"
+        },
+        {
+            "name": "Debug OHS (backup)",
+            "type": "clr",
+            "request": "launch",
+            "preLaunchTask": "dbgbuild",
+            "program": "${workspaceFolder}/bin/Debug/OpenHeroSelectGUI.exe",
+            "args":[],
+            "console": "internalConsole",
+            "stopAtEntry": false,
+            "internalConsoleOptions": "openOnSessionStart"
+        }
+    ]
+}

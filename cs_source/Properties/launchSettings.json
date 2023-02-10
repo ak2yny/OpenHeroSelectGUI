@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "OpenHeroSelectGUI": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\Programme\\_portable\\Games\\_OpenHeroSelect"
+    }
+  }
+}
