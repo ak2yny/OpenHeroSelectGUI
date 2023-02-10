@@ -12,8 +12,10 @@
 * [Requirements](#requirements)
 * [Features](#features)
 * [Usage Instructions](#usage-instructions-v-010)
+  * [How can I modify rosters for the 50 roster hack?](#how-can-i-modify-rosters-for-the-50-roster-hack)
   * [How can I add more characters?](#how-can-i-add-more-characters)
   * [How can I change the path to MUA?](#how-can-i-change-the-path-to-mua)
+  * [What are Save Slots?](#what-are-save-slots)
 * [Coding Instructions (v. 0.0.3)](#coding-instructions-v-003)
 * [Build Instructions](#build-instructions)
 * [Planned Features](#planned-features)
@@ -26,7 +28,7 @@
 <br/><br/>
 
 ## Requirements
-- .Net Framework 3.5. [(Windows 8+)](https://learn.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows?WT.mc_id=dotnet-35129-website) [(Earlier Windows)](https://www.microsoft.com/en-us/download/details.aspx?id=21)
+- .Net Framework 3.5. [(Windows 7+)](https://learn.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows) [(Earlier Windows)](https://www.microsoft.com/en-us/download/details.aspx?id=21)
 - [OpenHeroSelect](https://github.com/TheRealPSV/OpenHeroSelect) and its requirements
 <br/><br/>
 
@@ -47,29 +49,25 @@
 
  Run "OpenHeroSelectGUI.exe" and click a menulocation (white or black numbers). Then assign a character to that location by double-clicking on its name on the left list. If the number is black, it means that it is already assigned. Remove assigned heroes with the `Remove All` button or by selecting them in the list and pressing the Delete key.
  
- To add different locations (for 50RH etc), type the number in the "Current Position" field and double-click on the hero you want to place there.
- 
  Click `Run Marvel Ultimate Alliance` to run OHS and let it build herostat.engb and other files.
  
- You can select save slots, but they don't seem to work. They're supposed to create and restore save backups, so you have free saves for your new roster.
- 
- Other features will hopefully be changed, so I'm not mentioning these.
+#### How can I modify rosters for the 50 roster hack?
+ To add different locations (for 50RH etc.), type the number in the "Current Position" field and double-click on the hero you want to place there.
 
 #### How can I add more characters?
- This is a duplicate from the excellent OpenHeroSelect instructions. Place the herostats in the  `mua/xml` folder. Rename the herostat and extension. All XML files in this folder and its sub-folder will be available in the program.
+ Place the herostats in the  `mua/xml` folder. Rename the herostat and extension. All XML files in this folder and its sub-folder will be available in the program.
  
- You can use the reload button to update the list when MUA Open Hero Select is running.
+ You can use the reload button to update the list when Open Hero Select GUI is running.
  
  Examples:
  - Creating `chars/Ant-Man.txt` will make `Ant-Man` available without tree-structure.
  - Creating `chars/MCU/Ant-Man.txt` will make `Ant-Man` available with a tree-structure, in the `MCU` sub-menu.
 
 #### How can I change the path to MUA?
- There is a file called "Config.ini" in "sys" folder. You can change paths to MUA and the herostat files in the `[mua]` section.
- - `path` changes the path to MUA
- - `chars` changes the path to the herostats (`chars` is the default)
+ Use the OpenHeroSelect.exe set-up dialogue. Paste the path with right-click, when prompted.
  
- Paths can be absolute (eg. `C:\Program Files (x86)\Activision\Marvel - Ultimate Alliance`) or relative (eg. `herostats`). Relative paths are sub-folders to the executable (OpenHeroSelectGUI.exe).
+#### What are Save Slots?
+ They're supposed to create and restore save backups, so you have free saves for your new roster. I haven't tested them, though. The feature only becomes available, if OHS is set-up to run the game.
 <br/><br/>
 
 ## Coding Instructions (v. 0.0.3)
