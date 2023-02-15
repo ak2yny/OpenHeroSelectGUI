@@ -36,6 +36,7 @@
 
 ## Features
 - Support for OHS configurations and herostats (settings controls are planned)
+- Support for XML2 and MUA (both still limited)
 - Supports infinte characters
   (manual location setups for non-OCP CSS required - better support is planned)
 - Create teams based on folder structure
@@ -50,22 +51,23 @@
  "OpenHeroSelectGUI.exe" and "Newtonsoft.JSON.dll" must be extracted to the same location as "OpenHeroSelect.exe".
 
  Run "OpenHeroSelectGUI.exe" and click a menulocation (white or black numbers). Then assign a character to that location by double-clicking on its name on the left list. If the number is black, it means that it is already assigned. Remove assigned heroes with the `Remove All` button or by selecting them in the list and pressing the Delete key.
+ For XML2, just double-click on characters on the left list. If you want to add more than 21 characters, you must manually enter a higher number in the "Current Position" field.
  
- Click `Run Marvel Ultimate Alliance` to run OHS and let it build herostat.engb and other files.
+ Click `Run Open Hero Select` to run OHS and let it build herostat.engb and other files.
  
 #### How can I modify rosters for the 50 roster hack?
  To add different locations (for 50RH etc.), type the number in the "Current Position" field and double-click on the hero you want to place there.
 
 #### How can I add more characters?
- Place the herostats in the  `mua/xml` folder. Rename the herostat and extension. All XML files in this folder and its sub-folder will be available in the program.
+ Place the herostats in the herostatFolder (by default `mua/xml` for MUA). Rename the herostat. All files in this folder and its sub-folders will be available in the program.
  
  You can use the reload button to update the list when Open Hero Select GUI is running.
  
  Examples:
- - Creating `chars/Ant-Man.txt` will make `Ant-Man` available without tree-structure.
- - Creating `chars/MCU/Ant-Man.txt` will make `Ant-Man` available with a tree-structure, in the `MCU` sub-menu.
+ - Creating `xml/Ant-Man.txt` will make `Ant-Man` available without tree-structure.
+ - Creating `xml/MCU/Ant-Man.txt` will make `Ant-Man` available with a tree-structure, in the `MCU` sub-menu.
 
-#### How can I change the path to MUA?
+#### How can I change the path to MUA/XML2?
  Use the OpenHeroSelect.exe set-up dialogue. Paste the path with right-click, when prompted.
  
 #### What are Save Slots?
@@ -108,6 +110,10 @@
 <br/><br/>
 
 ## Changelog
+
+ |15.02.2023|Beta 0.1.1: Added support for XML2
+ - Different icon
+ - A few bugs fixed
 
  |09.02.2023|Beta 0.1.0: Changed from xmlb-compile to OpenHeroSelect
  - Remove files that are no longer required (.svn folders)
