@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using System.IO;
 using Newtonsoft.Json;
@@ -12,44 +13,43 @@ namespace OpenHeroSelectGUI
 {
     public partial class Main : Form
     {
-        private IniFile iniGUI;
+        private IniFile? iniGUI;
         private readonly SaveSlots saveSlots;
         private readonly string cdPath;
-        private readonly string game;
-        private readonly string Heroes;
+        private string SwitchTo;
+        public string game;
+        private string Heroes;
         private string iniOHS;
-        private string? jsonOHS;
-        private string? GIP;
+        private bool SettingsLoaded = false;
+        private string jsonOHS = "";
+        private string GIP;
         // Will have to be a function
-        private readonly int[] MenulocationSet = Enumerable.Range(1, 26).Concat(new[] { 96 }).ToArray();
+        private readonly int[] RangeXML2 = Enumerable.Range(1, 21).ToArray();
+        private readonly int[] RangeMUA = Enumerable.Range(1, 26).Concat(new[] { 96 }).ToArray();
+        private int[] MenulocationSet = Enumerable.Range(1, 26).Concat(new[] { 96 }).ToArray();
         public class OHSsettings
         {
+            [DefaultValue(21)]
+            public int? rosterSize { get; set; }
+            [DefaultValue("temp.OHSGUI")]
             public string? menulocationsValue { get; set; }
-            public bool rosterHack { get; set; }
+            public bool? rosterHack { get; set; }
+            [DefaultValue("temp.OHSGUI")]
             public string? rosterValue { get; set; }
             public string? gameInstallPath { get; set; }
+            [DefaultValue("Game.exe")]
             public string? exeName { get; set; }
+            [DefaultValue("herostat.engb")]
             public string? herostatName { get; set; }
             public bool unlocker { get; set; }
             public bool launchGame { get; set; }
             public bool saveTempFiles { get; set; }
             public bool showProgress { get; set; }
             public bool debugMode { get; set; }
+            [DefaultValue("xml")]
+            public string? herostatFolder { get; set; }
         }
-        public OHSsettings OHScfg = new OHSsettings
-        {
-            menulocationsValue = "temp.OHSGUI",
-            rosterHack = true,
-            rosterValue = "temp.OHSGUI",
-            gameInstallPath = "test",
-            exeName = "Game.exe",
-            herostatName = "herostat.engb",
-            unlocker = false,
-            launchGame = false,
-            saveTempFiles = false,
-            showProgress = false,
-            debugMode = false
-        };
+        public OHSsettings OHScfg = new OHSsettings { };
         public Main()
         {
             InitializeComponent();
@@ -57,84 +57,135 @@ namespace OpenHeroSelectGUI
             mnuMenu.Items.Add(saveSlots);
 
             cdPath = Directory.GetCurrentDirectory();
-            // REM OHS Paths. Should support XML2 as well!
+            SwitchTo = "XML2";
             game = cdPath + "\\mua\\";
-            // We should change that to txt again, but people are just too used to xml?
-            // Should also be Heroes folder with xml, json, and txt properties eventually
             Heroes = game + "xml\\";
-            iniGUI = new IniFile(game + "config_GUI.ini");
             iniOHS = game + "config.ini";
+            GIP = "C:\\Program Files (x86)\\Activision\\Marvel - Ultimate Alliance";
         }
         /// <summary>
-        /// Installation Path. Should be the call of a path field (or text) with a browse function. Example, other controls like this need to be added.
+        /// Load default settings of the defined game and update all characters and locations according to it.
         /// </summary>
-        private void UpdateInstallationPath(string path)
+        private void UpdateFromGameInfo(string g)
         {
-            DirectoryInfo IP = new DirectoryInfo(path + "\\data");
-            if (IP.Exists)
+            LoadSettings(cdPath + "\\" + g + "\\config.ini");
+            if (SettingsLoaded) UpdateGameInfo(g);
+
+        }
+        /// <summary>
+        /// Load settings with config file path.
+        /// </summary>
+        private void UpdateFromConfig(string path)
+        {
+            LoadSettings(path);
+            if (SettingsLoaded)
             {
-                GIP = path;
+                string g = (jsonOHS.Contains("\"rosterSize\":")) ?
+                    "xml2" :
+                    "mua";
+                UpdateGameInfo(g);
+            }
+        }
+        /// <summary>
+        /// Update the variables, window elements, and reload the data according to the game. Cheap tab-switch.
+        /// </summary>
+        private void UpdateGameInfo(string g)
+        {
+            game = cdPath + "\\" + g + "\\";
+            Heroes = (System.IO.Path.IsPathRooted(OHScfg.herostatFolder)) ?
+                OHScfg.herostatFolder + "\\" :
+                game + OHScfg.herostatFolder + "\\";
+            if (g == "mua")
+            {
+                SwitchTo = "XML2";
+                objXML2.Visible = false;
+                objMenu.Visible = true;
+                btnGame.Text = "Switch to XML2";
+                MenulocationSet = RangeMUA;
             }
             else
             {
-                Log("ERROR: Installation path not valid!\r\n" + path);
+                SwitchTo = "MUA";
+                objXML2.Visible = true;
+                objMenu.Visible = false;
+                btnGame.Text = "Switch to MUA";
+                MenulocationSet = RangeXML2;
             }
+            PopulateAvailable();
+            RemoveAll();
+            LoadDefaultChars();
         }
         /// <summary>
         /// Load OHS JSON File Config.ini and GUI ini. Incomplete, as we want more settings and controls (such as unlocker).
         /// </summary>
         private void LoadSettings(string path)
         {
+            SettingsLoaded = false;
             string Gpath = path.Remove(path.LastIndexOf(".")) + "_GUI.ini";
             iniGUI = new IniFile(Gpath);
             if (File.Exists(path))
             {
-                jsonOHS = File.ReadAllText(path);
-                OHScfg = JsonConvert.DeserializeObject<OHSsettings>(jsonOHS);
-                UpdateInstallationPath(OHScfg.gameInstallPath);
-                foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(OHScfg))
+                try
                 {
-                    string setting = property.Name;
-                    object value = property.GetValue(OHScfg);
-                    Log(setting + ": " + value);
+                    jsonOHS = File.ReadAllText(path);
+                    OHScfg = JsonConvert.DeserializeObject<OHSsettings>(jsonOHS, new JsonSerializerSettings { DefaultValueHandling = DefaultValueHandling.Populate });
+                    foreach (PropertyDescriptor property in TypeDescriptor.GetProperties(OHScfg))
+                    {
+                        string setting = property.Name;
+                        object value = property.GetValue(OHScfg);
+                        Log(setting + ": " + value);
+                    }
+                    Log("Settings loaded:");
+                    // Installation Path. Needs to be updated with a brows function. Other settings as well.
+                    GIP = OHScfg.gameInstallPath;
+                    iniOHS = path;
+                    SettingsLoaded = true;
                 }
-                Log("Settings loaded:");
+                catch(JsonReaderException je)
+                {
+                    Log(je.ToString());
+                }
+                catch(Exception e)
+                {
+                    Log(e.ToString());
+                }
             }
             else
             {
-                jsonOHS = "";
                 Log("ERROR: Configuration not found: " + path);
             }
         }
         private void Form1_Load(object sender, EventArgs e)
         {
-            LoadSettings(iniOHS);
-            PopulateAvailable();
-            LoadDefaultChars();
+            UpdateFromGameInfo("mua");
         }
         /// <summary>
         /// Load the character and save slot information.
         /// </summary>
         private void LoadDefaultChars()
         {
-            string mlCFG = cdPath + "\\mua\\menulocations\\" + OHScfg.menulocationsValue + ".cfg";
             string rrCFG = game + "rosters\\" + OHScfg.rosterValue + ".cfg";
+            string mlCFG = (SwitchTo == "XML2") ?
+                game + "menulocations\\" + OHScfg.menulocationsValue + ".cfg" :
+                rrCFG;
             if (File.Exists(mlCFG) && File.Exists(rrCFG))
             {
                 string[] OHSrr = File.ReadAllLines(rrCFG);
                 string[] OHSml = File.ReadAllLines(mlCFG);
-                int[] l = Array.ConvertAll(OHSml, s => int.Parse(s));
-                var mlload = l.Intersect(MenulocationSet);
-                //LOAD chars
+                int[] l = (SwitchTo == "XML2") ?
+                    Array.ConvertAll(OHSml, s => int.Parse(s)) :
+                    Enumerable.Range(1, OHSrr.Length).ToArray();
+                var mlload =  l.Intersect(MenulocationSet);
+                // LOAD chars
                 foreach (int i in mlload)
                 {
                     int index = Array.IndexOf(l, i);
-                    string path = OHSrr[index];
+                    string path = OHSrr[index].Replace("\\", "/");
                     if (!path.Equals(""))
                     {
-                        string dir = Heroes + path.Remove(path.LastIndexOf("\\")+1);
-                        string name = path.Substring(path.LastIndexOf("\\")+1);
-                        string[] hs = Directory.GetFiles(dir, name + ".*");
+                        string dir = Heroes + Regex.Match(path, @".*\/").Value;
+                        string name = Regex.Match(path, @"(?:[^/](?!\/))+$").Value;
+                        string[] hs = Directory.GetFiles(dir, name + ".??????????");
                         if (hs.Length != 0)
                         {
                             AddSelectedChar(i, name, path);
@@ -211,9 +262,8 @@ namespace OpenHeroSelectGUI
             }
         }
 
-        /// We need Drag & Drop support! But that's in the Designer.
         /// <summary>
-        /// Mark a char as selected
+        /// Mark a char as selected. We need Drag & Drop support! But that's in the Designer.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -230,7 +280,7 @@ namespace OpenHeroSelectGUI
                     if (!txtPosition.Text.Equals(""))
                     {
                         pos = Int32.Parse(txtPosition.Text);
-                        foreach (ListViewItem lvi in lstSelected.Items) 
+                        foreach (ListViewItem lvi in lstSelected.Items)
                         {
                             if (Int32.Parse(lvi.Text) == pos)
                             { //REPLACE POSITION
@@ -238,12 +288,12 @@ namespace OpenHeroSelectGUI
                             }
                             else if (name.Equals(lvi.SubItems[1].Text))
                             { //PREVENT SAME CHAR
-                                objMenu.SetMenulocationBox(Int32.Parse(lvi.Text), "");
+                                if (SwitchTo == "XML2") objMenu.SetMenulocationBox(Int32.Parse(lvi.Text), "");
                                 lstSelected.Items.Remove(lvi);
                             }
                         }
                     }
-                    AddSelectedChar(pos,name, path);
+                    if (pos != 0) AddSelectedChar(pos, name, path);
 
                     txtPosition.Text = "";
                     pos = GetFreePosition();
@@ -273,14 +323,16 @@ namespace OpenHeroSelectGUI
             txtPosition.Text = pos + "";
         }
         /// <summary>
-        /// Return the first free position. Needs to be reworked.
+        /// Return the first free position.
         /// </summary>
         /// <returns></returns>
         private int GetFreePosition()
         {
+            List<int> pos = new List<int>();
+            foreach (ListViewItem lvi in lstSelected.Items) pos.Add(Int32.Parse(lvi.Text));
             foreach (int i in MenulocationSet)
             {
-                if (objMenu.GetMenulocationBox(i).CharName.Equals(""))
+                if (!pos.Contains(i))
                 {
                     return i;
                 }
@@ -295,7 +347,7 @@ namespace OpenHeroSelectGUI
         /// <param name="path"></param>
         private void AddSelectedChar(int pos, string name, string path)
         {
-            objMenu.SetMenulocationBox(pos, name);
+            if (SwitchTo == "XML2") objMenu.SetMenulocationBox(pos, name);
             ListViewItem lvi = new ListViewItem(pos.ToString().PadLeft(2, '0'));
             lvi.SubItems.Add(name);
             lvi.SubItems.Add(path);
@@ -332,10 +384,27 @@ namespace OpenHeroSelectGUI
             {
                 foreach (ListViewItem lvi in lstSelected.SelectedItems)
                 {
-                    objMenu.SetMenulocationBox(Int32.Parse(lvi.SubItems[0].Text), "");
+                    if (SwitchTo == "XML2")
+                        objMenu.SetMenulocationBox(Int32.Parse(lvi.SubItems[0].Text), "");
                     lstSelected.Items.Remove(lvi);
                 }
                 txtPosition.Text = "";
+            }
+        }
+        /// <summary>
+        /// Switch between MUA and XML
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnGame_Click(object sender, EventArgs e)
+        {
+            if (SwitchTo == "MUA")
+            {
+                UpdateFromGameInfo("mua");
+            }
+            else
+            {
+                UpdateFromGameInfo("xml2");
             }
         }
         /// <summary>
@@ -347,11 +416,14 @@ namespace OpenHeroSelectGUI
         {
             if (File.Exists(cdPath + "\\OpenHeroSelect.exe"))
             {
-                if (GIP != null)
+                DirectoryInfo IP = new DirectoryInfo(GIP + "\\data");
+                if (IP.Exists)
                 {
                     GenerateCfgFiles("temp.OHSGUI", iniOHS);
-                    // For XML2, add argument -x > "-a -x"
-                    Util.RunElevated("OpenHeroSelect.exe", "-a");
+                    string arg = (SwitchTo == "XML2") ?
+                        "-a" :
+                        "-a -x";
+                    Util.RunElevated("OpenHeroSelect.exe", arg);
                     string elog = cdPath + "\\error.log";
                     if (!File.Exists(elog))
                     {
@@ -371,7 +443,7 @@ namespace OpenHeroSelectGUI
                 }
                 else
                 {
-                    Log("ERROR: Game installation path not defined");
+                    Log("ERROR: Installation path not valid!\r\n'" + IP + "' not found.");
                 }
             }
             else
@@ -380,7 +452,7 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Generate the OHS CFG + INI files. Needs to be updated for XML2.
+        /// Generate the OHS CFG + INI files.
         /// </summary>
         private void GenerateCfgFiles(string name, string Oini)
         {
@@ -388,28 +460,35 @@ namespace OpenHeroSelectGUI
             {
                 string rrCFG = game + "rosters\\" + name + ".cfg";
                 WriteCfg(rrCFG, 2);
-                // XML2 does not need the menulocations file. Need to add that.
-                string? mlname = (name == OHScfg.rosterValue) ?
-                    OHScfg.menulocationsValue :
-                    name;
-                string mlCFG = cdPath + "\\mua\\menulocations\\" + mlname + ".cfg";
-                WriteCfg(mlCFG, 0);
-                OHSsettings newCfg = new OHSsettings
+                if (SwitchTo == "XML2")
                 {
-                    // Need to add options for herostat.engb, Game.exe, and many more
-                    menulocationsValue = mlname,
-                    rosterHack = OHScfg.rosterHack,
-                    rosterValue = name,
-                    gameInstallPath = GIP,
-                    exeName = OHScfg.exeName,
-                    herostatName = OHScfg.herostatName,
-                    unlocker = OHScfg.unlocker,
-                    launchGame = OHScfg.launchGame,
-                    saveTempFiles = OHScfg.saveTempFiles,
-                    showProgress = OHScfg.showProgress,
-                    debugMode = OHScfg.debugMode
-                };
-                File.WriteAllText(Oini, JsonConvert.SerializeObject(newCfg, Formatting.Indented));
+                    string? mlname = (name == OHScfg.rosterValue) ?
+                        OHScfg.menulocationsValue :
+                        name;
+                    string mlCFG = cdPath + "\\mua\\menulocations\\" + mlname + ".cfg";
+                    WriteCfg(mlCFG, 0);
+                    OHScfg.menulocationsValue = mlname;
+                    // OHScfg.rosterHack;
+                    OHScfg.rosterSize = null;
+                }
+                else
+                {
+                    OHScfg.menulocationsValue = null;
+                    OHScfg.rosterHack = null;
+                    // OHScfg.rosterSize = 21;
+                }
+                // Need to add options for herostat.engb, Game.exe, and many more
+                OHScfg.rosterValue = name;
+                OHScfg.gameInstallPath = GIP;
+                // OHScfg.exeName;
+                // OHScfg.herostatName;
+                // OHScfg.unlocker;
+                // OHScfg.launchGame;
+                // OHScfg.saveTempFiles;
+                // OHScfg.showProgress;
+                // OHScfg.debugMode;
+                if (OHScfg.herostatFolder == "xml") OHScfg.herostatFolder = null;
+                File.WriteAllText(Oini, JsonConvert.SerializeObject(OHScfg, Formatting.Indented, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }));
                 string Gini = Oini.Remove(Oini.LastIndexOf(".")) + "_GUI.ini";
                 File.Delete(Gini);
                 IniFile iniGUI = new IniFile(Gini);
@@ -479,15 +558,22 @@ namespace OpenHeroSelectGUI
         {
             PopulateAvailable();
         }
-
-        private void BtnRemoveAll_Click(object sender, EventArgs e)
+        /// <summary>
+        /// Remove all heroes from the list view, and clear the menulocations for MUA.
+        /// </summary>
+        private void RemoveAll()
         {
             foreach (ListViewItem lvi in lstSelected.Items) 
             {
                 lstSelected.Items.Remove(lvi);
             }
-            foreach (int i in MenulocationSet)
+            if (SwitchTo == "XML2") foreach (int i in MenulocationSet)
                 objMenu.SetMenulocationBox(i, "");
+        }
+
+        private void BtnRemoveAll_Click(object sender, EventArgs e)
+        {
+            RemoveAll();
         }
 
         private void BtnClean_Click(object sender, EventArgs e)
@@ -532,16 +618,15 @@ namespace OpenHeroSelectGUI
             DialogResult dialogResult = openFileDialog.ShowDialog(this);
             if (dialogResult.ToString().Equals("OK"))
             {
-                /// I have to try if that works.
-                iniOHS = openFileDialog.FileName;
-                LoadSettings(iniOHS);
-                BtnRemoveAll_Click(sender, e);
-                LoadDefaultChars();
+                UpdateFromConfig(openFileDialog.FileName);
             }
         }
         private void SetSaves(bool restore)
         {
-            string SAVES_PATH = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/Activision/Marvel Ultimate Alliance/Save";
+            string GameFolder = (SwitchTo == "XML2") ?
+                "Marvel Ultimate Alliance" :
+                "X-Men Legends 2";
+            string SAVES_PATH = Environment.GetFolderPath(Environment.SpecialFolder.Personal) + "/Activision/" + GameFolder + "/Save";
             DirectoryInfo folder = new DirectoryInfo(SAVES_PATH);
 
             if (!restore)
@@ -575,7 +660,7 @@ namespace OpenHeroSelectGUI
         }
         private void MenuDefaultChars_Click(object sender, EventArgs e)
         {
-            BtnRemoveAll_Click(sender, e);
+            RemoveAll();
             LoadDefaultChars();
         }
 

@@ -35,6 +35,7 @@ namespace OpenHeroSelectGUI
             this.Position = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Char = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.Path = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.btnGame = new System.Windows.Forms.Button();
             this.btnRemove = new System.Windows.Forms.Button();
             this.btnRun = new System.Windows.Forms.Button();
             this.txtDebug = new System.Windows.Forms.TextBox();
@@ -55,6 +56,7 @@ namespace OpenHeroSelectGUI
             this.mnuSave = new System.Windows.Forms.ToolStripMenuItem();
             this.mnuExit = new System.Windows.Forms.ToolStripMenuItem();
             this.objMenu = new OpenHeroSelectGUI.Menu();
+            this.objXML2 = new System.Windows.Forms.Label();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
@@ -115,6 +117,17 @@ namespace OpenHeroSelectGUI
             // 
             this.Path.Text = "Path";
             this.Path.Width = 140;
+            // 
+            // btnGame
+            // 
+            this.btnGame.Location = new System.Drawing.Point(810, 615);
+            this.btnGame.Margin = new System.Windows.Forms.Padding(4);
+            this.btnGame.Name = "btnGame";
+            this.btnGame.Size = new System.Drawing.Size(147, 31);
+            this.btnGame.TabIndex = 5;
+            this.btnGame.Text = "Switch Game";
+            this.btnGame.UseVisualStyleBackColor = true;
+            this.btnGame.Click += new System.EventHandler(this.BtnGame_Click);
             // 
             // btnRemove
             // 
@@ -329,6 +342,16 @@ namespace OpenHeroSelectGUI
             this.objMenu.TabIndex = 2;
             this.objMenu.OnDoubleClickChar += new OpenHeroSelectGUI.Menu.delegateDoubleClickChar(this.ObjMenu_OnDoubleClickChar);
             // 
+            // objXML2
+            // 
+            this.objXML2.Location = new System.Drawing.Point(711, 297);
+            this.objXML2.Margin = new System.Windows.Forms.Padding(5);
+            this.objXML2.Name = "objXML2";
+            this.objXML2.Size = new System.Drawing.Size(471, 265);
+            this.objXML2.TabIndex = 17;
+            this.objXML2.Text = "XML2 is currently locked to 21 characters. Sorry.";
+            this.objXML2.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // openFileDialog
             // 
             this.openFileDialog.FileName = "openFileDialog";
@@ -355,6 +378,8 @@ namespace OpenHeroSelectGUI
             this.Controls.Add(this.lstSelected);
             this.Controls.Add(this.txtPosition);
             this.Controls.Add(this.objMenu);
+            this.Controls.Add(this.objXML2);
+            this.Controls.Add(this.btnGame);
             this.Controls.Add(this.trvAvailableChars);
             this.Controls.Add(this.mnuMenu);
             this.Icon = global::OpenHeroSelectGUI.Properties.Resources.SHIELD_Logo_GUI;
@@ -448,8 +473,10 @@ namespace OpenHeroSelectGUI
 
         private System.Windows.Forms.TreeView trvAvailableChars;
         private Menu objMenu;
+        private Label objXML2;
         private System.Windows.Forms.TextBox txtPosition;
         private System.Windows.Forms.ListView lstSelected;
+        private Button btnGame;
         private System.Windows.Forms.ColumnHeader Position;
         private System.Windows.Forms.ColumnHeader Char;
         private System.Windows.Forms.ColumnHeader Path;
