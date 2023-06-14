@@ -97,11 +97,13 @@
 - (Make a tutorial and/or presentation video)
 
 #### Updated Plans by ak2yny
-- ~~Change teams to ini files and~~ add support for `data/team_bonus.engb`
+- ~~Change teams to ini files and~~ add support for `data/team_bonus.engb` in XML format, using json2xmlb.exe to compile.
 - Add support for the unlocked characters and starting characters feature of OHS.
 - Add support for Mod Organizer 2.
 - Add support for custom stages, including support for a preview image and an ini file with their locations and layout coordinates for the GUI.
 - Add support for custom order (currently only supports sorted by menulocation and character name ascending and descending).
+- Add function to install herostats (drag & drop, plus browse button). If possible add function to install from archive.
+  - If possible (only if possible), add more installer functions for skins and other mods.
 - Change to different (modern?) schemes. The current one has icon style menus, but no icons defined, which doesn't look good. There are other issues as well.
 - Possibly add features that ak2yny's Stage & Herostat Helper has:
   - Effect duplication
