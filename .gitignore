@@ -1,8 +1,8 @@
 # Visual Studio folders
 .vs/
 .vscode/
-cs_source/bin/
-cs_source/obj/
+bin/
+obj/
 
 # Prerequisites
 *.d
@@ -49,10 +49,19 @@ cs_source/obj/
 *.pdb
 
 # Kernel Module Compile Results
-*.mod*
+# *.mod*
 *.cmd
 .tmp_versions/
 modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# User files
+*.user
+
+# Excluded assets to save space
+Assets/stages/.models/TeamStageCollection/
+
+# Personal tools for the project
+*.lnk

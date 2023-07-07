@@ -1,0 +1,72 @@
+<Window
+    x:Class="OpenHeroSelectGUI.Main"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
+    mc:Ignorable="d"
+    Title="OpenHeroSelect GUI"
+    Closed="Window_Closed">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="100"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <Image Source="/Assets/MM_Banner.png" Margin="5,5,5,0" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+            <Button x:Name="BtnRun" Content="Run OHS" Click="BtnRun_Click" ToolTipService.ToolTip="Ctrl+R | Run OHS with the current settings - replaces OHS config">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="R" />
+                </Button.KeyboardAccelerators>
+            </Button>
+            <Button x:Name="BtnSave" Content="Save Roster" Click="BtnSave_Click" ToolTipService.ToolTip="S | Save the current roster with the current name">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="S" />
+                </Button.KeyboardAccelerators>
+            </Button>
+            <Button x:Name="BtnSaveAs" Content="Save as..." Click="BtnSaveAs_Click" ToolTipService.ToolTip="Ctrl+S | Save the current roster and settings with a custom name">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="S" />
+                </Button.KeyboardAccelerators>
+            </Button>
+            <Button x:Name="BtnLoad" Content="Load Settings" Click="BtnLoad_Click" ToolTipService.ToolTip="Ctrl+O | Load settings and roster from a saved file">
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Modifiers="Control" Key="O" />
+                </Button.KeyboardAccelerators>
+            </Button>
+        </StackPanel>
+        <Grid x:Name="testingArea" Grid.Row="1">
+        </Grid>
+        <NavigationView x:Name="NavView" Grid.Row="1"
+                        CompactModeThresholdWidth="300"
+                        ExpandedModeThresholdWidth="1210"
+                        IsBackButtonVisible="Collapsed"
+                        IsBackEnabled="False"
+                        Loaded="NavView_Loaded"
+                        OpenPaneLength="150"
+                        SelectionChanged="NavView_SelectionChanged">
+            <NavigationView.MenuItems>
+                <NavigationViewItem x:Name="NavItem_MUA" ToolTipService.ToolTip="Marvel Ultimate Alliance" Tag="OpenHeroSelectGUI.Tab_MUA">
+                    <NavigationViewItem.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Assets/MUA_256.png" Height="30" Width="30"/>
+                            <TextBlock Text="MUA" VerticalAlignment="Center" Margin="5"/>
+                        </StackPanel>
+                    </NavigationViewItem.Content>
+                </NavigationViewItem>
+                <NavigationViewItem x:Name="NavItem_XML2" ToolTipService.ToolTip="X-Men Legends 2" Tag="OpenHeroSelectGUI.Tab_XML2">
+                    <NavigationViewItem.Content>
+                        <StackPanel Orientation="Horizontal">
+                            <Image Source="/Assets/XML2_256.png" Height="30" Width="30"/>
+                            <TextBlock Text="XML2" VerticalAlignment="Center" Margin="5"/>
+                        </StackPanel>
+                    </NavigationViewItem.Content>
+                </NavigationViewItem>
+            </NavigationView.MenuItems>
+            <Frame x:Name="ContentFrame" />
+        </NavigationView>
+        <controls:ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK"/>
+    </Grid>
+</Window>

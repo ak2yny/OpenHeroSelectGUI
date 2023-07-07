@@ -1,20 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="Current" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <PropertyGroup />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x86'">
+    <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ActiveDebugProfile>OpenHeroSelectGUI (Unpackaged)</ActiveDebugProfile>
+    <_LastSelectedProfileId>D:\GitHub\OpenHeroSelectGUI\Properties\PublishProfiles\win10-x86.pubxml</_LastSelectedProfileId>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x86'">
+    <DebuggerFlavor>ProjectDebugger</DebuggerFlavor>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Update="Main.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Update="Menu.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Update="SaveSlots.cs">
-      <SubType>Component</SubType>
-    </Compile>
+    <None Update="Package.appxmanifest">
+      <SubType>Designer</SubType>
+    </None>
+    <Page Update="Tab_Settings.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Update="Main.resx">
+    <PRIResource Update="Strings\en-us\Resources.resw">
       <SubType>Designer</SubType>
-    </EmbeddedResource>
+    </PRIResource>
   </ItemGroup>
 </Project>

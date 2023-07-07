@@ -1,0 +1,75 @@
+<Page
+    x:Class="OpenHeroSelectGUI.Tab_XML2"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:OpenHeroSelectGUI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition MaxWidth="300"/>
+            <ColumnDefinition/>
+            <ColumnDefinition MaxWidth="300"/>
+        </Grid.ColumnDefinitions>
+        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" AllowDrop="True" DragOver="AvailableCharacters_DragOver" Drop="AvailableCharacters_Drop">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="35"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Button x:Name="BtnReload" Click="BtnReload_Click" HorizontalAlignment="Right" VerticalAlignment="Top" ToolTipService.ToolTip="F5 | Reload the available characters">
+                <SymbolIcon>Refresh</SymbolIcon>
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F5" />
+                </Button.KeyboardAccelerators>
+            </Button>
+            <Frame x:Name="AvailableCharacters" Grid.Row="1"/>
+        </Grid>
+        <Grid Grid.Column="1" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <!--<StackPanel Orientation="Horizontal">
+            </StackPanel>-->
+            <StackPanel Margin="0 3">
+                <ToggleSwitch x:Name="UnlockSkinsToggle" Header="Skin Unlocks" IsOn="{x:Bind Cfg.XML2.UnlockSkins, Mode=TwoWay}" OffContent="Off" OnContent="Unlock"/>
+                <ToggleSwitch x:Name="UnlockToggle" Header="Char. Unlocks" IsOn="{x:Bind Cfg.XML2.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+                <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Margin="0 0 0 15" Padding="20 10" ToolTipService.ToolTip="Run X - Men Legends II only, without running OHS">
+                    <TextBlock TextAlignment="Center">Run<LineBreak/>X - Men<LineBreak/>Legends II</TextBlock>
+                </Button>
+                <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked"/>
+            </StackPanel>
+            <RadioButtons x:Name="RosterSizeToggle" Grid.Row="1" Header="Roster Size" Margin="0 10 0 0" SelectionChanged="RosterSize_SelectionChanged">
+                <x:String>18 (Consoles)</x:String>
+                <x:String>20 (PC)</x:String>
+                <x:String>22 (PSP)</x:String>
+            </RadioButtons>
+            <ToggleSwitch x:Name="ReplDefaultmanToggle" Grid.Row="1" Grid.Column="1" Header="Replace Defaultman?" Margin="0 10 0 0" OffContent="No" OnContent="Yes" Toggled="ReplDefaultman_Toggled" VerticalAlignment="Top"/>
+        </Grid>
+        <Grid x:Name="SelectedColumn" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition Height="30"/>
+            </Grid.RowDefinitions>
+            <Canvas Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop"/>
+            <Frame x:Name="SelectedCharacters"/>
+            <StackPanel x:Name="XML2Buttons" Grid.Row="1" Orientation="Horizontal">
+                <Button x:Name="BtnDefault" Content="Default" Click="XML2_LoadDefault" ToolTipService.ToolTip="Load the default roster"/>
+                <Button x:Name="BtnLoadRoster" Content="Load" Click="XML2_LoadRoster" ToolTipService.ToolTip="Load roster from an OHS .cfg file in the rosters folder - Matches characters top-down > left-right, unless the menulocations have been customized"/>
+                <Button x:Name="BtnRandom" Content="Random" Click="XML2_Random" ToolTipService.ToolTip="Create a random roster from the available characters"/>
+                <Button x:Name="BtnClear" Content="Clear" Click="XML2_Clear" ToolTipService.ToolTip="Clear the entire selected roster"/>
+                <TextBlock x:Name="RosterSizeCurrent" Text="{x:Bind Cfg.Roster.Count, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="5 0 0 0"/>
+                <TextBlock Text="/" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                <TextBlock x:Name="RosterSizeTotal" Text="{x:Bind Cfg.XML2.RosterSize, Mode=OneWay}" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Page>

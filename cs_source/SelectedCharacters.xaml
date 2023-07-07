@@ -1,0 +1,55 @@
+<Page
+    x:Class="OpenHeroSelectGUI.SelectedCharacters"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <controls:DataGrid x:Name="Selected_Characters"
+                           AutoGenerateColumns="False"
+                           CanUserSortColumns="True"
+                           KeyboardAcceleratorPlacementMode="Hidden"
+                           ProcessKeyboardAccelerators="Selected_Character_Delete"
+                           Sorting="DG_Sorting"
+                           ItemsSource="{x:Bind Cfg.Roster.Selected, Mode=TwoWay}">
+            <!--GridLinesVisibility="All"-->
+            <!--AlternatingRowBackground="LightGray"-->
+            <controls:DataGrid.KeyboardAccelerators>
+                <KeyboardAccelerator Key="Delete" />
+            </controls:DataGrid.KeyboardAccelerators>
+            <controls:DataGrid.Columns>
+                <controls:DataGridTextColumn x:Name="Location" Header="#" Binding="{Binding Loc}" IsReadOnly="True" Tag="Loc"/>
+                <!--<controls:DataGridCheckBoxColumn Header="U" Binding="{Binding Unlock}" Width="SizeToHeader" Tag="Unlock" ToolTipService.ToolTip="Unlock?"/>-->
+                <controls:DataGridTemplateColumn Header="Name" IsReadOnly="True" Tag="Name">
+                    <controls:DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Character_Name}" Padding="8 0 0 0" VerticalAlignment="Center" ToolTipService.ToolTip="{Binding Path}" />
+                        </DataTemplate>
+                    </controls:DataGridTemplateColumn.CellTemplate>
+                </controls:DataGridTemplateColumn>
+                <controls:DataGridTemplateColumn Header="U" Width="SizeToHeader" Tag="Unlock">
+                    <controls:DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Unlock}" Margin="10 0 0 0" ToolTipService.ToolTip="Unlock?" />
+                        </DataTemplate>
+                    </controls:DataGridTemplateColumn.CellTemplate>
+                </controls:DataGridTemplateColumn>
+                <controls:DataGridTemplateColumn x:Name="Starter" Header="S" Width="SizeToHeader" Tag="Starter">
+                    <controls:DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox IsChecked="{Binding Starter}" Margin="10 0 0 0" ToolTipService.ToolTip="Start Character?" />
+                        </DataTemplate>
+                    </controls:DataGridTemplateColumn.CellTemplate>
+                </controls:DataGridTemplateColumn>
+            </controls:DataGrid.Columns>
+        </controls:DataGrid>
+    </Grid>
+</Page>

@@ -1,8 +1,10 @@
 {
   "profiles": {
-    "OpenHeroSelectGUI": {
-      "commandName": "Project",
-      "workingDirectory": "D:\\Programme\\_portable\\Games\\_OpenHeroSelect"
+    "OpenHeroSelectGUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "OpenHeroSelectGUI (Unpackaged)": {
+      "commandName": "Project"
     }
   }
 }

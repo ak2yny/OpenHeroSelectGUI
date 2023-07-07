@@ -14,7 +14,7 @@ namespace OpenHeroSelectGUI
         /// <returns></returns>
         public static string RunDosCommnand(string cmd, string vars)
         {
-            ProcessStartInfo sinf = new ProcessStartInfo(cmd, vars)
+            ProcessStartInfo sinf = new(cmd, vars)
             {
                 // The following commands are needed to redirect the standard output. This means that it will be redirected to the Process.StandardOutput StreamReader.
                 RedirectStandardOutput = true,
@@ -23,7 +23,7 @@ namespace OpenHeroSelectGUI
                 CreateNoWindow = true
             };
             // Now we create a process, assign its ProcessStartInfo and start it
-            Process p = new Process { StartInfo = sinf };
+            Process p = new() { StartInfo = sinf };
             p.Start(); // well, we should check the return value here...
             // We can now capture the output into a string...
             string res = p.StandardOutput.ReadToEnd();
@@ -31,20 +31,18 @@ namespace OpenHeroSelectGUI
             Console.WriteLine(res);
             return res;
         }
-
         /// <summary>
         /// Run an elevated command for OHS. OHS uses the error.log...
         /// </summary>
         public static string RunElevated(string ecmd, string vars)
         {
             string cmd = "cmd";
-            string ev = "/c \"set __COMPAT_LAYER=RUNASINVOKER && \"" + ecmd + " " + vars;
-            ProcessStartInfo sinf = new ProcessStartInfo(cmd, ev) { CreateNoWindow = true };
-            Process p = new Process { StartInfo = sinf };
+            string ev = $"/c \"set __COMPAT_LAYER=RUNASINVOKER && \"{ecmd} {vars}";
+            ProcessStartInfo sinf = new(cmd, ev) { CreateNoWindow = true };
+            Process p = new() { StartInfo = sinf };
             p.Start();
             p.WaitForExit();
             return "OHS has finished.";
         }
-
     }
 }

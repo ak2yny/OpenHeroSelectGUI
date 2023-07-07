@@ -1,0 +1,27 @@
+<Page
+    x:Class="OpenHeroSelectGUI.AvailableCharacters"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="using:OpenHeroSelectGUI.Settings"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <TreeView x:Name="trvAvailableChars"
+                  CanReorderItems="False"
+                  ItemsSource="{x:Bind Cfg.Roster.AvailableCharacterList, Mode=OneWay}"
+                  SelectionMode="Single"
+                  ItemInvoked="OnSelectionChanged"
+                  DragItemsStarting="DragItemsStarting">
+            <TreeView.ItemTemplate>
+                <DataTemplate x:DataType="settings:Available">
+                    <TreeViewItem Content="{x:Bind Character.Name, Mode=OneWay}"
+                                  ItemsSource="{x:Bind Children, Mode=OneWay}"
+                                  IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"/>
+                </DataTemplate>
+            </TreeView.ItemTemplate>
+        </TreeView>
+    </Grid>
+</Page>
