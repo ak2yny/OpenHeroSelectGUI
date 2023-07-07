@@ -1,0 +1,156 @@
+<!--
+Instructions:
+*************
+
+1) Place the stage files in a folder* and put that in the stages folder.
+2) Setup the information in this file.
+
+Each stage must have a menu (team_back.xmlb and mlm_team_back.igb) which is the layout.
+It's required to set-up the layout here, and recommended to define Compatible_Models (set them up in .models/config.ini).
+You can read coordinates for the location set-up by opening mlm_team_back.igb in Finalizer. Search all igTransfroms for each location (padXX_model) and read the 4th row.
+
+*To avoid replacing any existing stages, the folder must have an unique name.
+-->
+<Layout>
+    <Information>
+        <name>Official Stage PC 2006</name>
+        <platform>PC2006</platform>
+    </Information>
+    <Location_Setup spacious="false">
+        <Location Number="25">
+            <X>-120</X>
+            <Y>76</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="01">
+            <X>-106</X>
+            <Y>87</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="02">
+            <X>-103</X>
+            <Y>104</Y>
+            <Z>24</Z>
+        </Location>
+        <!--This is the original origin of GR-->
+        <Location Number="03">
+            <X>-96</X>
+            <Y>129</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="13">
+            <X>-96</X>
+            <Y>156</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="04">
+            <X>-75</X>
+            <Y>148</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="21">
+            <X>-82</X>
+            <Y>180</Y>
+            <Z>21</Z>
+        </Location>
+        <Location Number="05">
+            <X>-47</X>
+            <Y>135</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="14">
+            <X>-50</X>
+            <Y>172</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="15">
+            <X>-30</X>
+            <Y>159</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="18">
+            <X>-24</X>
+            <Y>189</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="06">
+            <X>-7</X>
+            <Y>147</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="16">
+            <X>1</X>
+            <Y>159</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="07">
+            <X>20</X>
+            <Y>136</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="23">
+            <X>16</X>
+            <Y>182</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="17">
+            <X>32</X>
+            <Y>158</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="08">
+            <X>45</X>
+            <Y>136</Y>
+            <Z>24</Z>
+        </Location>
+        <!--This is the original origin of HT-->
+        <Location Number="24">
+            <X>58</X>
+            <Y>189</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="22">
+            <X>90</X>
+            <Y>151</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="09">
+            <X>65</X>
+            <Y>127</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="19">
+            <X>84</X>
+            <Y>119</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="10">
+            <X>96</X>
+            <Y>106</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="20">
+            <X>113</X>
+            <Y>100</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="11">
+            <X>100</X>
+            <Y>78</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="12">
+            <X>115</X>
+            <Y>66</Y>
+            <Z>24</Z>
+        </Location>
+    </Location_Setup>
+    <Compatible_Models>
+        <Model Riser="false">Official</Model>
+        <Model>Custom_Riser</Model>
+    </Compatible_Models>
+    <Default_Roster>
+        <menulocations>25 (Default Base Game)</menulocations>
+        <roster>Default 25 Character Roster</roster>
+    </Default_Roster>
+</Layout>

@@ -1,0 +1,195 @@
+<!--
+Instructions:
+*************
+
+1) Place the stage files in a folder* and put that in the stages folder.
+2) Setup the information in this file.
+
+Each stage must have a menu (team_back.xmlb and mlm_team_back.igb) which is the layout.
+It's required to set-up the layout here, and recommended to define Compatible_Models (set them up in .models/config.ini).
+You can read coordinates for the location set-up by opening mlm_team_back.igb in Finalizer. Search all igTransfroms for each location (padXX_model) and read the 4th row.
+
+*To avoid replacing any existing stages, the folder must have an unique name.
+-->
+<Layout>
+    <Information>
+        <name>33 Roster Hack Stage</name>
+        <platform>PC2006</platform>
+    </Information>
+    <Location_Setup spacious="false">
+        <Location Number="44">
+            <X>-147</X>
+            <Y>101</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="47">
+            <X>-133</X>
+            <Y>126</Y>
+            <Z>44</Z>
+        </Location>
+        <Location Number="45">
+            <X>-137</X>
+            <Y>159</Y>
+            <Z>37</Z>
+        </Location>
+        <Location Number="46">
+            <X>-108</X>
+            <Y>182</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="25">
+            <X>-117</X>
+            <Y>81</Y>
+            <Z>22</Z>
+        </Location>
+        <Location Number="01">
+            <X>-94</X>
+            <Y>94</Y>
+            <Z>21</Z>
+        </Location>
+        <Location Number="02">
+            <X>-112</X>
+            <Y>115</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="03">
+            <X>-96</X>
+            <Y>128</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="13">
+            <X>-97</X>
+            <Y>147</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="04">
+            <X>-68</X>
+            <Y>143</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="21">
+            <X>-72</X>
+            <Y>172</Y>
+            <Z>21</Z>
+        </Location>
+        <Location Number="05">
+            <X>-44</X>
+            <Y>138</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="14">
+            <X>-46</X>
+            <Y>166</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="15">
+            <X>-30</X>
+            <Y>154</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="18">
+            <X>-24</X>
+            <Y>182</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="06">
+            <X>-11</X>
+            <Y>145</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="16">
+            <X>1</X>
+            <Y>159</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="07">
+            <X>14</X>
+            <Y>137</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="23">
+            <X>16</X>
+            <Y>182</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="17">
+            <X>36</X>
+            <Y>150</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="08">
+            <X>45</X>
+            <Y>123</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="24">
+            <X>54</X>
+            <Y>178</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="22">
+            <X>81</X>
+            <Y>153</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="09">
+            <X>71</X>
+            <Y>127</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="19">
+            <X>87</X>
+            <Y>124</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="10">
+            <X>96</X>
+            <Y>106</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="20">
+            <X>113</X>
+            <Y>100</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="11">
+            <X>100</X>
+            <Y>78</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="12">
+            <X>115</X>
+            <Y>66</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="40">
+            <X>106</X>
+            <Y>198</Y>
+            <Z>43</Z>
+        </Location>
+        <Location Number="41">
+            <X>120</X>
+            <Y>150</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="42">
+            <X>126</X>
+            <Y>120</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="43">
+            <X>140</X>
+            <Y>101</Y>
+            <Z>47</Z>
+        </Location>
+        <!--Locations are identical to the Stage from OCP 1-->
+    </Location_Setup>
+    <Compatible_Models>
+        <Model Riser="true">Official</Model>
+        <Model>Custom_Riser</Model>
+    </Compatible_Models>
+    <Default_Roster>
+        <menulocations>33 (Default Gold Edition)</menulocations>
+        <roster>Default 33 Character (DLC, Gold) Roster</roster>
+    </Default_Roster>
+</Layout>

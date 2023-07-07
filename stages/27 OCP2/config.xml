@@ -1,0 +1,165 @@
+<!--
+Instructions:
+*************
+
+1) Place the stage files in a folder* and put that in the stages folder.
+2) Setup the information in this file.
+
+Each stage must have a menu (team_back.xmlb and mlm_team_back.igb) which is the layout.
+It's required to set-up the layout here, and recommended to define Compatible_Models (set them up in .models/config.ini).
+You can read coordinates for the location set-up by opening mlm_team_back.igb in Finalizer. Search all igTransfroms for each location (padXX_model) and read the 4th row.
+
+*To avoid replacing any existing stages, the folder must have an unique name.
+-->
+<Layout>
+    <Information>
+       <name>OCP 2 Stage with More Space</name>
+       <platform>PC2006</platform>
+    </Information>
+    <Location_Setup spacious="true">
+        <Location Number="25">
+            <X>-172</X>
+            <Y>50</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="01">
+            <X>-132</X>
+            <Y>56</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="02">
+            <X>-159</X>
+            <Y>82</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="03">
+            <X>-120</X>
+            <Y>82</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="13">
+            <X>-141</X>
+            <Y>111</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="96">
+            <X>-107</X>
+            <Y>110</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="04">
+            <X>-119</X>
+            <Y>143</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="21">
+            <X>-86</X>
+            <Y>134</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="05">
+            <X>-90</X>
+            <Y>168</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="14">
+            <X>-63</X>
+            <Y>146</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="15">
+            <X>-57</X>
+            <Y>186</Y>
+            <Z>48</Z>
+        </Location>
+        <Location Number="18">
+            <X>-32</X>
+            <Y>154</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="06">
+            <X>-19</X>
+            <Y>194</Y>
+            <Z>48</Z>
+        </Location>
+        <Location Number="16">
+            <X>0</X>
+            <Y>136</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="07">
+            <X>33</X>
+            <Y>154</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="23">
+            <X>19</X>
+            <Y>194</Y>
+            <Z>48</Z>
+        </Location>
+        <Location Number="17">
+            <X>61</X>
+            <Y>187</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="08">
+            <X>99</X>
+            <Y>168</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="24">
+            <X>65</X>
+            <Y>144</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="26">
+            <X>94</X>
+            <Y>127</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="22">
+            <X>130</X>
+            <Y>146</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="09">
+            <X>116</X>
+            <Y>109</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="19">
+            <X>153</X>
+            <Y>110</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="10">
+            <X>133</X>
+            <Y>81</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="20">
+            <X>168</X>
+            <Y>79</Y>
+            <Z>47</Z>
+        </Location>
+        <Location Number="11">
+            <X>147</X>
+            <Y>53</Y>
+            <Z>23</Z>
+        </Location>
+        <Location Number="12">
+            <X>178</X>
+            <Y>46</Y>
+            <Z>47</Z>
+        </Location>
+    </Location_Setup>
+    <Compatible_Models>
+        <!--Note: Stages with normal sized rizers may not look good.-->
+        <Model Riser="true">Official</Model>
+        <Model>Custom_Riser</Model>
+    </Compatible_Models>
+    <Default_Roster>
+        <menulocations>27 (Official Characters Pack)</menulocations>
+        <roster>Official Characters Pack Base Roster</roster>
+    </Default_Roster>
+</Layout>

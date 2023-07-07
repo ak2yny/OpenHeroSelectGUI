@@ -1,0 +1,50 @@
+<!--
+Instructions:
+*************
+
+1) Place a menu effect in decompiled true XML format in the stages/.effects folder*.
+2) Setup the information in this file.
+
+Each effect must be given an unique node under the root node.
+<File> (filename) and <Offset> are required.
+The offset must have three numbers for X, Y and Z.
+
+If there is no offset, the value is
+        <Offset>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>0</Z>
+        </Offset>
+(effect appears at the center of the feet).
+
+*Avoid replacing any existing files.
+-->
+<Effects>
+    <Ghost_Rider>
+        <Name>Ghost Rider's Burning Head Effect</Name>
+        <File>team_ghostrider</File>
+        <Offset>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>65</Z>
+        </Offset>
+    </Ghost_Rider>
+    <Human_Torch>
+        <Name>Human Torch's Flame-On Effect</Name>
+        <File>team_humantorch</File>
+        <Offset>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>66</Z>
+        </Offset>
+    </Human_Torch>
+    <Human_Torch_50RH>
+        <Name>Human Torch's Flame-On Effect For the 50RH</Name>
+        <File>team_humantorch</File>
+        <Offset>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>33</Z>
+        </Offset>
+    </Human_Torch_50RH>
+</Effects>

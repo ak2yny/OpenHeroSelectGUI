@@ -1,0 +1,688 @@
+<!--
+Instructions:
+*************
+
+1) Place the stage model files in a stage folder* and put that in the stages/.models folder.
+2) Setup the information in this file.
+
+Each stage model must have a m_team_back.igb and it's highly recommended to add an image for the preview.
+Path must be what you named the stage folder, including sub-folder if any (sub-folders to the right, divided by "/").
+Do not add new categories ("RH" is a category), as they are not recognized unless added to the compatible layout.
+
+*To avoid replacing any existing stages, the folder must have an unique name.
+-->
+<Models>
+    <RH>
+        <Model>
+            <Name>Marvel 2099</Name>
+            <Path>TeamStageCollection/2099</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Act 1</Name>
+            <Path>TeamStageCollection/act1</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Act 2</Name>
+            <Path>TeamStageCollection/act2</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Act 3</Name>
+            <Path>TeamStageCollection/act3</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Act 4</Name>
+            <Path>TeamStageCollection/act4</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Act 5</Name>
+            <Path>TeamStageCollection/act5</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Alpha Flight</Name>
+            <Path>TeamStageCollection/alpha</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Agents of Atlas (classic)</Name>
+            <Path>TeamStageCollection/atlas1</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Agents of Atlas (new)</Name>
+            <Path>TeamStageCollection/atlas2</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Atlantis</Name>
+            <Path>TeamStageCollection/atlantis</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Asteroid M / Avalon</Name>
+            <Path>TeamStageCollection/avalon</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Avengers</Name>
+            <Path>TeamStageCollection/avengers</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Batman</Name>
+            <Path>TeamStageCollection/batman</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Big Hero 6</Name>
+            <Path>TeamStageCollection/bighero6</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Birds of Prey</Name>
+            <Path>TeamStageCollection/birds</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Brazil</Name>
+            <Path>TeamStageCollection/brazil</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Captain America</Name>
+            <Path>TeamStageCollection/cap</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Christmas</Name>
+            <Path>TeamStageCollection/christmas</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Future City</Name>
+            <Path>TeamStageCollection/city</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>MUA Classic</Name>
+            <Path>TeamStageCollection/classic</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Lab Hallway</Name>
+            <Path>TeamStageCollection/corridor</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Cosmic Marvel</Name>
+            <Path>TeamStageCollection/cosmic</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Cyber Factory</Name>
+            <Path>TeamStageCollection/cyber</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Cyberpunk City</Name>
+            <Path>TeamStageCollection/cypunk</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Dragonball Z</Name>
+            <Path>TeamStageCollection/dbz</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Deadpool</Name>
+            <Path>TeamStageCollection/deadpool</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Default Stage from the 36RH and 50RH</Name>
+            <Path>TeamStageCollection/default</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>70's Disco</Name>
+            <Path>TeamStageCollection/disco</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Disney Castle</Name>
+            <Path>TeamStageCollection/disney</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Dojo</Name>
+            <Path>TeamStageCollection/dojo</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Castle Doom</Name>
+            <Path>TeamStageCollection/doom</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Planet Earth</Name>
+            <Path>TeamStageCollection/earth</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Ancient Egypt</Name>
+            <Path>TeamStageCollection/egypt</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Eternals</Name>
+            <Path>TeamStageCollection/eternals</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Excalibur</Name>
+            <Path>TeamStageCollection/excalibur</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Fantastic Four</Name>
+            <Path>TeamStageCollection/f4</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Forest</Name>
+            <Path>TeamStageCollection/forest</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Future Foundation</Name>
+            <Path>TeamStageCollection/futuref</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Force Works</Name>
+            <Path>TeamStageCollection/fw</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Ladies' Night</Name>
+            <Path>TeamStageCollection/girls</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Guardians of The Galaxy</Name>
+            <Path>TeamStageCollection/guardians</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Generation X</Name>
+            <Path>TeamStageCollection/gx</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Halloween</Name>
+            <Path>TeamStageCollection/halloween</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Halo</Name>
+            <Path>TeamStageCollection/halo</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Hellfire Club / Inner Circle</Name>
+            <Path>TeamStageCollection/hclub</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Heaven</Name>
+            <Path>TeamStageCollection/heaven</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Hell</Name>
+            <Path>TeamStageCollection/hell</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Hollywood Premiere</Name>
+            <Path>TeamStageCollection/hollywood</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Hulk</Name>
+            <Path>TeamStageCollection/hulk</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Hydra Base</Name>
+            <Path>TeamStageCollection/hydra</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Inhumans</Name>
+            <Path>TeamStageCollection/inhuman</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>UltraMegaMagnus' Interior</Name>
+            <Path>TeamStageCollection/interior</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Iron Man</Name>
+            <Path>TeamStageCollection/iron</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Tropical Island</Name>
+            <Path>TeamStageCollection/island</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Starjammers</Name>
+            <Path>TeamStageCollection/jammers</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Justice League</Name>
+            <Path>TeamStageCollection/justice</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Knowhere</Name>
+            <Path>TeamStageCollection/knowhere</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Los Angeles</Name>
+            <Path>TeamStageCollection/la</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Marvel &amp; DC United</Name>
+            <Path>TeamStageCollection/marveldc</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>The Matrix</Name>
+            <Path>TeamStageCollection/matrix</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Midnight Sons</Name>
+            <Path>TeamStageCollection/midnight</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Mortal Kombat Dragon Stage</Name>
+            <Path>TeamStageCollection/mk</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Mortal Kombat 11</Name>
+            <Path>TeamStageCollection/mk11</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Shao Kahn's Arena (MK)</Name>
+            <Path>TeamStageCollection/mkarena</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>The Dead Pool (MK)</Name>
+            <Path>TeamStageCollection/mkdp</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Shang Tsung's Island (MK)</Name>
+            <Path>TeamStageCollection/mkisland</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>The Pit (MK)</Name>
+            <Path>TeamStageCollection/mkpit</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>The Portal (MK)</Name>
+            <Path>TeamStageCollection/mkportal</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Mortal Kombat 2 Retro</Name>
+            <Path>TeamStageCollection/mkretro</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Warrior Shrine (MK)</Name>
+            <Path>TeamStageCollection/mkshrine</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Kombat Tomb (MK)</Name>
+            <Path>TeamStageCollection/mktomb</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>The Tower (MK)</Name>
+            <Path>TeamStageCollection/mktower</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>The Wastelands (MK)</Name>
+            <Path>TeamStageCollection/mkwaste</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Marvel Mods</Name>
+            <Path>TeamStageCollection/mods</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>On The Moon</Name>
+            <Path>TeamStageCollection/moon</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>New Mutants</Name>
+            <Path>TeamStageCollection/nm</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>New Warriors</Name>
+            <Path>TeamStageCollection/nw</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>New York City (night)</Name>
+            <Path>TeamStageCollection/nyc1</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>New York City (morning)</Name>
+            <Path>TeamStageCollection/nyc2</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>New York City (afternoon)</Name>
+            <Path>TeamStageCollection/nyc3</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>New York City (sunset)</Name>
+            <Path>TeamStageCollection/nyc4</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Omega Flight</Name>
+            <Path>TeamStageCollection/omega</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Earth's Orbit</Name>
+            <Path>TeamStageCollection/orbit</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>The Outsider's Crypt</Name>
+            <Path>TeamStageCollection/outsider</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Mighty Morphin Power Rangers</Name>
+            <Path>TeamStageCollection/rangers</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>WWE Monday Night RAW</Name>
+            <Path>TeamStageCollection/raw</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Resident Evil</Name>
+            <Path>TeamStageCollection/re</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>80's Retro</Name>
+            <Path>TeamStageCollection/retro</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Marvel Rising: Secret Warriors</Name>
+            <Path>TeamStageCollection/rising</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Runaways</Name>
+            <Path>TeamStageCollection/run</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>San Francisco</Name>
+            <Path>TeamStageCollection/sanfran</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Savage Land</Name>
+            <Path>TeamStageCollection/savage</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Ocean View</Name>
+            <Path>TeamStageCollection/sea</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Street Fighter</Name>
+            <Path>TeamStageCollection/sf</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Shi'ar Imperial Guard</Name>
+            <Path>TeamStageCollection/shiar</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Agents of SHIELD</Name>
+            <Path>TeamStageCollection/shield</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Showtime</Name>
+            <Path>TeamStageCollection/showtime</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Soul Calibur</Name>
+            <Path>TeamStageCollection/soul</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Outer Space</Name>
+            <Path>TeamStageCollection/space</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Thanos' Lair</Name>
+            <Path>TeamStageCollection/thanos</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Spider-Man</Name>
+            <Path>TeamStageCollection/spiderman</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Squadron Supreme</Name>
+            <Path>TeamStageCollection/squadron</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Star Wars</Name>
+            <Path>TeamStageCollection/starwars</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Dark Tech Station</Name>
+            <Path>TeamStageCollection/station1</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Space Station</Name>
+            <Path>TeamStageCollection/station2</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Doctor Strange</Name>
+            <Path>TeamStageCollection/strange</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Street Level / Defenders</Name>
+            <Path>TeamStageCollection/street</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Suicide Squad</Name>
+            <Path>TeamStageCollection/suicide</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Superman</Name>
+            <Path>TeamStageCollection/superman</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Symbiote Hive</Name>
+            <Path>TeamStageCollection/symbiote</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Thunderbolts</Name>
+            <Path>TeamStageCollection/tbolts</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Tekken</Name>
+            <Path>TeamStageCollection/tekken</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Thor</Name>
+            <Path>TeamStageCollection/thor</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Teen Titans</Name>
+            <Path>TeamStageCollection/titans</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Teenage Mutant Ninja Turtles</Name>
+            <Path>TeamStageCollection/tmnt</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Las Vegas</Name>
+            <Path>TeamStageCollection/vegas</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Villains' Hideout</Name>
+            <Path>TeamStageCollection/villains</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Wakanda</Name>
+            <Path>TeamStageCollection/wakanda</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Wolverine</Name>
+            <Path>TeamStageCollection/wolverine</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Soulworker</Name>
+            <Path>TeamStageCollection/worker</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>X-Factor</Name>
+            <Path>TeamStageCollection/xfactor</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>X-Force</Name>
+            <Path>TeamStageCollection/xforce</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>X-Men (classic)</Name>
+            <Path>TeamStageCollection/xmen1</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>X-Men (movie)</Name>
+            <Path>TeamStageCollection/xmen2</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>X-Men (Evolution)</Name>
+            <Path>TeamStageCollection/xmen3</Path>
+            <Creator>The Outsider</Creator>
+        </Model>
+        <Model>
+            <Name>Default Stage from the first 36RH and 50RH</Name>
+            <Path>50RH</Path>
+            <Creator>The Outsider &amp; UltraMegaMagnus</Creator>
+        </Model>
+    </RH>
+    <Official>
+        <Model>
+            <Name>Default</Name>
+            <Path>Official/Default</Path>
+            <Creator>Raven Software</Creator>
+        </Model>
+        <Model>
+            <Name>Default Stage from the Gold Edition (Xbox 360)</Name>
+            <Path>Official/GE</Path>
+            <Creator>Raven Software</Creator>
+        </Model>
+    </Official>
+    <Custom_Riser>
+        <Model>
+            <Name>Custom Stage from the 33RH</Name>
+            <Path>33RH</Path>
+            <Creator>Raven Software &amp; Unknown</Creator>
+        </Model>
+        <Model>
+            <Name>Default Stage with Riser</Name>
+            <Path>36GE</Path>
+            <Creator>Raven Software &amp; UltraMegaMagnus</Creator>
+        </Model>
+        <Model>
+            <Name>Default Stage of the OCP 2</Name>
+            <Path>OCP2</Path>
+            <Creator>Raven Software &amp; UltraMegaMagnus</Creator>
+        </Model>
+        <Model>
+            <Name>Custom Stage - Red</Name>
+            <Path>UMM/Red</Path>
+            <Creator>UltraMegaMagnus</Creator>
+        </Model>
+    </Custom_Riser>
+    <Custom_2Risers>
+        <Model>
+            <Name>Custom Stage with Two Risers</Name>
+            <Path>UMM/D36</Path>
+            <Creator>UltraMegaMagnus</Creator>
+        </Model>
+    </Custom_2Risers>
+</Models>

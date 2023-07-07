@@ -61,7 +61,7 @@ dkms.conf
 *.user
 
 # Excluded assets to save space
-Assets/stages/.models/TeamStageCollection/
+stages/.models/TeamStageCollection/
 
 # Personal tools for the project
 *.lnk
