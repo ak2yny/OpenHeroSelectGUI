@@ -34,7 +34,8 @@ Note: The source code has drastically changed, but it's not ready for release ye
 
 ## Requirements
 - [OpenHeroSelect](https://github.com/TheRealPSV/OpenHeroSelect) and its requirements (Windows 10+)
-Version 0.1.1 and earlier:
+
+ Version 0.1.1 and earlier:
 - .Net Framework 3.5. [(Windows 7+)](https://learn.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows) [(Earlier Windows)](https://www.microsoft.com/en-us/download/details.aspx?id=21)
 <br/><br/>
 
@@ -68,6 +69,7 @@ Version 0.1.1 and earlier:
  
  
  Version 0.1:
+ 
  Assign a character to the menulocation by double-clicking on its name on the left list. If the number is black, it means that it is already assigned. Remove assigned heroes with the `Remove All` button or by selecting them in the list and pressing the Delete key.
  For XML2, just double-click on characters on the left list. If you want to add more than 21 characters, you must manually enter a higher number in the "Current Position" field.
  Click `Run Open Hero Select` to run OHS and let it build herostat.engb and other files.
