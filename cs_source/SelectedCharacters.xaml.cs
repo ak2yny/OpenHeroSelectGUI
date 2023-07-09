@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Input;
 using OpenHeroSelectGUI.Settings;
 using System.Collections.ObjectModel;
 using System.Linq;
-using static OpenHeroSelectGUI.Settings.CharacterLists;
 
 namespace OpenHeroSelectGUI
 {

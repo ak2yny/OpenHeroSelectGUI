@@ -19,7 +19,8 @@
                 <DataTemplate x:DataType="settings:Available">
                     <TreeViewItem Content="{x:Bind Character.Name, Mode=OneWay}"
                                   ItemsSource="{x:Bind Children, Mode=OneWay}"
-                                  IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"/>
+                                  IsExpanded="{x:Bind IsExpanded, Mode=TwoWay}"
+                                  DoubleTapped="TreeViewItem_DoubleTapped"/>
                 </DataTemplate>
             </TreeView.ItemTemplate>
         </TreeView>

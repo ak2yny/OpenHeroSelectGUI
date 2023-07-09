@@ -6,15 +6,24 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
-    Title="OpenHeroSelect GUI"
     Closed="Window_Closed">
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="100"/>
+            <RowDefinition Height="120"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Image Source="/Assets/MM_Banner.png" Margin="5,5,5,0" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <Image Source="/Assets/MM_Banner.png" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <Canvas Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}" Height="28" HorizontalAlignment="Right" VerticalAlignment="Top" Width="120"/>
+        <Grid x:Name="AppTitleBar" Margin="8" Height="88">
+            <Image Source="/Assets/SHIELD_Logo_GUI.png"
+                   HorizontalAlignment="Left" VerticalAlignment="Top"
+                   Width="20" Height="20"/>
+            <TextBlock x:Name="AppTitleTextBlock" Text="OpenHeroSelect GUI"
+                       TextWrapping="NoWrap"
+                       Style="{ThemeResource CaptionTextBlockStyle}"
+                       Margin="30,1,0,0"/>
+        </Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
             <Button x:Name="BtnRun" Content="Run OHS" Click="BtnRun_Click" ToolTipService.ToolTip="Ctrl+R | Run OHS with the current settings - replaces OHS config">
                 <Button.KeyboardAccelerators>
@@ -37,8 +46,6 @@
                 </Button.KeyboardAccelerators>
             </Button>
         </StackPanel>
-        <Grid x:Name="testingArea" Grid.Row="1">
-        </Grid>
         <NavigationView x:Name="NavView" Grid.Row="1"
                         CompactModeThresholdWidth="300"
                         ExpandedModeThresholdWidth="1210"
@@ -46,6 +53,7 @@
                         IsBackEnabled="False"
                         Loaded="NavView_Loaded"
                         OpenPaneLength="150"
+                        PaneDisplayMode="Auto"
                         SelectionChanged="NavView_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem x:Name="NavItem_MUA" ToolTipService.ToolTip="Marvel Ultimate Alliance" Tag="OpenHeroSelectGUI.Tab_MUA">

@@ -8,11 +8,11 @@
   IgnorableNamespaces="uap rescap">
 
   <Identity
-    Name="354d40fa-58c5-435b-8124-05dc70a572f9"
+    Name="ba3aa39e-d0c7-4c91-8f8f-a6cb1584e9bf"
     Publisher="CN=ak2yny"
     Version="0.2.0.0" />
 
-  <mp:PhoneIdentity PhoneProductId="354d40fa-58c5-435b-8124-05dc70a572f9" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
+  <mp:PhoneIdentity PhoneProductId="ba3aa39e-d0c7-4c91-8f8f-a6cb1584e9bf" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 
   <Properties>
     <DisplayName>OpenHeroSelectGUI</DisplayName>
@@ -39,10 +39,7 @@
         BackgroundColor="transparent"
         Square150x150Logo="Assets\SHIELD_Logo_GUI.png"
         Square44x44Logo="Assets\SHIELD_Logo_GUI.png">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"  Square310x310Logo="Assets\SHIELD_Logo_GUI.png">
-          <uap:ShowNameOnTiles>
-            <uap:ShowOn Tile="square310x310Logo"/>
-          </uap:ShowNameOnTiles>
+        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"  Square310x310Logo="Assets\SHIELD_Logo_GUI.png" ShortName="OHS GUI" Square71x71Logo="Assets\SHIELD_Logo_GUI.png">
         </uap:DefaultTile >
         <uap:SplashScreen Image="Assets\SplashScreen.png" />
       </uap:VisualElements>

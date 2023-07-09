@@ -1,17 +1,12 @@
-using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using OpenHeroSelectGUI.Settings;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
+using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI
@@ -106,77 +101,12 @@ namespace OpenHeroSelectGUI
                 }
             }
         }
-        /// <summary>
-        /// Tree View: Old code reading from disk and adding directly to the TV without binding.
-        /// </summary>
-        private void PopulateAvailableOld()
-        {
-            trvAvailableChars.RootNodes.Clear();
-            DirectoryInfo folder = new(Path.Combine("Same"));
-            if (folder.Exists)
-            {
-                TreeViewNode Root = new()
-                {
-                    Content = "Characters"
-                };
-                PopulateAvailable(folder, Root);
-                foreach (TreeViewNode root in Root.Children)
-                {
-                    trvAvailableChars.RootNodes.Add(root);
-                }
-            }
-            else
-            {
-                TreeViewNode node = new()
-                {
-                    Content = "Drop herostats here to install"
-                };
-                trvAvailableChars.RootNodes.Add(node);
-            }
-        }
-        private void PopulateAvailable(DirectoryInfo folder, TreeViewNode nodes)
-        {
-            //It performs well on my PC, even using several enumeratefiles.
-            if (folder.EnumerateFiles("*", SearchOption.AllDirectories).Any())
-            {
-                foreach (DirectoryInfo subfolder in folder.EnumerateDirectories())
-                {
-                    TreeViewNode node = new()
-                    {
-                        Content = subfolder.Name
-                    };
-                    nodes.Children.Add(node);
 
-                    PopulateAvailable(subfolder, node);
-                }
-                foreach (var file in folder.EnumerateFiles().Select(f => Path.GetFileNameWithoutExtension(f.Name)).Distinct().ToImmutableSortedSet())
-                {
-                    Character Char = new()
-                    {
-                        Name = file,
-                        Path = Path.GetDirectoryName(file)
-                    };
-                    TreeViewNode node = new()
-                    {
-                        Content = Char
-                    };
-                    nodes.Children.Add(node);
-                }
-            }
-        }
-        /// <summary>
-        /// Tree View: Old code for getting the path when creating the TV from disk.
-        /// </summary>
-        private void TreeViewNodeGetPath(TreeViewNode node)
+        private void TreeViewItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            Cfg.Dynamic.FloatingCharacter = $"/{node.Content}" + Cfg.Dynamic.FloatingCharacter;
-            if (node.Parent.Depth > 0)
+            if (Cfg.Dynamic.FloatingCharacter is not null)
             {
-                TreeViewNodeGetPath(node.Parent);
-            }
-            else
-            {
-                Cfg.Dynamic.FloatingCharacter = $"{node.Parent.Content}" + Cfg.Dynamic.FloatingCharacter;
+                AddToSelected(Cfg.Dynamic.FloatingCharacter);
             }
         }
     }

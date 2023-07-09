@@ -221,15 +221,10 @@ public class Cfg
     {
         if (File.Exists(Oini))
         {
-            if (GUIsettings.Instance.Game == "xml2")
-            {
-                OHSsettings.Instance = XML2settings.Instance = JsonSerializer.Deserialize<XML2settings>(File.ReadAllText(Oini), options)!;
-            }
-            else
-            {
-                OHSsettings.Instance = MUAsettings.Instance = JsonSerializer.Deserialize<MUAsettings>(File.ReadAllText(Oini), options)!;
-            }
-            // (WIP) has to load and populate the roster according to the settings in OHScfg.rosterValue
+            OHSsettings.Instance = GUIsettings.Instance.Game == "xml2"
+                ? (XML2settings.Instance = JsonSerializer.Deserialize<XML2settings>(File.ReadAllText(Oini), options)!)
+                : (MUAsettings.Instance = JsonSerializer.Deserialize<MUAsettings>(File.ReadAllText(Oini), options)!);
+            // (WIP) has to load and populate the roster according to the settings in OHScfg.rosterValue ?
         }
     }
     /// <summary>
@@ -279,10 +274,9 @@ public class Cfg
                 JsonSerializer.Serialize(XML2settings.Instance, JsonOptions) :
                 JsonSerializer.Serialize(MUAsettings.Instance, JsonOptions);
         // Using the MVVM toolkit generates an IsActive property which gets serialized, unfortunately. I didn't find a solution, yet.
-        JsonString = string.Join(Environment.NewLine, from l in JsonString.Split(Environment.NewLine) where !l.Contains("\"isActive\":") select l);
-        string[] JsonSplit = JsonString.Split('\n');
+        string[] JsonSplit = JsonString.Split(Environment.NewLine).Where(l => !l.Contains("\"isActive\":")).ToArray();
         JsonSplit[^2] = JsonSplit[^2].TrimEnd().TrimEnd(',');
-        File.WriteAllText(Oini, string.Join('\n', JsonSplit));
+        File.WriteAllText(Oini, string.Join(Environment.NewLine, JsonSplit));
 
         // XML
         XmlSerializer XS = new(typeof(GUIsettings));
@@ -296,4 +290,32 @@ public static class InternalSettings
     public static readonly string cdPath = Directory.GetCurrentDirectory();  // Directory.GetCurrentDirectory()
     public static readonly string ModelPath = Path.Combine(cdPath, "stages", ".models");
     public static readonly string Activision = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Activision");
+    public static bool IsDefaultRV(string RV)
+    {
+        return (new[] { "36 Roster Hack Base Roster (Gold Edition Stage)",
+                        "36 Roster Hack Base Roster (v1.0 and 1.5)",
+                        "36 Roster Hack Base Roster (v2.0 and later)",
+                        "50 Roster Hack Base Roster",
+                        "Default 25 Character Roster",
+                        "Default 28 Character (PSP) Roster",
+                        "Default 33 Character (DLC, Gold) Roster",
+                        "Official Characters Pack Base Roster",
+                        "Default 18 Character (GC, PS2, Xbox) Roster",
+                        "Default 20 Character (PC) Roster",
+                        "Default 22 Character (PSP) Roster" })
+            .Any(r => r.Equals(RV, StringComparison.OrdinalIgnoreCase));
+    }
+    public static bool IsDefaultMV(string MV)
+    {
+        return (new[] { "25 (Default Base Game)",
+                        "27 (Official Characters Pack)",
+                        "28 (Default PSP)", "28 (for 28 Roster Hack)",
+                        "33 (Default DLC, Gold Edition)",
+                        "33 (OCP 2 Gold Edition Stage)",
+                        "36 (for 36RH Gold Edition Stage)",
+                        "36 (for 36RH v1.0 or 1.5 Stage)",
+                        "36 (for 36RH v2.0 or later Stage)",
+                        "50 (for 50RH Stage)" })
+            .Any(m => m.Equals(MV, StringComparison.OrdinalIgnoreCase));
+    }
 }

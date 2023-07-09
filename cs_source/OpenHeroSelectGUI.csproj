@@ -10,7 +10,6 @@
     <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
-    <!--<EnablePreviewMsixTooling>true</EnablePreviewMsixTooling>-->
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <Title>Open Hero Select GUI</Title>
@@ -23,71 +22,56 @@
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="AvailableCharacters.xaml" />
+    <None Remove="SelectedCharacters.xaml" />
+    <None Remove="Tab_MUA.xaml" />
+    <None Remove="Tab_XML2.xaml" />
+    <None Remove="Tab_Settings.xaml" />
+  </ItemGroup>
 
   <ItemGroup>
     <EmbeddedResource Remove="Assets\**" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Remove="Assets\**" />
     <Content Remove="Assets\**" />
     <None Remove="Assets\**" />
     <Page Remove="Assets\**" />
   </ItemGroup>
-	
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.0" />
-    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.3.230602002" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
-  </ItemGroup>
 
   <ItemGroup>
-    <Manifest Include="$(ApplicationManifest)" />
-  </ItemGroup>
-
-  <!-- 
-    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
-    Tools extension to be activated for this project even if the Windows App SDK Nuget
-    package has not yet been restored.
-  -->
-  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <ProjectCapability Include="Msix" />
-  </ItemGroup>
-
-  <!-- 
-    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution 
-    Explorer "Package and Publish" context menu entry to be enabled for this project even if 
-    the Windows App SDK Nuget package has not yet been restored.
-  -->
-  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
-    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <ContentWithTargetPath Include="Assets\config.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <TargetPath>config.xml</TargetPath>
-    </ContentWithTargetPath>
-    <ContentWithTargetPath Include="Assets\stages\**\*.*">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>stages\%(RecursiveDir)%(FileName)%(Extension)</TargetPath>
-    </ContentWithTargetPath>
     <Content Include="Assets\MM_Banner.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Assets\MUA_256.png">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
+    <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\XML2_256.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\.editorconfig" Link=".editorconfig" />
+    <ContentWithTargetPath Include="..\stages\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>stages\%(RecursiveDir)%(FileName)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\.editorconfig" Link=".editorconfig" />
     <None Include="Assets\SHIELD_Logo_GUI.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
+    <PackageReference Include="CommunityToolkit.WinUI.UI.Controls" Version="7.1.2" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.3.230602002" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
+    <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
   <ItemGroup>
     <Page Update="Tab_Settings.xaml">
@@ -114,6 +98,24 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+
+  <!-- 
+    Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
+    Tools extension to be activated for this project even if the Windows App SDK Nuget
+    package has not yet been restored.
+  -->
+  <ItemGroup Condition="'$(DisableMsixProjectCapabilityAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <ProjectCapability Include="Msix" />
+  </ItemGroup>
+
+  <!-- 
+    Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution 
+    Explorer "Package and Publish" context menu entry to be enabled for this project even if 
+    the Windows App SDK Nuget package has not yet been restored.
+  -->
+  <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
+    <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
+  </PropertyGroup>
 
   <ItemGroup>
     <PRIResource Remove="Assets\**" />

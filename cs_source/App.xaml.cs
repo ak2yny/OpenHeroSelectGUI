@@ -27,13 +27,8 @@ namespace OpenHeroSelectGUI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            // WinUI Window with more convenient methods?? Enables theme selection.
-            // public static WinUIEx.WindowEx Main { get; } = new Main();
             m_window = new Main();
             m_window.Activate();
-            // Custom window startup properties.
-            //m_window.AppWindow.Resize(new SizeInt32(1150, 640));
-            //public static UIElement? AppTitlebar { get; set; }
         }
 
         private Window? m_window;

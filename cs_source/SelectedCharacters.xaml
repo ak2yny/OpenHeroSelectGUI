@@ -5,6 +5,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
+    xmlns:settings="using:OpenHeroSelectGUI.Settings"
+    d:DataContext="{d:DesignInstance Type=settings:SelectedCharacter}"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
@@ -27,7 +29,6 @@
             </controls:DataGrid.KeyboardAccelerators>
             <controls:DataGrid.Columns>
                 <controls:DataGridTextColumn x:Name="Location" Header="#" Binding="{Binding Loc}" IsReadOnly="True" Tag="Loc"/>
-                <!--<controls:DataGridCheckBoxColumn Header="U" Binding="{Binding Unlock}" Width="SizeToHeader" Tag="Unlock" ToolTipService.ToolTip="Unlock?"/>-->
                 <controls:DataGridTemplateColumn Header="Name" IsReadOnly="True" Tag="Name">
                     <controls:DataGridTemplateColumn.CellTemplate>
                         <DataTemplate>

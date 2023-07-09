@@ -10,6 +10,8 @@
     <!--<Page.KeyboardAccelerators>
         <KeyboardAccelerator Key="F5"/>
     </Page.KeyboardAccelerators>-->
+    <!--<CheckBox/>-->
+    <!--<Slider/>-->
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -42,10 +44,8 @@
                     <ColumnDefinition MinWidth="500"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel>
-                    <!--<CheckBox/>-->
-                    <!--<Slider/>-->
                     <TextBlock x:Name="CharLimit" Text="Character Limit"/>
-                    <ToggleSwitch x:Name="RosterHackToggle" Header="(Roster Hack)" DataContext="Tab_Settings" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" Toggled="RosterHack_Toggled" OffContent="27" OnContent="50"/>
+                    <ToggleSwitch x:Name="RosterHackToggle" Header="(Roster Hack)" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" Toggled="RosterHack_Toggled" OffContent="27" OnContent="50"/>
                     <ToggleSwitch x:Name="UnlockToggle" Header="Unlocks" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Margin="0 5 10 0" VerticalAlignment="Top">

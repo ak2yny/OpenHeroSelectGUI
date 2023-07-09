@@ -1,14 +1,13 @@
 using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
-using Microsoft.UI.Windowing;
 using OpenHeroSelectGUI.Settings;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using Windows.ApplicationModel;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
@@ -27,20 +26,23 @@ namespace OpenHeroSelectGUI
     {
         public Main()
         {
+            Activated += MainWindow_Activated;
             Cfg.LoadGuiSettings();
             Cfg.LoadOHSsettings();
             InitializeComponent();
+            ExtendsContentIntoTitleBar = true;
+            SetTitleBar(AppTitleBar);
+            //AppTitleTextBlock.Text = AppInfo.Current.DisplayInfo.DisplayName;
+            //AppWindow.Resize(new SizeInt32(1150, 640));
         }
         /// <summary>
-        /// Workaround to set the icon for WinUI Desktop apps. By Gavin-Williams https://github.com/microsoft/microsoft-ui-xaml/issues/4777#issuecomment-1138203696
+        /// Make the title dim when the app is not in focus
         /// </summary>
-        private void SetTitleBarIcon()
+        private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
         {
-            IntPtr windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(this);
-            WindowId windowId = Win32Interop.GetWindowIdFromWindow(windowHandle);
-            AppWindow appWindow = AppWindow.GetFromWindowId(windowId);
-            // does not seem to apply the icon correctly. Also, the final output will be a different path
-            appWindow.SetIcon(Path.Combine(cdPath, "Assets", "SHIELD_Logo_GUI.ico"));
+            AppTitleTextBlock.Foreground = args.WindowActivationState == WindowActivationState.Deactivated
+                ? new SolidColorBrush(Colors.Black)
+                : new SolidColorBrush(Colors.AliceBlue);
         }
         /// <summary>
         /// Navigation View: Determine the selected page, when not already selected.
@@ -67,7 +69,6 @@ namespace OpenHeroSelectGUI
                     Cfg.LoadOHSsettings();
                     LoadRosterMUA();
                 }
-                // if (navPageType == typeof(Tab_New))    Differentiate between Game and possible future pages or  if (navPageType == typeof(Tab_XML2) || navPageType == typeof(Tab_MUA))
                 GUIsettings.Instance.Home = sender.MenuItems.IndexOf(args.SelectedItem);
                 NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo);
             }
@@ -126,11 +127,14 @@ namespace OpenHeroSelectGUI
         {
             if (Instance.Selected != null && Instance.Selected.Count > 0)
             {
-                if (GUIsettings.Instance.Game == "mua")
+                if (GUIsettings.Instance.Game == "mua" && !IsDefaultMV(mv))
                 {
                     WriteCfg(Path.Combine(cdPath, "mua", "menulocations", $"{mv}.cfg"), 0);
                 }
-                WriteCfg(Path.Combine(cdPath, GUIsettings.Instance.Game, "rosters", $"{rv}.cfg"), 2);
+                if (!IsDefaultRV(rv))
+                {
+                    WriteCfg(Path.Combine(cdPath, GUIsettings.Instance.Game, "rosters", $"{rv}.cfg"), 2);
+                }
             }
         }
         /// <summary>
@@ -168,7 +172,7 @@ namespace OpenHeroSelectGUI
                     string arg = (GUIsettings.Instance.Game == "xml2") ?
                         "-a -x" :
                         "-a";
-                    _ = Util.RunElevated("OpenHeroSelect.exe", arg);
+                    Util.RunElevated("OpenHeroSelect.exe", arg);
                     string elog = Path.Combine(cdPath, "error.log");
                     if (File.Exists(elog))
                     {

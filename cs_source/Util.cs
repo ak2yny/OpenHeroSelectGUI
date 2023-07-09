@@ -34,15 +34,15 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Run an elevated command for OHS. OHS uses the error.log...
         /// </summary>
-        public static string RunElevated(string ecmd, string vars)
+        public static void RunElevated(string ecmd, string vars)
         {
             string cmd = "cmd";
-            string ev = $"/c \"set __COMPAT_LAYER=RUNASINVOKER && \"{ecmd} {vars}";
+            string ev = $"/c \"set __COMPAT_LAYER=RUNASINVOKER && \"echo e | {ecmd} {vars}";
             ProcessStartInfo sinf = new(cmd, ev) { CreateNoWindow = true };
             Process p = new() { StartInfo = sinf };
             p.Start();
             p.WaitForExit();
-            return "OHS has finished.";
+            // We are not returning any result, instead we open explorer to the error.log at call.
         }
     }
 }

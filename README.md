@@ -13,7 +13,6 @@ Note: The source code has drastically changed, but it's not ready for release ye
 * [Requirements](#requirements)
 * [Features](#features)
 * [Usage Instructions](#usage-instructions-v-010)
-  * [How can I modify rosters for the 50 roster hack?](#how-can-i-modify-rosters-for-the-50-roster-hack)
   * [How can I add more characters?](#how-can-i-add-more-characters)
   * [How can I change the path to MUA?](#how-can-i-change-the-path-to-mua)
   * [What are Save Slots?](#what-are-save-slots)
@@ -110,8 +109,8 @@ Note: The source code has drastically changed, but it's not ready for release ye
 - Use Visual Studio and install .Net with its installer dialogue (I used .Net 6, Framework 3.5 in V0.1). Install Windows App SDK in the same dialogue (it's not possible to build a WinUI project with another application).
 - Make sure to add the dependencies before building, as always.
 - I recommend to leave the project as self contained (no dependencies), since WinUI is contained anyway.
-- A Windows App SDK can be built unpackaged or packaged (MSIX). As a WinUI3 project, it can be easily re-targeted to a UWP project, but it lacks permission (file access, running OHS) and signature details.
-- Theoretically the project can be made cross platform through .Net MAUI or the UNO platform, but OHS is currently Windows 10+ exclusive.
+- A Windows App SDK can be built [unpackaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-unpackaged) or [packaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-packaged) (MSIX). As a WinUI3 project, it can be easily re-targeted to a UWP project, but it lacks permission (file access, running OHS) and signature details.
+- Theoretically the project can be made cross platform through the UNO platform (and a native cross-platform feature seems to be planned), but OHS is currently Windows 10+ exclusive.
  
  Version 0.1:
 - Requires Newtonsoft.JOSN. The DLL file can be added to the built project.
@@ -152,8 +151,8 @@ Note: The source code has drastically changed, but it's not ready for release ye
  - Remove files that are no longer required (.svn folders)
  - A few touch ups
 
- |19.09.2009|Beta 0.0.3: Implemented capability to index save slots and roosters and fixed issues
+ |19.09.2009|Beta 0.0.3: Implemented capability to index save slots and roosters and fixed issues|by adamatti
  
- |02.09.2009|Beta 0.0.2: Implemented import/export
+ |02.09.2009|Beta 0.0.2: Implemented import/export|by adamatti
  
- |31.08.2008|First version
+ |31.08.2008|First version|by adamatti

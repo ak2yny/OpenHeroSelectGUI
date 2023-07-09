@@ -30,7 +30,7 @@ namespace OpenHeroSelectGUI
             ReplDefaultmanToggle.IsOn = false;
             int Size = Cfg.XML2.RosterSize;
             Cfg.Dynamic.LayoutLocs = Enumerable.Range(1, Size);
-            if (Cfg.XML2.RosterSize%2 == 1)
+            if (Cfg.XML2.RosterSize % 2 == 1)
             {
                 Size -= 1;
                 ReplDefaultmanToggle.IsOn = true;
