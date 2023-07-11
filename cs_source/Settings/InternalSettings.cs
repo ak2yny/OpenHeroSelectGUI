@@ -49,7 +49,7 @@ namespace OpenHeroSelectGUI.Settings
     /// </summary>
     public static class InternalSettings
     {
-        public static readonly string cdPath = "D:\\Programme\\_portable\\Games\\_OpenHeroSelect";  // Directory.GetCurrentDirectory()
+        public static readonly string cdPath = Directory.GetCurrentDirectory();  // Directory.GetCurrentDirectory()
         public static readonly string ModelPath = Path.Combine(cdPath, "stages", ".models");
         public static readonly string Activision = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Activision");
     }
