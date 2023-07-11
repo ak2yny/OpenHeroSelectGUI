@@ -14,7 +14,8 @@
                   ItemsSource="{x:Bind Cfg.Roster.AvailableCharacterList, Mode=OneWay}"
                   SelectionMode="Single"
                   ItemInvoked="OnSelectionChanged"
-                  DragItemsStarting="DragItemsStarting">
+                  DragItemsStarting="DragItemsStarting"
+                  Margin="0 5">
             <TreeView.ItemTemplate>
                 <DataTemplate x:DataType="settings:Available">
                     <TreeViewItem Content="{x:Bind Character.Name, Mode=OneWay}"

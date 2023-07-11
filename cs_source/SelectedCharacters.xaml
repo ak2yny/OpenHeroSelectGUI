@@ -4,53 +4,146 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:CommunityToolkit.WinUI.UI.Controls"
     xmlns:settings="using:OpenHeroSelectGUI.Settings"
-    d:DataContext="{d:DesignInstance Type=settings:SelectedCharacter}"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+    <Page.Resources>
+        <DataTemplate x:Key="CharacterListTemplate" x:DataType="settings:SelectedCharacter">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition MaxWidth="30"/>
+                    <ColumnDefinition MaxWidth="30"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.RowSpan="2"
+                    x:Name="LocColumn"
+                    Text="{x:Bind Loc, Mode=OneWay}"
+                    x:Phase="1"
+                    Style="{ThemeResource SubtitleTextBlockStyle}"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1"
+                    Text="{x:Bind Character_Name, Mode=OneWay}"
+                    x:Phase="1"
+                    Style="{ThemeResource BaseTextBlockStyle}"
+                    Margin="12,6,24,0"/>
+                <TextBlock Grid.Column="1" Grid.Row="1"
+                    Text="{x:Bind Path, Mode=OneWay}"
+                    x:Phase="2"
+                    Style="{ThemeResource BodyTextBlockStyle}"
+                    Margin="12,0,24,6"/>
+                <CheckBox Grid.Column="2" Grid.RowSpan="2"
+                    x:Name="UnlockColumn"
+                    IsChecked="{x:Bind Unlock, Mode=TwoWay}"
+                    x:Phase="2"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="1"
+                    ToolTipService.ToolTip="Unlock?"/>
+                <CheckBox Grid.Column="3" Grid.RowSpan="2"
+                    x:Name="StarterColumn"
+                    Click="Starter_Click"
+                    IsChecked="{x:Bind Starter, Mode=TwoWay}"
+                    x:Phase="2"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="1"
+                    ToolTipService.ToolTip="Starter?"/>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="CharacterListTemplateXML2" x:DataType="settings:SelectedCharacter">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition MaxWidth="30"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock
+                    Text="{x:Bind Character_Name, Mode=OneWay}"
+                    x:Phase="1"
+                    Style="{ThemeResource BaseTextBlockStyle}"
+                    Margin="12,6,24,0"/>
+                <TextBlock Grid.Row="1"
+                    Text="{x:Bind Path, Mode=OneWay}"
+                    x:Phase="2"
+                    Style="{ThemeResource BodyTextBlockStyle}"
+                    Margin="12,0,24,6"/>
+                <CheckBox Grid.Column="1" Grid.RowSpan="2"
+                    x:Name="UnlockColumn"
+                    IsChecked="{x:Bind Unlock, Mode=TwoWay}"
+                    x:Phase="2"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Margin="1"
+                    ToolTipService.ToolTip="Unlock?"/>
+            </Grid>
+        </DataTemplate>
+        <settings:LVcolumnSelector x:Key="LVcolumnSelector"
+                                   MUA="{StaticResource CharacterListTemplate}"
+                                   XML2="{StaticResource CharacterListTemplateXML2}"/>
+    </Page.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition MaxHeight="48"/>
             <RowDefinition/>
-            <RowDefinition Height="30"/>
         </Grid.RowDefinitions>
-        <controls:DataGrid x:Name="Selected_Characters"
-                           AutoGenerateColumns="False"
-                           CanUserSortColumns="True"
-                           KeyboardAcceleratorPlacementMode="Hidden"
-                           ProcessKeyboardAccelerators="Selected_Character_Delete"
-                           Sorting="DG_Sorting"
-                           ItemsSource="{x:Bind Cfg.Roster.Selected, Mode=TwoWay}">
-            <!--GridLinesVisibility="All"-->
-            <!--AlternatingRowBackground="LightGray"-->
-            <controls:DataGrid.KeyboardAccelerators>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <AppBarButton x:Name="LocColumn" Icon="Sort" ToolTipService.ToolTip="Sort By Location" AutomationProperties.Name="Sort" Width="48">
+                <AppBarButton.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="loc.asc"/>
+                        <MenuFlyoutItem Click="LV_Sorting" Text="Descending" Tag="loc.desc"/>
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarButton Grid.Column="1" Icon="Sort" ToolTipService.ToolTip="Sort By Character" AutomationProperties.Name="Sort">
+                <AppBarButton.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                        <MenuFlyoutSubItem Text="By Name">
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="name.asc"/>
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Descending" Tag="name.desc"/>
+                        </MenuFlyoutSubItem>
+                        <MenuFlyoutSubItem Text="By Group">
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="path.asc"/>
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Descending" Tag="path.desc"/>
+                        </MenuFlyoutSubItem>
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <TextBlock x:Name="UnlockHeader" Grid.Column="2" Text="Unlock | Starter" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20 5"/>
+
+        </Grid>
+        <ListView x:Name="SelectedCharactersList" Grid.Row="1"
+                  ItemsSource="{x:Bind Cfg.Roster.Selected, Mode=TwoWay}"
+                  ItemTemplateSelector="{StaticResource LVcolumnSelector}"
+                  AllowDrop="True"
+                  CanReorderItems="True"
+                  HorizontalAlignment="Left"
+                  KeyboardAcceleratorPlacementMode="Hidden"
+                  ProcessKeyboardAccelerators="Selected_Character_Delete">
+            <ListView.KeyboardAccelerators>
                 <KeyboardAccelerator Key="Delete" />
-            </controls:DataGrid.KeyboardAccelerators>
-            <controls:DataGrid.Columns>
-                <controls:DataGridTextColumn x:Name="Location" Header="#" Binding="{Binding Loc}" IsReadOnly="True" Tag="Loc"/>
-                <controls:DataGridTemplateColumn Header="Name" IsReadOnly="True" Tag="Name">
-                    <controls:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Character_Name}" Padding="8 0 0 0" VerticalAlignment="Center" ToolTipService.ToolTip="{Binding Path}" />
-                        </DataTemplate>
-                    </controls:DataGridTemplateColumn.CellTemplate>
-                </controls:DataGridTemplateColumn>
-                <controls:DataGridTemplateColumn Header="U" Width="SizeToHeader" Tag="Unlock">
-                    <controls:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <CheckBox IsChecked="{Binding Unlock}" Margin="10 0 0 0" ToolTipService.ToolTip="Unlock?" />
-                        </DataTemplate>
-                    </controls:DataGridTemplateColumn.CellTemplate>
-                </controls:DataGridTemplateColumn>
-                <controls:DataGridTemplateColumn x:Name="Starter" Header="S" Width="SizeToHeader" Tag="Starter">
-                    <controls:DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <CheckBox IsChecked="{Binding Starter}" Margin="10 0 0 0" ToolTipService.ToolTip="Start Character?" />
-                        </DataTemplate>
-                    </controls:DataGridTemplateColumn.CellTemplate>
-                </controls:DataGridTemplateColumn>
-            </controls:DataGrid.Columns>
-        </controls:DataGrid>
+            </ListView.KeyboardAccelerators>
+            
+            <!--BorderThickness="1"
+                  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
+                  SelectionMode="Multiple, Extended?"-->
+
+        </ListView>
     </Grid>
 </Page>

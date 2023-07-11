@@ -41,17 +41,19 @@ Note: The source code has drastically changed, but it's not ready for release ye
 ## Features
 - Support for OHS configurations and herostats
 - Support for XML2 and MUA
-- Supports custom stages, including preview images and a config file with their locations and layout coordinates for the GUI.
+- Supports custom stages, including preview images and a config file with their locations and layout coordinates for the GUI
 - Supports infinte characters
   (setup the locations in the stage layouts)
-- Support for the unlocked characters and starting characters feature of OHS.
+- Support for the unlocked and starting characters feature of OHS
+- Support for custom order
 - Create teams based on folder structure
 - Just "replace" a character
-- Install herostats through drag & drop.
-- Save and load selection
-- Create a random roster
+- Install herostats through drag & drop
+- Install herostats with a browse button
+- Automatic and manual roster saving and restoring
+- Load the default roster or create a random roster
 - Free-up saves for the selected roster
-- Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours.
+- Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours
 
  Version 0.1:
 - Log messages
@@ -126,9 +128,8 @@ Note: The source code has drastically changed, but it's not ready for release ye
 
 #### Updated Plans by ak2yny
 - ~~Change teams to ini files and~~ add support for `data/team_bonus.engb` in XML format, using json2xmlb.exe to compile.
-- Add support for custom order (currently only supports sorted by menulocation and character name ascending and descending).
-- Add function to install herostats with a browse button. If possible add function to install from archive.
 - Add support for Mod Organizer 2.
+- Add function to install from archive, if possible.
 - Add more installer functions for skins and other mods.
 - Add features that ak2yny's Stage & Herostat Helper has:
   - Effect duplication

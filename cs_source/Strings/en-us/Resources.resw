@@ -120,6 +120,9 @@
   <data name="AppDisplayName" xml:space="preserve">
     <value>Open Hero Select GUI</value>
   </data>
+  <data name="AppName.Text" xml:space="preserve">
+    <value>OpenHeroSelect GUI</value>
+  </data>
   <data name="AppDescription" xml:space="preserve">
     <value>Graphical User Interface for Open Hero Select</value>
   </data>
@@ -129,16 +132,13 @@
   <data name="Tab_XML2.Content" xml:space="preserve">
     <value>XML2</value>
   </data>
-  <data name="Settings_Title.Text" xml:space="preserve">
-    <value>TODO: Settings (To Remove)</value>
-  </data>
   <data name="Settings_About.Text" xml:space="preserve">
     <value>Information</value>
   </data>
   <data name="Settings_AboutDescription.Text" xml:space="preserve">
-    <value>TODO: Graphical User Interface for Open Hero Select</value>
+    <value>WIP: Graphical User Interface for Open Hero Select     by adamatti, ak2yny</value>
   </data>
-  <data name="SettingsPage_PrivacyTermsLink.Content" xml:space="preserve">
-    <value>Privacy Statement</value>
+  <data name="SettingsPage_Link.Content" xml:space="preserve">
+    <value>GitHub page</value>
   </data>
 </root>

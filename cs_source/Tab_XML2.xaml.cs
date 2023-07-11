@@ -1,19 +1,21 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Input;
 using OpenHeroSelectGUI.Settings;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
-using static OpenHeroSelectGUI.Settings.CharacterLists;
 
 namespace OpenHeroSelectGUI
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// Character selection page for XML2
     /// </summary>
     public sealed partial class Tab_XML2 : Page
     {
@@ -29,7 +31,8 @@ namespace OpenHeroSelectGUI
         {
             ReplDefaultmanToggle.IsOn = false;
             int Size = Cfg.XML2.RosterSize;
-            Cfg.Dynamic.LayoutLocs = Enumerable.Range(1, Size);
+            SetXML2DefaultRoster(Size);
+            Cfg.Dynamic.RosterRange = Enumerable.Range(1, Size);
             if (Cfg.XML2.RosterSize % 2 == 1)
             {
                 Size -= 1;
@@ -45,8 +48,17 @@ namespace OpenHeroSelectGUI
             {
                 Limit = ReplDefaultmanToggle.IsOn ? Limit + 1 : Limit;
                 Cfg.Roster.Total = Cfg.XML2.RosterSize = Limit;
-                Cfg.Dynamic.LayoutLocs = Enumerable.Range(1, Limit);
+                Cfg.Dynamic.RosterRange = Enumerable.Range(1, Limit);
+                SetXML2DefaultRoster(Limit);
             }
+        }
+        private void SetXML2DefaultRoster(int Limit)
+        {
+            Cfg.Dynamic.RosterValueDefault = Limit > 21
+                ? "Default 22 Character (PSP) Roster"
+                : Limit > 19
+                ? "Default 20 Character (PC) Roster"
+                : "Default 18 Character (GC, PS2, Xbox) Roster";
         }
         // Control handlers. A few of them are identical to the MUA handlers. Can they be combined?
         /// <summary>
@@ -73,6 +85,34 @@ namespace OpenHeroSelectGUI
                     AddHerostat(Herostat);
                     AvailableCharacters.Navigate(typeof(AvailableCharacters));
                 }
+            }
+        }
+
+        private void TVsearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            if (Cfg.Roster.Available is not null)
+            {
+                IEnumerable<string> Filtered = Cfg.Roster.Available.Where(a => a.Contains(args.QueryText, StringComparison.InvariantCultureIgnoreCase));
+                Available Root = new();
+                foreach (string PathInfo in Filtered)
+                {
+                    PopulateAvailable(Root, PathInfo, PathInfo);
+                }
+                Cfg.Roster.AvailableCharacterList.Clear();
+                for (int i = 0; i < Root.Children.Count; i++)
+                {
+                    Cfg.Roster.AvailableCharacterList.Add(Root.Children[i]);
+                }
+            }
+        }
+
+        private async void BrowseButton_Click(object sender, RoutedEventArgs e)
+        {
+            string? Herostat = await LoadDialogue("*");
+            if (Herostat != null)
+            {
+                AddHerostat(Herostat);
+                AvailableCharacters.Navigate(typeof(AvailableCharacters));
             }
         }
 
@@ -126,9 +166,9 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Browse for a roster file to load.
         /// </summary>
-        private async void XML2_LoadRoster(object sender, RoutedEventArgs e)
+        private async void XML2_LoadRoster(SplitButton sender, SplitButtonClickEventArgs args)
         {
-            string? RosterValue = await Cfg.LoadDialogue("cfg");
+            string? RosterValue = await LoadDialogue(".cfg");
             if (RosterValue != null)
             {
                 LoadRoster(RosterValue);
@@ -148,6 +188,17 @@ namespace OpenHeroSelectGUI
         {
             Cfg.Roster.Selected.Clear();
             Cfg.Roster.Count = 0;
+        }
+        /// <summary>
+        /// XML2 page shortcuts. Only F3 for search for now, so this has an unique handler.
+        /// </summary>
+        private void TVsearch_Shortcut_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        {
+            if (!args.Handled && TVsearch.FocusState != FocusState.Programmatic)
+            {
+                TVsearch.Focus(FocusState.Programmatic);
+                args.Handled = true;
+            }
         }
     }
 }

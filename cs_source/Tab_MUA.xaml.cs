@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using OpenHeroSelectGUI.Settings;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -13,8 +14,8 @@ using System.Linq;
 using System.Xml;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
-using static OpenHeroSelectGUI.Settings.CharacterLists;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI
@@ -33,6 +34,7 @@ namespace OpenHeroSelectGUI
         public Tab_MUA()
         {
             InitializeComponent();
+            if (Cfg.MUA.ExeName == "") Cfg.MUA.ExeName = "Game.exe";
             LoadLayouts();
             UpdateLocBoxes();
             AvailableCharacters.Navigate(typeof(AvailableCharacters));
@@ -47,7 +49,6 @@ namespace OpenHeroSelectGUI
             Cfg.Dynamic.SelectedLayout = Layouts.IndexOf(Cfg.GUI.Layout);
             Stages.Clear();
             Models = GetXmlElement(Path.Combine(ModelPath, "config.xml"));
-            // This should not happen if not first time and if not changed.
 
         }
         private void ReloadLayouts()
@@ -159,6 +160,35 @@ namespace OpenHeroSelectGUI
             }
         }
         // Control handlers:
+        private void TVsearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
+        {
+            if (Cfg.Roster.Available is not null)
+            {
+                // WIP: If this performs well, we should probably change the XML2 search to this as well.
+                IEnumerable<string> Filtered = Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.InvariantCultureIgnoreCase));
+                Available Root = new();
+                foreach (string PathInfo in Filtered)
+                {
+                    PopulateAvailable(Root, PathInfo, PathInfo);
+                }
+                Cfg.Roster.AvailableCharacterList.Clear();
+                for (int i = 0; i < Root.Children.Count; i++)
+                {
+                    Cfg.Roster.AvailableCharacterList.Add(Root.Children[i]);
+                }
+            }
+        }
+
+        private async void BrowseButton_Click(object sender, RoutedEventArgs e)
+        {
+            string? Herostat = await LoadDialogue("*");
+            if (Herostat != null)
+            {
+                AddHerostat(Herostat);
+                AvailableCharacters.Navigate(typeof(AvailableCharacters));
+            }
+        }
+
         private void BtnReload_Click(object sender, RoutedEventArgs e)
         {
             AvailableCharacters.Navigate(typeof(AvailableCharacters));
@@ -348,9 +378,9 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Browse for a roster file to load. Populates according to the layout setup, should be left to right. Currently ignores menulocation files.
         /// </summary>
-        private async void MUA_LoadRoster(object sender, RoutedEventArgs e)
+        private async void MUA_LoadRoster(SplitButton sender, SplitButtonClickEventArgs args)
         {
-            string? RosterValue = await Cfg.LoadDialogue("cfg");
+            string? RosterValue = await LoadDialogue(".cfg");
             if (RosterValue != null)
             {
                 LoadRoster(RosterValue);
@@ -375,9 +405,19 @@ namespace OpenHeroSelectGUI
             UpdateLocBoxes();
         }
 
-        private void SelectedCharacters_Delete(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+        private void SelectedCharacters_Delete(UIElement sender, ProcessKeyboardAcceleratorEventArgs args) => UpdateLocBoxes();
+
+        private void AvailableCharacters_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => UpdateLocBoxes();
+        /// <summary>
+        /// MUA page shortcuts. Only F3 for search for now, so this has an unique handler.
+        /// </summary>
+        private void TVsearch_Shortcut_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
-            UpdateLocBoxes();
+            if (!args.Handled && TVsearch.FocusState != FocusState.Programmatic)
+            {
+                TVsearch.Focus(FocusState.Programmatic);
+                args.Handled = true;
+            }
         }
     }
 }

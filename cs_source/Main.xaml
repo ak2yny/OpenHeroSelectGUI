@@ -15,14 +15,15 @@
         </Grid.RowDefinitions>
         <Image Source="/Assets/MM_Banner.png" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
         <Canvas Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}" Height="28" HorizontalAlignment="Right" VerticalAlignment="Top" Width="120"/>
-        <Grid x:Name="AppTitleBar" Margin="8" Height="88">
+        <Grid x:Name="AppTitleBar" Margin="8" Height="88" VerticalAlignment="Top">
             <Image Source="/Assets/SHIELD_Logo_GUI.png"
                    HorizontalAlignment="Left" VerticalAlignment="Top"
                    Width="20" Height="20"/>
-            <TextBlock x:Name="AppTitleTextBlock" Text="OpenHeroSelect GUI"
+            <TextBlock x:Name="AppTitleTextBlock"
+                       x:Uid="AppName"
                        TextWrapping="NoWrap"
                        Style="{ThemeResource CaptionTextBlockStyle}"
-                       Margin="30,1,0,0"/>
+                       Margin="30 1 0 0"/>
         </Grid>
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Bottom">
             <Button x:Name="BtnRun" Content="Run OHS" Click="BtnRun_Click" ToolTipService.ToolTip="Ctrl+R | Run OHS with the current settings - replaces OHS config">

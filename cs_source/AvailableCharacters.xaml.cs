@@ -30,7 +30,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void PopulateAvailable()
         {
-            DirectoryInfo folder = new(Path.Combine(cdPath, Cfg.GUI.Game, Cfg.OHS.HerostatFolder));
+            DirectoryInfo folder = new(Path.Combine(cdPath, Cfg.Dynamic.Game, Cfg.OHS.HerostatFolder));
             if (folder.Exists)
             {
                 Cfg.Roster.Available = folder.EnumerateFiles("*", SearchOption.AllDirectories)
@@ -44,7 +44,7 @@ namespace OpenHeroSelectGUI
                 Available Root = new();
                 foreach (string PathInfo in Cfg.Roster.Available)
                 {
-                    PopulateAvailable(Root, PathInfo, PathInfo);
+                    CharacterListCommands.PopulateAvailable(Root, PathInfo, PathInfo);
                 }
                 Cfg.Roster.AvailableCharacterList = Root.Children;
             }
@@ -54,26 +54,6 @@ namespace OpenHeroSelectGUI
                 Cfg.Roster.AvailableCharacterList.Clear();
                 Cfg.Roster.AvailableCharacterList.Add(NA);
             }
-        }
-        /// <summary>
-        /// Generate Tree View Data from files list
-        /// </summary>
-        private void PopulateAvailable(Available Parent, string RemainingPath, string PathInfo)
-        {
-            string[] Node = RemainingPath.Split(new[] { '/' }, 2);
-            Available? child = Parent.Children.SingleOrDefault(x => x.Character.Name == Node[0]);
-            if (child == null)
-            {
-                string PathToAdd = (Node.Length > 1) ? "" : PathInfo;
-                Character CharInfo = new()
-                {
-                    Name = Node[0],
-                    Path = PathToAdd
-                };
-                child = new Available() { Character = CharInfo, Children = new ObservableCollection<Available>() };
-                Parent.Children.Add(child);
-            }
-            if (Node.Length > 1)  PopulateAvailable(child, Node[1], PathInfo);
         }
         /// <summary>
         /// Define the allowed drag items 

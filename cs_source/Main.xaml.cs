@@ -10,8 +10,8 @@ using System.Diagnostics;
 using System.IO;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
-using static OpenHeroSelectGUI.Settings.CharacterLists;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 // To learn more about WinUI, the WinUI project structure,
@@ -27,9 +27,10 @@ namespace OpenHeroSelectGUI
         public Main()
         {
             Activated += MainWindow_Activated;
-            Cfg.LoadGuiSettings();
-            Cfg.LoadOHSsettings();
+            LoadGuiSettings();
+
             InitializeComponent();
+
             ExtendsContentIntoTitleBar = true;
             SetTitleBar(AppTitleBar);
             //AppTitleTextBlock.Text = AppInfo.Current.DisplayInfo.DisplayName;
@@ -55,19 +56,17 @@ namespace OpenHeroSelectGUI
             }
             else if (args.SelectedItemContainer != null && args.SelectedItemContainer.Tag.ToString() is string TagName && Type.GetType(TagName) is Type navPageType)
             {
-                if (navPageType == typeof(Tab_XML2) && GUIsettings.Instance.Game == "mua")
+                if (navPageType == typeof(Tab_XML2) && DynamicSettings.Instance.Game != "xml2")
                 {
-                    Cfg.SaveSettings();
-                    GUIsettings.Instance.Game = "xml2";
-                    Cfg.LoadOHSsettings();
-                    LoadRosterXML2();
+                    if (DynamicSettings.Instance.Game == "mua") SaveSettings();
+                    DynamicSettings.Instance.Game = "xml2";
+                    LoadRoster();
                 }
-                else if (navPageType == typeof(Tab_MUA) && GUIsettings.Instance.Game == "xml2")
+                else if (navPageType == typeof(Tab_MUA) && DynamicSettings.Instance.Game != "mua")
                 {
-                    Cfg.SaveSettings();
-                    GUIsettings.Instance.Game = "mua";
-                    Cfg.LoadOHSsettings();
-                    LoadRosterMUA();
+                    if (DynamicSettings.Instance.Game == "xml2") SaveSettings();
+                    DynamicSettings.Instance.Game = "mua";
+                    LoadRoster();
                 }
                 GUIsettings.Instance.Home = sender.MenuItems.IndexOf(args.SelectedItem);
                 NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo);
@@ -95,68 +94,6 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Save dialogue.
-        /// This seems useless: string n = file.DisplayName; if (n.EndsWith(file.FileType)) { n = n[..(n.Length - file.FileType.Length)]; }
-        /// </summary>
-        private async void SaveDialogue()
-        {
-            FileSavePicker savePicker = new();
-            savePicker.FileTypeChoices.Add("Configuration File", new List<string>() { ".ini" });
-            // window can be defined outside of void?
-            Window window = new();
-            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, WinRT.Interop.WindowNative.GetWindowHandle(window));
-            StorageFile file = await savePicker.PickSaveFileAsync();
-            if (file != null)
-            {
-                Cfg.SaveSettings(file.Path);
-                GenerateCfgFiles(file.DisplayName);
-            }
-        }
-        /// <summary>
-        /// Generate the cfg files with the saved names.
-        /// </summary>
-        private void GenerateCfgFiles() => GenerateCfgFiles(OHSsettings.Instance.RosterValue, MUAsettings.Instance.MenulocationsValue);
-        /// <summary>
-        /// Generate the cfg files providing a roster value (filename). (MUA uses identical menulocation name.)
-        /// </summary>
-        private void GenerateCfgFiles(string rv) => GenerateCfgFiles(rv, rv);
-        /// <summary>
-        /// Generate the cfg files providing independent menulocation and roster values (filenames).
-        /// </summary>
-        private void GenerateCfgFiles(string rv, string mv)
-        {
-            if (Instance.Selected != null && Instance.Selected.Count > 0)
-            {
-                if (GUIsettings.Instance.Game == "mua" && !IsDefaultMV(mv))
-                {
-                    WriteCfg(Path.Combine(cdPath, "mua", "menulocations", $"{mv}.cfg"), 0);
-                }
-                if (!IsDefaultRV(rv))
-                {
-                    WriteCfg(Path.Combine(cdPath, GUIsettings.Instance.Game, "rosters", $"{rv}.cfg"), 2);
-                }
-            }
-        }
-        /// <summary>
-        /// Write the OHS cfg files from the selected characters list.
-        /// </summary>
-        private void WriteCfg(string path, int p)
-        {
-            string? CFGpath = Path.GetDirectoryName(path);
-            if (string.IsNullOrEmpty(CFGpath)) return;
-            Directory.CreateDirectory(CFGpath);
-            File.Create(path).Dispose();
-            using StreamWriter sw = File.AppendText(path);
-            for (int i = 0; i < Instance.Selected.Count; i++)
-            {
-                SelectedCharacter c = Instance.Selected[i];
-                string? line = (p == 0) ?
-                    c.Loc :
-                    c.Starter ? $"*{c.Path}" : c.Unlock ? $"?{c.Path}" : c.Path;
-                sw.WriteLine(line);
-            }
-        }
-        /// <summary>
         /// Run OpenHeroSelect with the specified settings and backup saves if enabled.
         /// </summary>
         private void RunOHS()
@@ -167,9 +104,8 @@ namespace OpenHeroSelectGUI
                 string DP = Path.Combine(OHSsettings.Instance.GameInstallPath, "data");
                 if (Directory.Exists(DP))
                 {
-                    Cfg.SaveSettings();
-                    GenerateCfgFiles();
-                    string arg = (GUIsettings.Instance.Game == "xml2") ?
+                    SaveSettings();
+                    string arg = (DynamicSettings.Instance.Game == "xml2") ?
                         "-a -x" :
                         "-a";
                     Util.RunElevated("OpenHeroSelect.exe", arg);
@@ -189,7 +125,15 @@ namespace OpenHeroSelectGUI
                 ShowWarning("OpenHeroSelect.exe not found!");
             }
         }
-        private void InstallStage()
+        /// <summary>
+        /// Show a warning dialogue box.
+        /// </summary>
+        private async void ShowWarning(string message)
+        {
+            WarningDialog.Content = message;
+            await WarningDialog.ShowAsync();
+        }
+        private static void InstallStage()
         {
             string StagesPath = Path.Combine(cdPath, "stages");
             string RiserPath = Path.Combine(StagesPath, ".riser");
@@ -208,8 +152,8 @@ namespace OpenHeroSelectGUI
                 CopyRiserFile(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.bkp.pkgb", "team_back.pkgb");
             }
         }
-        private void CopyStageFile(string folder, string GameFolder, string file) => CopyStageFile(folder, GameFolder, file, file);
-        private void CopyStageFile(string folder, string GameFolder, string Source, string Target)
+        private static void CopyStageFile(string folder, string GameFolder, string file) => CopyStageFile(folder, GameFolder, file, file);
+        private static void CopyStageFile(string folder, string GameFolder, string Source, string Target)
         {
             string TP = Path.Combine(OHSsettings.Instance.GameInstallPath, GameFolder);
             string SF = Path.Combine(folder, Source);
@@ -219,15 +163,25 @@ namespace OpenHeroSelectGUI
                 File.Copy(SF, Path.Combine(TP, Target), true );
             }
         }
-        private void CopyRiserFile(string RiserPath, string GameFolder, string Source, string Target) => CopyStageFile(Path.Combine(RiserPath, GameFolder), GameFolder, Source, Target);
-        private void CopyRiserFile(string RiserPath, string GameFolder, string file) => CopyStageFile(Path.Combine(RiserPath, GameFolder), GameFolder, file, file);
+        private static void CopyRiserFile(string RiserPath, string GameFolder, string Source, string Target) => CopyStageFile(Path.Combine(RiserPath, GameFolder), GameFolder, Source, Target);
+        private static void CopyRiserFile(string RiserPath, string GameFolder, string file) => CopyStageFile(Path.Combine(RiserPath, GameFolder), GameFolder, file, file);
         /// <summary>
-        /// Show a warning dialogue box.
+        /// Save dialogue.
+        /// This seems useless: string n = file.DisplayName; if (n.EndsWith(file.FileType)) { n = n[..(n.Length - file.FileType.Length)]; }
         /// </summary>
-        private async void ShowWarning(string message)
+        private static async void SaveDialogue()
         {
-            WarningDialog.Content = message;
-            await WarningDialog.ShowAsync();
+            FileSavePicker savePicker = new();
+            savePicker.FileTypeChoices.Add("Configuration File", new List<string>() { ".ini" });
+            // window can be defined outside of void?
+            Window window = new();
+            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+            StorageFile file = await savePicker.PickSaveFileAsync();
+            if (file != null)
+            {
+                MUAsettings.Instance.MenulocationsValue = OHSsettings.Instance.RosterValue = file.DisplayName;
+                SaveSettings(file.Path, file.DisplayName);
+            }
         }
         /// <summary>
         /// Run OpenHeroSelect with the specified settings and backup saves if enabled.
@@ -241,11 +195,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Save settings to the default location, using config values for the CFG files.
         /// </summary>
-        private void BtnSave_Click(object sender, RoutedEventArgs e)
-        {
-            Cfg.SaveSettings();
-            GenerateCfgFiles();
-        }
+        private void BtnSave_Click(object sender, RoutedEventArgs e) => SaveSettings();
         /// <summary>
         /// Save settings by defining an INI file.
         /// </summary>
@@ -255,23 +205,16 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private async void BtnLoad_Click(object sender, RoutedEventArgs e)
         {
-            string? IniPath = await Cfg.LoadDialogue("ini");
+            string? IniPath = await LoadDialogue(".ini");
             if (IniPath != null)
             {
-                Cfg.LoadSettings(IniPath);
-                if (GUIsettings.Instance.Game == "xml2")
-                {
-                    LoadRosterXML2();
-                }
-                else
-                {
-                    LoadRosterMUA();
-                }
+                LoadSettings(IniPath);
+                LoadRosterVal();
             }
         }
         /// <summary>
-        /// Save to the default settings files, when the window closes (no roster).
+        /// Save to the default settings files, when the window closes.
         /// </summary>
-        private void Window_Closed(object sender, WindowEventArgs args) => Cfg.SaveSettings();
+        private void Window_Closed(object sender, WindowEventArgs args) => SaveSettings();
     }
 }

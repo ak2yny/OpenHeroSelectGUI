@@ -18,7 +18,6 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public partial class Tab_Settings : Page
     {
-        // public static readonly string cdPath = Directory.GetCurrentDirectory();
         public ObservableCollection<string> SaveBackups { get; } = new();
         public string? Herostat { get; set; }
         public Cfg Cfg { get; set; } = new();
@@ -39,7 +38,7 @@ namespace OpenHeroSelectGUI
                 Herostat = Cfg.OHS.HerostatName.Remove(Dot);
                 LanguageCode.SelectedItem = LanguageCode.FindName(Cfg.OHS.HerostatName.Substring(Dot + 1, 3));
                 Dot = Cfg.OHS.ExeName.LastIndexOf(".");
-                ExeName.Text = (Dot > 0) ? Cfg.OHS.ExeName.Remove(Dot) : (Cfg.GUI.Game == "xml2") ? "Xmen" : "Game";
+                ExeName.Text = (Dot > 0) ? Cfg.OHS.ExeName.Remove(Dot) : (Cfg.Dynamic.Game == "xml2") ? "Xmen" : "Game";
             }
         }
         /// <summary>
@@ -76,8 +75,7 @@ namespace OpenHeroSelectGUI
         /// <returns>Save folder in documents for the correct game.</returns>
         public static string GetSaveFolder()
         {
-            Cfg C = new();
-            string Game = (C.GUI.Game == "xml2") ?
+            string Game = (DynamicSettings.Instance.Game == "xml2") ?
                 "X-Men Legends 2" :
                 "Marvel Ultimate Alliance";
             return Path.Combine(Activision, Game);
@@ -140,7 +138,7 @@ namespace OpenHeroSelectGUI
         private async void HBrowseButton_Click(object sender, RoutedEventArgs e)
         {
             string Hsf = await BrowseFolder();
-            string Game = Path.Combine(cdPath, Cfg.GUI.Game);
+            string Game = Path.Combine(cdPath, Cfg.Dynamic.Game);
             Cfg.OHS.HerostatFolder = Hsf.StartsWith(Game) ?
                 Hsf[(Game.Length + 1)..] :
                 Hsf;
