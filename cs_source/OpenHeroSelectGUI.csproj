@@ -16,7 +16,7 @@
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
     <VersionPrefix>0.2.1</VersionPrefix>
-    <Version>$(VersionPrefix)-alpha</Version>
+    <Version>$(VersionPrefix)-beta</Version>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
 	<PackageIcon>SHIELD_Logo_GUI.png</PackageIcon>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
