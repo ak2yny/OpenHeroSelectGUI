@@ -15,17 +15,21 @@
     <Title>Open Hero Select GUI</Title>
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
-    <VersionPrefix>0.2.1</VersionPrefix>
+    <VersionPrefix>0.2.2</VersionPrefix>
     <Version>$(VersionPrefix)-beta</Version>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
 	<PackageIcon>SHIELD_Logo_GUI.png</PackageIcon>
+    <InvariantGlobalization>true</InvariantGlobalization>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="AvailableCharacters.xaml" />
     <None Remove="SelectedCharacters.xaml" />
+    <None Remove="SkinDetailsPage.xaml" />
+    <None Remove="Tab_Info.xaml" />
     <None Remove="Tab_MUA.xaml" />
+    <None Remove="Tab_SkinEditor.xaml" />
     <None Remove="Tab_XML2.xaml" />
     <None Remove="Tab_Settings.xaml" />
   </ItemGroup>
@@ -42,11 +46,11 @@
     <Content Include="Assets\MM_Banner.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Assets\MUA_256.png">
+    <Content Include="Assets\MUA.png">
 		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	</Content>
     <Content Include="Assets\SplashScreen.scale-200.png" />
-    <Content Include="Assets\XML2_256.png">
+    <Content Include="Assets\XML2.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -118,5 +122,23 @@
 
   <ItemGroup>
     <PRIResource Remove="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="SkinDetailsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Tab_SkinEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Tab_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
 </Project>

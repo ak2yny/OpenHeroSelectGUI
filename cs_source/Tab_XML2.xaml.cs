@@ -1,14 +1,11 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Input;
 using OpenHeroSelectGUI.Settings;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 
@@ -24,8 +21,9 @@ namespace OpenHeroSelectGUI
         {
             InitializeComponent();
             LoadXML2Limit();
-            AvailableCharacters.Navigate(typeof(AvailableCharacters));
-            SelectedCharacters.Navigate(typeof(SelectedCharacters));
+            _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
+            _ = SelectedCharacters.Navigate(typeof(SelectedCharacters));
+            _ = SkinDetailsPage.Navigate(typeof(SkinDetailsPage));
         }
         private void LoadXML2Limit()
         {
@@ -60,66 +58,7 @@ namespace OpenHeroSelectGUI
                 ? "Default 20 Character (PC) Roster"
                 : "Default 18 Character (GC, PS2, Xbox) Roster";
         }
-        // Control handlers. A few of them are identical to the MUA handlers. Can they be combined?
-        /// <summary>
-        /// Define the allowed drop info
-        /// </summary>
-        private void AvailableCharacters_DragOver(object sender, DragEventArgs e)
-        {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
-            {
-                e.AcceptedOperation = DataPackageOperation.Copy;
-                e.DragUIOverride.Caption = "Add herostat";
-            }
-        }
-        /// <summary>
-        /// Define the drop event for dropped herostats.
-        /// </summary>
-        private async void AvailableCharacters_Drop(object sender, DragEventArgs e)
-        {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
-            {
-                var Items = await e.DataView.GetStorageItemsAsync();
-                if (Items.Count > 0 && Items[0] is StorageFile Herostat)
-                {
-                    AddHerostat(Herostat);
-                    AvailableCharacters.Navigate(typeof(AvailableCharacters));
-                }
-            }
-        }
-
-        private void TVsearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
-        {
-            if (Cfg.Roster.Available is not null)
-            {
-                IEnumerable<string> Filtered = Cfg.Roster.Available.Where(a => a.Contains(args.QueryText, StringComparison.InvariantCultureIgnoreCase));
-                Available Root = new();
-                foreach (string PathInfo in Filtered)
-                {
-                    PopulateAvailable(Root, PathInfo, PathInfo);
-                }
-                Cfg.Roster.AvailableCharacterList.Clear();
-                for (int i = 0; i < Root.Children.Count; i++)
-                {
-                    Cfg.Roster.AvailableCharacterList.Add(Root.Children[i]);
-                }
-            }
-        }
-
-        private async void BrowseButton_Click(object sender, RoutedEventArgs e)
-        {
-            string? Herostat = await LoadDialogue("*");
-            if (Herostat != null)
-            {
-                AddHerostat(Herostat);
-                AvailableCharacters.Navigate(typeof(AvailableCharacters));
-            }
-        }
-
-        private void BtnReload_Click(object sender, RoutedEventArgs e)
-        {
-            AvailableCharacters.Navigate(typeof(AvailableCharacters));
-        }
+        // Control handlers. A few of them are identical to the MUA handlers, can they be combined?
 
         private void BtnRunGame_Click(object sender, RoutedEventArgs e)
         {
@@ -189,15 +128,18 @@ namespace OpenHeroSelectGUI
             Cfg.Roster.Selected.Clear();
             Cfg.Roster.Count = 0;
         }
-        /// <summary>
-        /// XML2 page shortcuts. Only F3 for search for now, so this has an unique handler.
-        /// </summary>
-        private void TVsearch_Shortcut_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+
+        private void SkinDetailsBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (!args.Handled && TVsearch.FocusState != FocusState.Programmatic)
+            if (SkinDetailsBtn.Content.ToString() == "Show Skin Details")
             {
-                TVsearch.Focus(FocusState.Programmatic);
-                args.Handled = true;
+                SkinDetailsBtn.Content = "Hide Skin Details";
+                SkinDetailsPage.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                SkinDetailsBtn.Content = "Show Skin Details";
+                SkinDetailsPage.Visibility = Visibility.Collapsed;
             }
         }
     }

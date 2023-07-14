@@ -5,12 +5,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Microsoft.UI.Xaml.Controls"
-    mc:Ignorable="d"
-    KeyboardAcceleratorPlacementMode="Hidden">
-
-    <Page.KeyboardAccelerators>
-        <KeyboardAccelerator Key="F3" Invoked="TVsearch_Shortcut_Invoked"/>
-    </Page.KeyboardAccelerators>
+    mc:Ignorable="d">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -18,23 +13,7 @@
             <ColumnDefinition MinWidth="100"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" AllowDrop="True" DragOver="AvailableCharacters_DragOver" Drop="AvailableCharacters_Drop" DoubleTapped="AvailableCharacters_DoubleTapped">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="35"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <StackPanel Orientation="Horizontal">
-                <AutoSuggestBox x:Name="TVsearch" Margin="3 0" MinWidth="100" MaxWidth="280" PlaceholderText="Search" QueryIcon="Find" TextChanged="TVsearch_QuerySubmitted"/>
-                <Button x:Name="BrowseButton" FontWeight="Bold" Click="BrowseButton_Click" Content="..." ToolTipService.ToolTip="Browse for a new herostat to add" Height="35"/>
-                <Button x:Name="BtnReload" Click="BtnReload_Click" ToolTipService.ToolTip="F5 | Reload the available characters" Height="35" Margin="3 0">
-                    <SymbolIcon>Refresh</SymbolIcon>
-                    <Button.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="F5" />
-                    </Button.KeyboardAccelerators>
-                </Button>
-            </StackPanel>
-            <Frame x:Name="AvailableCharacters" Grid.Row="1" MaxWidth="400"/>
-        </Grid>
+        <Frame x:Name="AvailableCharacters" DoubleTapped="AvailableCharacters_DoubleTapped" MaxWidth="400"/>
         <Grid Grid.Column="1" Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="140"/>

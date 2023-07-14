@@ -67,7 +67,7 @@ namespace OpenHeroSelectGUI.Settings
     /// <summary>
     /// Selected Character list view column selector
     /// </summary>
-    public class LVcolumnSelector : DataTemplateSelector
+    public class GameTemplateSelector : DataTemplateSelector
     {
         public DataTemplate? MUA { get; set; }
         public DataTemplate? XML2 { get; set; }
@@ -217,26 +217,6 @@ namespace OpenHeroSelectGUI.Settings
             return Path.IsPathRooted(OHSsettings.Instance.HerostatFolder)
                 ? OHSsettings.Instance.HerostatFolder
                 : Path.Combine(cdPath, Cfg.Dynamic.Game, OHSsettings.Instance.HerostatFolder);
-        }
-        /// <summary>
-        /// Generate Tree View Data from files list
-        /// </summary>
-        public static void PopulateAvailable(Available Parent, string RemainingPath, string PathInfo)
-        {
-            string[] Node = RemainingPath.Split(new[] { '/' }, 2);
-            Available? child = Parent.Children.SingleOrDefault(x => x.Character.Name == Node[0]);
-            if (child == null)
-            {
-                string PathToAdd = (Node.Length > 1) ? "" : PathInfo;
-                Character CharInfo = new()
-                {
-                    Name = Node[0],
-                    Path = PathToAdd
-                };
-                child = new Available() { Character = CharInfo, Children = new ObservableCollection<Available>() };
-                Parent.Children.Add(child);
-            }
-            if (Node.Length > 1) PopulateAvailable(child, Node[1], PathInfo);
         }
     }
 }

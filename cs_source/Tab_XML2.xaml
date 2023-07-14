@@ -7,59 +7,14 @@
     mc:Ignorable="d"
     KeyboardAcceleratorPlacementMode="Hidden">
 
-    <Page.KeyboardAccelerators>
-        <KeyboardAccelerator Key="F3" Invoked="TVsearch_Shortcut_Invoked"/>
-    </Page.KeyboardAccelerators>
-
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition MinWidth="250"/>
         </Grid.ColumnDefinitions>
-        <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" AllowDrop="True" DragOver="AvailableCharacters_DragOver" Drop="AvailableCharacters_Drop">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="45"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <StackPanel x:Name="TVhead" Orientation="Horizontal">
-                <AutoSuggestBox x:Name="TVsearch" Margin="3 0" MinWidth="100" MaxWidth="350" PlaceholderText="Search" QueryIcon="Find" QuerySubmitted="TVsearch_QuerySubmitted" Height="35"/>
-                <Button x:Name="BrowseButton" FontWeight="Bold" Click="BrowseButton_Click" Content="..." ToolTipService.ToolTip="Browse for a new herostat to add" Height="35"/>
-                <Button x:Name="BtnReload" Click="BtnReload_Click" ToolTipService.ToolTip="F5 | Reload the available characters" Height="35" Margin="3 0">
-                    <SymbolIcon>Refresh</SymbolIcon>
-                    <Button.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="F5" />
-                    </Button.KeyboardAccelerators>
-                </Button>
-            </StackPanel>
-            <Frame x:Name="AvailableCharacters" Grid.Row="1"/>
-        </Grid>
-        <Grid x:Name="XML2controls" Grid.Column="2" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-            <StackPanel Margin="0 3">
-                <ToggleSwitch x:Name="UnlockSkinsToggle" Header="Skin Unlocks" IsOn="{x:Bind Cfg.XML2.UnlockSkins, Mode=TwoWay}" OffContent="Off" OnContent="Unlock"/>
-                <ToggleSwitch x:Name="UnlockToggle" Header="Char. Unlocks" IsOn="{x:Bind Cfg.XML2.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update"/>
-            </StackPanel>
-            <StackPanel Grid.Column="1">
-                <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Margin="0 0 0 15" Padding="20 10" ToolTipService.ToolTip="Run X - Men Legends II only, without running OHS">
-                    <TextBlock TextAlignment="Center">Run<LineBreak/>X - Men<LineBreak/>Legends II</TextBlock>
-                </Button>
-                <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked"/>
-            </StackPanel>
-            <RadioButtons x:Name="RosterSizeToggle" Grid.Row="1" Header="Roster Size" Margin="0 10 0 0" SelectionChanged="RosterSize_SelectionChanged">
-                <x:String>18 (Consoles)</x:String>
-                <x:String>20 (PC)</x:String>
-                <x:String>22 (PSP)</x:String>
-            </RadioButtons>
-            <ToggleSwitch x:Name="ReplDefaultmanToggle" Grid.Row="1" Grid.Column="1" Header="Replace Defaultman?" Margin="0 10 0 0" OffContent="No" OnContent="Yes" Toggled="ReplDefaultman_Toggled" VerticalAlignment="Top"/>
-        </Grid>
+        <Frame x:Name="AvailableCharacters"/>
         <Grid x:Name="SelectedColumn" Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition/>
@@ -83,6 +38,35 @@
                     <Run Text="{x:Bind Cfg.XML2.RosterSize, Mode=OneWay}"/>
                 </TextBlock>
             </StackPanel>
+        </Grid>
+        <Frame x:Name="SkinDetailsPage" Grid.Column="2"/>
+        <Grid x:Name="XML2controls" Grid.Column="3" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Margin="0 3">
+                <ToggleSwitch x:Name="UnlockSkinsToggle" Header="Skin Unlocks" IsOn="{x:Bind Cfg.XML2.UnlockSkins, Mode=TwoWay}" OffContent="Off" OnContent="Unlock"/>
+                <ToggleSwitch x:Name="UnlockToggle" Header="Char. Unlocks" IsOn="{x:Bind Cfg.XML2.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1">
+                <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Margin="0 0 0 15" Padding="20 10" ToolTipService.ToolTip="Run X - Men Legends II only, without running OHS">
+                    <TextBlock TextAlignment="Center">Run<LineBreak/>X - Men<LineBreak/>Legends II</TextBlock>
+                </Button>
+                <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked"/>
+            </StackPanel>
+            <RadioButtons x:Name="RosterSizeToggle" Grid.Row="1" Header="Roster Size" Margin="0 10 0 0" SelectionChanged="RosterSize_SelectionChanged">
+                <x:String>18 (Consoles)</x:String>
+                <x:String>20 (PC)</x:String>
+                <x:String>22 (PSP)</x:String>
+            </RadioButtons>
+            <ToggleSwitch x:Name="ReplDefaultmanToggle" Grid.Row="1" Grid.Column="1" Header="Replace Defaultman?" Margin="0 10 0 0" OffContent="No" OnContent="Yes" Toggled="ReplDefaultman_Toggled" VerticalAlignment="Top"/>
+            <Button x:Name="SkinDetailsBtn" Grid.Row="2" Content="Hide Skin Details" Click="SkinDetailsBtn_Click" Margin="0 20 0 0" VerticalAlignment="Bottom"/>
         </Grid>
     </Grid>
 </Page>

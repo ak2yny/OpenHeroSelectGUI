@@ -6,14 +6,12 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using OpenHeroSelectGUI.Settings;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Storage;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
@@ -160,39 +158,6 @@ namespace OpenHeroSelectGUI
             }
         }
         // Control handlers:
-        private void TVsearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
-        {
-            if (Cfg.Roster.Available is not null)
-            {
-                // WIP: If this performs well, we should probably change the XML2 search to this as well.
-                IEnumerable<string> Filtered = Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.InvariantCultureIgnoreCase));
-                Available Root = new();
-                foreach (string PathInfo in Filtered)
-                {
-                    PopulateAvailable(Root, PathInfo, PathInfo);
-                }
-                Cfg.Roster.AvailableCharacterList.Clear();
-                for (int i = 0; i < Root.Children.Count; i++)
-                {
-                    Cfg.Roster.AvailableCharacterList.Add(Root.Children[i]);
-                }
-            }
-        }
-
-        private async void BrowseButton_Click(object sender, RoutedEventArgs e)
-        {
-            string? Herostat = await LoadDialogue("*");
-            if (Herostat != null)
-            {
-                AddHerostat(Herostat);
-                AvailableCharacters.Navigate(typeof(AvailableCharacters));
-            }
-        }
-
-        private void BtnReload_Click(object sender, RoutedEventArgs e)
-        {
-            AvailableCharacters.Navigate(typeof(AvailableCharacters));
-        }
         /// <summary>
         /// Roster Hack switch: A red number warns us from missing roster hack files.
         /// </summary>
@@ -325,32 +290,6 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Define the allowed drop info
         /// </summary>
-        private void AvailableCharacters_DragOver(object sender, DragEventArgs e)
-        {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
-            {
-                e.AcceptedOperation = DataPackageOperation.Copy;
-                e.DragUIOverride.Caption = "Add herostat";
-            }
-        }
-        /// <summary>
-        /// Define the drop event for dropped herostats.
-        /// </summary>
-        private async void AvailableCharacters_Drop(object sender, DragEventArgs e)
-        {
-            if (e.DataView.Contains(StandardDataFormats.StorageItems))
-            {
-                var Items = await e.DataView.GetStorageItemsAsync();
-                if (Items.Count > 0 && Items[0] is StorageFile Herostat)
-                {
-                    AddHerostat(Herostat);
-                    AvailableCharacters.Navigate(typeof(AvailableCharacters));
-                }
-            }
-        }
-        /// <summary>
-        /// Define the allowed drop info
-        /// </summary>
         private void SelectedCharacters_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
@@ -408,16 +347,5 @@ namespace OpenHeroSelectGUI
         private void SelectedCharacters_Delete(UIElement sender, ProcessKeyboardAcceleratorEventArgs args) => UpdateLocBoxes();
 
         private void AvailableCharacters_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => UpdateLocBoxes();
-        /// <summary>
-        /// MUA page shortcuts. Only F3 for search for now, so this has an unique handler.
-        /// </summary>
-        private void TVsearch_Shortcut_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
-        {
-            if (!args.Handled && TVsearch.FocusState != FocusState.Programmatic)
-            {
-                TVsearch.Focus(FocusState.Programmatic);
-                args.Handled = true;
-            }
-        }
     }
 }

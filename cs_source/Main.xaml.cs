@@ -1,4 +1,5 @@
 using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
@@ -10,6 +11,7 @@ using System.Diagnostics;
 using System.IO;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using WinRT.Interop;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
@@ -31,10 +33,20 @@ namespace OpenHeroSelectGUI
 
             InitializeComponent();
 
-            ExtendsContentIntoTitleBar = true;
+            AppWindow m_AppWindow = GetAppWindowForCurrentWindow();
+            m_AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             SetTitleBar(AppTitleBar);
             //AppTitleTextBlock.Text = AppInfo.Current.DisplayInfo.DisplayName;
             //AppWindow.Resize(new SizeInt32(1150, 640));
+        }
+        /// <summary>
+        /// Get the app window (this is not the main window or any other window)
+        /// </summary>
+        private AppWindow GetAppWindowForCurrentWindow()
+        {
+            IntPtr hWnd = WindowNative.GetWindowHandle(this);
+            WindowId wndId = Win32Interop.GetWindowIdFromWindow(hWnd);
+            return AppWindow.GetFromWindowId(wndId);
         }
         /// <summary>
         /// Make the title dim when the app is not in focus
@@ -56,19 +68,22 @@ namespace OpenHeroSelectGUI
             }
             else if (args.SelectedItemContainer != null && args.SelectedItemContainer.Tag.ToString() is string TagName && Type.GetType(TagName) is Type navPageType)
             {
-                if (navPageType == typeof(Tab_XML2) && DynamicSettings.Instance.Game != "xml2")
+                if (navPageType != typeof(Tab_Info))  // exclude footer pages from becoming home
                 {
-                    if (DynamicSettings.Instance.Game == "mua") SaveSettings();
-                    DynamicSettings.Instance.Game = "xml2";
-                    LoadRoster();
+                    if (navPageType == typeof(Tab_XML2) && DynamicSettings.Instance.Game != "xml2")
+                    {
+                        if (DynamicSettings.Instance.Game == "mua") SaveSettings();
+                        DynamicSettings.Instance.Game = "xml2";
+                        LoadRoster();
+                    }
+                    else if (navPageType == typeof(Tab_MUA) && DynamicSettings.Instance.Game != "mua")
+                    {
+                        if (DynamicSettings.Instance.Game == "xml2") SaveSettings();
+                        DynamicSettings.Instance.Game = "mua";
+                        LoadRoster();
+                    }
+                    GUIsettings.Instance.Home = sender.MenuItems.IndexOf(args.SelectedItem);
                 }
-                else if (navPageType == typeof(Tab_MUA) && DynamicSettings.Instance.Game != "mua")
-                {
-                    if (DynamicSettings.Instance.Game == "xml2") SaveSettings();
-                    DynamicSettings.Instance.Game = "mua";
-                    LoadRoster();
-                }
-                GUIsettings.Instance.Home = sender.MenuItems.IndexOf(args.SelectedItem);
                 NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo);
             }
         }

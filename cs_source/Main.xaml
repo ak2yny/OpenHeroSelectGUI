@@ -14,8 +14,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Image Source="/Assets/MM_Banner.png" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <Canvas Background="{ThemeResource ButtonDisabledBackgroundThemeBrush}" Height="28" HorizontalAlignment="Right" VerticalAlignment="Top" Width="120"/>
-        <Grid x:Name="AppTitleBar" Margin="8" Height="88" VerticalAlignment="Top">
+        <Grid x:Name="AppTitleBar" Margin="8" Height="28" VerticalAlignment="Top">
             <Image Source="/Assets/SHIELD_Logo_GUI.png"
                    HorizontalAlignment="Left" VerticalAlignment="Top"
                    Width="20" Height="20"/>
@@ -60,20 +59,33 @@
                 <NavigationViewItem x:Name="NavItem_MUA" ToolTipService.ToolTip="Marvel Ultimate Alliance" Tag="OpenHeroSelectGUI.Tab_MUA">
                     <NavigationViewItem.Content>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/Assets/MUA_256.png" Height="30" Width="30"/>
-                            <TextBlock Text="MUA" VerticalAlignment="Center" Margin="5"/>
+                            <Image Source="/Assets/MUA.png" Height="28" Width="28"/>
+                            <TextBlock x:Uid="Tab_MUA" Text="MUA" VerticalAlignment="Center" Margin="5"/>
                         </StackPanel>
                     </NavigationViewItem.Content>
                 </NavigationViewItem>
                 <NavigationViewItem x:Name="NavItem_XML2" ToolTipService.ToolTip="X-Men Legends 2" Tag="OpenHeroSelectGUI.Tab_XML2">
                     <NavigationViewItem.Content>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="/Assets/XML2_256.png" Height="30" Width="30"/>
-                            <TextBlock Text="XML2" VerticalAlignment="Center" Margin="5"/>
+                            <Image Source="/Assets/XML2.png" Height="28" Width="28"/>
+                            <TextBlock x:Uid="Tab_XML2" Text="XML2" VerticalAlignment="Center" Margin="5"/>
                         </StackPanel>
                     </NavigationViewItem.Content>
                 </NavigationViewItem>
+                <NavigationViewItem x:Name="NavItem_SkinEditor" x:Uid="Tab_SkinEditor" ToolTipService.ToolTip="Herostat Skin Editor" Tag="OpenHeroSelectGUI.Tab_SkinEditor">
+                    <NavigationViewItem.Icon>
+                        <!--<ImageIcon Source="/Assets/MUA.png"/>-->
+                        <FontIcon Glyph="&#xE748;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
             </NavigationView.MenuItems>
+            <NavigationView.FooterMenuItems>
+                <NavigationViewItem x:Name="NavItem_Info" x:Uid="Tab_Info" Tag="OpenHeroSelectGUI.Tab_Info">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE946;"/>
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+            </NavigationView.FooterMenuItems>
             <Frame x:Name="ContentFrame" />
         </NavigationView>
         <controls:ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK"/>

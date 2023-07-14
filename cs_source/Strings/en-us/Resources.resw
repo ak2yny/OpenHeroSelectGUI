@@ -126,19 +126,25 @@
   <data name="AppDescription" xml:space="preserve">
     <value>Graphical User Interface for Open Hero Select</value>
   </data>
-  <data name="Tab_MUA.Content" xml:space="preserve">
+  <data name="Tab_MUA.Text" xml:space="preserve">
     <value>MUA</value>
   </data>
-  <data name="Tab_XML2.Content" xml:space="preserve">
+  <data name="Tab_XML2.Text" xml:space="preserve">
     <value>XML2</value>
   </data>
-  <data name="Settings_About.Text" xml:space="preserve">
+  <data name="Info_About.Text" xml:space="preserve">
     <value>Information</value>
   </data>
-  <data name="Settings_AboutDescription.Text" xml:space="preserve">
+  <data name="Info_AboutDescription.Text" xml:space="preserve">
     <value>WIP: Graphical User Interface for Open Hero Select     by adamatti, ak2yny</value>
   </data>
-  <data name="SettingsPage_Link.Content" xml:space="preserve">
+  <data name="Info_Link.Content" xml:space="preserve">
     <value>GitHub page</value>
+  </data>
+  <data name="Tab_Info.Content" xml:space="preserve">
+    <value>Information</value>
+  </data>
+  <data name="Tab_SkinEditor.Content" xml:space="preserve">
+    <value>Skin Editor</value>
   </data>
 </root>

@@ -87,9 +87,9 @@
                     ToolTipService.ToolTip="Unlock?"/>
             </Grid>
         </DataTemplate>
-        <settings:LVcolumnSelector x:Key="LVcolumnSelector"
-                                   MUA="{StaticResource CharacterListTemplate}"
-                                   XML2="{StaticResource CharacterListTemplateXML2}"/>
+        <settings:GameTemplateSelector x:Key="LVcolumnSelector"
+                                       MUA="{StaticResource CharacterListTemplate}"
+                                       XML2="{StaticResource CharacterListTemplateXML2}"/>
     </Page.Resources>
 
     <Grid>
