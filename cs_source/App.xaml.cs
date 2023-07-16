@@ -27,10 +27,10 @@ namespace OpenHeroSelectGUI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            m_window = new Main();
-            m_window.Activate();
+            MainWindow = new Main();
+            MainWindow.Activate();
         }
 
-        private Window? m_window;
+        public static Window? MainWindow { get; set; }
     }
 }

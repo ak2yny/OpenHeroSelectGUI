@@ -1,7 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
-using OpenHeroSelectGUI.Settings;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.Storage.Pickers;
 using Windows.Storage;
+using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI
@@ -20,7 +20,7 @@ namespace OpenHeroSelectGUI
     {
         public ObservableCollection<string> SaveBackups { get; } = new();
         public string? Herostat { get; set; }
-        public Cfg Cfg { get; set; } = new();
+        public Settings.Cfg Cfg { get; set; } = new();
         public Tab_Settings()
         {
             InitializeComponent();
@@ -44,7 +44,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Load a list of all backed up saves.
         /// </summary>
-        public void ReadSaveBackups()
+        private void ReadSaveBackups()
         {
             SaveBackups.Clear();
             foreach (var f in Directory.GetDirectories(GetSaveFolder()))
@@ -54,14 +54,13 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Open folder dialogue.
+        /// Open folder dialogue. Currently there is no other page using it, so it's still here.
         /// </summary>
-        private async Task<string> BrowseFolder()
+        private static async Task<string> BrowseFolder()
         {
             FolderPicker folderPicker = new();
             folderPicker.FileTypeFilter.Add("*");
-            Window window = new();
-            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
             StorageFolder folder = await folderPicker.PickSingleFolderAsync();
             if (folder != null)
             {
@@ -70,30 +69,9 @@ namespace OpenHeroSelectGUI
             return "";
         }
         /// <summary>
-        /// Get the saves folder for the current tab (game).
-        /// </summary>
-        /// <returns>Save folder in documents for the correct game.</returns>
-        public static string GetSaveFolder()
-        {
-            string Game = (DynamicSettings.Instance.Game == "xml2") ?
-                "X-Men Legends 2" :
-                "Marvel Ultimate Alliance";
-            return Path.Combine(Activision, Game);
-        }
-        /// <summary>
-        /// Move folders in the game's save location by providing names.
-        /// </summary>
-        public static void MoveSaves(string From, string To)
-        {
-            string SaveFolder = GetSaveFolder();
-            DirectoryInfo Source = new(Path.Combine(SaveFolder, From));
-            string Target = Path.Combine(SaveFolder, To);
-            if (Source.Exists) Source.MoveTo(Target);
-        }
-        /// <summary>
         /// Trim a string from the end of a string, if found. By Shane Yu @ StackOverflow
         /// </summary>
-        public static string TrimEnd(string inputText, string Trim, StringComparison comparisonType = StringComparison.CurrentCultureIgnoreCase)
+        private static string TrimEnd(string inputText, string Trim, StringComparison comparisonType = StringComparison.CurrentCultureIgnoreCase)
         {
             if (!string.IsNullOrEmpty(Trim))
             {
@@ -129,7 +107,22 @@ namespace OpenHeroSelectGUI
         // UI control handlers:
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
+            Cfg.GUI.GameInstallPath = await BrowseFolder();
+            if (!File.Exists(Path.Combine(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName)))
+            {
+                ShowWarning($"No EXE found in '{Cfg.GUI.GameInstallPath}'");
+            }
+            if (string.IsNullOrEmpty(Cfg.OHS.GameInstallPath))
+            {
+                Cfg.OHS.GameInstallPath = Cfg.GUI.GameInstallPath;
+            }
+        }
+        private async void MO2BrowseButton_Click(object sender, RoutedEventArgs e)
+        {
             Cfg.OHS.GameInstallPath = await BrowseFolder();
+        }
+        private void MO2ModFolder_TextChanged(object sender, TextChangedEventArgs e)
+        {
             if (!Directory.Exists(Path.Combine(Cfg.OHS.GameInstallPath, "data")))
             {
                 ShowWarning($"No data folder in '{Cfg.OHS.GameInstallPath}'");

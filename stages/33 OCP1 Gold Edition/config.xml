@@ -187,6 +187,7 @@ You can read coordinates for the location set-up by opening mlm_team_back.igb in
     <Compatible_Models>
         <Model Riser="true">Official</Model>
         <Model>Custom_Riser</Model>
+        <Model>Custom_NoPlatfrom</Model>
     </Compatible_Models>
     <Default_Roster>
         <menulocations>25 (Default Base Game)</menulocations>

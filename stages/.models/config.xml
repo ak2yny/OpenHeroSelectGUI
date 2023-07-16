@@ -6,6 +6,7 @@ Instructions:
 2) Setup the information in this file.
 
 Each stage model must have a m_team_back.igb and it's highly recommended to add an image for the preview.
+Supported image formats are PNG, JPG and BMP.
 Path must be what you named the stage folder, including sub-folder if any (sub-folders to the right, divided by "/").
 Do not add new categories ("RH" is a category), as they are not recognized unless added to the compatible layout.
 
@@ -643,6 +644,71 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Path>50RH</Path>
             <Creator>The Outsider &amp; UltraMegaMagnus</Creator>
         </Model>
+        <Model>
+            <Name>0</Name>
+            <Path>Super Team Stage Marvel Mods/0</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>1</Name>
+            <Path>Super Team Stage Marvel Mods/1</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>2</Name>
+            <Path>Super Team Stage Marvel Mods/2</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>3</Name>
+            <Path>Super Team Stage Marvel Mods/3</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>4</Name>
+            <Path>Super Team Stage Marvel Mods/4</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>5</Name>
+            <Path>Super Team Stage Marvel Mods/5</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>6</Name>
+            <Path>Super Team Stage Marvel Mods/6</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>7</Name>
+            <Path>Super Team Stage Marvel Mods/7</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>8</Name>
+            <Path>Super Team Stage Marvel Mods/8</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>9</Name>
+            <Path>Super Team Stage Marvel Mods/9</Path>
+            <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+            <Name>Cherry World</Name>
+            <Path>Custom MUA Stages by Nuhverah/cherryworld</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Frosty Sugar Stars</Name>
+            <Path>Custom MUA Stages by Nuhverah/frostysugarstars</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Glow City</Name>
+            <Path>Custom MUA Stages by Nuhverah/glowcity</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
     </RH>
     <Official>
         <Model>
@@ -655,12 +721,27 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Path>Official/GE</Path>
             <Creator>Raven Software</Creator>
         </Model>
+        <Model>
+            <Name>Tron</Name>
+            <Path>TRON</Path>
+            <Creator>Tony Stark</Creator>
+        </Model>
+        <Model>
+            <Name>Lightly Emerald City</Name>
+            <Path>Custom MUA Stages by Nuhverah/lightly emerald city</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Hells Mandala</Name>
+            <Path>Custom MUA Stages by Nuhverah/hells mandala</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
     </Official>
     <Custom_Riser>
         <Model>
             <Name>Custom Stage from the 33RH</Name>
             <Path>33RH</Path>
-            <Creator>Raven Software &amp; Unknown</Creator>
+            <Creator>Raven Software, Outsider &amp; Krisan Thyme</Creator>
         </Model>
         <Model>
             <Name>Default Stage with Riser</Name>
@@ -685,4 +766,11 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Creator>UltraMegaMagnus</Creator>
         </Model>
     </Custom_2Risers>
+    <Custom_NoPlatfrom>
+        <Model>
+            <Name>Cerebro</Name>
+            <Path>Cerebro</Path>
+            <Creator>Overload &amp; Tony Stark</Creator>
+        </Model>
+    </Custom_NoPlatfrom>
 </Models>

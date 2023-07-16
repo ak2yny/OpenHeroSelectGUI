@@ -21,7 +21,7 @@
             <RowDefinition Height="35"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal">
+        <StackPanel Orientation="Horizontal" Margin="40 0 0 0">
             <AutoSuggestBox x:Name="TVsearch" Margin="3 0" MinWidth="100" MaxWidth="280" PlaceholderText="Search" QueryIcon="Find" TextChanged="TVsearch_QuerySubmitted"/>
             <!--WIP: If TextChanged doesn't perform well, we should probably change it to QuerySubmitted.-->
             <Button x:Name="BrowseButton" FontWeight="Bold" Click="BrowseButton_Click" Content="..." ToolTipService.ToolTip="Browse for a new herostat to add" Height="35"/>

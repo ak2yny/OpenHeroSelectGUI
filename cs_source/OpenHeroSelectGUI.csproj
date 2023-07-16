@@ -15,7 +15,7 @@
     <Title>Open Hero Select GUI</Title>
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
-    <VersionPrefix>0.2.2</VersionPrefix>
+    <VersionPrefix>0.2.3</VersionPrefix>
     <Version>$(VersionPrefix)-beta</Version>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
 	<PackageIcon>SHIELD_Logo_GUI.png</PackageIcon>
@@ -101,6 +101,21 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
+  <ItemGroup>
+    <Page Update="SkinDetailsPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Tab_SkinEditor.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Tab_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
 
   <!-- 
     Defining the "Msix" ProjectCapability here allows the Single-project MSIX Packaging
@@ -122,23 +137,5 @@
 
   <ItemGroup>
     <PRIResource Remove="Assets\**" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="SkinDetailsPage.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Tab_SkinEditor.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Tab_Info.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
   </ItemGroup>
 </Project>

@@ -29,6 +29,10 @@ Note: The source code has drastically changed, but it's not ready for release ye
 - Using a lot of samples from the WinUI and Windows App SDK tutorials from [Microsoft](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/)
 - Using a few assets from X-Men Legends and Ultimate Alliance by Activision ( & Marvel)
 - Using the MarvelMods logo by Outsider, based on Marvel's classic comic logo.
+
+ Thanks to testers:
+- Nuhverah
+- [@butsukdanila](https://github.com/butsukdanila)
 <br/><br/>
 
 ## Requirements
@@ -53,6 +57,7 @@ Note: The source code has drastically changed, but it's not ready for release ye
 - Automatic and manual roster saving and restoring
 - Load the default roster or create a random roster
 - Free-up saves for the selected roster
+- Supports Mod Organizer 2 mod folders.
 - Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours
 
  Version 0.1:
@@ -112,7 +117,7 @@ Note: The source code has drastically changed, but it's not ready for release ye
 - Make sure to add the dependencies before building, as always.
 - I recommend to leave the project as self contained (no dependencies), since WinUI is contained anyway.
 - A Windows App SDK can be built [unpackaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-unpackaged) or [packaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-packaged) (MSIX). As a WinUI3 project, it can be easily re-targeted to a UWP project, but it lacks permission (file access, running OHS) and signature details.
-- Theoretically the project can be made cross platform through the UNO platform (and a native cross-platform feature seems to be planned), but OHS is currently Windows 10+ exclusive.
+- Theoretically, the project can be made cross platform through the UNO platform (and a native cross-platform feature seems to be planned), but OHS is currently Windows 10+ exclusive.
  
  Version 0.1:
 - Requires Newtonsoft.JOSN. The DLL file can be added to the built project.
@@ -128,7 +133,6 @@ Note: The source code has drastically changed, but it's not ready for release ye
 
 #### Updated Plans by ak2yny
 - ~~Change teams to ini files and~~ add support for `data/team_bonus.engb` in XML format, using json2xmlb.exe to compile.
-- Add support for Mod Organizer 2.
 - Add function to install from archive, if possible.
 - Add more installer functions for skins and other mods.
 - Add features that ak2yny's Stage & Herostat Helper has:
@@ -138,6 +142,12 @@ Note: The source code has drastically changed, but it's not ready for release ye
 <br/><br/>
 
 ## Changelog
+
+ |07.14.2023|Beta 0.2.3: Fixed bugs (file picker, skin editor), Added stages
+
+ |07.14.2023|Beta 0.2.2: Added Skin Editor
+
+ |07.12.2023|Beta 0.2.1: Better banner, fixed bugs
 
  |07.07.2023|Alpha 0.2.0: New UI
  - Complete overhaul, re-creating the project using the WinUI3 in a Windows App SDK project

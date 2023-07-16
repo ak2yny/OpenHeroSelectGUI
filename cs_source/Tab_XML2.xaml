@@ -20,8 +20,8 @@
                 <RowDefinition/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <Canvas Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop"/>
-            <Frame x:Name="SelectedCharacters" MaxWidth="450"/>
+            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" MaxWidth="450"/>
+            <Canvas x:Name="SelectedCharactersDropArea" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop" DragLeave="SelectedCharacters_DragLeave" Visibility="Collapsed"/>
             <StackPanel x:Name="XML2Buttons" Grid.Row="1" Orientation="Horizontal">
                 <SplitButton x:Name="BtnLoadRoster" Content="Load ..." Click="XML2_LoadRoster" ToolTipService.ToolTip="Load roster from an OHS .cfg file in the rosters folder">
                     <SplitButton.Flyout>
@@ -39,7 +39,7 @@
                 </TextBlock>
             </StackPanel>
         </Grid>
-        <Frame x:Name="SkinDetailsPage" Grid.Column="2"/>
+        <Frame x:Name="SkinDetailsPage" Grid.Column="2" Visibility="{x:Bind Cfg.GUI.SkinDetailsVisible, Mode=OneWay}"/>
         <Grid x:Name="XML2controls" Grid.Column="3" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
             <Grid.RowDefinitions>
                 <RowDefinition/>

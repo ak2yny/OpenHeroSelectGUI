@@ -106,6 +106,8 @@ namespace OpenHeroSelectGUI.Settings
         private int home;
         [ObservableProperty]
         private bool freeSaves;
+        [ObservableProperty]
+        private string gameInstallPath;
         // MUA specific settings
         [ObservableProperty]
         private string layout;
@@ -113,6 +115,9 @@ namespace OpenHeroSelectGUI.Settings
         private string model;
         [ObservableProperty]
         private bool rowLayout;
+        // XML2 specific settings
+        [ObservableProperty]
+        private bool skinDetailsVisible;
 
         public static GUIsettings Instance { get; set; } = new();
 
@@ -122,9 +127,11 @@ namespace OpenHeroSelectGUI.Settings
             gitHub = "https://github.com/ak2yny/OpenHeroSelectGUI";
             home = 0;
             freeSaves = true;
+            gameInstallPath = "";
             layout = "25 Default PC 2006";
             model = "Default";
             rowLayout = false;
+            skinDetailsVisible = false;
         }
 
         private static string GetVersionDescription()
@@ -154,6 +161,7 @@ namespace OpenHeroSelectGUI.Settings
         public GUIsettings GUI { get; set; } = GUIsettings.Instance;
         public DynamicSettings Dynamic { get; set; } = DynamicSettings.Instance;
         public CharacterLists Roster { get; set; } = CharacterLists.Instance;
+        public SkinData Skins { get; set; } = SkinData.Instance;
 
     }
     public class CfgCommands
@@ -165,8 +173,7 @@ namespace OpenHeroSelectGUI.Settings
         {
             FileOpenPicker filePicker = new();
             filePicker.FileTypeFilter.Add(format);
-            Window window = new();
-            WinRT.Interop.InitializeWithWindow.Initialize(filePicker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+            WinRT.Interop.InitializeWithWindow.Initialize(filePicker, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
             StorageFile file = await filePicker.PickSingleFileAsync();
             return file?.Path;
         }
@@ -314,6 +321,27 @@ namespace OpenHeroSelectGUI.Settings
                             "36 (for 36RH v2.0 or later Stage)",
                             "50 (for 50RH Stage)" })
                 .Any(m => m.Equals(MV, StringComparison.OrdinalIgnoreCase));
+        }
+        /// <summary>
+        /// Get the saves folder for the current tab (game).
+        /// </summary>
+        /// <returns>Save folder in documents for the correct game.</returns>
+        public static string GetSaveFolder()
+        {
+            string Game = (DynamicSettings.Instance.Game == "xml2") ?
+                "X-Men Legends 2" :
+                "Marvel Ultimate Alliance";
+            return Path.Combine(Activision, Game);
+        }
+        /// <summary>
+        /// Move folders in the game's save location by providing names.
+        /// </summary>
+        public static void MoveSaves(string From, string To)
+        {
+            string SaveFolder = GetSaveFolder();
+            DirectoryInfo Source = new(Path.Combine(SaveFolder, From));
+            string Target = Path.Combine(SaveFolder, To);
+            if (Source.Exists) Source.MoveTo(Target);
         }
     }
 }

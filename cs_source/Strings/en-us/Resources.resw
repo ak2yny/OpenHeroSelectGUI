@@ -126,10 +126,10 @@
   <data name="AppDescription" xml:space="preserve">
     <value>Graphical User Interface for Open Hero Select</value>
   </data>
-  <data name="Tab_MUA.Text" xml:space="preserve">
+  <data name="Tab_MUA.Content" xml:space="preserve">
     <value>MUA</value>
   </data>
-  <data name="Tab_XML2.Text" xml:space="preserve">
+  <data name="Tab_XML2.Content" xml:space="preserve">
     <value>XML2</value>
   </data>
   <data name="Info_About.Text" xml:space="preserve">

@@ -52,16 +52,7 @@ namespace OpenHeroSelectGUI.Settings
         public static readonly string cdPath = Directory.GetCurrentDirectory();  // Directory.GetCurrentDirectory()
         public static readonly string ModelPath = Path.Combine(cdPath, "stages", ".models");
         public static readonly string Activision = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Activision");
-        private static string[] GetMUASkinNames()
-        {
-            List<string> MUAskins = new();
-            for (int i = 1; i < 7; i++)
-            {
-                MUAskins.Add(i == 1 ? "skin" : $"skin_0{i}");
-            }
-            return MUAskins.ToArray();
-        }
-        private static readonly string[] XML2skinNames =
+        private static readonly string[] XML2SkinNames =
         {
             "skin",
             "skin_astonishing",
@@ -73,11 +64,19 @@ namespace OpenHeroSelectGUI.Settings
             "skin_winter",
             "skin_civilian"
         };
+        private static string[] GetMUASkinNames()
+        {
+            string[] MUAskins = new string[6];
+            MUAskins[0] = "skin";
+            for (int i = 1; i < 6; i++) { MUAskins[i] = $"skin_0{i + 1}"; }
+            return MUAskins;
+        }
+        private static readonly string[] MUASkinNames = GetMUASkinNames();
         public static string[] GetSkinIdentifiers()
         {
             return (DynamicSettings.Instance.Game == "xml2")
-            ? XML2skinNames
-            : GetMUASkinNames();
+            ? XML2SkinNames
+            : MUASkinNames;
         }
     }
 }

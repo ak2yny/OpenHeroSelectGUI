@@ -4,7 +4,6 @@ using Microsoft.UI.Xaml.Input;
 using OpenHeroSelectGUI.Settings;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -16,16 +15,6 @@ using static OpenHeroSelectGUI.Settings.InternalSettings;
 namespace OpenHeroSelectGUI
 {
     /// <summary>
-    /// Skin Details. Example: Skin 0301 > CharNum = "03", Number = "01", Name = "Modern".
-    /// </summary>
-    public class SkinDetails
-    {
-        public string CharNum = "";
-        public string Number = "";
-        public string Name = "";
-        public StandardUICommand? Command;
-    }
-    /// <summary>
     /// The Skin details pane that shows skin details. Depends on Floating character and can be added to other pages.
     /// </summary>
     public sealed partial class SkinDetailsPage : Page
@@ -35,22 +24,14 @@ namespace OpenHeroSelectGUI
         private string[]? LoadedHerostat;
         private static char HsFormat = ' ';
         private readonly StandardUICommand DeleteCommand = new(StandardUICommandKind.Delete);
-        public ObservableCollection<SkinDetails> SkinsList { get; set; } = new ObservableCollection<SkinDetails>();
         public Cfg Cfg { get; set; } = new();
         public SkinDetailsPage()
         {
             DeleteCommand.ExecuteRequested += DeleteCommand_ExecuteRequested;
 
             InitializeComponent();
+            Skins.AllowDrop = Skins.CanReorderItems = Cfg.Dynamic.Game == "mua";
             LoadSkinList();
-            if (Cfg.Dynamic.Game == "mua")
-            {
-                //enable list reorder
-            }
-            else
-            {
-                //disable list reorder
-            }
         }
         /// <summary>
         /// Load skin details from a herostat with a single stat only.
@@ -59,16 +40,16 @@ namespace OpenHeroSelectGUI
         {
             if (Cfg.Dynamic.FloatingCharacter is string FC)
             {
-                // If the previous state of SkinsList is in progress (edit was not finished), the clear and add commands cause a crash
+                Cfg.Skins.SkinsList.Clear();
                 string FolderString = Path.Combine(GetHerostatFolder(), FC);
                 int S = FolderString.Replace('\\', '/').LastIndexOf('/');
                 DirectoryInfo folder = new(FolderString[..S].TrimEnd('/'));
                 if (!folder.Exists) return;
-                FileInfo Herostat = folder.EnumerateFiles($"{FolderString[(S + 1)..]}.??????????").First();
-                LoadedHerostat = File.ReadLines(Herostat.FullName).Where(l => l.Trim() != "").ToArray();
-                SkinsList.Clear();
+                IEnumerable<FileInfo> Herostat = folder.EnumerateFiles($"{FolderString[(S + 1)..]}.??????????");
+                if (!Herostat.Any()) return;
+                LoadedHerostat = File.ReadLines(Herostat.First().FullName).Where(l => l.Trim() != "").ToArray();
                 AddCharNum.Text = "";
-                HerostatPath = Herostat.FullName;
+                HerostatPath = Herostat.First().FullName;
                 if (LoadedHerostat[0].Trim()[0] == '<')
                 {
                     XmlDocument XmlStat = new();
@@ -131,14 +112,14 @@ namespace OpenHeroSelectGUI
         private void AddSkin(string CharacterNumber, string Number, string SkinName)
         {
             AddCharNum.Text = CharacterNumber;
-            SkinsList.Add(new SkinDetails
+            Cfg.Skins.SkinsList.Add(new SkinDetails
             {
                 CharNum = CharacterNumber,
                 Number = Number,
                 Name = SkinName,
                 Command = DeleteCommand
             });
-            AddButton.Visibility = SkinsList.Count < GetSkinIdentifiers().Length
+            AddButton.Visibility = Cfg.Skins.SkinsList.Count < GetSkinIdentifiers().Length
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
@@ -164,13 +145,9 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SaveSkinList()
         {
-            if (HerostatPath is not null && SkinsList.Any())
+            if (HerostatPath is not null && Cfg.Skins.SkinsList.Any())
             {
                 LoadedHerostat = File.ReadLines(HerostatPath).ToArray();
-                if (SkinsList.FirstOrDefault(s => s.Name == "Main") is SkinDetails SD)
-                {
-                    SkinsList.Move(SkinsList.IndexOf(SD), 0);
-                }
                 bool IsMUA = Cfg.Dynamic.Game == "mua";
                 if (HsFormat == 'x')
                 {
@@ -178,24 +155,27 @@ namespace OpenHeroSelectGUI
                     XmlStat.LoadXml(string.Join(Environment.NewLine, LoadedHerostat));
                     if (XmlStat.DocumentElement is XmlElement Stats && Stats.GetAttributeNode("skin") is XmlAttribute Skin)
                     {
-                        Skin.Value = $"{SkinsList[0].CharNum}{SkinsList[0].Number}";
-                        if (IsMUA) Stats.GetAttributeNode("skin_01_name").Value = SkinsList[0].Name;
-                        for (int i = 1; i < SkinsList.Count; i++)
+                        Skin.Value = $"{Cfg.Skins.SkinsList[0].CharNum}{Cfg.Skins.SkinsList[0].Number}";
+                        if (IsMUA) Stats.GetAttributeNode("skin_01_name").Value = Cfg.Skins.SkinsList[0].Name;
+                        for (int i = 1; i < GetSkinIdentifiers().Length; i++)
+                        {
+                            Stats.RemoveAttribute(GetSkinIdentifiers()[i]);
+                            if (IsMUA) Stats.RemoveAttribute($"{GetSkinIdentifiers()[i]}_name");
+                        }
+                        for (int i = 1; i < Cfg.Skins.SkinsList.Count; i++)
                         {
                             string AttrName = IsMUA
                                 ? $"skin_0{i + 1}"
-                                : SkinsList[i].Name == "Main"
+                                : Cfg.Skins.SkinsList[i].Name == "Main"
                                 ? ""
-                                : $"skin_{SkinsList[i].Name}";
-                            XmlAttribute? Attr = Stats.GetAttributeNode(AttrName);
-                            Attr ??= XmlStat.CreateAttribute(AttrName);
-                            Attr.Value = $"{SkinsList[i].Number}";
+                                : $"skin_{Cfg.Skins.SkinsList[i].Name}";
+                            XmlAttribute Attr = XmlStat.CreateAttribute(AttrName);
+                            Attr.Value = $"{Cfg.Skins.SkinsList[i].Number}";
                             _ = Stats.SetAttributeNode(Attr);
                             if (IsMUA)
                             {
-                                XmlAttribute? AttrNm = Stats.GetAttributeNode($"skin_0{i + 1}_name");
-                                AttrNm ??= XmlStat.CreateAttribute($"skin_0{i + 1}_name");
-                                AttrNm.Value = SkinsList[i].Name;
+                                XmlAttribute AttrNm = XmlStat.CreateAttribute($"skin_0{i + 1}_name");
+                                AttrNm.Value = Cfg.Skins.SkinsList[i].Name;
                                 _ = Stats.SetAttributeNode(AttrNm);
                             }
                         }
@@ -204,44 +184,47 @@ namespace OpenHeroSelectGUI
                 }
                 else
                 {
-                    string[] NewLines = new string[(IsMUA ? SkinsList.Count * 2 : SkinsList.Count)];
-                    for (int i = 0; i < SkinsList.Count; i++)
+                    int Indx = Array.IndexOf(LoadedHerostat, LoadedHerostat.FirstOrDefault(l => l.Trim().Trim('"').ToLower().StartsWith("skin")));
+                    if (Indx > -1)
                     {
-                        int indx = IsMUA ? i * 2 : i;
-                        NewLines[indx] = i == 0
-                            ? HsFormat == ':'
-                                ? $"\"skin\": \"{SkinsList[i].CharNum}{SkinsList[i].Number}\","
-                                : $"skin = {SkinsList[i].CharNum}{SkinsList[i].Number} ;"
-                            : HsFormat == ':'
-                                ? IsMUA
-                                    ? $"\"skin_0{i + 1}\": \"{SkinsList[i].Number}\","
-                                    : $"\"skin_{SkinsList[i].Name}\": \"{SkinsList[i].Number}\","
-                                : IsMUA
-                                    ? $"skin_0{i + 1} = {SkinsList[i].Number} ;"
-                                    : $"skin_{SkinsList[i].Name} = {SkinsList[i].Number} ;";
-                        if (IsMUA)
+                        // A skin should always be present, but in case it isn't and a child element with a skin attribut exists, the result will be corrupted, but the herostat is already corrupted in that case
+                        string indent = new Regex(@"\S").Split(LoadedHerostat[Indx])[0];
+                        int M = IsMUA ? 2 : 1;
+                        for (int i = 0; i < GetSkinIdentifiers().Length * M; i++)
                         {
-                            NewLines[indx + 1] = HsFormat == ':'
-                                ? $"\"skin_0{i + 1}_name\": \"{SkinsList[i].Name}\","
-                                : $"skin_0{i + 1}_name = {SkinsList[i].Name} ;";
-                        }
-                    }
-                    string indent = "";
-                    int PrevIndx = 0;
-                    for (int i = 0; i < NewLines.Length; i++)
-                    {
-                        int Indx = Array.IndexOf(LoadedHerostat, LoadedHerostat[1..].FirstOrDefault(l => l.Contains(NewLines[i].Split(new[] { HsFormat }, 2)[0])));
-                        if (Indx == -1)
-                        {
-                            List<string> TempLines = LoadedHerostat.ToList();
-                            TempLines.Insert(PrevIndx + 1, $"{indent}{NewLines[i]}");
-                            LoadedHerostat = TempLines.ToArray();
-                        }
-                        else
-                        {
-                            indent = new Regex(@"\S").Split(LoadedHerostat[Indx])[0];
-                            LoadedHerostat[Indx] = $"{indent}{NewLines[i]}";
-                            PrevIndx = Indx;
+                            if (i < Cfg.Skins.SkinsList.Count * M)
+                            {
+                                string NewLine = !IsMUA || i % 2 == 0
+                                    ? i == 0
+                                        ? HsFormat == ':'
+                                            ? $"\"skin\": \"{Cfg.Skins.SkinsList[i].CharNum}{Cfg.Skins.SkinsList[i].Number}\","
+                                            : $"skin = {Cfg.Skins.SkinsList[i].CharNum}{Cfg.Skins.SkinsList[i].Number} ;"
+                                        : HsFormat == ':'
+                                            ? IsMUA
+                                                ? $"\"skin_0{i / 2 + 1}\": \"{Cfg.Skins.SkinsList[i / 2].Number}\","
+                                                : $"\"skin_{Cfg.Skins.SkinsList[i].Name}\": \"{Cfg.Skins.SkinsList[i].Number}\","
+                                            : IsMUA
+                                                ? $"skin_0{i / 2 + 1} = {Cfg.Skins.SkinsList[i / 2].Number} ;"
+                                                : $"skin_{Cfg.Skins.SkinsList[i].Name} = {Cfg.Skins.SkinsList[i].Number} ;"
+                                    : HsFormat == ':'
+                                        ? $"\"skin_0{(i - 1) / 2 + 1}_name\": \"{Cfg.Skins.SkinsList[(i - 1) / 2].Name}\","
+                                        : $"skin_0{(i - 1) / 2 + 1}_name = {Cfg.Skins.SkinsList[(i - 1) / 2].Name} ;";
+                                if (LoadedHerostat[Indx + i].Trim().Trim('"').ToLower().StartsWith("skin"))
+                                {
+                                    LoadedHerostat[Indx + i] = indent + NewLine;
+                                }
+                                else
+                                {
+                                    List<string> TempLines = LoadedHerostat.ToList();
+                                    TempLines.Insert(Indx + i, indent + NewLine);
+                                    LoadedHerostat = TempLines.ToArray();
+                                }
+                            }
+                            else
+                            {
+                                LoadedHerostat = LoadedHerostat.Where((vl, ix) => !vl.Trim().Trim('"').ToLower().StartsWith("skin") || ix != Indx + i).ToArray();
+                                Indx--;
+                            }
                         }
                     }
                     File.WriteAllLines(HerostatPath, LoadedHerostat);
@@ -279,10 +262,10 @@ namespace OpenHeroSelectGUI
         {
             if (args.Parameter != null)
             {
-                if (SkinsList.FirstOrDefault(s => s.Number == (args.Parameter as string)) is SkinDetails STR)
+                if (Cfg.Skins.SkinsList.FirstOrDefault(s => s.Number == (args.Parameter as string)) is SkinDetails STR)
                 {
-                    _ = SkinsList.Remove(STR);
-                    AddButton.Visibility = SkinsList.Count < GetSkinIdentifiers().Length
+                    _ = Cfg.Skins.SkinsList.Remove(STR);
+                    AddButton.Visibility = Cfg.Skins.SkinsList.Count < GetSkinIdentifiers().Length
                         ? Visibility.Visible
                         : Visibility.Collapsed;
                 }
@@ -295,10 +278,10 @@ namespace OpenHeroSelectGUI
         {
             int MaxSkinNum = 0;
             string[] AvailableXMLNames = GetSkinIdentifiers().Select(s => s == "skin" ? "Main" : s[5..]).ToArray();
-            if (SkinsList.Any())
+            if (Cfg.Skins.SkinsList.Any())
             {
-                AvailableXMLNames = AvailableXMLNames.Except(SkinsList.Select(s => s.Name)).ToArray();
-                _ = int.TryParse(SkinsList.OrderBy(s => s.Number).Last().Number, out MaxSkinNum);
+                AvailableXMLNames = AvailableXMLNames.Except(Cfg.Skins.SkinsList.Select(s => s.Name)).ToArray();
+                _ = int.TryParse(Cfg.Skins.SkinsList.OrderBy(s => s.Number).Last().Number, out MaxSkinNum);
             }
             AddSkin(AddCharNum.Text, (MaxSkinNum + 1).ToString().PadLeft(2, '0'), Cfg.Dynamic.Game == "xml2" ? AvailableXMLNames[0] : "");
         }
@@ -306,5 +289,10 @@ namespace OpenHeroSelectGUI
         /// Save. There is no shortcut for now, as it conflicts with the OHS commands.
         /// </summary>
         private void SaveSkinDetails_Click(object sender, RoutedEventArgs e) => SaveSkinList();
+
+        private void SkinNumber_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+        {
+            args.Cancel = args.NewText.Any(c => !char.IsDigit(c)) || args.NewText.Length > 2;
+        }
     }
 }

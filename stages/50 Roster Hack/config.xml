@@ -270,6 +270,7 @@ You can read coordinates for the location set-up by opening mlm_team_back.igb in
     </Location_Setup>
     <Compatible_Models>
         <Model>RH</Model>
+        <Model>Custom_NoPlatfrom</Model>
     </Compatible_Models>
     <Default_Roster>
         <menulocations>50 (for 50RH Stage)</menulocations>

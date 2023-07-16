@@ -1,6 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using OpenHeroSelectGUI.Settings;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -16,7 +15,7 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public sealed partial class Tab_XML2 : Page
     {
-        public Cfg Cfg { get; set; } = new();
+        public Settings.Cfg Cfg { get; set; } = new();
         public Tab_XML2()
         {
             InitializeComponent();
@@ -38,7 +37,11 @@ namespace OpenHeroSelectGUI
             }
             RosterSizeToggle.SelectedIndex = (Size - 18) / 2;
 
+            // Initialize other XML2 settings;
             if (Cfg.XML2.ExeName == "") Cfg.XML2.ExeName = "Xmen.exe";
+            SkinDetailsBtn.Content = Cfg.GUI.SkinDetailsVisible
+                ? "Hide Skin Details"
+                : "Show Skin Details";
         }
         private void SetXML2Limit()
         {
@@ -59,16 +62,15 @@ namespace OpenHeroSelectGUI
                 : "Default 18 Character (GC, PS2, Xbox) Roster";
         }
         // Control handlers. A few of them are identical to the MUA handlers, can they be combined?
-
         private void BtnRunGame_Click(object sender, RoutedEventArgs e)
         {
-            if (Cfg.GUI.FreeSaves) Tab_Settings.MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
-            Process.Start(Path.Combine(Cfg.OHS.GameInstallPath, Cfg.OHS.ExeName));
+            if (Cfg.GUI.FreeSaves) MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
+            _ = Process.Start(Path.Combine(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName));
         }
 
         private void BtnUnlockAll_Click(object sender, RoutedEventArgs e)
         {
-            foreach (SelectedCharacter c in Cfg.Roster.Selected)
+            foreach (Settings.SelectedCharacter c in Cfg.Roster.Selected)
             {
                 c.Unlock = true;
             }
@@ -77,6 +79,20 @@ namespace OpenHeroSelectGUI
         private void RosterSize_SelectionChanged(object sender, SelectionChangedEventArgs e) => SetXML2Limit();
 
         private void ReplDefaultman_Toggled(object sender, RoutedEventArgs e) => SetXML2Limit();
+        /// <summary>
+        /// Show the drop area when the pointer is on it
+        /// </summary>
+        private void SelectedCharacters_DragEnter(object sender, DragEventArgs e)
+        {
+            SelectedCharactersDropArea.Visibility = Visibility.Visible;
+        }
+        /// <summary>
+        /// Hide the drop area when pointer is not on it
+        /// </summary>
+        private void SelectedCharacters_DragLeave(object sender, DragEventArgs e)
+        {
+            SelectedCharactersDropArea.Visibility = Visibility.Collapsed;
+        }
         /// <summary>
         /// Define the allowed drop info
         /// </summary>
@@ -90,6 +106,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SelectedCharacters_Drop(object sender, DragEventArgs e)
         {
+            SelectedCharactersDropArea.Visibility = Visibility.Collapsed;
             if (Cfg.Dynamic.FloatingCharacter is string FC)
             {
                 AddToSelected(FC);
@@ -131,16 +148,10 @@ namespace OpenHeroSelectGUI
 
         private void SkinDetailsBtn_Click(object sender, RoutedEventArgs e)
         {
-            if (SkinDetailsBtn.Content.ToString() == "Show Skin Details")
-            {
-                SkinDetailsBtn.Content = "Hide Skin Details";
-                SkinDetailsPage.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                SkinDetailsBtn.Content = "Show Skin Details";
-                SkinDetailsPage.Visibility = Visibility.Collapsed;
-            }
+            SkinDetailsBtn.Content = Cfg.GUI.SkinDetailsVisible
+                ? "Hide Skin Details"
+                : "Show Skin Details";
+            Cfg.GUI.SkinDetailsVisible = !Cfg.GUI.SkinDetailsVisible;
         }
     }
 }

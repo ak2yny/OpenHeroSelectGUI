@@ -16,7 +16,7 @@
         <Frame x:Name="AvailableCharacters" DoubleTapped="AvailableCharacters_DoubleTapped" MaxWidth="400"/>
         <Grid Grid.Column="1" Margin="5">
             <Grid.RowDefinitions>
-                <RowDefinition Height="140"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid x:Name="MUASettings" HorizontalAlignment="Left">
@@ -75,12 +75,12 @@
                 <RowDefinition/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <Canvas Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop"/>
-            <Frame x:Name="SelectedCharacters" KeyboardAcceleratorPlacementMode="Hidden" ProcessKeyboardAccelerators="SelectedCharacters_Delete" MaxWidth="450">
+            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" ProcessKeyboardAccelerators="SelectedCharacters_Delete" MaxWidth="450" Margin="3">
                 <Frame.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Delete" />
                 </Frame.KeyboardAccelerators>
             </Frame>
+            <Canvas x:Name="SelectedCharactersDropArea" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop" DragLeave="SelectedCharacters_DragLeave" Visibility="Collapsed"/>
             <StackPanel x:Name="MUAButtons" Grid.Row="1" Orientation="Horizontal">
                 <SplitButton x:Name="BtnLoadRoster" Content="Load ..." Click="MUA_LoadRoster" ToolTipService.ToolTip="Load roster from an OHS .cfg file in the rosters folder - Matches characters top-down > left-right, unless the menulocations have been customized">
                     <SplitButton.Flyout>

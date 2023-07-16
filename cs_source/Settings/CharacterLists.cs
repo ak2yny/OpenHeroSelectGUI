@@ -25,12 +25,6 @@ namespace OpenHeroSelectGUI.Settings
         public ObservableCollection<Available> Children { get; set; } = new();
         [ObservableProperty]
         private bool isExpanded;
-        public override string ToString()
-        {
-            return (Character is null || Character.Path is null) ?
-                "" :
-                Character.Path;
-        }
     }
     /// <summary>
     /// Selected Characters: Definition

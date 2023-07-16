@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
@@ -153,7 +154,11 @@ namespace OpenHeroSelectGUI
             string StagesPath = Path.Combine(cdPath, "stages");
             string RiserPath = Path.Combine(StagesPath, ".riser");
             string SelectedLayoutPath = Path.Combine(StagesPath, GUIsettings.Instance.Layout);
-            CopyStageFile(DynamicSettings.Instance.SelectedModelPath, Path.Combine("ui", "models"), "m_team_stage.igb");
+            DirectoryInfo ModelFolder = new(DynamicSettings.Instance.SelectedModelPath);
+            if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
+            {
+                CopyStageFile(DynamicSettings.Instance.SelectedModelPath, Path.Combine("ui", "models"), ModelFolder.EnumerateFiles("*.igb").First().Name);
+            }
             CopyStageFile(SelectedLayoutPath, Path.Combine("ui", "menus"), "mlm_team_back.igb");
             CopyStageFile(SelectedLayoutPath, Path.Combine("ui", "menus"), "team_back.xmlb");
             if (DynamicSettings.Instance.Riser)
@@ -188,9 +193,7 @@ namespace OpenHeroSelectGUI
         {
             FileSavePicker savePicker = new();
             savePicker.FileTypeChoices.Add("Configuration File", new List<string>() { ".ini" });
-            // window can be defined outside of void?
-            Window window = new();
-            WinRT.Interop.InitializeWithWindow.Initialize(savePicker, WinRT.Interop.WindowNative.GetWindowHandle(window));
+            InitializeWithWindow.Initialize(savePicker, WindowNative.GetWindowHandle(App.MainWindow));
             StorageFile file = await savePicker.PickSaveFileAsync();
             if (file != null)
             {
@@ -203,7 +206,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void BtnRun_Click(object sender, RoutedEventArgs e)
         {
-            if (GUIsettings.Instance.FreeSaves && OHSsettings.Instance.LaunchGame) Tab_Settings.MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
+            if (GUIsettings.Instance.FreeSaves && OHSsettings.Instance.LaunchGame) MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
             RunOHS();
             // if this waits until the game has closed (OHS doesn't wait AFAIK) then we can restore the saves after
         }

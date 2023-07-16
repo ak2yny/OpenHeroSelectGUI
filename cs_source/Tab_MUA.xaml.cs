@@ -6,6 +6,7 @@ using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
 using OpenHeroSelectGUI.Settings;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
@@ -15,6 +16,7 @@ using Windows.ApplicationModel.DataTransfer;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
+using static OpenHeroSelectGUI.Settings.MarvelModsXML;
 
 namespace OpenHeroSelectGUI
 {
@@ -26,7 +28,7 @@ namespace OpenHeroSelectGUI
         private ObservableCollection<string> Layouts { get; } = new();
         private ObservableCollection<string> Stages { get; } = new();
         public XmlElement? Models { get; set; }
-        public Cfg Cfg { get; set; } = new();
+        public Settings.Cfg Cfg { get; set; } = new();
         public string? FloatingLoc { get; set; }
         public int? SelectedCount { get => Cfg.Roster.Selected.Count; }
         public Tab_MUA()
@@ -78,7 +80,11 @@ namespace OpenHeroSelectGUI
                         }
                         foreach (XmlElement M in Models[CM.InnerText].ChildNodes)
                         {
-                            Stages.Add(M["Name"].InnerText);
+                            DirectoryInfo ModelFolder = new(Path.Combine(ModelPath, M["Path"].InnerText));
+                            if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
+                            {
+                                Stages.Add(M["Name"].InnerText);
+                            }
                         }
                     }
                     Cfg.Dynamic.SelectedModel = Stages.IndexOf(Cfg.GUI.Model);
@@ -132,22 +138,6 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Get the root XML elemet by providing the path to an XML file. File must not have an XML identifier.
-        /// </summary>
-        /// <returns>The root XML element containing the complete XML structure</returns>
-        private static XmlElement? GetXmlElement(string Path)
-        {
-            XmlElement? XmlElement = null;
-            if (File.Exists(Path))
-            {
-                XmlDocument XmlDocument = new();
-                using XmlReader reader = XmlReader.Create(Path, new XmlReaderSettings() { IgnoreComments = true });
-                XmlDocument.Load(reader);
-                if (XmlDocument.FirstChild is XmlElement Root) XmlElement = Root;
-            }
-            return XmlElement;
-        }
-        /// <summary>
         /// Update the state of all location boxes. Required after each add process except when clicked (or dragged?).
         /// </summary>
         private void UpdateLocBoxes()
@@ -181,13 +171,13 @@ namespace OpenHeroSelectGUI
 
         private void BtnRunGame_Click(object sender, RoutedEventArgs e)
         {
-            if (Cfg.GUI.FreeSaves) Tab_Settings.MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
-            Process.Start(Path.Combine(Cfg.OHS.GameInstallPath, Cfg.OHS.ExeName));
+            if (Cfg.GUI.FreeSaves) MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
+            _ = Process.Start(Path.Combine(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName));
         }
 
         private void BtnUnlockAll_Click(object sender, RoutedEventArgs e)
         {
-            foreach (SelectedCharacter c in Cfg.Roster.Selected)
+            foreach (Settings.SelectedCharacter c in Cfg.Roster.Selected)
             {
                 c.Unlock = true;
             }
@@ -229,7 +219,10 @@ namespace OpenHeroSelectGUI
                 DirectoryInfo ModelFolder = new(Cfg.Dynamic.SelectedModelPath);
                 if (ModelFolder.Exists)
                 {
-                    var ModelImages = ModelFolder.EnumerateFiles("*.png").Union(ModelFolder.EnumerateFiles("*.jpg"));
+                    IEnumerable<FileInfo> ModelImages = ModelFolder
+                        .EnumerateFiles("*.png")
+                        .Union(ModelFolder.EnumerateFiles("*.jpg"))
+                        .Union(ModelFolder.EnumerateFiles("*.bmp"));
                     if (ModelImages.Any())
                     {
                         StageImage.Source = new BitmapImage(new Uri(ModelImages.First().FullName));
@@ -281,11 +274,25 @@ namespace OpenHeroSelectGUI
         {
             if (sender is ToolTip Tt && FloatingLoc is not null)
             {
-                if (Cfg.Roster.Selected.FirstOrDefault(c => c.Loc == FloatingLoc) is SelectedCharacter SC)
+                if (Cfg.Roster.Selected.FirstOrDefault(c => c.Loc == FloatingLoc) is Settings.SelectedCharacter SC)
                 { Tt.Content = SC.Path; }
                 else
                 { Tt.IsOpen = false; }
             }
+        }
+        /// <summary>
+        /// Show the drop area when the pointer is on it
+        /// </summary>
+        private void SelectedCharacters_DragEnter(object sender, DragEventArgs e)
+        {
+            SelectedCharactersDropArea.Visibility = Visibility.Visible;
+        }
+        /// <summary>
+        /// Hide the drop area when pointer is not on it
+        /// </summary>
+        private void SelectedCharacters_DragLeave(object sender, DragEventArgs e)
+        {
+            SelectedCharactersDropArea.Visibility = Visibility.Collapsed;
         }
         /// <summary>
         /// Define the allowed drop info
@@ -300,6 +307,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SelectedCharacters_Drop(object sender, DragEventArgs e)
         {
+            SelectedCharactersDropArea.Visibility = Visibility.Collapsed;
             if (Cfg.Dynamic.FloatingCharacter is string FC)
             {
                 AddToSelected(FC);

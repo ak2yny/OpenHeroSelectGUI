@@ -1,9 +1,7 @@
-<?xml version="1.0" encoding="utf-8"?>
 <Page
     x:Class="OpenHeroSelectGUI.SkinDetailsPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:OpenHeroSelectGUI"
     xmlns:settings="using:OpenHeroSelectGUI.Settings"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -11,7 +9,7 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
-        <DataTemplate x:Key="SkinTemplate" x:DataType="local:SkinDetails">
+        <DataTemplate x:Key="SkinTemplate" x:DataType="settings:SkinDetails">
             <UserControl PointerEntered="SkinTemplate_PointerEntered" PointerExited="SkinTemplate_PointerExited">
                 <Grid AutomationProperties.Name="SkinDetails">
                     <VisualStateManager.VisualStateGroups>
@@ -33,7 +31,7 @@
                         <Grid VerticalAlignment="Center">
                             <StackPanel x:Name="SkinDetails" Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock x:Name="CharacterNumber" Text="{x:Bind CharNum}" Margin="5"/>
-                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36"/>
+                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging"/>
                                 <TextBox x:Name="SkinName" Text="{x:Bind Name, Mode=TwoWay}" Margin="5 0" MinWidth="150"/>
                                 <Canvas x:Name="SpaceForButton" Background="{ThemeResource AppBarItemBackgroundThemeBrush}" MinWidth="70"/>
                             </StackPanel>
@@ -43,7 +41,7 @@
                 </Grid>
             </UserControl>
         </DataTemplate>
-        <DataTemplate x:Key="SkinTemplateXML2" x:DataType="local:SkinDetails">
+        <DataTemplate x:Key="SkinTemplateXML2" x:DataType="settings:SkinDetails">
             <UserControl PointerEntered="SkinTemplate_PointerEntered" PointerExited="SkinTemplate_PointerExited">
                 <Grid AutomationProperties.Name="SkinDetails">
                     <VisualStateManager.VisualStateGroups>
@@ -65,7 +63,7 @@
                         <Grid VerticalAlignment="Center">
                             <StackPanel x:Name="SkinDetails" Orientation="Horizontal" VerticalAlignment="Center">
                                 <TextBlock x:Name="CharacterNumber" Text="{x:Bind CharNum}" Margin="5" VerticalAlignment="Center"/>
-                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36"/>
+                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging"/>
                                 <TextBlock x:Name="SkinNameXML2" Text="{x:Bind Name}" Margin="10 0" MinWidth="150" VerticalAlignment="Center"/>
                                 <Canvas x:Name="SpaceForButton" Background="{ThemeResource AppBarItemBackgroundThemeBrush}" MinWidth="70"/>
                             </StackPanel>
@@ -100,7 +98,7 @@
                 </StackPanel>
                 <ListView x:Name="Skins"
                       ItemContainerStyle="{StaticResource SkinItems}"
-                      ItemsSource="{x:Bind SkinsList}"
+                      ItemsSource="{x:Bind Cfg.Skins.SkinsList}"
                       ItemTemplateSelector="{StaticResource SkinTemplateSelector}"
                       AllowDrop="True"
                       CanReorderItems="True"

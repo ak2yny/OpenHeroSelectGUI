@@ -8,7 +8,7 @@
     NavigationCacheMode="Required"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Margin="15 10">
+    <Grid Margin="40 10">
         <StackPanel>
             <TextBlock x:Uid="Info_About" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5"/>
             <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
