@@ -18,20 +18,17 @@ namespace OpenHeroSelectGUI.Settings
     {
         public string? Path { get; set; }
         public string? Name { get; set; }
-    }
-    public partial class Available : ObservableRecipient
-    {
-        public Character Character { get; set; } = new();
-        public ObservableCollection<Available> Children { get; set; } = new();
-        [ObservableProperty]
-        private bool isExpanded;
+
+        public override string ToString()
+        {
+            return Name is null ? "" : Name;
+        }
     }
     /// <summary>
     /// Selected Characters: Definition
     /// </summary>
     public partial class CharacterLists : ObservableRecipient
     {
-        public ObservableCollection<Available> AvailableCharacterList { get; set; } = new();
         public ObservableCollection<SelectedCharacter> Selected { get; set; } = new();
         [ObservableProperty]
         private string[]? available;
@@ -57,6 +54,10 @@ namespace OpenHeroSelectGUI.Settings
         public bool unlock;
         [ObservableProperty]
         public bool starter;
+        [ObservableProperty]
+        public string? effect;
+
+        public List<string> AvailableEffects = GUIXML.GetAvailableEffects();
     }
     /// <summary>
     /// Selected Character list view column selector
@@ -68,7 +69,7 @@ namespace OpenHeroSelectGUI.Settings
 
         protected override DataTemplate? SelectTemplateCore(object item)
         {
-            return DynamicSettings.Instance.Game == "xml2" ? XML2 : MUA;
+            return GUIsettings.Instance.Game == "xml2" ? XML2 : MUA;
         }
     }
     public class CharacterListCommands
@@ -77,11 +78,11 @@ namespace OpenHeroSelectGUI.Settings
         /// <summary>
         /// Load OHS JSON data from the default OHS ini & load the roster according to its settings.
         /// </summary>
-        public static void LoadRoster() => LoadOHSsettings(Path.Combine(cdPath, Cfg.Dynamic.Game, "config.ini"));
+        public static void LoadRoster() => LoadOHSsettings(Path.Combine(cdPath, Cfg.GUI.Game, "config.ini"));
         /// <summary>
         /// Load the roster from the saved settings.
         /// </summary>
-        public static void LoadRosterVal() => LoadRosterVal(OHSsettings.Instance.RosterValue, Cfg.Dynamic.Game == "xml2" ? XML2settings.Instance.RosterValue : MUAsettings.Instance.MenulocationsValue);
+        public static void LoadRosterVal() => LoadRosterVal(OHSsettings.Instance.RosterValue, Cfg.GUI.Game == "xml2" ? XML2settings.Instance.RosterValue : MUAsettings.Instance.MenulocationsValue);
         /// <summary>
         /// Load a roster by providing the roster value (filename without extension).
         /// </summary>
@@ -91,8 +92,8 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void LoadRosterVal(string Roster, string Mlv)
         {
-            string m = Path.Combine(cdPath, Cfg.Dynamic.Game, "menulocations", $"{Mlv}.cfg");
-            string r = Path.Combine(cdPath, Cfg.Dynamic.Game, "rosters", $"{Roster}.cfg");
+            string m = Path.Combine(cdPath, Cfg.GUI.Game, "menulocations", $"{Mlv}.cfg");
+            string r = Path.Combine(cdPath, Cfg.GUI.Game, "rosters", $"{Roster}.cfg");
             if (File.Exists(m) && File.Exists(r))
             {
                 IEnumerable<int> Ml = File.ReadAllLines(m).Select(s => string.IsNullOrEmpty(s) ? 0 : int.Parse(s));
@@ -119,7 +120,7 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void LoadRoster(string[] Roster)
         {
-            IEnumerable<int>? LL = Cfg.Dynamic.Game == "mua"
+            IEnumerable<int>? LL = Cfg.GUI.Game == "mua"
                 ? Cfg.Dynamic.LayoutLocs
                 : Cfg.Dynamic.RosterRange;
             LoadRoster(LL is null ? Array.Empty<int>() : LL.ToArray(), LL, Roster);
@@ -164,7 +165,7 @@ namespace OpenHeroSelectGUI.Settings
         public static bool AddToSelected(string? PathInfo, bool Unl) => AddToSelected(PathInfo, Unl, false);
         public static bool AddToSelected(string? PathInfo, bool Unl, bool Start)
         {
-            IEnumerable<int> AvailableLocs = (Cfg.Dynamic.Game == "xml2")
+            IEnumerable<int> AvailableLocs = (Cfg.GUI.Game == "xml2")
                 ? Enumerable.Range(1, XML2settings.Instance.RosterSize)
                 : Cfg.Dynamic.LayoutLocs is null
                 ? Enumerable.Empty<int>()
@@ -186,7 +187,7 @@ namespace OpenHeroSelectGUI.Settings
 
             _ = Cfg.Roster.Selected.Remove(Cfg.Roster.Selected.FirstOrDefault(c => c.Loc == Loc));
             bool RemOther = Cfg.Roster.Selected.Remove(Cfg.Roster.Selected.FirstOrDefault(c => c.Path == PathInfo));
-            Cfg.Roster.Selected.Add(new SelectedCharacter { Loc = Loc ??= "", Character_Name = FolderString[(S + 1)..], Path = PathInfo, Unlock = Unl, Starter = Start });
+            Cfg.Roster.Selected.Add(new SelectedCharacter { Loc = Loc ??= "", Character_Name = FolderString[(S + 1)..], Path = PathInfo, Unlock = Unl, Starter = Start, Effect = null });
             Cfg.Roster.Count = Cfg.Roster.Selected.Count;
 
             return RemOther;
@@ -206,11 +207,22 @@ namespace OpenHeroSelectGUI.Settings
             if (File.Exists(Target)) Target = Path.Combine(Hsf.FullName, Name + $"{DateTime.Now:-yyMMdd-HHmmss}" + HSext);
             File.Copy(HSpath, Target, true);
         }
-        public static string GetHerostatFolder()
+        /// <summary>
+        /// Get the full path to the herostat folder.
+        /// </summary>
+        /// <returns>Full path to the herostat folder</returns>
+        public static string GetHerostatFolder() => GetOHSFolder(OHSsettings.Instance.HerostatFolder);
+        /// <summary>
+        /// Get the full path to an OHS game sub folder.
+        /// </summary>
+        /// <returns>Full path to an OHS game sub folder</returns>
+        public static string GetOHSFolder(string FolderString)
         {
-            return Path.IsPathRooted(OHSsettings.Instance.HerostatFolder)
-                ? OHSsettings.Instance.HerostatFolder
-                : Path.Combine(cdPath, Cfg.Dynamic.Game, OHSsettings.Instance.HerostatFolder);
+            return Path.IsPathRooted(FolderString)
+                ? FolderString
+                : Cfg.GUI.Game == ""
+                ? Path.Combine(cdPath, "mua", FolderString)
+                : Path.Combine(cdPath, Cfg.GUI.Game, FolderString);
         }
     }
 }

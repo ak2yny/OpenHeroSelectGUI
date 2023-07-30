@@ -28,7 +28,7 @@ namespace OpenHeroSelectGUI
             ReadSaveBackups();
         }
         /// <summary>
-        /// Load the GUI configurations and set-up the controls. WIP big time.
+        /// Load the GUI configurations and set-up the controls.
         /// </summary>
         private void LoadCfg()
         {
@@ -38,7 +38,7 @@ namespace OpenHeroSelectGUI
                 Herostat = Cfg.OHS.HerostatName.Remove(Dot);
                 LanguageCode.SelectedItem = LanguageCode.FindName(Cfg.OHS.HerostatName.Substring(Dot + 1, 3));
                 Dot = Cfg.OHS.ExeName.LastIndexOf(".");
-                ExeName.Text = (Dot > 0) ? Cfg.OHS.ExeName.Remove(Dot) : (Cfg.Dynamic.Game == "xml2") ? "Xmen" : "Game";
+                ExeName.Text = (Dot > 0) ? Cfg.OHS.ExeName.Remove(Dot) : (Cfg.GUI.Game == "xml2") ? "Xmen" : "Game";
             }
         }
         /// <summary>
@@ -52,21 +52,6 @@ namespace OpenHeroSelectGUI
                 string Save = Path.GetFileName(f);
                 if (!(Save is "Save" or "Screenshots")) SaveBackups.Add(Save);
             }
-        }
-        /// <summary>
-        /// Open folder dialogue. Currently there is no other page using it, so it's still here.
-        /// </summary>
-        private static async Task<string> BrowseFolder()
-        {
-            FolderPicker folderPicker = new();
-            folderPicker.FileTypeFilter.Add("*");
-            WinRT.Interop.InitializeWithWindow.Initialize(folderPicker, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
-            StorageFolder folder = await folderPicker.PickSingleFolderAsync();
-            if (folder != null)
-            {
-                return folder.Path;
-            }
-            return "";
         }
         /// <summary>
         /// Trim a string from the end of a string, if found. By Shane Yu @ StackOverflow
@@ -105,16 +90,17 @@ namespace OpenHeroSelectGUI
             await WarningDialog.ShowAsync();
         }
         // UI control handlers:
-        private async void BrowseButton_Click(object sender, RoutedEventArgs e)
+        private async void ExeBrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            Cfg.GUI.GameInstallPath = await BrowseFolder();
-            if (!File.Exists(Path.Combine(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName)))
+            if (await LoadDialogue(".exe") is string Exe)
             {
-                ShowWarning($"No EXE found in '{Cfg.GUI.GameInstallPath}'");
-            }
-            if (string.IsNullOrEmpty(Cfg.OHS.GameInstallPath))
-            {
-                Cfg.OHS.GameInstallPath = Cfg.GUI.GameInstallPath;
+                FileInfo? ExeFile = new(Exe);
+                Cfg.OHS.ExeName = ExeFile.Name;
+                Cfg.GUI.GameInstallPath = ExeFile.FullName[..(ExeFile.FullName.Length - ExeFile.Name.Length - 1)];
+                if (string.IsNullOrEmpty(Cfg.OHS.GameInstallPath))
+                {
+                    Cfg.OHS.GameInstallPath = Cfg.GUI.GameInstallPath;
+                }
             }
         }
         private async void MO2BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -130,11 +116,7 @@ namespace OpenHeroSelectGUI
         }
         private async void HBrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            string Hsf = await BrowseFolder();
-            string Game = Path.Combine(cdPath, Cfg.Dynamic.Game);
-            Cfg.OHS.HerostatFolder = Hsf.StartsWith(Game) ?
-                Hsf[(Game.Length + 1)..] :
-                Hsf;
+            Cfg.OHS.HerostatFolder = TrimGameFolder(await BrowseFolder());
         }
 
         private void FreeSavesButton_Click(object sender, RoutedEventArgs e)
@@ -164,12 +146,6 @@ namespace OpenHeroSelectGUI
         private void RefreshSaves_Click(object sender, RoutedEventArgs e)
         {
             ReadSaveBackups();
-        }
-
-        private void EXE_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            ExeName.Text = TrimEnd(ExeName.Text, ".exe");
-            Cfg.OHS.ExeName = $"{ExeName.Text}.exe";
         }
 
         private void Herostat_TextChanged(UIElement sender, LosingFocusEventArgs args)

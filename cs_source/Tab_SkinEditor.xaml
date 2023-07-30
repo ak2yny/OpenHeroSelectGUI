@@ -15,5 +15,28 @@
         <Frame x:Name="AvailableCharacters" MaxWidth="400"/>
         <Frame x:Name="SkinDetailsPage" Grid.Column="1"/>
 
+        <!--The herostat splitter should probably have its own page or be in a tools page eventually-->
+        <StackPanel Grid.Column="2" Padding="10">
+            <TextBlock Text="Herostat Splitter" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+            <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
+            <Grid Margin="0 0 0 10">
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBox x:Name="OutputFolder" Header="Output Folder" IsReadOnly="True" Margin="0 0 88 0"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                    <Button x:Name="OutputFolderBrowse" FontWeight="Bold" Content="..." Click="BrowseButton_Click" ToolTipService.ToolTip="Browse"/>
+                    <Button x:Name="ResetOutputFolder" Click="ResetOutputFolder_Click" Margin="5 0 0 0" Padding="10 5" ToolTipService.ToolTip="Reset to the OHS herostat folder">
+                        <SymbolIcon>Refresh</SymbolIcon>
+                    </Button>
+                </StackPanel>
+                <StackPanel Grid.Row="1" Margin="0 10" Orientation="Horizontal">
+                    <Button Content="Load Herostat ..." Click="LoadHerostat_Click"/>
+                    <TextBlock x:Name="SuccessMessage" Foreground="Green" Margin="8"/>
+                </StackPanel>
+                <Button Grid.Row="1" Content="Open Folder" Click="OpenFolder_Click" Margin="250 10 0 10" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+            </Grid>
+        </StackPanel>
     </Grid>
 </Page>

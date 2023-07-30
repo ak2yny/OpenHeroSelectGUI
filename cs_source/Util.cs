@@ -28,7 +28,7 @@ namespace OpenHeroSelectGUI
             // We can now capture the output into a string...
             string res = p.StandardOutput.ReadToEnd();
             // And do whatever we want with that.
-            Console.WriteLine(res);
+            // Console.WriteLine(res);
             return res;
         }
         /// <summary>

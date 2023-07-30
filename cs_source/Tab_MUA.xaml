@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d">
 
     <Grid>
@@ -19,38 +18,49 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <Grid x:Name="MUASettings" HorizontalAlignment="Left">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition MaxWidth="110"/>
-                    <ColumnDefinition/>
-                    <ColumnDefinition MinWidth="500"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock x:Name="CharLimit" Text="Character Limit"/>
-                    <ToggleSwitch x:Name="RosterHackToggle" Header="(Roster Hack)" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" Toggled="RosterHack_Toggled" OffContent="27" OnContent="50"/>
-                    <ToggleSwitch x:Name="UnlockToggle" Header="Unlocks" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="0 5 10 0" VerticalAlignment="Top">
-                    <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Margin="0 0 0 25" Padding="10" ToolTipService.ToolTip="Run Marvel: Ultimate Alliance only, without running OHS">
-                        <TextBlock TextAlignment="Center">Run<LineBreak/>Marvel<LineBreak/>Ultimate Alliance</TextBlock>
-                    </Button>
-                    <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked"/>
-                </StackPanel>
-                <StackPanel Grid.Column="2">
-                    <StackPanel Margin="0 9 0 0" Orientation="Horizontal">
-                        <ComboBox x:Name="LayoutBox" Header="Stage Layout" ItemsSource="{x:Bind Layouts, Mode=OneWay}" SelectionChanged="LayoutBox_SelectionChanged" SelectedValuePath="Content" SelectedIndex="{x:Bind Cfg.Dynamic.SelectedLayout}" MinWidth="150"/>
-                        <Button x:Name="RefreshLayouts" Click="RefreshLayouts_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTipService.ToolTip="Reload layouts">
-                            <SymbolIcon>Refresh</SymbolIcon>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto">
+                <Grid x:Name="MUASettings" HorizontalAlignment="Left">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Margin="0 5 10 0" VerticalAlignment="Top">
+                        <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Margin="0 0 0 5" Padding="16 10" ToolTipService.ToolTip="Run Marvel: Ultimate Alliance only, without running OHS">
+                            <TextBlock TextAlignment="Center">Run<LineBreak/>Marvel<LineBreak/>Ultimate<LineBreak/>Alliance</TextBlock>
                         </Button>
+                        <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked"/>
                     </StackPanel>
-                    <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
-                        <ComboBox x:Name="StagesBox" Header="Stage  Model" ItemsSource="{x:Bind Stages, Mode=OneWay}" SelectionChanged="StagesBox_SelectionChanged" SelectedIndex="{x:Bind Cfg.Dynamic.SelectedModel, Mode=OneWay}" MinWidth="150"/>
-                        <Button x:Name="RefreshStages" Click="RefreshStages_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTipService.ToolTip="Reload stages (does not update until the layout changes)">
-                            <SymbolIcon>Refresh</SymbolIcon>
-                        </Button>
+                    <StackPanel Grid.Column="1" MaxWidth="110">
+                        <TextBlock x:Name="CharLimit" Text="Character Limit"/>
+                        <ToggleSwitch x:Name="RosterHackToggle" Header="(Roster Hack)" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" OffContent="27" OnContent="50" ToolTipService.ToolTip="Enable/disable the roster hack (RH) limit of 50 characters - if the RH wasn't found it might still work" Toggled="RosterHack_Toggled"/>
+                        <ToggleSwitch x:Name="UnlockToggle" Header="Unlocks" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
                     </StackPanel>
-                </StackPanel>
-            </Grid>
+                    <StackPanel Grid.Column="2" MaxWidth="100">
+                        <ToggleSwitch x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" OffContent="Off" OnContent="On" ToolTipService.ToolTip="Hidable effects are locations 03 and 24 only, therefore effects a limited to two if this is on. Otherwise all locations are free for effects">
+                            <ToggleSwitch.Header>
+                                <TextBlock>Allow Hidable<LineBreak/>Effects Only</TextBlock>
+                            </ToggleSwitch.Header>
+                        </ToggleSwitch>
+                        <ToggleSwitch x:Name="StageToggle" Header="Update Stage" IsOn="{x:Bind Cfg.GUI.CopyStage, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="Switch this on to copy the selected stage to the game files (mod folder). Leave this on to be save. Turn this off to avoid unnecessary copy processes when the stage or effects haven't been changed."/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="3">
+                        <StackPanel Margin="0 9 0 0" Orientation="Horizontal">
+                            <ComboBox x:Name="LayoutBox" Header="Stage Layout" ItemsSource="{x:Bind Layouts, Mode=OneWay}" SelectionChanged="LayoutBox_SelectionChanged" SelectedValuePath="Content" SelectedIndex="{x:Bind Cfg.Dynamic.SelectedLayout}" MinWidth="150"/>
+                            <Button x:Name="RefreshLayouts" Click="RefreshLayouts_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTipService.ToolTip="Reload layouts">
+                                <SymbolIcon>Refresh</SymbolIcon>
+                            </Button>
+                        </StackPanel>
+                        <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
+                            <ComboBox x:Name="StagesBox" Header="Stage  Model" ItemsSource="{x:Bind Stages, Mode=OneWay}" SelectionChanged="StagesBox_SelectionChanged" SelectedIndex="{x:Bind Cfg.Dynamic.SelectedModel, Mode=OneWay}" MinWidth="150"/>
+                            <Button x:Name="RefreshStages" Click="RefreshStages_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTipService.ToolTip="Reload stages (does not update until the layout changes)">
+                                <SymbolIcon>Refresh</SymbolIcon>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
+            </ScrollViewer>
             <Grid x:Name="ImagePanel" Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="LayoutHeight"/>
@@ -75,7 +85,7 @@
                 <RowDefinition/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" ProcessKeyboardAccelerators="SelectedCharacters_Delete" MaxWidth="450" Margin="3">
+            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" ProcessKeyboardAccelerators="SelectedCharacters_Delete" MaxWidth="450">
                 <Frame.KeyboardAccelerators>
                     <KeyboardAccelerator Key="Delete" />
                 </Frame.KeyboardAccelerators>
@@ -91,13 +101,13 @@
                     </SplitButton.Flyout>
                 </SplitButton>
                 <Button x:Name="BtnClear" Content="Clear" Click="MUA_Clear" ToolTipService.ToolTip="Clear the entire selected roster"/>
-                <TextBlock Margin="5 0" VerticalAlignment="Center">
-                    <Run Text="{x:Bind Cfg.Roster.Count, Mode=OneWay}"/>
-                    <Run Text="/"/>
-                    <Run Text="{x:Bind Cfg.Roster.Total, Mode=OneWay}"/>
-                </TextBlock>
             </StackPanel>
+            <TextBlock Grid.Row="1" Margin="5 0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Run Text="{x:Bind Cfg.Roster.Count, Mode=OneWay}"/>
+                <Run Text="/"/>
+                <Run Text="{x:Bind Cfg.Roster.Total, Mode=OneWay}"/>
+            </TextBlock>
         </Grid>
-        <controls:ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK"/>
+        <ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK"/>
     </Grid>
 </Page>

@@ -6,7 +6,12 @@ Instructions:
 2) Setup the information in this file.
 
 Each effect must be given an unique node under the root node.
-<File> (filename) and <Offset> are required.
+
+All fields are required.
+        <Name>Example Name</Name>
+        <File>example_file</File>
+        <Offset></Offset>
+
 The offset must have three numbers for X, Y and Z.
 
 If there is no offset, the value is
@@ -20,7 +25,7 @@ If there is no offset, the value is
 *Avoid replacing any existing files.
 -->
 <Effects>
-    <Ghost_Rider>
+    <Effect>
         <Name>Ghost Rider's Burning Head Effect</Name>
         <File>team_ghostrider</File>
         <Offset>
@@ -28,8 +33,8 @@ If there is no offset, the value is
             <Y>0</Y>
             <Z>65</Z>
         </Offset>
-    </Ghost_Rider>
-    <Human_Torch>
+    </Effect>
+    <Effect>
         <Name>Human Torch's Flame-On Effect</Name>
         <File>team_humantorch</File>
         <Offset>
@@ -37,8 +42,8 @@ If there is no offset, the value is
             <Y>0</Y>
             <Z>66</Z>
         </Offset>
-    </Human_Torch>
-    <Human_Torch_50RH>
+    </Effect>
+    <Effect>
         <Name>Human Torch's Flame-On Effect For the 50RH</Name>
         <File>team_humantorch</File>
         <Offset>
@@ -46,5 +51,14 @@ If there is no offset, the value is
             <Y>0</Y>
             <Z>33</Z>
         </Offset>
-    </Human_Torch_50RH>
+    </Effect>
+    <Effect>
+        <Name>Iceman's Chill Effect</Name>
+        <File>team_selfchill</File>
+        <Offset>
+            <X>0</X>
+            <Y>0</Y>
+            <Z>50</Z>
+        </Offset>
+    </Effect>
 </Effects>

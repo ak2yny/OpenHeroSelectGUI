@@ -20,27 +20,27 @@
                 <StackPanel>
                     <TextBlock Text="Common Settings" Style="{ThemeResource SubtitleTextBlockStyle}"/>
                     <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-                    <StackPanel Margin="0 0 0 10" Orientation="Horizontal" Width="Auto">
-                        <TextBox x:Name="GameInstallPath" Header="Game Installation Path:" Text="{x:Bind Cfg.GUI.GameInstallPath, Mode=OneWay}" IsReadOnly="True" MinWidth="150" MaxWidth="350" ToolTipService.ToolTip="The path to the game - must contain Game.exe (or renamed exe)"/>
-                        <Button x:Name="BrowseButton" FontWeight="Bold" Content="..." Click="BrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
+                    <StackPanel Orientation="Horizontal" Width="Auto">
+                        <TextBox x:Name="GameInstallPath" Header="Game Installation Path:" Text="{x:Bind Cfg.GUI.GameInstallPath, Mode=OneWay}" IsReadOnly="True" MinWidth="180" MaxWidth="350" ToolTipService.ToolTip="The path to the game - pick any .exe in the game's main folder"/>
+                        <Button x:Name="BrowseButton" FontWeight="Bold" Content="..." Click="ExeBrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
                     </StackPanel>
+                    <TextBox x:Name="ExeArguments" Header="Arguments for MO2:" Margin="0 0 0 10" Text="{x:Bind Cfg.GUI.ExeArguments, Mode=TwoWay}" MinWidth="180" MaxWidth="350" HorizontalAlignment="Left" ToolTipService.ToolTip="For MO2 users: Select ModOrganizer.exe for installation path and paste the moshortcut argument here.  This can also be used for other exe arguments."/>
                     <StackPanel Margin="0 0 0 10" Orientation="Horizontal" Width="Auto">
-                        <TextBox x:Name="MO2ModFolder" Header="Game or Mod Path:" Text="{x:Bind Cfg.OHS.GameInstallPath, Mode=OneWay}" IsReadOnly="True" MinWidth="150" MaxWidth="350" TextChanged="MO2ModFolder_TextChanged" ToolTipService.ToolTip="The path to the game or an MO2 mod folder - must contain a 'data' folder"/>
+                        <TextBox x:Name="MO2ModFolder" Header="Game or Mod Path:" Text="{x:Bind Cfg.OHS.GameInstallPath, Mode=OneWay}" IsReadOnly="True" MinWidth="180" MaxWidth="350" TextChanged="MO2ModFolder_TextChanged" ToolTipService.ToolTip="The path to the game or an MO2 mod folder - must contain a 'data' folder"/>
                         <Button x:Name="MO2BrowseButton" FontWeight="Bold" Content="..." Click="MO2BrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
                     </StackPanel>
                     <StackPanel Margin="0 0 0 10" Orientation="Horizontal" Width="Auto">
-                        <TextBox x:Name="HerostatFolder" Text="{x:Bind Cfg.OHS.HerostatFolder, Mode=TwoWay}" Header="Herostat Folder Name:" MinWidth="150" MaxWidth="350"/>
+                        <TextBox x:Name="HerostatFolder" Text="{x:Bind Cfg.OHS.HerostatFolder, Mode=TwoWay}" Header="Herostat Folder Name:" MinWidth="180" MaxWidth="350" ToolTipService.ToolTip="The folder where the herostat files for OHS are located. 'xml' by default."/>
                         <Button x:Name="HBrowseButton" FontWeight="Bold" Content="..." Click="HBrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <ToggleSwitch x:Name="FreeSavesToggle" Header="Free Saves" IsOn="{x:Bind Cfg.GUI.FreeSaves, Mode=TwoWay}" OffContent="Keep" OnContent="Free" MinWidth="100"/>
+                        <ToggleSwitch x:Name="FreeSavesToggle" Header="Free Saves" IsOn="{x:Bind Cfg.GUI.FreeSaves, Mode=TwoWay}" OffContent="Keep" OnContent="Free" MinWidth="100" ToolTipService.ToolTip="Free: Backup the current saves and start with a clear set. Applies when starting the game through OHS GUI."/>
                         <Button x:Name="FreeSavesButton" Content="Free saves now" Click="FreeSavesButton_Click"/>
                     </StackPanel>
-                    <TextBlock Text="Free: Backup the current saves and start with a clear set. Applies when starting the game through OHS GUI." FontSize="12" HorizontalAlignment="Left" Margin="0 0 0 15" MaxWidth="200" TextWrapping="Wrap"/>
                     <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Width="Auto">
                         <ComboBox x:Name="RestoreSaves" Header="Restore Saves" ItemsSource="{x:Bind SaveBackups, Mode=OneWay}" SelectionChanged="RestoreSaves_SelectionChanged"/>
-                        <Button x:Name="OpenSaves" Content="Open folder" Click="OpenSaves_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-                        <Button x:Name="RefreshSaves" Click="RefreshSaves_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTipService.ToolTip="Refresh">
+                        <Button x:Name="OpenSaves" Content="Open folder" Click="OpenSaves_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                        <Button x:Name="RefreshSaves" Click="RefreshSaves_Click" Padding="10 5" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Refresh">
                             <SymbolIcon>Refresh</SymbolIcon>
                         </Button>
                     </StackPanel>
@@ -49,7 +49,10 @@
                 <StackPanel Grid.Column="1" Margin="15 0 0 0">
                     <TextBlock Text="Mod Pack Settings" Style="{ThemeResource SubtitleTextBlockStyle}"/>
                     <TextBlock Text="Change when using a mod pack only." FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-                    <TextBox x:Name="ExeName" Header="Name of Executable" TextChanged="EXE_TextChanged" Margin="0 0 0 10"/>
+                    <Grid Margin="0 0 0 10">
+                        <TextBox x:Name="ExeName" Header="Name of Executable" Text="{x:Bind Cfg.OHS.ExeName, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0"/>
+                        <Button x:Name="ExeBrowseButton" FontWeight="Bold" Content="..." Click="ExeBrowseButton_Click" ToolTipService.ToolTip="Browse" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+                    </Grid>
                     <Grid Margin="0 0 0 10">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition/>

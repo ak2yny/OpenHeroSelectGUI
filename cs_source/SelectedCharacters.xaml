@@ -20,12 +20,14 @@
                     <ColumnDefinition/>
                     <ColumnDefinition MaxWidth="30"/>
                     <ColumnDefinition MaxWidth="30"/>
+                    <ColumnDefinition MaxWidth="72"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Grid.RowSpan="2"
                     x:Name="LocColumn"
                     Text="{x:Bind Loc, Mode=OneWay}"
                     x:Phase="1"
                     Style="{ThemeResource SubtitleTextBlockStyle}"
+                    MinWidth="28"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"/>
                 <TextBlock Grid.Column="1"
@@ -55,6 +57,13 @@
                     VerticalAlignment="Center"
                     Margin="1"
                     ToolTipService.ToolTip="Starter?"/>
+                <ComboBox Grid.Column="4" Grid.RowSpan="2"
+                    x:Name="EffectSelection"
+                    ItemsSource="{x:Bind AvailableEffects}" 
+                    SelectedValue="{x:Bind Effect, Mode=TwoWay}"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    ToolTipService.ToolTip="Select a mannequin effect  | Effects will activate on that location when running OHS with the option to update the stage. They stay that way until OHS runs again. Effects are not saved."/>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="CharacterListTemplateXML2" x:DataType="settings:SelectedCharacter">
@@ -97,13 +106,15 @@
             <RowDefinition MaxHeight="48"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Grid>
+        <Grid Background="{ThemeResource SolidBackgroundFillColorSecondary}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <AppBarButton x:Name="LocColumn" Icon="Sort" ToolTipService.ToolTip="Sort By Location" AutomationProperties.Name="Sort" Width="48">
+            <AppBarButton x:Name="LocColumn" Icon="Sort" ToolTipService.ToolTip="Sort By Location" AutomationProperties.Name="Sort" Width="54">
                 <AppBarButton.Flyout>
                     <MenuFlyout Placement="BottomEdgeAlignedRight">
                         <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="loc.asc"/>
@@ -125,9 +136,12 @@
                     </MenuFlyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
-            <TextBlock x:Name="UnlockHeader" Grid.Column="2" Text="Unlock | Starter" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20 5"/>
-
+            <TextBlock x:Name="UnlockHeader" Grid.Column="2" Text="U" Margin="3" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTipService.ToolTip="Unlock"/>
+            <TextBlock x:Name="StarterHeader" Grid.Column="3" Text="S" Margin="3" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTipService.ToolTip="Starter"/>
+            <TextBlock x:Name="EffectHeader" Grid.Column="4" Text="Effects" HorizontalAlignment="Center" VerticalAlignment="Center" Width="72"/>
         </Grid>
+
+        <Canvas Grid.Row="1" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
         <ListView x:Name="SelectedCharactersList" Grid.Row="1"
                   ItemsSource="{x:Bind Cfg.Roster.Selected, Mode=TwoWay}"
                   ItemTemplateSelector="{StaticResource LVcolumnSelector}"
@@ -135,15 +149,17 @@
                   CanReorderItems="True"
                   HorizontalAlignment="Left"
                   KeyboardAcceleratorPlacementMode="Hidden"
-                  ProcessKeyboardAccelerators="Selected_Character_Delete">
+                  ProcessKeyboardAccelerators="Selected_Character_Delete"
+                  SelectionChanged="SelectionChanged"
+                  SelectionMode="Extended"
+                  Margin="0 5">
             <ListView.KeyboardAccelerators>
                 <KeyboardAccelerator Key="Delete" />
             </ListView.KeyboardAccelerators>
             
             <!--BorderThickness="1"
-                  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"
-                  SelectionMode="Multiple, Extended?"-->
-
+                  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
         </ListView>
+        
     </Grid>
 </Page>

@@ -15,8 +15,7 @@ namespace OpenHeroSelectGUI
         public SelectedCharacters()
         {
             InitializeComponent();
-            LocColumn.Visibility = Cfg.Dynamic.Game == "xml2" ? Visibility.Collapsed : Visibility.Visible;
-            UnlockHeader.Text = Cfg.Dynamic.Game == "xml2" ? "Unlock" : "Unlock | Starter";
+            LocColumn.Visibility = StarterHeader.Visibility = EffectHeader.Visibility = Cfg.GUI.Game == "xml2" ? Visibility.Collapsed : Visibility.Visible;
         }
         /// <summary>
         /// List sorting function
@@ -63,10 +62,22 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void Selected_Character_Delete(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
         {
+            int SCcount = SelectedCharactersList.SelectedItems.Count;
+            for (int i = 0; i < SCcount; i++)
+            {
+                if (SelectedCharactersList.SelectedItems[0] is SelectedCharacter SC)
+                {
+                    _ = Cfg.Roster.Selected.Remove(SC);
+                }
+            }
+            Cfg.Roster.Count = Cfg.Roster.Selected.Count;
+        }
+
+        private void SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
             if (SelectedCharactersList.SelectedItem is SelectedCharacter SC)
             {
-                Cfg.Roster.Selected.Remove(SC);
-                Cfg.Roster.Count = Cfg.Roster.Selected.Count;
+                Cfg.Dynamic.FloatingCharacter = SC.Path;
             }
         }
     }

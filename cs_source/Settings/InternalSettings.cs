@@ -2,6 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Xml;
 
 namespace OpenHeroSelectGUI.Settings
 {
@@ -24,6 +27,8 @@ namespace OpenHeroSelectGUI.Settings
         private IEnumerable<int>? layoutLocs;
         [ObservableProperty]
         private IEnumerable<int>? rosterRange;
+        [ObservableProperty]
+        private XmlElement? layout;
         [ObservableProperty]
         private string rosterValueDefault;
         [ObservableProperty]
@@ -74,9 +79,103 @@ namespace OpenHeroSelectGUI.Settings
         private static readonly string[] MUASkinNames = GetMUASkinNames();
         public static string[] GetSkinIdentifiers()
         {
-            return (DynamicSettings.Instance.Game == "xml2")
+            return (GUIsettings.Instance.Game == "xml2")
             ? XML2SkinNames
             : MUASkinNames;
+        }
+        public static readonly string[] RavenFormatsXML =
+        {
+            "xml", "eng", "fre", "ger", "ita", "pol", "rus", "spa", "pkg", "boy", "chr", "nav"
+        };
+        public static readonly string[] RavenFormats = RavenFormatsXML.Select(x => $".{x}b").ToArray();
+
+        // Alchemy static resources
+        public static readonly string? AlchemyRoot = Environment.GetEnvironmentVariable("IG_ROOT");
+        public static readonly string Alchemy_ini = Path.Combine(Path.GetTempPath(), "OHSGUI_Alchemy.ini");
+        public static readonly string GetSkinInfo = string.Join(Environment.NewLine, new string[] { AlchemyHead(3), AlchemyiST(1), AlchemyiSG(2), AlchemyiSS(3) });
+        public static string AlchemyHead(int N)
+        {
+            string[] Lines =
+            {
+                "[OPTIMIZE]",
+                $"optimizationCount = {N}",
+                "hierarchyCheck = true"
+            };
+            return string.Join(Environment.NewLine, Lines);
+        }
+        private static string AlchemyiST(int N)
+        {
+            string[] Lines =
+            {
+                $"[OPTIMIZATION{N}]",
+                "name = igStatisticsTexture",
+                AlchemyStats("0x00000117"),
+                "useFullPath = false"
+            };
+            return string.Join(Environment.NewLine, Lines);
+        }
+        private static string AlchemyiSG(int N)
+        {
+            string[] Lines =
+            {
+                $"[OPTIMIZATION{N}]",
+                "name = igStatisticsGeometry",
+                AlchemyStats("0x00500000")
+            };
+            return string.Join(Environment.NewLine, Lines);
+        }
+        private static string AlchemyiSS(int N)
+        {
+            string[] Lines =
+            {
+                $"[OPTIMIZATION{N}]",
+                "name = igStatisticsSkin",
+                AlchemyStats("0x00000006")
+            };
+            return string.Join(Environment.NewLine, Lines);
+        }
+        private static string AlchemyStats(string Mask)
+        {
+            string[] Lines =
+            {
+                "separatorString = |",
+                "columnMaxWidth = -1",
+                $"showColumnsMask = {Mask}",
+                "sortColumn = -1"
+            };
+            return string.Join(Environment.NewLine, Lines);
+        }
+        public static string AlchemyRen(int N, string SourceName, string NewName)
+        {
+            string[] Lines =
+            {
+                $"[OPTIMIZATION{N}]",
+                "name = igChangeObjectName",
+                "objectTypeName = igNamedObject",
+                $"targetName = ^{SourceName}$",
+                $"newName = {NewName}"
+            };
+            return string.Join(Environment.NewLine, Lines);
+        }
+        public static string AlchemyGGC(int N)
+        {
+            string[] Lines =
+            {
+                $"[OPTIMIZATION{N}]",
+                "name = igGenerateGlobalColor"
+            };
+            return string.Join(Environment.NewLine, Lines);
+        }
+        public static string AlchemyCGA(int N)
+        {
+            string[] Lines =
+            {
+                $"[OPTIMIZATION{N}]",
+                "name = igConvertGeometryAttr",
+                "accessMode = 3",
+                "storeBoundingVolume = false"
+            };
+            return string.Join(Environment.NewLine, Lines);
         }
     }
 }

@@ -1,8 +1,5 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using System;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
@@ -64,8 +61,7 @@ namespace OpenHeroSelectGUI
         // Control handlers. A few of them are identical to the MUA handlers, can they be combined?
         private void BtnRunGame_Click(object sender, RoutedEventArgs e)
         {
-            if (Cfg.GUI.FreeSaves) MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
-            _ = Process.Start(Path.Combine(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName));
+            RunGame(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName, Cfg.GUI.ExeArguments);
         }
 
         private void BtnUnlockAll_Click(object sender, RoutedEventArgs e)

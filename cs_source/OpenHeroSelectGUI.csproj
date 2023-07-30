@@ -15,7 +15,7 @@
     <Title>Open Hero Select GUI</Title>
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
-    <VersionPrefix>0.2.3</VersionPrefix>
+    <VersionPrefix>0.2.4</VersionPrefix>
     <Version>$(VersionPrefix)-beta</Version>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
 	<PackageIcon>SHIELD_Logo_GUI.png</PackageIcon>
@@ -43,6 +43,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Assets\emmafrost.png">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
+    <Content Include="Assets\humantorch.png">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	</Content>
     <Content Include="Assets\MM_Banner.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

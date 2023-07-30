@@ -31,6 +31,7 @@ namespace OpenHeroSelectGUI
         {
             Activated += MainWindow_Activated;
             LoadGuiSettings();
+            LoadRoster();
 
             InitializeComponent();
 
@@ -69,18 +70,18 @@ namespace OpenHeroSelectGUI
             }
             else if (args.SelectedItemContainer != null && args.SelectedItemContainer.Tag.ToString() is string TagName && Type.GetType(TagName) is Type navPageType)
             {
-                if (navPageType != typeof(Tab_Info))  // exclude footer pages from becoming home
+                if (!NavView.FooterMenuItems.Contains(NavView.SelectedItem))  // prevent footer pages from becoming home
                 {
-                    if (navPageType == typeof(Tab_XML2) && DynamicSettings.Instance.Game != "xml2")
+                    if (navPageType == typeof(Tab_XML2) && GUIsettings.Instance.Game != "xml2")
                     {
-                        if (DynamicSettings.Instance.Game == "mua") SaveSettings();
-                        DynamicSettings.Instance.Game = "xml2";
+                        SaveSettings();
+                        GUIsettings.Instance.Game = "xml2";
                         LoadRoster();
                     }
-                    else if (navPageType == typeof(Tab_MUA) && DynamicSettings.Instance.Game != "mua")
+                    else if (navPageType == typeof(Tab_MUA) && GUIsettings.Instance.Game != "mua")
                     {
-                        if (DynamicSettings.Instance.Game == "xml2") SaveSettings();
-                        DynamicSettings.Instance.Game = "mua";
+                        SaveSettings();
+                        GUIsettings.Instance.Game = "mua";
                         LoadRoster();
                     }
                     GUIsettings.Instance.Home = sender.MenuItems.IndexOf(args.SelectedItem);
@@ -114,21 +115,22 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void RunOHS()
         {
-            InstallStage();
+            if (string.IsNullOrEmpty(GUIsettings.Instance.Game)) return;
+            if (GUIsettings.Instance.Game == "mua") InstallStage();
             if (File.Exists(Path.Combine(cdPath, "OpenHeroSelect.exe")))
             {
                 string DP = Path.Combine(OHSsettings.Instance.GameInstallPath, "data");
                 if (Directory.Exists(DP))
                 {
                     SaveSettings();
-                    string arg = (DynamicSettings.Instance.Game == "xml2") ?
+                    string arg = (GUIsettings.Instance.Game == "xml2") ?
                         "-a -x" :
                         "-a";
                     Util.RunElevated("OpenHeroSelect.exe", arg);
                     string elog = Path.Combine(cdPath, "error.log");
                     if (File.Exists(elog))
                     {
-                        Process.Start("explorer.exe", $"/select, \"{elog}\"");
+                        _ = Process.Start("explorer.exe", $"/select, \"{elog}\"");
                     }
                 }
                 else
@@ -157,37 +159,23 @@ namespace OpenHeroSelectGUI
             DirectoryInfo ModelFolder = new(DynamicSettings.Instance.SelectedModelPath);
             if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
             {
-                CopyStageFile(DynamicSettings.Instance.SelectedModelPath, Path.Combine("ui", "models"), ModelFolder.EnumerateFiles("*.igb").First().Name);
+                CopyGameFile(DynamicSettings.Instance.SelectedModelPath, Path.Combine("ui", "models"), ModelFolder.EnumerateFiles("*.igb").First().Name, "m_team_stage.igb");
             }
-            CopyStageFile(SelectedLayoutPath, Path.Combine("ui", "menus"), "mlm_team_back.igb");
-            CopyStageFile(SelectedLayoutPath, Path.Combine("ui", "menus"), "team_back.xmlb");
+            CopyGameFile(SelectedLayoutPath, Path.Combine("ui", "menus"), "mlm_team_back.igb");
+            CopyGameFile(Path.GetDirectoryName(MarvelModsXML.UpdateLayout(Path.Combine(SelectedLayoutPath, "team_back.xmlb")))!, Path.Combine("ui", "menus"), "team_back.xmlb");
             if (DynamicSettings.Instance.Riser)
             {
-                CopyRiserFile(RiserPath, Path.Combine("effects", "menu"), "riser.xmlb");
-                CopyRiserFile(RiserPath, Path.Combine("models", "effects"), "riser.igb");
-                CopyRiserFile(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.pkgb");
+                CopyGameFileWStrctr(RiserPath, Path.Combine("effects", "menu"), "riser.xmlb");
+                CopyGameFileWStrctr(RiserPath, Path.Combine("models", "effects"), "riser.igb");
+                CopyGameFileWStrctr(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.pkgb");
             }
             else
             {
-                CopyRiserFile(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.bkp.pkgb", "team_back.pkgb");
+                CopyGameFileWStrctr(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.bkp.pkgb", "team_back.pkgb");
             }
         }
-        private static void CopyStageFile(string folder, string GameFolder, string file) => CopyStageFile(folder, GameFolder, file, file);
-        private static void CopyStageFile(string folder, string GameFolder, string Source, string Target)
-        {
-            string TP = Path.Combine(OHSsettings.Instance.GameInstallPath, GameFolder);
-            string SF = Path.Combine(folder, Source);
-            if (folder != "" && File.Exists(SF))
-            {
-                Directory.CreateDirectory(TP);
-                File.Copy(SF, Path.Combine(TP, Target), true );
-            }
-        }
-        private static void CopyRiserFile(string RiserPath, string GameFolder, string Source, string Target) => CopyStageFile(Path.Combine(RiserPath, GameFolder), GameFolder, Source, Target);
-        private static void CopyRiserFile(string RiserPath, string GameFolder, string file) => CopyStageFile(Path.Combine(RiserPath, GameFolder), GameFolder, file, file);
         /// <summary>
         /// Save dialogue.
-        /// This seems useless: string n = file.DisplayName; if (n.EndsWith(file.FileType)) { n = n[..(n.Length - file.FileType.Length)]; }
         /// </summary>
         private static async void SaveDialogue()
         {
@@ -233,6 +221,11 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Save to the default settings files, when the window closes.
         /// </summary>
-        private void Window_Closed(object sender, WindowEventArgs args) => SaveSettings();
+        private void Window_Closed(object sender, WindowEventArgs args)
+        {
+            SaveSettings();
+            if (Directory.Exists(Path.Combine(cdPath, "Temp")) && !OHSsettings.Instance.SaveTempFiles)
+                Directory.Delete(Path.Combine(cdPath, "Temp"), true);
+        }
     }
 }

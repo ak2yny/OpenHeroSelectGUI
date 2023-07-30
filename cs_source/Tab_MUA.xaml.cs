@@ -4,19 +4,17 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Imaging;
-using OpenHeroSelectGUI.Settings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Xml;
 using Windows.ApplicationModel.DataTransfer;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
+using static OpenHeroSelectGUI.Settings.GUIXML;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
-using static OpenHeroSelectGUI.Settings.MarvelModsXML;
 
 namespace OpenHeroSelectGUI
 {
@@ -67,12 +65,12 @@ namespace OpenHeroSelectGUI
         {
             if (File.Exists(CfgFile))
             {
-                XmlElement? Layout = GetXmlElement(CfgFile);
-                if (Layout is not null && Models is not null)
+                Cfg.Dynamic.Layout = GetXmlElement(CfgFile);
+                if (Cfg.Dynamic.Layout is not null && Models is not null)
                 {
                     // Note: config.xml can theoretically not contain the required entries at the correct location. If this is the case, the app will throw an unhandled exception. This can be avoided by verifying the XML with a scheme definition.
-                    LayoutDetails.Text = $"Layout: {Layout["Information"]["name"].InnerText} for {Layout["Information"]["platform"].InnerText}";
-                    foreach (XmlElement CM in Layout["Compatible_Models"].ChildNodes)
+                    LayoutDetails.Text = $"Layout: {Cfg.Dynamic.Layout["Information"]["name"].InnerText} for {Cfg.Dynamic.Layout["Information"]["platform"].InnerText}";
+                    foreach (XmlElement CM in Cfg.Dynamic.Layout["Compatible_Models"].ChildNodes)
                     {
                         if (CM.InnerText == "Official" && CM.GetAttribute("Riser") == "true")
                         {
@@ -88,22 +86,22 @@ namespace OpenHeroSelectGUI
                         }
                     }
                     Cfg.Dynamic.SelectedModel = Stages.IndexOf(Cfg.GUI.Model);
-                    Cfg.Dynamic.RosterValueDefault = Layout["Default_Roster"]["roster"].InnerText;
-                    Cfg.Dynamic.MenulocationsValueDefault = Layout["Default_Roster"]["menulocations"].InnerText;
+                    Cfg.Dynamic.RosterValueDefault = Cfg.Dynamic.Layout["Default_Roster"]["roster"].InnerText;
+                    Cfg.Dynamic.MenulocationsValueDefault = Cfg.Dynamic.Layout["Default_Roster"]["menulocations"].InnerText;
 
-                    double Multiplier = (Layout["Location_Setup"].GetAttribute("spacious") == "true") ? 1 : 1.4;
+                    double Multiplier = (Cfg.Dynamic.Layout["Location_Setup"].GetAttribute("spacious") == "true") ? 1 : 1.4;
                     double XStretch = 1;
-                    int MinX = (from XmlElement x in Layout.GetElementsByTagName("X") select int.Parse(x.InnerText)).Min();
-                    var AllY = from XmlElement y in Layout.GetElementsByTagName("Y") select int.Parse(y.InnerText);
+                    int MinX = (from XmlElement x in Cfg.Dynamic.Layout.GetElementsByTagName("X") select int.Parse(x.InnerText)).Min();
+                    var AllY = from XmlElement y in Cfg.Dynamic.Layout.GetElementsByTagName("Y") select int.Parse(y.InnerText);
                     int MinY = AllY.Min();
                     LayoutHeight.MaxHeight = (Cfg.GUI.RowLayout) ? 5 : (AllY.Max() - MinY) * Multiplier + 30;
                     Locations.Children.Clear();
                     Locations.VerticalAlignment = (Cfg.GUI.RowLayout) ?
                         VerticalAlignment.Center :
                         VerticalAlignment.Top;
-                    Cfg.Dynamic.LayoutLocs = from XmlElement l in Layout["Location_Setup"].ChildNodes select int.Parse(l.GetAttribute("Number"));
-                    Cfg.Roster.Total = Layout["Location_Setup"].ChildNodes.Count;
-                    foreach (XmlElement ML in Layout["Location_Setup"].ChildNodes)
+                    Cfg.Dynamic.LayoutLocs = from XmlElement l in Cfg.Dynamic.Layout["Location_Setup"].ChildNodes select int.Parse(l.GetAttribute("Number"));
+                    Cfg.Roster.Total = Cfg.Dynamic.Layout["Location_Setup"].ChildNodes.Count;
+                    foreach (XmlElement ML in Cfg.Dynamic.Layout["Location_Setup"].ChildNodes)
                     {
                         string Loc = ML.GetAttribute("Number").PadLeft(2, '0');
                         double Y = (int.Parse(ML["Y"].InnerText) - MinY) * Multiplier;
@@ -148,31 +146,9 @@ namespace OpenHeroSelectGUI
             }
         }
         // Control handlers:
-        /// <summary>
-        /// Roster Hack switch: A red number warns us from missing roster hack files.
-        /// </summary>
-        private void RosterHack_Toggled(object sender, RoutedEventArgs e)
-        {
-            RosterHackToggle.Foreground = UnlockToggle.Foreground;
-            RosterHackToggle.Header = "(Default)";
-            if (RosterHackToggle.IsOn)
-            {
-                RosterHackToggle.Header = "(Roster Hack)";
-                string dinput = Path.Combine(Cfg.OHS.GameInstallPath, "dinput8.dll");
-                string plugin = Path.Combine(Cfg.OHS.GameInstallPath, "plugins");
-                if (File.Exists(dinput)) { dinput = File.ReadAllText(dinput); }
-                if (!Directory.Exists(plugin) || !dinput.Contains("asi-loader"))
-                {
-                    RosterHackToggle.Foreground = new SolidColorBrush(Windows.UI.Color.FromArgb(255, 255, 0, 0));
-                    RosterHackToggle.Header = "(RH not found!)";
-                }
-            }
-        }
-
         private void BtnRunGame_Click(object sender, RoutedEventArgs e)
         {
-            if (Cfg.GUI.FreeSaves) MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
-            _ = Process.Start(Path.Combine(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName));
+            RunGame(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName, Cfg.GUI.ExeArguments);
         }
 
         private void BtnUnlockAll_Click(object sender, RoutedEventArgs e)
@@ -181,6 +157,27 @@ namespace OpenHeroSelectGUI
             {
                 c.Unlock = true;
             }
+        }
+        /// <summary>
+        /// Roster Hack switch: A red number warns us from missing roster hack files.
+        /// </summary>
+        private void RosterHack_Toggled(object sender, RoutedEventArgs e)
+        {
+            string GamePath = string.IsNullOrEmpty(Cfg.GUI.GameInstallPath)
+                ? Cfg.OHS.GameInstallPath
+                : Cfg.GUI.GameInstallPath;
+            string dinput = Path.Combine(GamePath, "dinput8.dll");
+            if (File.Exists(dinput)) { dinput = File.ReadAllText(dinput); }
+            bool RHFilesExist = Directory.Exists(Path.Combine(GamePath, "plugins")) && dinput.Contains("asi-loader");
+
+            RosterHackToggle.Foreground = RosterHackToggle.IsOn && !RHFilesExist
+                ? new SolidColorBrush(Microsoft.UI.Colors.Red)
+                : UnlockToggle.Foreground;
+            RosterHackToggle.Header = RosterHackToggle.IsOn
+                ? RHFilesExist
+                ? "(Roster Hack)"
+                : "(RH not found!)"
+                : "(Default)";
         }
         /// <summary>
         /// Load the layout, limit, default, model list for the selected stage layout.

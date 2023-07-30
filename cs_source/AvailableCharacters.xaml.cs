@@ -4,9 +4,7 @@ using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
 using OpenHeroSelectGUI.Settings;
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
@@ -38,7 +36,7 @@ namespace OpenHeroSelectGUI
             DirectoryInfo folder = new(GetHerostatFolder());
             if (folder.Exists)
             {
-                Cfg.Roster.Available = folder.EnumerateFiles("*", SearchOption.AllDirectories)
+                string[] NewAvailable = folder.EnumerateFiles("*", SearchOption.AllDirectories)
                     .Select(f => Path.ChangeExtension(f.FullName, null)
                     .Replace(folder.FullName, string.Empty)
                     .Replace('\\', '/')
@@ -46,13 +44,17 @@ namespace OpenHeroSelectGUI
                     .Distinct()
                     .ToImmutableSortedSet()
                     .ToArray();
-                PopulateAvailable(Cfg.Roster.Available);
+                if (NewAvailable != Cfg.Roster.Available)
+                {
+                    Cfg.Roster.Available = NewAvailable;
+                    PopulateAvailable(NewAvailable);
+                }
             }
             else
             {
-                Available NA = new() { Character = new Character() { Name = "Drop herostats here to install", Path = "" } };
-                Cfg.Roster.AvailableCharacterList.Clear();
-                Cfg.Roster.AvailableCharacterList.Add(NA);
+                TreeViewNode NA = new() { Content = "Drop herostats here to install" };
+                trvAvailableChars.RootNodes.Clear();
+                trvAvailableChars.RootNodes.Add(NA);
             }
         }
         /// <summary>
@@ -60,24 +62,25 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void PopulateAvailable(string[] AvailableList)
         {
-            Available Root = new();
+            TreeViewNode Root = new();
             for (int i = 0; i < AvailableList.Length; i++)
             {
                 PopulateAvailable(Root, AvailableList[i], AvailableList[i]);
             }
-            Cfg.Roster.AvailableCharacterList.Clear();
+            trvAvailableChars.RootNodes.Clear();
+            // WIP: Performance would be slightly better with this: trvAvailableChars.RootNodes.Add(Root);
             for (int i = 0; i < Root.Children.Count; i++)
             {
-                Cfg.Roster.AvailableCharacterList.Add(Root.Children[i]);
+                trvAvailableChars.RootNodes.Add(Root.Children[i]);
             }
         }
         /// <summary>
         /// Generate the Tree View structure from a file path
         /// </summary>
-        public static void PopulateAvailable(Available Parent, string RemainingPath, string PathInfo)
+        public static void PopulateAvailable(TreeViewNode Parent, string RemainingPath, string PathInfo)
         {
             string[] Node = RemainingPath.Split(new[] { '/' }, 2);
-            Available? child = Parent.Children.SingleOrDefault(x => x.Character.Name == Node[0]);
+            TreeViewNode? child = Parent.Children.SingleOrDefault(x => ((Character)x.Content).Name == Node[0]);
             if (child == null)
             {
                 string PathToAdd = (Node.Length > 1) ? "" : PathInfo;
@@ -86,7 +89,7 @@ namespace OpenHeroSelectGUI
                     Name = Node[0],
                     Path = PathToAdd
                 };
-                child = new Available() { Character = CharInfo, Children = new ObservableCollection<Available>() };
+                child = new TreeViewNode() { Content = CharInfo,  };
                 Parent.Children.Add(child);
             }
             if (Node.Length > 1) PopulateAvailable(child, Node[1], PathInfo);
@@ -98,8 +101,7 @@ namespace OpenHeroSelectGUI
         {
             if (Cfg.Roster.Available is not null)
             {
-                IEnumerable<string> Filtered = Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.InvariantCultureIgnoreCase));
-                PopulateAvailable(Filtered.ToArray());
+                PopulateAvailable(Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.InvariantCultureIgnoreCase)).ToArray());
             }
         }
         /// <summary>
@@ -149,10 +151,14 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void DragItemsStarting(TreeView sender, TreeViewDragItemsStartingEventArgs args)
         {
-            if (args.Items[0] is Available Selected && Selected.Character is Character SC)
+            if (args.Items[0] is TreeViewNode Selected && Selected.Content is Character SC)
             {
                 args.Cancel = Selected.Children.Count > 0;
                 Cfg.Dynamic.FloatingCharacter = SC.Path;
+            }
+            else
+            {
+                args.Cancel = true;
             }
         }
         /// <summary>
@@ -160,7 +166,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void OnSelectionChanged(TreeView AC, TreeViewItemInvokedEventArgs args)
         {
-            if (args.InvokedItem is Available Selected && Selected.Character is Character SC && SC.Path is string CharInfo)
+            if (args.InvokedItem is TreeViewNode Selected && Selected.Content is Character SC && SC.Path is string CharInfo)
             {
                 Cfg.Dynamic.FloatingCharacter = CharInfo;
                 if (Selected.Children.Count > 0)
@@ -175,7 +181,15 @@ namespace OpenHeroSelectGUI
         {
             if (Cfg.Dynamic.FloatingCharacter is not null)
             {
-                AddToSelected(Cfg.Dynamic.FloatingCharacter);
+                _ = AddToSelected(Cfg.Dynamic.FloatingCharacter);
+            }
+            else if (trvAvailableChars.SelectedItem is TreeViewNode Node)
+            {
+                for (int i = 0; i < Node.Children.Count; i++)
+                {
+                    if (Node.Children[i].Children.Count == 0 && Node.Children[i].Content is Character SC)
+                        _ = AddToSelected(SC.Path);
+                }
             }
         }
         /// <summary>

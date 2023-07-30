@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Closed="Window_Closed">
 
@@ -48,7 +47,7 @@
         </StackPanel>
         <NavigationView x:Name="NavView" Grid.Row="1"
                         CompactModeThresholdWidth="300"
-                        ExpandedModeThresholdWidth="1210"
+                        ExpandedModeThresholdWidth="1220"
                         IsBackButtonVisible="Collapsed"
                         IsBackEnabled="False"
                         Loaded="NavView_Loaded"
@@ -81,6 +80,6 @@
             </NavigationView.FooterMenuItems>
             <Frame x:Name="ContentFrame" />
         </NavigationView>
-        <controls:ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK"/>
+        <ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK"/>
     </Grid>
 </Window>
