@@ -1,0 +1,10 @@
+;!@Install@!UTF-8!
+Title="OpenHeroSelectGUI v0.2.4-beta"
+ExtractPathText="Please enter the OHS installation path:"
+ExtractPathTitle="OpenHeroSelectGUI v0.2.4-beta"
+ExtractTitle="Extracting..."
+GUIFlags="128"
+InstallPath="%UserProfile%\Desktop\OpenHeroSelect"
+OverwriteMode="0"
+RunProgram="MkLink.bat"
+;!@InstallEnd@!

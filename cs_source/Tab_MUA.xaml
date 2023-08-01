@@ -18,7 +18,7 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
                 <Grid x:Name="MUASettings" HorizontalAlignment="Left">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -38,7 +38,7 @@
                         <ToggleSwitch x:Name="UnlockToggle" Header="Unlocks" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2" MaxWidth="100">
-                        <ToggleSwitch x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" OffContent="Off" OnContent="On" ToolTipService.ToolTip="Hidable effects are locations 03 and 24 only, therefore effects a limited to two if this is on. Otherwise all locations are free for effects">
+                        <ToggleSwitch x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" OffContent="Off" OnContent="On" ToolTipService.ToolTip="Only the first two effects are used if this is on. Otherwise all effects are used, but only effects on locations 03 and 24 are hidden in the F12 menu.">
                             <ToggleSwitch.Header>
                                 <TextBlock>Allow Hidable<LineBreak/>Effects Only</TextBlock>
                             </ToggleSwitch.Header>

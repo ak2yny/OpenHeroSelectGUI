@@ -10,12 +10,13 @@
     <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
+    <StartupObject>OpenHeroSelectGUI.Program</StartupObject>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <Nullable>enable</Nullable>
     <Title>Open Hero Select GUI</Title>
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
-    <VersionPrefix>0.2.4</VersionPrefix>
+    <VersionPrefix>0.2.5</VersionPrefix>
     <Version>$(VersionPrefix)-beta</Version>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
 	<PackageIcon>SHIELD_Logo_GUI.png</PackageIcon>
@@ -66,6 +67,12 @@
       <TargetPath>stages\%(RecursiveDir)%(FileName)%(Extension)</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
+  <ItemGroup>
+    <ContentWithTargetPath Include="..\InstallerFiles\**">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>InstallerFiles\%(RecursiveDir)%(FileName)%(Extension)</TargetPath>
+    </ContentWithTargetPath>
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\.editorconfig" Link=".editorconfig" />
@@ -80,8 +87,12 @@
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.3.230602002" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.756" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
+
   <ItemGroup>
     <Page Update="Tab_Settings.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -144,4 +155,8 @@
   <ItemGroup>
     <PRIResource Remove="Assets\**" />
   </ItemGroup>
+
+  <Target Name="PostPublish" AfterTargets="Publish">
+	  <Exec Command="cd bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish&#xD;&#xA;call InstallerFiles\BuildInstaller.bat" />
+  </Target>
 </Project>
