@@ -4,7 +4,6 @@
  With the motivation to be open source for everyone to contribute.
  
 # [Download](https://github.com/ak2yny/OpenHeroSelectGUI/releases/latest)
-<br/><br/>
 
 ## Table of contents:
 
