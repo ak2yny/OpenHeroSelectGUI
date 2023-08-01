@@ -4,7 +4,6 @@
  With the motivation to be open source for everyone to contribute.
  
 # [Download](https://github.com/ak2yny/OpenHeroSelectGUI/releases/latest)
-Note: The source code has drastically changed, but it's not ready for release yet. The readme does not reflect the latest release at the moment.
 <br/><br/>
 
 ## Table of contents:
@@ -90,7 +89,7 @@ Note: The source code has drastically changed, but it's not ready for release ye
 
 #### How can I change the path to MUA/XML2/MO2?
  The path can be browsed in the settings tab.
- Or use the OpenHeroSelect.exe set-up dialogue. Paste the path with right-click, when prompted.
+ Or use the OpenHeroSelect.exe set-up dialogue and paste the path with right-click, when prompted.
  
 #### What are Save Slots?
  Version 0.1:
