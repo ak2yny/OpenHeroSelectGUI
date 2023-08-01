@@ -14,7 +14,7 @@ Note: The source code has drastically changed, but it's not ready for release ye
 * [Features](#features)
 * [Usage Instructions](#usage-instructions-v-010)
   * [How can I add more characters?](#how-can-i-add-more-characters)
-  * [How can I change the path to MUA?](#how-can-i-change-the-path-to-mua)
+  * [How can I change the path to MUA/XML2/MO2?](#how-can-i-change-the-path-to-muaxml2mo2)
   * [What are Save Slots?](#what-are-save-slots)
 * [Coding Instructions (v. 0.0.3)](#coding-instructions-v-003)
 * [Build Instructions](#build-instructions)
@@ -46,6 +46,7 @@ Note: The source code has drastically changed, but it's not ready for release ye
 - Support for OHS configurations and herostats
 - Support for XML2 and MUA
 - Supports custom stages, including preview images and a config file with their locations and layout coordinates for the GUI
+- Supports effect duplication for MUA mannequins
 - Supports infinte characters
   (setup the locations in the stage layouts)
 - Support for the unlocked and starting characters feature of OHS
@@ -57,7 +58,8 @@ Note: The source code has drastically changed, but it's not ready for release ye
 - Automatic and manual roster saving and restoring
 - Load the default roster or create a random roster
 - Free-up saves for the selected roster
-- Supports Mod Organizer 2 mod folders.
+- Supports Mod Organizer 2
+- Skin editor and installer
 - Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours
 
  Version 0.1:
@@ -66,9 +68,9 @@ Note: The source code has drastically changed, but it's not ready for release ye
 
 ## Usage Instructions
 
- The archive's content must be extracted to the same location as "OpenHeroSelect.exe".
+ [Full installation and usage instructions](https://github.com/ak2yny/OpenHeroSelectGUI/wiki/Instructions)
 
- Run "OpenHeroSelectGUI.exe". Navigate to the games and settings on the left pane (navigation view). For MUA, select a character and a menulocation to assign it or drag the the character on a menulocation or the selected list (and drop it). For XML2, drag the character on the selected list (more methods will be added in the future). Alternatively, populate the selected list with a random, default, or custom roster loaded from a file. Remove assigned heroes with the `Clear` button or by selecting them in the list and pressing the Delete key.
+ Run OpenHeroSelectGUI. Navigate to the games and settings on the left pane (navigation view). For MUA, select a character and a menulocation to assign it or drag the the character on a menulocation or the selected list (and drop it). For XML2, drag the character on the selected list or double-click on a character to add it at the end. Alternatively, populate the selected list with a random, default, or custom roster loaded from a file. Remove assigned heroes with the `Clear` button or by selecting them in the list and pressing the Delete key.
  Click `Run OHS` to run OHS and let it build herostat.engb and other files.
  
  Use the controls to adjust the settings for OHS and the GUI.
@@ -82,17 +84,11 @@ Note: The source code has drastically changed, but it's not ready for release ye
  To add different locations (for 50RH etc.), type the number in the "Current Position" field and double-click on the hero you want to place there.
 
 #### How can I add more characters?
- Place the herostats in the herostatFolder (by default `mua/xml` for MUA). Rename the herostat. All files in this folder and its sub-folders will be available in the program.
+ Place the herostats in the herostatFolder (by default `mua/xml` for MUA).
  
- You can use the reload button to update the list when Open Hero Select GUI is running.
- 
- Alternatively, drag & drop a herostat (e.g. herostat.txt) on the available character list (tree view).
- 
- Examples:
- - Creating `xml/Ant-Man.txt` will make `Ant-Man` available without tree-structure.
- - Creating `xml/MCU/Ant-Man.txt` will make `Ant-Man` available with a tree-structure, in the `MCU` sub-menu.
+ Find detailed instructions [here](https://github.com/ak2yny/OpenHeroSelectGUI/wiki/Instructions#add-characters).
 
-#### How can I change the path to MUA/XML2?
+#### How can I change the path to MUA/XML2/MO2?
  The path can be browsed in the settings tab.
  Or use the OpenHeroSelect.exe set-up dialogue. Paste the path with right-click, when prompted.
  
@@ -103,7 +99,7 @@ Note: The source code has drastically changed, but it's not ready for release ye
 
 ## Coding Instructions (v. 0.0.3)
 - [WinUI3 projects with Windows App SDK (non-UWP)](https://learn.microsoft.com/en-us/windows/apps/winui/winui3/create-your-first-winui3-app)
-- The language is C# and Xaml.
+- The language is C# and Xaml/XML.
 
  Version 0.1:
 - [Tree View](https://www.c-sharpcorner.com/article/treeview-control-in-C-Sharp/)
@@ -134,16 +130,17 @@ Note: The source code has drastically changed, but it's not ready for release ye
 #### Updated Plans by ak2yny
 - ~~Change teams to ini files and~~ add support for `data/team_bonus.engb` in XML format, using json2xmlb.exe to compile.
 - Add function to install from archive, if possible.
-- Add more installer functions for skins and other mods.
-- Add features that ak2yny's Stage & Herostat Helper has:
-  - Effect duplication
-  - EXE hex-editing (removal of effects in the F12 pause menu and changing the Spidey upside-down arrow)
-  - etc.
+- Add more installer functions for other mods.
+- EXE hex-editing (changing the Spidey upside-down arrow)
 <br/><br/>
 
 ## Changelog
 
- |07.14.2023|Beta 0.2.3: Fixed bugs (file picker, skin editor), Added stages
+ |08.01.2023|Beta 0.2.5: Added installer, fixed bugs
+
+ |07.30.2023|Beta 0.2.4: Fixed bugs, added effects and skin installer
+
+ |07.14.2023|Beta 0.2.3: Fixed bugs (file picker, skin editor), added stages
 
  |07.14.2023|Beta 0.2.2: Added Skin Editor
 
