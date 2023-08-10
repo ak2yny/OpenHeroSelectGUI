@@ -143,6 +143,7 @@ namespace OpenHeroSelectGUI.Settings
             model = "Default";
             rowLayout = false;
             hidableEffectsOnly = true;
+            copyStage = true;
             skinDetailsVisible = false;
         }
 
