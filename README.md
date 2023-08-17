@@ -14,7 +14,7 @@
   * [How can I add more characters?](#how-can-i-add-more-characters)
   * [How can I change the path to MUA/XML2/MO2?](#how-can-i-change-the-path-to-muaxml2mo2)
   * [What are Save Slots?](#what-are-save-slots)
-* [Coding Instructions (v. 0.0.3)](#coding-instructions-v-003)
+* [Coding Instructions](#coding-instructions)
 * [Build Instructions](#build-instructions)
 * [Planned Features](#planned-features)
 * [Changelog](#changelog)
@@ -95,7 +95,7 @@
  They're supposed to create and restore save backups, so you have free saves for your new roster. I haven't tested them, though. The feature only becomes available, if OHS is set-up to run the game.
 <br/><br/>
 
-## Coding Instructions (v. 0.0.3)
+## Coding Instructions
 - [WinUI3 projects with Windows App SDK (non-UWP)](https://learn.microsoft.com/en-us/windows/apps/winui/winui3/create-your-first-winui3-app)
 - The language is C# and Xaml/XML.
 
