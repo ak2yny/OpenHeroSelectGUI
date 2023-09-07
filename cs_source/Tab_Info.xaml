@@ -9,6 +9,10 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid Margin="40 10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
         <StackPanel>
             <TextBlock x:Uid="Info_About" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5"/>
             <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
@@ -20,8 +24,33 @@
                        HorizontalAlignment="Left"
                        Margin="20 5"
                        MaxWidth="320"
-                       Style="{ThemeResource BodyTextBlockStyle}" />
+                       Style="{ThemeResource BodyTextBlockStyle}"
+                       TextWrapping="Wrap"/>
             <HyperlinkButton x:Uid="Info_Link" Margin="5" NavigateUri="{x:Bind Cfg.GUI.GitHub}" />
+        </StackPanel>
+        <StackPanel Grid.Column="1">
+            <TextBlock x:Uid="Info_Credits" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5"/>
+            <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
+            <Grid Style="{ThemeResource BodyTextBlockStyle}" Margin="5 0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <TextBlock x:Uid="Info_Credits_Creators" FontWeight="Bold"/>
+                <TextBlock Grid.Column="1" Margin="10 0 0 5" Text="adamatti, ak2yny"/>
+                <TextBlock Grid.Row="1" x:Uid="Info_Credits_Stages" FontWeight="Bold" Margin="0 5"/>
+                <TextBlock Grid.Row="1" Grid.Column="1" Margin="10 5" Text="UltraMegaMagnus (models &amp; layouts), Outsider (layouts &amp; skins), Emanuel(MUAXP) (skins), Nuhverah (skins), Tony Stark aka Hyperman360 (skins), Overload (skin), nikita488 (layouts), harpua1982 (33RH model), Raven Software (originals)" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="2" x:Uid="Info_Credits_Other" FontWeight="Bold" Margin="0 5"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Margin="10 5" Text="Norrin Radd (effects &amp; original HeroSelect), Bobooooo (effects), Outsider (logo), Raven Software (artwork)" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="3" x:Uid="Info_Credits_Testers" FontWeight="Bold" Margin="0 5"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Margin="10 5" Text="Nuhverah, butsukdanila, HappyMSI, BloodyMares" TextWrapping="Wrap"/>
+            </Grid>
         </StackPanel>
     </Grid>
 </Page>

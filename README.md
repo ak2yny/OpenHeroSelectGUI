@@ -25,8 +25,24 @@
 - Based on [MUAOpenHeroSelect](https://code.google.com/archive/p/muaopenheroselect/) by [@adamatti](https://github.com/adamatti) 2008-2009
 - Using code samples from helpful developers on sites like StackOverflow
 - Using a lot of samples from the WinUI and Windows App SDK tutorials from [Microsoft](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/)
-- Using a few assets from X-Men Legends and Ultimate Alliance by Activision ( & Marvel)
+- Using a few assets from X-Men Legends and Ultimate Alliance by Raven Software (Activision, Marvel)
 - Using the MarvelMods logo by Outsider, based on Marvel's classic comic logo.
+
+ Stage Creators:
+- Outsider
+- Emanuel(MUAXP)
+- Nuhverah
+- Tony Stark aka Hyperman360
+- Overload
+- UltraMegaMagnus (models & layouts)
+- nikita488 (layouts)
+- harpua1982 (33RH model)
+- ak2yny (layouts & previews)
+
+ Effects research:
+- Bobooooo
+- Norrin Radd
+- ak2yny
 
  Thanks to testers:
 - Nuhverah

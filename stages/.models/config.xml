@@ -709,6 +709,16 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Path>Custom MUA Stages by Nuhverah/glowcity</Path>
             <Creator>Nuhverah</Creator>
         </Model>
+        <Model>
+            <Name>Halaxia</Name>
+            <Path>Custom MUA Stages by Nuhverah/halaxia</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Opulence</Name>
+            <Path>Custom MUA Stages by Nuhverah/opulence</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
     </RH>
     <Official>
         <Model>
@@ -741,7 +751,7 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
         <Model>
             <Name>Custom Stage from the 33RH</Name>
             <Path>33RH</Path>
-            <Creator>Raven Software, Outsider &amp; Krisan Thyme</Creator>
+            <Creator>Raven Software, Outsider &amp; harpua1982</Creator>
         </Model>
         <Model>
             <Name>Default Stage with Riser</Name>

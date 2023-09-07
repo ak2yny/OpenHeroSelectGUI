@@ -136,7 +136,8 @@
     <value>Information</value>
   </data>
   <data name="Info_AboutDescription.Text" xml:space="preserve">
-    <value>WIP: Graphical User Interface for Open Hero Select     by adamatti, ak2yny</value>
+    <value>Graphical User Interface for Open Hero Select</value>
+    <comment>WIP</comment>
   </data>
   <data name="Info_Link.Content" xml:space="preserve">
     <value>GitHub page</value>
@@ -146,5 +147,20 @@
   </data>
   <data name="Tab_SkinEditor.Content" xml:space="preserve">
     <value>Skin Editor</value>
+  </data>
+  <data name="Info_Credits.Text" xml:space="preserve">
+    <value>Credits</value>
+  </data>
+  <data name="Info_Credits_Creators.Text" xml:space="preserve">
+    <value>Programming</value>
+  </data>
+  <data name="Info_Credits_Other.Text" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="Info_Credits_Stages.Text" xml:space="preserve">
+    <value>Stage Creation</value>
+  </data>
+  <data name="Info_Credits_Testers.Text" xml:space="preserve">
+    <value>Testing</value>
   </data>
 </root>
