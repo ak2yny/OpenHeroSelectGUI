@@ -23,16 +23,16 @@ namespace OpenHeroSelectGUI
         }
         private void LoadXML2Limit()
         {
-            ReplDefaultmanToggle.IsOn = false;
-            int Size = Cfg.XML2.RosterSize;
+            int Size = Cfg.Roster.Total = Cfg.XML2.RosterSize;
+            //ReplDefaultmanToggle.IsOn = false;
+            //if (Cfg.XML2.RosterSize % 2 == 0)
+            //{
+            //    Size -= 1;
+            //    ReplDefaultmanToggle.IsOn = true;
+            //}
             SetXML2DefaultRoster(Size);
             Cfg.Dynamic.RosterRange = Enumerable.Range(1, Size);
-            if (Cfg.XML2.RosterSize % 2 == 1)
-            {
-                Size -= 1;
-                ReplDefaultmanToggle.IsOn = true;
-            }
-            RosterSizeToggle.SelectedIndex = (Size - 18) / 2;
+            RosterSizeToggle.SelectedIndex = (Size - 19) / 2;
 
             // Initialize other XML2 settings;
             if (Cfg.XML2.ExeName == "") Cfg.XML2.ExeName = "Xmen.exe";
@@ -44,7 +44,7 @@ namespace OpenHeroSelectGUI
         {
             if (RosterSizeToggle.SelectedItem is object RT && RT.ToString() is string RS && int.TryParse(RS[..2], out int Limit))
             {
-                Limit = ReplDefaultmanToggle.IsOn ? Limit + 1 : Limit;
+                //Limit = ReplDefaultmanToggle.IsOn ? Limit + 1 : Limit;
                 Cfg.Roster.Total = Cfg.XML2.RosterSize = Limit;
                 Cfg.Dynamic.RosterRange = Enumerable.Range(1, Limit);
                 SetXML2DefaultRoster(Limit);
@@ -52,11 +52,11 @@ namespace OpenHeroSelectGUI
         }
         private void SetXML2DefaultRoster(int Limit)
         {
-            Cfg.Dynamic.RosterValueDefault = Limit > 21
-                ? "Default 22 Character (PSP) Roster"
-                : Limit > 19
-                ? "Default 20 Character (PC) Roster"
-                : "Default 18 Character (GC, PS2, Xbox) Roster";
+            Cfg.Dynamic.RosterValueDefault = Limit >= 23
+                ? "Default 23 Character (PSP) Roster"
+                : Limit >= 21
+                ? "Default 21 Character (PC) Roster"
+                : "Default 19 Character (GC, PS2, Xbox) Roster";
         }
         // Control handlers. A few of them are identical to the MUA handlers, can they be combined?
         private void BtnRunGame_Click(object sender, RoutedEventArgs e)
@@ -73,8 +73,10 @@ namespace OpenHeroSelectGUI
         }
 
         private void RosterSize_SelectionChanged(object sender, SelectionChangedEventArgs e) => SetXML2Limit();
-
-        private void ReplDefaultman_Toggled(object sender, RoutedEventArgs e) => SetXML2Limit();
+        /// <summary>
+        /// Currently unused: Toggle to replace defaultman, to free up an extra slot. OHS doesn't support this currently, XML2 mightn't support it either.
+        /// </summary>
+        //private void ReplDefaultman_Toggled(object sender, RoutedEventArgs e) => SetXML2Limit();
         /// <summary>
         /// Show the drop area when the pointer is on it
         /// </summary>

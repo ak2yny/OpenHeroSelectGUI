@@ -61,11 +61,11 @@
                 <ToggleSwitch x:Name="UnlockToggle" Header="Char. Unlocks" IsOn="{x:Bind Cfg.XML2.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
             </StackPanel>
             <RadioButtons x:Name="RosterSizeToggle" Grid.Row="1" Header="Roster Size" Margin="0 10 0 0" SelectionChanged="RosterSize_SelectionChanged">
-                <x:String>18 (Consoles)</x:String>
-                <x:String>20 (PC)</x:String>
-                <x:String>22 (PSP)</x:String>
+                <x:String>19 (Consoles)</x:String>
+                <x:String>21 (PC)</x:String>
+                <x:String>23 (PSP)</x:String>
             </RadioButtons>
-            <ToggleSwitch x:Name="ReplDefaultmanToggle" Grid.Row="1" Grid.Column="1" Header="Replace Defaultman?" Margin="0 10 0 0" OffContent="No" OnContent="Yes" Toggled="ReplDefaultman_Toggled" VerticalAlignment="Top"/>
+            <!--<ToggleSwitch x:Name="ReplDefaultmanToggle" Grid.Row="1" Grid.Column="1" Header="Replace Defaultman?" Margin="0 10 0 0" OffContent="No" OnContent="Yes" Toggled="ReplDefaultman_Toggled" VerticalAlignment="Top"/>-->
             <Button x:Name="SkinDetailsBtn" Grid.Row="2" Content="Hide Skin Details" Click="SkinDetailsBtn_Click" Margin="0 20 0 0" VerticalAlignment="Bottom"/>
         </Grid>
     </Grid>
