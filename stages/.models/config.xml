@@ -727,6 +727,11 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Creator>Raven Software</Creator>
         </Model>
         <Model>
+            <Name>Default - Blue</Name>
+            <Path>Official/Default - Blue</Path>
+            <Creator>Raven Software &amp; Maegawa</Creator>
+        </Model>
+        <Model>
             <Name>Default Stage from the Gold Edition (Xbox 360)</Name>
             <Path>Official/GE</Path>
             <Creator>Raven Software</Creator>
@@ -751,12 +756,17 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
         <Model>
             <Name>Custom Stage from the 33RH</Name>
             <Path>33RH</Path>
-            <Creator>Raven Software, Outsider &amp; harpua1982</Creator>
+            <Creator>Raven Software, Dorpond &amp; harpua1982 aka MelloMods</Creator>
         </Model>
         <Model>
             <Name>Default Stage with Riser</Name>
             <Path>36GE</Path>
             <Creator>Raven Software &amp; UltraMegaMagnus</Creator>
+        </Model>
+        <Model>
+            <Name>Default Stage with Riser - Blue</Name>
+            <Path>36GE Blue</Path>
+            <Creator>Raven Software &amp; Maegawa</Creator>
         </Model>
         <Model>
             <Name>Default Stage of the OCP 2</Name>
