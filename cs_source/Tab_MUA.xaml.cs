@@ -3,10 +3,8 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Media.Imaging;
+using OpenHeroSelectGUI.Settings;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -23,69 +21,29 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public sealed partial class Tab_MUA : Page
     {
-        private ObservableCollection<string> Layouts { get; } = new();
-        private ObservableCollection<string> Stages { get; } = new();
-        public XmlElement? Models { get; set; }
-        public Settings.Cfg Cfg { get; set; } = new();
+        public Cfg Cfg { get; set; } = new();
         public string? FloatingLoc { get; set; }
         public int? SelectedCount { get => Cfg.Roster.Selected.Count; }
         public Tab_MUA()
         {
             InitializeComponent();
             if (Cfg.MUA.ExeName == "") Cfg.MUA.ExeName = "Game.exe";
-            LoadLayouts();
-            UpdateLocBoxes();
-            AvailableCharacters.Navigate(typeof(AvailableCharacters));
-            SelectedCharacters.Navigate(typeof(SelectedCharacters));
+            LoadLayout();
+            _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
+            _ = SelectedCharacters.Navigate(typeof(SelectedCharacters));
         }
         /// <summary>
-        /// Load the stage information, images, locations
+        /// Load the layout, limit, default, model info using saved data.
         /// </summary>
-        private void LoadLayouts()
+        private void LoadLayout()
         {
-            ReloadLayouts();
-            Cfg.Dynamic.SelectedLayout = Layouts.IndexOf(Cfg.GUI.Layout);
-            Stages.Clear();
-            Models = GetXmlElement(Path.Combine(ModelPath, "config.xml"));
-
-        }
-        private void ReloadLayouts()
-        {
-            Layouts.Clear();
-            DirectoryInfo folder = new(Path.Combine(cdPath, "stages"));
-            foreach (DirectoryInfo f in folder.GetDirectories().Where(d => !d.Name.StartsWith(".")).ToList())
+            string CfgLayout = Path.Combine(cdPath, "stages", Cfg.GUI.Layout, "config.xml");
+            string CfgModels = Path.Combine(ModelPath, "config.xml");
+            if (File.Exists(CfgLayout) && File.Exists(CfgModels))
             {
-                Layouts.Add(f.Name);
-            }
-        }
-        /// <summary>
-        /// Load the layout, limit, default, model list by providing the path to a stage layout config.xml file.
-        /// </summary>
-        private void LoadLayout(string CfgFile)
-        {
-            if (File.Exists(CfgFile))
-            {
-                Cfg.Dynamic.Layout = GetXmlElement(CfgFile);
-                if (Cfg.Dynamic.Layout is not null && Models is not null)
+                Cfg.Dynamic.Layout ??= GetXmlElement(CfgLayout);
+                if (Cfg.Dynamic.Layout is not null)
                 {
-                    // Note: config.xml can theoretically not contain the required entries at the correct location. If this is the case, the app will throw an unhandled exception. This can be avoided by verifying the XML with a scheme definition.
-                    LayoutDetails.Text = $"Layout: {Cfg.Dynamic.Layout["Information"]["name"].InnerText} for {Cfg.Dynamic.Layout["Information"]["platform"].InnerText}";
-                    foreach (XmlElement CM in Cfg.Dynamic.Layout["Compatible_Models"].ChildNodes)
-                    {
-                        if (CM.InnerText == "Official" && CM.GetAttribute("Riser") == "true")
-                        {
-                            Cfg.Dynamic.Riser = true;
-                        }
-                        foreach (XmlElement M in Models[CM.InnerText].ChildNodes)
-                        {
-                            DirectoryInfo ModelFolder = new(Path.Combine(ModelPath, M["Path"].InnerText));
-                            if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
-                            {
-                                Stages.Add(M["Name"].InnerText);
-                            }
-                        }
-                    }
-                    Cfg.Dynamic.SelectedModel = Stages.IndexOf(Cfg.GUI.Model);
                     Cfg.Dynamic.RosterValueDefault = Cfg.Dynamic.Layout["Default_Roster"]["roster"].InnerText;
                     Cfg.Dynamic.MenulocationsValueDefault = Cfg.Dynamic.Layout["Default_Roster"]["menulocations"].InnerText;
 
@@ -131,9 +89,21 @@ namespace OpenHeroSelectGUI
 
                         Locations.Children.Add(LocButton);
                     }
-                    UpdateLocBoxes();
+                    LayoutDetails.Text = $"Layout: {Cfg.Dynamic.Layout["Information"]["name"].InnerText} for {Cfg.Dynamic.Layout["Information"]["platform"].InnerText}";
+                }
+                StageDetails.Text = "";
+                StageImage.Source = null;
+                if (GetXmlElement(CfgModels) is XmlElement Models
+                        && Models.SelectSingleNode($"descendant::Model[Name='{Cfg.GUI.Model}']") is XmlElement M
+                        && Cfg.Dynamic.Layout.SelectSingleNode($"descendant::Model[text()='{M.ParentNode.Name}']") is XmlElement CM
+                        && GetStageInfo(M, CM) is StageModel StageItem)
+                {
+                    Cfg.Dynamic.SelectedStage = StageItem;
+                    StageDetails.Text = $"Model: {StageItem.Name} by {StageItem.Creator}";
+                    StageImage.Source = StageItem.Image;
                 }
             }
+            UpdateLocBoxes();
         }
         /// <summary>
         /// Update the state of all location boxes. Required after each add process except when clicked (or dragged?).
@@ -153,13 +123,13 @@ namespace OpenHeroSelectGUI
 
         private void BtnUnlockAll_Click(object sender, RoutedEventArgs e)
         {
-            foreach (Settings.SelectedCharacter c in Cfg.Roster.Selected)
+            foreach (SelectedCharacter c in Cfg.Roster.Selected)
             {
                 c.Unlock = true;
             }
         }
         /// <summary>
-        /// Roster Hack switch: A red number warns us from missing roster hack files.
+        /// Roster Hack switch: A red number warns us about missing roster hack files.
         /// </summary>
         private void RosterHack_Toggled(object sender, RoutedEventArgs e)
         {
@@ -180,60 +150,15 @@ namespace OpenHeroSelectGUI
                 : "(Default)";
         }
         /// <summary>
-        /// Load the layout, limit, default, model list for the selected stage layout.
+        /// Reload stage info from configuration files and images.
         /// </summary>
-        private void LayoutBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            LayoutDetails.Text = "";
-            Stages.Clear();
-            Cfg.Dynamic.SelectedModel = -1;
-            Cfg.Dynamic.Riser = false;
-            if (LayoutBox is ComboBox LB && LB.SelectedItem is string Selected)
-            {
-                LoadLayout(Path.Combine(cdPath, "stages", Selected, "config.xml"));
-                Cfg.GUI.Layout = Selected;
-            }
-        }
-
-        private void RefreshLayouts_Click(object sender, RoutedEventArgs e)
-        {
-            ReloadLayouts();
-        }
+        private void RefreshStages_Click(object sender, RoutedEventArgs e) => LoadLayout();
         /// <summary>
-        /// Load the image preview and define the variables for the selected stage model.
+        /// Open the stage selection tab.
         /// </summary>
-        private void StagesBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void SelectStage_Click(object sender, RoutedEventArgs e)
         {
-            StageDetails.Text = "";
-            StageImage.Source = null;
-            if (StagesBox is ComboBox SB && SB.SelectedItem is string Selected)
-            {
-                XmlNode? M = Models.GetElementsByTagName("Model").Cast<XmlNode>()
-                                   .First(n => n["Name"].InnerText == StagesBox.SelectedValue.ToString());
-                Cfg.Dynamic.SelectedModelPath = Path.Combine(ModelPath, M["Path"].InnerText);
-
-                StageDetails.Text = $"Model: {M["Name"].InnerText} by {M["Creator"].InnerText}";
-                DirectoryInfo ModelFolder = new(Cfg.Dynamic.SelectedModelPath);
-                if (ModelFolder.Exists)
-                {
-                    IEnumerable<FileInfo> ModelImages = ModelFolder
-                        .EnumerateFiles("*.png")
-                        .Union(ModelFolder.EnumerateFiles("*.jpg"))
-                        .Union(ModelFolder.EnumerateFiles("*.bmp"));
-                    if (ModelImages.Any())
-                    {
-                        StageImage.Source = new BitmapImage(new Uri(ModelImages.First().FullName));
-                    }
-                }
-                Cfg.GUI.Model = Selected;
-            }
-        }
-        /// <summary>
-        /// Reload stage configuration file. New stages only show when the layout selection changes.
-        /// </summary>
-        private void RefreshStages_Click(object sender, RoutedEventArgs e)
-        {
-            Models = GetXmlElement(Path.Combine(ModelPath, "config.xml"));
+            _ = Frame.Navigate(typeof(Tab_Stages));
         }
 
         private void LocButton_Click(object sender, RoutedEventArgs e)
@@ -271,7 +196,7 @@ namespace OpenHeroSelectGUI
         {
             if (sender is ToolTip Tt && FloatingLoc is not null)
             {
-                if (Cfg.Roster.Selected.FirstOrDefault(c => c.Loc == FloatingLoc) is Settings.SelectedCharacter SC)
+                if (Cfg.Roster.Selected.FirstOrDefault(c => c.Loc == FloatingLoc) is SelectedCharacter SC)
                 { Tt.Content = SC.Path; }
                 else
                 { Tt.IsOpen = false; }

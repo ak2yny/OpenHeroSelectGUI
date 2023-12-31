@@ -156,22 +156,25 @@ namespace OpenHeroSelectGUI
             string StagesPath = Path.Combine(cdPath, "stages");
             string RiserPath = Path.Combine(StagesPath, ".riser");
             string SelectedLayoutPath = Path.Combine(StagesPath, GUIsettings.Instance.Layout);
-            DirectoryInfo ModelFolder = new(DynamicSettings.Instance.SelectedModelPath);
-            if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
+            if (DynamicSettings.Instance.SelectedStage is StageModel Stage)
             {
-                CopyGameFile(DynamicSettings.Instance.SelectedModelPath, Path.Combine("ui", "models"), ModelFolder.EnumerateFiles("*.igb").First().Name, "m_team_stage.igb");
-            }
-            CopyGameFile(SelectedLayoutPath, Path.Combine("ui", "menus"), "mlm_team_back.igb");
-            CopyGameFile(Path.GetDirectoryName(MarvelModsXML.UpdateLayout(Path.Combine(SelectedLayoutPath, "team_back.xmlb")))!, Path.Combine("ui", "menus"), "team_back.xmlb");
-            if (DynamicSettings.Instance.Riser)
-            {
-                CopyGameFileWStrctr(RiserPath, Path.Combine("effects", "menu"), "riser.xmlb");
-                CopyGameFileWStrctr(RiserPath, Path.Combine("models", "effects"), "riser.igb");
-                CopyGameFileWStrctr(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.pkgb");
-            }
-            else
-            {
-                CopyGameFileWStrctr(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.bkp.pkgb", "team_back.pkgb");
+                if (Stage.Path is DirectoryInfo ModelFolder && ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
+                {
+                    CopyGameFile(ModelFolder.FullName, Path.Combine("ui", "models"), ModelFolder.EnumerateFiles("*.igb").First().Name, "m_team_stage.igb");
+                }
+
+                CopyGameFile(SelectedLayoutPath, Path.Combine("ui", "menus"), "mlm_team_back.igb");
+                CopyGameFile(Path.GetDirectoryName(MarvelModsXML.UpdateLayout(Path.Combine(SelectedLayoutPath, "team_back.xmlb"), Stage.Riser))!, Path.Combine("ui", "menus"), "team_back.xmlb");
+                if (Stage.Riser)
+                {
+                    CopyGameFileWStrctr(RiserPath, Path.Combine("effects", "menu"), "riser.xmlb");
+                    CopyGameFileWStrctr(RiserPath, Path.Combine("models", "effects"), "riser.igb");
+                    CopyGameFileWStrctr(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.pkgb");
+                }
+                else
+                {
+                    CopyGameFileWStrctr(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.bkp.pkgb", "team_back.pkgb");
+                }
             }
         }
         /// <summary>

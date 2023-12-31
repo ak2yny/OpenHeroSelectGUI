@@ -1,13 +1,24 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
+using Microsoft.UI.Xaml.Media.Imaging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace OpenHeroSelectGUI.Settings
 {
+    /// <summary>
+    /// Model with a name, creator, path and image data. Path should be checked separately for IGB model.
+    /// </summary>
+    public class StageModel
+    {
+        public string? Name { get; set; }
+        public string? Creator { get; set; }
+        public DirectoryInfo? Path { get; set; }
+        public BitmapImage? Image { get; set; }
+        public bool Riser { get; set; }
+    }
     /// <summary>
     /// Dynamic internal settings, observable
     /// </summary>
@@ -16,13 +27,7 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private string game;
         [ObservableProperty]
-        private bool riser;
-        [ObservableProperty]
-        private int selectedLayout;
-        [ObservableProperty]
-        private int selectedModel;
-        [ObservableProperty]
-        private string selectedModelPath;
+        private StageModel? selectedStage;
         [ObservableProperty]
         private IEnumerable<int>? layoutLocs;
         [ObservableProperty]
@@ -41,10 +46,6 @@ namespace OpenHeroSelectGUI.Settings
         public DynamicSettings()
         {
             game = "";
-            riser = false;
-            selectedLayout = -1;
-            selectedModel = -1;
-            selectedModelPath = "";
             rosterValueDefault = "";
             menulocationsValueDefault = "";
         }

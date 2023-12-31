@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.UI.Xaml.Media.Imaging;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml;
@@ -50,10 +52,10 @@ namespace OpenHeroSelectGUI.Settings
         /// Add data from settings to team_back.xmlb: Riser, Effects | WIP: Possibly make this a general function for other files as well (no others currently, charinfo etc are handled by OHS)
         /// </summary>
         /// <returns>The updated team_back.xmlb or the input file if failed or no changes necessary - file as path (string)</returns>
-        public static string UpdateLayout(string LayoutDataFile)
+        public static string UpdateLayout(string LayoutDataFile, bool HasRiser)
         {
             IEnumerable<SelectedCharacter> EL = CharacterLists.Instance.Selected.Where(c => !string.IsNullOrEmpty(c.Effect));
-            if (DynamicSettings.Instance.Riser || EL.Any())
+            if (HasRiser || EL.Any())
             {
                 string DLDF = DecompileToTemp(LayoutDataFile);
 
@@ -61,15 +63,16 @@ namespace OpenHeroSelectGUI.Settings
                 LayoutData.Load(DLDF);
                 if (LayoutData.DocumentElement is XmlElement menu_items)
                 {
-                    if (DynamicSettings.Instance.Riser)
+                    if (HasRiser)
                         _ = menu_items.AppendChild(LayoutData.ImportNode(Riser, true));
                     for (int i = 0; i < (GUIsettings.Instance.HidableEffectsOnly && EL.Count() > 1 ? 2 : EL.Count()); i++)
                     {
                         SelectedCharacter SC = EL.ToArray()[i];
-                        // WIP: Currently, the user must have effects on 24 an 03 to have hidden effects. We can freely use locations an hex edit though. The limit's still 2 though.
-                        XmlNode? EffectLine = AddEffect(SC.Loc!, SC.Effect!, GUIsettings.Instance.HidableEffectsOnly ? i > 1 ? "24" : "03" : SC.Loc!);
-                        if (EffectLine != null)
+                        // WIP: Currently, the user must have effects on 24 and 03 to have hidden effects. We can freely use locations an hex edit though. The limit's still 2.
+                        if (AddEffect(SC.Loc!, SC.Effect!, GUIsettings.Instance.HidableEffectsOnly ? i > 1 ? "24" : "03" : SC.Loc!) is XmlNode EffectLine)
+                        {
                             _ = menu_items.AppendChild(LayoutData.ImportNode(EffectLine, true));
+                        }
                     }
 
                     CompileToTarget(LayoutData, $"{DLDF}b");
@@ -83,6 +86,7 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         private static XmlElement? AddEffect(string Loc, string EffectName, string FXslot)
         {
+            // Note: Any config.xml can theoretically not contain the required entries at the correct location. If this is the case, the app will throw an unhandled exception. This can be avoided by verifying the XML with a scheme definition.
             XmlElement? EffectSetup = GUIXML.GetXmlElement(Path.Combine(cdPath, "stages", ".effects", "config.xml"));
             if (EffectSetup.SelectSingleNode($"descendant::Effect[Name=\"{EffectName}\"]") is XmlNode SelectedEffect && SelectedEffect["File"].InnerText is string EFN)
             {
@@ -105,10 +109,9 @@ namespace OpenHeroSelectGUI.Settings
                         if (EffectType.HasAttribute("origin2"))
                             _ = EffectType.SetAttributeNode(O2);
                     }
-
+                    // WIP: This seems to work, but is still in beta phase
                     CompileToTarget(EffectFile, Path.Combine(Directory.CreateDirectory(Path.Combine(OHSsettings.Instance.GameInstallPath, "effects", "menu")).FullName, $"{EFN}.xmlb"));
-                    XmlElement Test = XmlElementFromString($"<item effect=\"menu/{EFN}\" enabled=\"false\" name=\"pad{FXslot}_fx\" neverfocus=\"true\" type=\"MENU_ITEM_EFFECT\" />");
-                    return Test;
+                    return XmlElementFromString($"<item effect=\"menu/{EFN}\" enabled=\"false\" name=\"pad{FXslot}_fx\" neverfocus=\"true\" type=\"MENU_ITEM_EFFECT\" />");
                 }
             }
             return null;
@@ -209,6 +212,32 @@ namespace OpenHeroSelectGUI.Settings
                 if (XmlDocument.FirstChild is XmlElement Root) XmlElement = Root;
             }
             return XmlElement;
+        }
+        /// <summary>
+        /// Parse the XML stage details to Stage info with image and details
+        /// </summary>
+        /// <returns>Stage info</returns>
+        public static StageModel? GetStageInfo(XmlElement? M, XmlElement? CM)
+        {
+            DirectoryInfo ModelFolder = new(Path.Combine(ModelPath, M["Path"].InnerText));
+            if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
+            {
+                IEnumerable<FileInfo> ModelImages = ModelFolder
+                    .EnumerateFiles("*.png")
+                    .Union(ModelFolder.EnumerateFiles("*.jpg"))
+                    .Union(ModelFolder.EnumerateFiles("*.bmp"))
+                    .Union(new DirectoryInfo(ModelPath).EnumerateFiles(".NoPreview.png"));
+                StageModel StageItem = new()
+                {
+                    Name = M["Name"].InnerText,
+                    Creator = M["Creator"].InnerText,
+                    Path = ModelFolder,
+                    Image = new BitmapImage(new Uri(ModelImages.First().FullName)),
+                    Riser = CM.InnerText == "Official" && CM.GetAttribute("Riser") == "true"
+                };
+                return StageItem;
+            }
+            return null;
         }
         /// <summary>
         /// Get the effects list from stages/.effects/config.xml

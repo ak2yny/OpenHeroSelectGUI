@@ -163,4 +163,7 @@
   <data name="Info_Credits_Testers.Text" xml:space="preserve">
     <value>Testing</value>
   </data>
+  <data name="Stage_Confirm.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
+    <value>Confirm the selection and return to the MUA tab</value>
+  </data>
 </root>

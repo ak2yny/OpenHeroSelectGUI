@@ -23,38 +23,32 @@
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="120"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <StackPanel Margin="0 5 10 0" VerticalAlignment="Top">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <StackPanel Grid.RowSpan="3" Margin="0 5 10 0" VerticalAlignment="Top">
                         <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Margin="0 0 0 5" Padding="16 10" ToolTipService.ToolTip="Run Marvel: Ultimate Alliance only, without running OHS">
-                            <TextBlock TextAlignment="Center">Run<LineBreak/>Marvel<LineBreak/>Ultimate<LineBreak/>Alliance</TextBlock>
+                            <TextBlock TextAlignment="Center">Run Marvel<LineBreak/>Ultimate<LineBreak/>Alliance</TextBlock>
                         </Button>
-                        <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked"/>
+                        <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked" Width="105"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="1" MaxWidth="110">
+                    <TextBlock Grid.Column="1" Grid.Row="0" Margin="0 0 5 0" Text="Hidable Effects Only" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Grid.Row="1" Margin="0 0 5 0" Text="Update Stage" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Grid.Row="2" Margin="0 0 5 0" Text="Update Unlocks" VerticalAlignment="Center"/>
+                    <ToggleSwitch Grid.Column="2" Grid.Row="0" x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" OffContent="Off" OnContent="On" ToolTipService.ToolTip="Only the first two mannequin effects are used if this is on. Otherwise all effects are used, but only effects on locations 03 and 24 are hidden in the F12 menu."/>
+                    <ToggleSwitch Grid.Column="2" Grid.Row="1" x:Name="StageToggle" IsOn="{x:Bind Cfg.GUI.CopyStage, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="Switch this on to copy the selected stage to the game files (mod folder). Leave this on to be save. Turn this off to avoid unnecessary copy processes when the stage or effects haven't been changed."/>
+                    <ToggleSwitch Grid.Column="2" Grid.Row="2" x:Name="UnlockToggle" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
+                    <StackPanel Grid.Column="3" Grid.RowSpan="3">
                         <TextBlock x:Name="CharLimit" Text="Character Limit"/>
                         <ToggleSwitch x:Name="RosterHackToggle" Header="(Roster Hack)" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" OffContent="27" OnContent="50" ToolTipService.ToolTip="Enable/disable the roster hack (RH) limit of 50 characters - if the RH wasn't found it might still work" Toggled="RosterHack_Toggled"/>
-                        <ToggleSwitch x:Name="UnlockToggle" Header="Unlocks" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="2" MaxWidth="100">
-                        <ToggleSwitch x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" OffContent="Off" OnContent="On" ToolTipService.ToolTip="Only the first two effects are used if this is on. Otherwise all effects are used, but only effects on locations 03 and 24 are hidden in the F12 menu.">
-                            <ToggleSwitch.Header>
-                                <TextBlock>Allow Hidable<LineBreak/>Effects Only</TextBlock>
-                            </ToggleSwitch.Header>
-                        </ToggleSwitch>
-                        <ToggleSwitch x:Name="StageToggle" Header="Update Stage" IsOn="{x:Bind Cfg.GUI.CopyStage, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="Switch this on to copy the selected stage to the game files (mod folder). Leave this on to be save. Turn this off to avoid unnecessary copy processes when the stage or effects haven't been changed."/>
-                    </StackPanel>
-                    <StackPanel Grid.Column="3">
-                        <StackPanel Margin="0 9 0 0" Orientation="Horizontal">
-                            <ComboBox x:Name="LayoutBox" Header="Stage Layout" ItemsSource="{x:Bind Layouts, Mode=OneWay}" SelectionChanged="LayoutBox_SelectionChanged" SelectedValuePath="Content" SelectedIndex="{x:Bind Cfg.Dynamic.SelectedLayout}" MinWidth="150"/>
-                            <Button x:Name="RefreshLayouts" Click="RefreshLayouts_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTipService.ToolTip="Reload layouts">
-                                <SymbolIcon>Refresh</SymbolIcon>
-                            </Button>
-                        </StackPanel>
-                        <StackPanel Margin="0 10 0 0" Orientation="Horizontal">
-                            <ComboBox x:Name="StagesBox" Header="Stage  Model" ItemsSource="{x:Bind Stages, Mode=OneWay}" SelectionChanged="StagesBox_SelectionChanged" SelectedIndex="{x:Bind Cfg.Dynamic.SelectedModel, Mode=OneWay}" MinWidth="150"/>
-                            <Button x:Name="RefreshStages" Click="RefreshStages_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right" ToolTipService.ToolTip="Reload stages (does not update until the layout changes)">
+                        <StackPanel Orientation="Horizontal">
+                            <Button x:Name="SelectStage" Click="SelectStage_Click" Content="Select Stage" VerticalAlignment="Bottom"/>
+                            <Button x:Name="RefreshStages" Click="RefreshStages_Click" VerticalAlignment="Bottom" HorizontalAlignment="Left" ToolTipService.ToolTip="Refresh stage info">
                                 <SymbolIcon>Refresh</SymbolIcon>
                             </Button>
                         </StackPanel>

@@ -1,5 +1,4 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Xaml;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -112,6 +111,8 @@ namespace OpenHeroSelectGUI.Settings
         private string gameInstallPath;
         [ObservableProperty]
         private string exeArguments;
+        [ObservableProperty]
+        private int thumbnailWidth;
         // MUA specific settings
         [ObservableProperty]
         private string layout;
@@ -139,6 +140,7 @@ namespace OpenHeroSelectGUI.Settings
             freeSaves = false;
             gameInstallPath = "";
             exeArguments = "";
+            thumbnailWidth = 224;
             layout = "25 Default PC 2006";
             model = "Default";
             rowLayout = false;
