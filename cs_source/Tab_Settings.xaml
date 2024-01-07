@@ -4,7 +4,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:controls="using:Microsoft.UI.Xaml.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <!--IntelliSense automatically works with x:Bind. When we use Binding, we should use Page.DataContext (or Page.Resources)-->
@@ -34,7 +33,7 @@
                         <Button x:Name="HBrowseButton" FontWeight="Bold" Content="..." Click="HBrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <ToggleSwitch x:Name="FreeSavesToggle" Header="Free Saves" IsOn="{x:Bind Cfg.GUI.FreeSaves, Mode=TwoWay}" OffContent="Keep" OnContent="Free" MinWidth="100" ToolTipService.ToolTip="Free: Backup the current saves and start with a clear set. Applies when starting the game through OHS GUI."/>
+                        <ToggleSwitch x:Name="FreeSavesToggle" Header="Free Saves" IsOn="{x:Bind Cfg.GUI.FreeSaves, Mode=TwoWay}" OffContent="Keep" OnContent="Free" MinWidth="100" ToolTipService.ToolTip="Free: Backup the current saves and start with a new set. Applies when starting the game through OHS GUI."/>
                         <Button x:Name="FreeSavesButton" Content="Free saves now" Click="FreeSavesButton_Click"/>
                     </StackPanel>
                     <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Width="Auto">
@@ -45,7 +44,7 @@
                         </Button>
                     </StackPanel>
                 </StackPanel>
-                
+
                 <StackPanel Grid.Column="1" Margin="15 0 0 0">
                     <TextBlock Text="Mod Pack Settings" Style="{ThemeResource SubtitleTextBlockStyle}"/>
                     <TextBlock Text="Change when using a mod pack only." FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
@@ -84,13 +83,18 @@
                     <ToggleSwitch x:Name="ShowProgressToggle" Header="Show Progress in %" IsOn="{x:Bind Cfg.OHS.ShowProgress, Mode=TwoWay}" OffContent="Off" OnContent="On"/>
                     <ToggleSwitch x:Name="DebugToggle" Header="Test Herostats" IsOn="{x:Bind Cfg.OHS.DebugMode, Mode=TwoWay}" OffContent="Off" OnContent="On"/>
 
-                    <TextBlock Text="UI Settings" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="0 20 0 0"/>
+                    <TextBlock Text="UI Settings" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="0 15 0 0"/>
                     <TextBlock Text="Change interface look." FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
                     <ToggleSwitch x:Name="RowLayoutToggle" Header="Location Layout" IsOn="{x:Bind Cfg.GUI.RowLayout, Mode=TwoWay}" OffContent="Classic" OnContent="Row"/>
+                    <ToggleSwitch x:Name="MaxLayoutWidthToggle" Header="Location Layout Width" IsOn="{x:Bind Cfg.GUI.LayoutWidthUpscale, Mode=TwoWay}" OffContent="Downscale" OnContent="Both" ToolTipService.ToolTip="Limit the size of the menulocation boxes. Downscale scales them to fit width if not enough space. Both always scales to width but maximal as wide as specified with the slider below."/>
+                    <Slider x:Name="MaxLayoutWidth" Minimum="600" Maximum="2200" StepFrequency="100" TickFrequency="400" Value="{x:Bind Cfg.GUI.LayoutMaxWidth, Mode=TwoWay}"/>
                 </StackPanel>
             </Grid>
         </ScrollViewer>
-        <controls:ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK">
-        </controls:ContentDialog>
+        <InfoBar x:Name="Warning"
+                 Severity="Warning"
+                 Title="Warning"
+                 Margin="20"
+                 VerticalAlignment="Bottom"/>
     </Grid>
 </Page>

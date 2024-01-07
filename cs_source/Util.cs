@@ -1,10 +1,23 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
+using System.IO;
 
 namespace OpenHeroSelectGUI
 {
     public class Util
     {
+        /// <summary>
+        /// Run an EXE through CMD, if it exists. Doesn't evaluate the arguments or return the evaluation.
+        /// </summary>
+        /// <returns>True, if the exe esits, false if it doesn't.</returns>
+        public static bool RunExeInCmd(string exe, string args)
+        {
+            if (exe.EndsWith(".exe") && File.Exists(exe))
+            {
+                RunDosCommnand(exe, args);
+                return true;
+            }
+            return false;
+        }
         /// <summary>
         /// Run a MS Dos Command (used to compile/decompile MUA files)
         /// </summary>

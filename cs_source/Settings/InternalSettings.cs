@@ -9,7 +9,7 @@ using System.Xml;
 namespace OpenHeroSelectGUI.Settings
 {
     /// <summary>
-    /// Model with a name, creator, path and image data. Path should be checked separately for IGB model.
+    /// Stage model with a name, creator, path and image data. Path should be checked separately for IGB model.
     /// </summary>
     public class StageModel
     {
@@ -18,6 +18,15 @@ namespace OpenHeroSelectGUI.Settings
         public DirectoryInfo? Path { get; set; }
         public BitmapImage? Image { get; set; }
         public bool Riser { get; set; }
+    }
+    /// <summary>
+    /// Class with strings (message + title) and boolean (IsOpen) properties for message binding.
+    /// </summary>
+    public class MessageItem
+    {
+        public string? Title { get; set; }
+        public string? Message { get; set; }
+        public bool IsOpen { get; set; }
     }
     /// <summary>
     /// Dynamic internal settings, observable
@@ -40,6 +49,20 @@ namespace OpenHeroSelectGUI.Settings
         private string menulocationsValueDefault;
         [ObservableProperty]
         public string? floatingCharacter;
+        [ObservableProperty]
+        private char hsFormat;
+        [ObservableProperty]
+        private FileInfo? hsPath;
+        [ObservableProperty]
+        private MessageItem? sE_Msg_Error;
+        [ObservableProperty]
+        private MessageItem? sE_Msg_Info;
+        [ObservableProperty]
+        private MessageItem? sE_Msg_Success;
+        [ObservableProperty]
+        private MessageItem? sE_Msg_Warning;
+        [ObservableProperty]
+        private MessageItem? sE_Msg_WarnPkg;
 
         public static DynamicSettings Instance { get; set; } = new();
 
@@ -48,7 +71,11 @@ namespace OpenHeroSelectGUI.Settings
             game = "";
             rosterValueDefault = "";
             menulocationsValueDefault = "";
+            hsFormat = ' ';
         }
+
+        public int TeamsLimit = GUIsettings.Instance.Game == "mua" ? 32 : 17;
+        public int TeamMembersLimit = GUIsettings.Instance.Game == "mua" ? 8 : 6;
     }
     /// <summary>
     /// Static internal settings
@@ -89,8 +116,29 @@ namespace OpenHeroSelectGUI.Settings
             "xml", "eng", "fre", "ger", "ita", "pol", "rus", "spa", "pkg", "boy", "chr", "nav"
         };
         public static readonly string[] RavenFormats = RavenFormatsXML.Select(x => $".{x}b").ToArray();
+        /// <summary>
+        /// Team bonus powerups with description for use in team_bonus files
+        /// </summary>
+        public static readonly Dictionary<string, string> TeamPowerups = new()
+        {
+            ["5% Damage Inflicted as Health Gain"] = "shared_team_damage_to_health",
+            ["20 Energy Per Knockout"] = "shared_team_energy_per_kill",
+            ["+60% S.H.I.E.L.D. Credit Drops"] = "shared_team_extra_money",
+            ["20 Health Per Knockout"] = "shared_team_health_per_kill",
+            ["+5 Health Regeneration"] = "shared_team_health_regen",
+            ["+5% Criticals"] = "shared_team_increase_criticals",
+            ["+5% Damage"] = "shared_team_increase_damage",
+            ["+5 All Resistances"] = "shared_team_increase_resistances",
+            ["+15 Strike"] = "shared_team_increase_striking",
+            ["+6 Body, Strike, Focus"] = "shared_team_increase_traits",
+            ["+5% Experience Points"] = "shared_team_increase_xp",
+            ["+15% Maximum Energy"] = "shared_team_max_energy",
+            ["+15% Maximum Health"] = "shared_team_max_health",
+            ["10% Reduced Energy Cost"] = "shared_team_reduce_energy_cost",
+            ["15% Reduced Energy Cost"] = "shared_team_reduce_energy_cost_dlc"
+        };
 
-        // Alchemy static resources
+        // Alchemy static resources, WIP: can be improved
         public static readonly string? AlchemyRoot = Environment.GetEnvironmentVariable("IG_ROOT");
         public static readonly string Alchemy_ini = Path.Combine(Path.GetTempPath(), "OHSGUI_Alchemy.ini");
         public static readonly string GetSkinInfo = string.Join(Environment.NewLine, new string[] { AlchemyHead(3), AlchemyiST(1), AlchemyiSG(2), AlchemyiSS(3) });

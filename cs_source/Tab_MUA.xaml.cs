@@ -31,6 +31,11 @@ namespace OpenHeroSelectGUI
             LoadLayout();
             _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
             _ = SelectedCharacters.Navigate(typeof(SelectedCharacters));
+            if (Cfg.GUI.LayoutWidthUpscale)
+            {
+                LocationsBox.StretchDirection = StretchDirection.Both;
+                LocationsBox.MaxWidth = Cfg.GUI.LayoutMaxWidth;
+            }
         }
         /// <summary>
         /// Load the layout, limit, default, model info using saved data.
@@ -52,9 +57,9 @@ namespace OpenHeroSelectGUI
                     int MinX = (from XmlElement x in Cfg.Dynamic.Layout.GetElementsByTagName("X") select int.Parse(x.InnerText)).Min();
                     var AllY = from XmlElement y in Cfg.Dynamic.Layout.GetElementsByTagName("Y") select int.Parse(y.InnerText);
                     int MinY = AllY.Min();
-                    LayoutHeight.MaxHeight = (Cfg.GUI.RowLayout) ? 5 : (AllY.Max() - MinY) * Multiplier + 30;
+                    LayoutHeight.MaxHeight = Cfg.GUI.RowLayout ? 5 : (AllY.Max() - MinY) * Multiplier + 30;
                     Locations.Children.Clear();
-                    Locations.VerticalAlignment = (Cfg.GUI.RowLayout) ?
+                    LocationsBox.VerticalAlignment = Cfg.GUI.RowLayout ?
                         VerticalAlignment.Center :
                         VerticalAlignment.Top;
                     Cfg.Dynamic.LayoutLocs = from XmlElement l in Cfg.Dynamic.Layout["Location_Setup"].ChildNodes select int.Parse(l.GetAttribute("Number"));
@@ -174,7 +179,8 @@ namespace OpenHeroSelectGUI
         {
             if (!string.IsNullOrEmpty(Cfg.Dynamic.FloatingCharacter))
             {
-                if (AddToSelected(LocBox.Content.ToString(), Cfg.Dynamic.FloatingCharacter)) UpdateLocBoxes();
+                if (AddToSelected(LocBox.Content.ToString(), Cfg.Dynamic.FloatingCharacter)) { UpdateLocBoxes(); }
+                UpdateClashes();
             }
             LocBox.IsChecked = Cfg.Roster.Selected.Any(c => c.Loc == LocBox.Content.ToString());
         }
@@ -232,8 +238,9 @@ namespace OpenHeroSelectGUI
             SelectedCharactersDropArea.Visibility = Visibility.Collapsed;
             if (Cfg.Dynamic.FloatingCharacter is string FC)
             {
-                AddToSelected(FC);
+                _ = AddToSelected(FC);
                 UpdateLocBoxes();
+                UpdateClashes();
             }
         }
         /// <summary>
@@ -270,11 +277,11 @@ namespace OpenHeroSelectGUI
         private void MUA_Clear(object sender, RoutedEventArgs e)
         {
             Cfg.Roster.Selected.Clear();
-            Cfg.Roster.Count = 0;
+            Cfg.Roster.NumClash = false;
             UpdateLocBoxes();
         }
 
-        private void SelectedCharacters_Delete(UIElement sender, ProcessKeyboardAcceleratorEventArgs args) => UpdateLocBoxes();
+        private void SelectedCharacters_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) => UpdateLocBoxes();
 
         private void AvailableCharacters_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => UpdateLocBoxes();
     }

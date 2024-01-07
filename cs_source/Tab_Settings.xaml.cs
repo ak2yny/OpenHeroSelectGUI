@@ -81,14 +81,6 @@ namespace OpenHeroSelectGUI
             }
             return NewName;
         }
-        /// <summary>
-        /// Show a warning dialogue box.
-        /// </summary>
-        private async void ShowWarning(string message)
-        {
-            WarningDialog.Content = message;
-            await WarningDialog.ShowAsync();
-        }
         // UI control handlers:
         private async void ExeBrowseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -105,13 +97,15 @@ namespace OpenHeroSelectGUI
         }
         private async void MO2BrowseButton_Click(object sender, RoutedEventArgs e)
         {
+            Warning.IsOpen = false;
             Cfg.OHS.GameInstallPath = await BrowseFolder();
         }
         private void MO2ModFolder_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (!Directory.Exists(Path.Combine(Cfg.OHS.GameInstallPath, "data")))
             {
-                ShowWarning($"No data folder in '{Cfg.OHS.GameInstallPath}'");
+                Warning.Message = $"No 'data' folder in '{Cfg.OHS.GameInstallPath}'";
+                Warning.IsOpen = true;
             }
         }
         private async void HBrowseButton_Click(object sender, RoutedEventArgs e)

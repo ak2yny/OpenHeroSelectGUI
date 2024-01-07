@@ -111,15 +111,19 @@ namespace OpenHeroSelectGUI.Settings
         private string gameInstallPath;
         [ObservableProperty]
         private string exeArguments;
-        [ObservableProperty]
-        private int thumbnailWidth;
         // MUA specific settings
         [ObservableProperty]
         private string layout;
         [ObservableProperty]
         private string model;
         [ObservableProperty]
+        private int thumbnailWidth;
+        [ObservableProperty]
         private bool rowLayout;
+        [ObservableProperty]
+        private bool layoutWidthUpscale;
+        [ObservableProperty]
+        private int layoutMaxWidth;
         [ObservableProperty]
         private bool hidableEffectsOnly;
         [ObservableProperty]
@@ -140,10 +144,12 @@ namespace OpenHeroSelectGUI.Settings
             freeSaves = false;
             gameInstallPath = "";
             exeArguments = "";
-            thumbnailWidth = 224;
             layout = "25 Default PC 2006";
             model = "Default";
+            thumbnailWidth = 224;
             rowLayout = false;
+            layoutWidthUpscale = false;
+            layoutMaxWidth = 1000;
             hidableEffectsOnly = true;
             copyStage = true;
             skinDetailsVisible = false;
@@ -214,6 +220,8 @@ namespace OpenHeroSelectGUI.Settings
         {
             LoadGuiSettings(Oini.Remove(Oini.LastIndexOf(".")) + "_GUI.xml");
             LoadOHSsettings(Oini);
+            FileInfo TeamBonus = new(Oini.Remove(Oini.LastIndexOf(".")) + "_team_bonus.xml");
+            if (TeamBonus.Exists) { _ = TeamBonus.CopyTo(MarvelModsXML.team_bonus, true); }
         }
         /// <summary>
         /// Load GUI settings from the default XML file.
@@ -264,6 +272,7 @@ namespace OpenHeroSelectGUI.Settings
         {
             SaveIniXml(Oini, Oini.Remove(Oini.LastIndexOf(".")) + "_GUI.xml");
             GenerateCfgFiles(rv, rv);
+            _ = MarvelModsXML.TeamBonusSerializer(Oini.Remove(Oini.LastIndexOf(".")) + "_team_bonus.xml");
         }
 
         /// <summary>
@@ -335,17 +344,6 @@ namespace OpenHeroSelectGUI.Settings
         }
         public static void CopyGameFileWStrctr(string MainPath, string GameFolders, string Source, string Target) => CopyGameFile(Path.Combine(MainPath, GameFolders), GameFolders, Source, Target);
         public static void CopyGameFileWStrctr(string MainPath, string GameFolders, string file) => CopyGameFile(Path.Combine(MainPath, GameFolders), GameFolders, file, file);
-        /// <summary>
-        /// Browse for an IGB file and install it to the target path and (name without extension).
-        /// </summary>
-        /// <returns>True if a file was picked, false if there was no file picked and installed.</returns>
-        public static async Task<bool> InstallIGBFiles(string GamePath, string TargetName)
-        {
-            string? IGB = await LoadDialogue(".igb");
-            if (IGB is null) return false;
-            CopyGameFile(Path.GetDirectoryName(IGB)!, GamePath, Path.GetFileName(IGB), $"{TargetName}.igb");
-            return true;
-        }
         private static string FilterDefaultRV(string RV)
         {
             return (new[] { "36 Roster Hack Base Roster (Gold Edition Stage)",
@@ -367,7 +365,8 @@ namespace OpenHeroSelectGUI.Settings
         {
             return (new[] { "25 (Default Base Game)",
                             "27 (Official Characters Pack)",
-                            "28 (Default PSP)", "28 (for 28 Roster Hack)",
+                            "28 (Default PSP)",
+                            "28 (for 28 Roster Hack)",
                             "33 (Default DLC, Gold Edition)",
                             "33 (OCP 2 Gold Edition Stage)",
                             "36 (for 36RH Gold Edition Stage)",

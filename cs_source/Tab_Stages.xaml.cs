@@ -8,13 +8,10 @@ using System.Xml;
 using static OpenHeroSelectGUI.Settings.GUIXML;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
-
 namespace OpenHeroSelectGUI
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// A page to select from the available stages.
     /// </summary>
     public sealed partial class Tab_Stages : Page
     {

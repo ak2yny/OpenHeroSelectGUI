@@ -67,7 +67,9 @@
                     <RowDefinition/>
                     <RowDefinition Height="50"/>
                 </Grid.RowDefinitions>
-                <Grid x:Name="Locations" Margin="0 5 0 0" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                <Viewbox x:Name="LocationsBox" Margin="0 5 0 0" HorizontalAlignment="Center" StretchDirection="DownOnly" VerticalAlignment="Top">
+                    <Grid x:Name="Locations"/>
+                </Viewbox>
                 <StackPanel Grid.Row="1" Padding="5" Background="{ThemeResource ButtonBackgroundThemeBrush}">
                     <TextBlock x:Name="LayoutDetails"/>
                     <TextBlock x:Name="StageDetails"/>
@@ -79,9 +81,9 @@
                 <RowDefinition/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" ProcessKeyboardAccelerators="SelectedCharacters_Delete" MaxWidth="450">
+            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" MaxWidth="450">
                 <Frame.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Delete" />
+                    <KeyboardAccelerator Key="Delete" Invoked="SelectedCharacters_Delete"/>
                 </Frame.KeyboardAccelerators>
             </Frame>
             <Canvas x:Name="SelectedCharactersDropArea" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop" DragLeave="SelectedCharacters_DragLeave" Visibility="Collapsed"/>
@@ -97,11 +99,10 @@
                 <Button x:Name="BtnClear" Content="Clear" Click="MUA_Clear" ToolTipService.ToolTip="Clear the entire selected roster"/>
             </StackPanel>
             <TextBlock Grid.Row="1" Margin="5 0" HorizontalAlignment="Right" VerticalAlignment="Center">
-                <Run Text="{x:Bind Cfg.Roster.Count, Mode=OneWay}"/>
+                <Run Text="{x:Bind Cfg.Roster.Selected.Count, Mode=OneWay}"/>
                 <Run Text="/"/>
                 <Run Text="{x:Bind Cfg.Roster.Total, Mode=OneWay}"/>
             </TextBlock>
         </Grid>
-        <ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK"/>
     </Grid>
 </Page>

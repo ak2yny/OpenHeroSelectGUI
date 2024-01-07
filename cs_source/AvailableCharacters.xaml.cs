@@ -68,7 +68,6 @@ namespace OpenHeroSelectGUI
                 PopulateAvailable(Root, AvailableList[i], AvailableList[i]);
             }
             trvAvailableChars.RootNodes.Clear();
-            // WIP: Performance would be slightly better with this: trvAvailableChars.RootNodes.Add(Root);
             for (int i = 0; i < Root.Children.Count; i++)
             {
                 trvAvailableChars.RootNodes.Add(Root.Children[i]);
@@ -128,7 +127,7 @@ namespace OpenHeroSelectGUI
             if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
                 e.AcceptedOperation = DataPackageOperation.Copy;
-                e.DragUIOverride.Caption = "Add herostat";
+                e.DragUIOverride.Caption = "Add herostat(s)";
             }
         }
         /// <summary>
@@ -139,11 +138,12 @@ namespace OpenHeroSelectGUI
             if (e.DataView.Contains(StandardDataFormats.StorageItems))
             {
                 var Items = await e.DataView.GetStorageItemsAsync();
-                if (Items.Count > 0 && Items[0] is StorageFile Herostat)
+                int i;
+                for (i = 0; i < Items.Count; i++)
                 {
-                    AddHerostat(Herostat);
-                    PopulateAvailable();
+                    if (Items[i] is StorageFile Herostat) { AddHerostat(Herostat); }
                 }
+                if (i > 0) { PopulateAvailable(); }
             }
         }
         /// <summary>
@@ -182,6 +182,7 @@ namespace OpenHeroSelectGUI
             if (Cfg.Dynamic.FloatingCharacter is not null)
             {
                 _ = AddToSelected(Cfg.Dynamic.FloatingCharacter);
+                UpdateClashes();
             }
             else if (trvAvailableChars.SelectedItem is TreeViewNode Node)
             {
@@ -190,10 +191,46 @@ namespace OpenHeroSelectGUI
                     if (Node.Children[i].Children.Count == 0 && Node.Children[i].Content is Character SC)
                         _ = AddToSelected(SC.Path);
                 }
+                UpdateClashes();
             }
         }
         /// <summary>
-        /// Page shortcuts. Only F3 for search for now, so this has an unique handler.
+        /// Delete the selected nodes recursively
+        /// </summary>
+        private void TreeViewItems_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
+        {
+            foreach (TreeViewNode Node in trvAvailableChars.SelectedItems.OfType<TreeViewNode>())
+            {
+                RemoveCharacters(Node);
+            }
+            args.Handled = true;
+        }
+        /// <summary>
+        /// Remove the node and all its child nodes, including the herostat files.
+        /// </summary>
+        private void RemoveCharacters(TreeViewNode Node)
+        {
+            for (int i = 0; i < Node.Children.Count;)
+            {
+                RemoveCharacters(Node.Children[i]);
+            }
+            RemoveCharacter(Node);
+        }
+        /// <summary>
+        /// Remove the node and the corresponding herostat file according to the node's path property.
+        /// </summary>
+        private void RemoveCharacter(TreeViewNode Node)
+        {
+            if (Node.Content is Character Chr
+                && Node.Parent.Children.Remove(Node)
+                && !string.IsNullOrEmpty(Chr.Path)
+                && GetHerostatFile(Chr.Path) is FileInfo HS)
+            {
+                HS.Delete();
+            }
+        }
+        /// <summary>
+        /// Window-wide page shortcut: F3 = search
         /// </summary>
         private void TVsearch_Shortcut_Invoked(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {

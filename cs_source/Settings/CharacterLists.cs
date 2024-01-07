@@ -1,6 +1,8 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
+using Microsoft.UI.Xaml.Input;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -10,6 +12,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Windows.Storage;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
+using static OpenHeroSelectGUI.Settings.GUIXML;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI.Settings
@@ -24,18 +27,32 @@ namespace OpenHeroSelectGUI.Settings
             return Name is null ? "" : Name;
         }
     }
+    public class TeamBonus
+    {
+        public string? Name { get; set; }
+        public string? Descbonus { get; set; }
+        public string? Sound { get; set; }
+        public ObservableCollection<TeamMember>? Members { get; set; }
+        public StandardUICommand? Command;
+    }
+    public class TeamMember
+    {
+        public string? Name { get; set; }
+        public string? Skin { get; set; }
+    }
     /// <summary>
     /// Selected Characters: Definition
     /// </summary>
     public partial class CharacterLists : ObservableRecipient
     {
         public ObservableCollection<SelectedCharacter> Selected { get; set; } = new();
+        public ObservableCollection<TeamBonus> Teams { get; set; } = new();
         [ObservableProperty]
         private string[]? available;
         [ObservableProperty]
         private int total;
         [ObservableProperty]
-        private int count;
+        private bool numClash;
 
         public static CharacterLists Instance { get; set; } = new();
     }
@@ -51,13 +68,17 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         public string? path;
         [ObservableProperty]
+        public string? character_Number;
+        [ObservableProperty]
         public bool unlock;
         [ObservableProperty]
         public bool starter;
         [ObservableProperty]
         public string? effect;
+        [ObservableProperty]
+        public bool numClash;
 
-        public List<string> AvailableEffects = GUIXML.GetAvailableEffects();
+        public List<string> AvailableEffects = GetAvailableEffects();
     }
     /// <summary>
     /// Selected Character list view column selector
@@ -70,6 +91,21 @@ namespace OpenHeroSelectGUI.Settings
         protected override DataTemplate? SelectTemplateCore(object item)
         {
             return GUIsettings.Instance.Game == "xml2" ? XML2 : MUA;
+        }
+    }
+    /// <summary>
+    /// Visibility converter, so that UI controls can show or hide, depending on boolean binding
+    /// </summary>
+    public class BooleanToVisibilityConverter : IValueConverter
+    {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return (bool)value ^ (parameter as string ?? string.Empty).Equals("Visible") ? Visibility.Collapsed : Visibility.Visible;
+        }
+
+        public object ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            return (Visibility)value == Visibility.Collapsed ^ (parameter as string ?? string.Empty).Equals("Visible");
         }
     }
     public class CharacterListCommands
@@ -133,7 +169,6 @@ namespace OpenHeroSelectGUI.Settings
             if (Locs is not null && AvailableLocs is not null)
             {
                 Cfg.Roster.Selected.Clear();
-                Cfg.Roster.Count = 0;
                 for (int i = 0; i < Math.Min(Locs.Length, Roster.Length); i++)
                 {
                     if (AvailableLocs.Contains(Locs[i]))
@@ -144,6 +179,7 @@ namespace OpenHeroSelectGUI.Settings
                                           Roster[i].Contains('*'));
                     }
                 }
+                UpdateClashes();
             }
         }
         /// <summary>
@@ -160,7 +196,7 @@ namespace OpenHeroSelectGUI.Settings
                 LoadRoster(RR);
             }
         }
-        // Add Characters: need to check these in the end. some might be unused.
+        // Add Characters.
         public static bool AddToSelected(string? PathInfo) => AddToSelected(PathInfo, false);
         public static bool AddToSelected(string? PathInfo, bool Unl) => AddToSelected(PathInfo, Unl, false);
         public static bool AddToSelected(string? PathInfo, bool Unl, bool Start)
@@ -178,19 +214,45 @@ namespace OpenHeroSelectGUI.Settings
         public static bool AddToSelected(string? Loc, string? PathInfo) => AddToSelected(Loc, PathInfo, false, false);
         public static bool AddToSelected(string? Loc, string? PathInfo, bool Unl, bool Start)
         {
-            if (string.IsNullOrEmpty(PathInfo)) return false;
-
-            string FolderString = Path.Combine(GetHerostatFolder(), PathInfo);
-            int S = FolderString.Replace('\\', '/').LastIndexOf('/');
-            DirectoryInfo Folder = new(FolderString[..S].TrimEnd('/'));
-            if (!Folder.Exists || !Folder.EnumerateFiles($"{FolderString[(S + 1)..]}.??????????").Any()) return false;
-
-            _ = Cfg.Roster.Selected.Remove(Cfg.Roster.Selected.FirstOrDefault(c => c.Loc == Loc));
-            bool RemOther = Cfg.Roster.Selected.Remove(Cfg.Roster.Selected.FirstOrDefault(c => c.Path == PathInfo));
-            Cfg.Roster.Selected.Add(new SelectedCharacter { Loc = Loc ??= "", Character_Name = FolderString[(S + 1)..], Path = PathInfo, Unlock = Unl, Starter = Start, Effect = null });
-            Cfg.Roster.Count = Cfg.Roster.Selected.Count;
-
-            return RemOther;
+            if (LoadHerostat(PathInfo) is string[] HS
+                && GetHerostatAttribute(HS, "skin") is string N
+                && N[..^Math.Min(2, N.Length)] is string Number)
+            {
+                Number = string.IsNullOrEmpty(Number) || Number.Any(c => !char.IsDigit(c)) ? "00" : Number;
+                bool RemOther = false;
+                for (int i = 0; i < Cfg.Roster.Selected.Count; i++)
+                {
+                    SelectedCharacter SC = Cfg.Roster.Selected[i];
+                    RemOther = SC.Path == PathInfo || RemOther;
+                    if (SC.Loc == Loc || SC.Path == PathInfo) { Cfg.Roster.Selected.RemoveAt(i); }
+                }
+                Cfg.Roster.Selected.Add(new SelectedCharacter
+                {
+                    Loc = Loc ?? "",
+                    Character_Name = GetHerostatAttribute(HS, "charactername"),
+                    Path = PathInfo,
+                    Character_Number = Number,
+                    Unlock = Unl,
+                    Starter = Start
+                });
+                return RemOther;
+            }
+            return false;
+        }
+        public static void UpdateClashes()
+        {
+            Cfg.Roster.NumClash = false;
+            string[] Check = new string[Cfg.Roster.Selected.Count];
+            for (int i = 0; i < Check.Length; i++)
+            {
+                if (Cfg.Roster.Selected[i] is SelectedCharacter SC && SC.Character_Number is string N)
+                {
+                    SC.NumClash = Array.IndexOf(Check, N) is int d && d > -1;
+                    if (d > -1) { Cfg.Roster.Selected[d].NumClash = d > -1; }
+                    Cfg.Roster.NumClash = SC.NumClash || Cfg.Roster.NumClash;
+                    Check[i] = N;
+                }
+            }
         }
         public static void AddHerostat(StorageFile Herostat) => AddHerostat(Herostat.Path, Herostat.Name, Herostat.FileType);
         public static void AddHerostat(string Herostat) => AddHerostat(Herostat, Herostat, Path.GetExtension(Herostat));
@@ -213,6 +275,23 @@ namespace OpenHeroSelectGUI.Settings
         /// <returns>Full path to the herostat folder</returns>
         public static string GetHerostatFolder() => GetOHSFolder(OHSsettings.Instance.HerostatFolder);
         /// <summary>
+        /// Get the full path to the herostat file, providing the path relative in the herostat folder.
+        /// </summary>
+        /// <returns>Full path to the herostat folder</returns>
+        public static FileInfo? GetHerostatFile(string HsPath)
+        {
+            if (Path.Combine(GetHerostatFolder(), HsPath) is string FolderString
+                && FolderString.Replace('\\', '/').LastIndexOf('/') is int S
+                && new DirectoryInfo(FolderString[..S].TrimEnd('/')) is DirectoryInfo folder
+                && folder.Exists
+                && folder.EnumerateFiles($"{FolderString[(S + 1)..]}.??????????").FirstOrDefault() is FileInfo HS)
+            {
+                return HS;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Get the full path to an OHS game sub folder.
         /// </summary>
         /// <returns>Full path to an OHS game sub folder</returns>
@@ -223,6 +302,54 @@ namespace OpenHeroSelectGUI.Settings
                 : Cfg.GUI.Game == ""
                 ? Path.Combine(cdPath, "mua", FolderString)
                 : Path.Combine(cdPath, Cfg.GUI.Game, FolderString);
+        }
+        /// <summary>
+        /// Load herostat from the selected character.
+        /// </summary>
+        public static string[]? LoadHerostat(string? FC)
+        {
+            if (!string.IsNullOrEmpty(FC)
+                && GetHerostatFile(FC) is FileInfo HS)
+            {
+                string[] Herostat = File.ReadLines(HS.FullName).Where(l => l.Trim() != "").ToArray();
+                Cfg.Dynamic.HsPath = HS;
+                Cfg.Dynamic.HsFormat = Herostat[0].Trim()[0];
+                return Herostat;
+            }
+            return null;
+        }
+        /// <summary>
+        /// Gets the internal name from the currently selected character
+        /// </summary>
+        /// <returns>The internal name or empty string</returns>
+        public static string GetInternalName()
+        {
+            return LoadHerostat(Cfg.Dynamic.FloatingCharacter) is string[] HS ? GetHerostatAttribute(HS, "name") : string.Empty;
+        }
+        /// <summary>
+        /// Read the herostat for a root attribute by providing a herostat string[], regardless of the format.
+        /// </summary>
+        /// <returns>The value of the attribute</returns>
+        public static string GetHerostatAttribute(string[] Herostat, string AttrName)
+        {
+            return Herostat[0].Trim()[0] == '<' ? GetRootAttribute(Herostat, AttrName) : GetFakeXmlJsonAttr(Herostat, AttrName);
+        }
+        /// <summary>
+        /// Search a fake XML or JSON file for an attribute. Ignores parent/child relations. Treats nodes as attributes but returns empty.
+        /// </summary>
+        /// <param name="array">An array of strings (lines), read from a fake XML or JSON file</param>
+        /// <param name="name">The name of the attribute</param>
+        /// <returns>The value of the first matching attribute</returns>
+        public static string GetFakeXmlJsonAttr(string[] array, string name)
+        {
+            Regex RXstartsWith = new($"^\"?{name}(\": | =)");
+            string[] Lines = Array.FindAll(array, c => RXstartsWith.IsMatch(c.Trim().ToLower()));
+            if (Lines.Any())
+            {
+                DynamicSettings.Instance.HsFormat = Lines[0].Trim()[0] == '"' ? ':' : '=';
+                return Lines[0].Split(new[] { DynamicSettings.Instance.HsFormat }, 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"');
+            }
+            return string.Empty;
         }
     }
 }

@@ -4,8 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    mc:Ignorable="d"
-    KeyboardAcceleratorPlacementMode="Hidden">
+    mc:Ignorable="d">
 
     <Grid>
         <Grid.ColumnDefinitions>
@@ -33,7 +32,7 @@
                 </SplitButton>
                 <Button x:Name="BtnClear" Content="Clear" Click="XML2_Clear" ToolTipService.ToolTip="Clear the entire selected roster"/>
                 <TextBlock Margin="5 0" VerticalAlignment="Center">
-                    <Run Text="{x:Bind Cfg.Roster.Count, Mode=OneWay}"/>
+                    <Run Text="{x:Bind Cfg.Roster.Selected.Count, Mode=OneWay}"/>
                     <Run Text="/"/>
                     <Run Text="{x:Bind Cfg.XML2.RosterSize, Mode=OneWay}"/>
                 </TextBlock>

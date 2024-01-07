@@ -96,8 +96,6 @@
                     <Run Text="Skin Details"/>
                 </TextBlock>
                 <TextBlock x:Name="CharacterPath" Text="{x:Bind Cfg.Dynamic.FloatingCharacter, Mode=OneWay}" Margin="0 10"/>
-                <StackPanel Orientation="Horizontal">
-                </StackPanel>
                 <ListView x:Name="Skins"
                       ItemContainerStyle="{StaticResource SkinItems}"
                       ItemsSource="{x:Bind Cfg.Skins.SkinsList}"
@@ -105,7 +103,11 @@
                       AllowDrop="True"
                       CanReorderItems="True"
                       SelectionChanged="Skins_SelectionChanged"
-                      SelectionMode="Single"/>
+                      SelectionMode="Single">
+                    <ListView.KeyboardAccelerators>
+                        <KeyboardAccelerator Key="Delete" Invoked="Skins_Delete"/>
+                    </ListView.KeyboardAccelerators>
+                </ListView>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -121,99 +123,106 @@
                 </Grid>
             </StackPanel>
         </ScrollViewer>
-        <StackPanel x:Name="SkinInstaller" Grid.Column="1" Margin="10">
-            <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Skin Installer"/>
-            <!--I added this invisible box to run the command when the FloatingCharacter changes. Didn't find another way-->
-            <TextBox Text="{x:Bind Cfg.Dynamic.FloatingCharacter, Mode=OneWay}" TextChanged="FloatingCharacter_Changed" MinWidth="0" Width="0"/>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <TextBlock Grid.Row="0" x:Name="InstallSkins" VerticalAlignment="Center"/>
-                <Button Grid.Row="0" Grid.Column="1" Content="..." Click="InstallSkins_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for skin"/>
-                <Button Grid.Row="0" Grid.Column="2" Content="..." Click="InstallHuds_Click" FontWeight="Bold" Margin="5" ToolTipService.ToolTip="Browse for HUD head" x:Name="HudHeadBrowse"/>
-                <Button Grid.Row="0" Grid.Column="3" Content="..." Click="Install3DHead_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for 3D head" x:Name="ThreeDHeadBrowse"/>
-                <TextBlock Grid.Row="1" x:Name="InstallMannequin" Margin="0 0 5 0" VerticalAlignment="Center" ToolTipService.ToolTip="MUA: Mannequin; XML2: Selection Portrait"/>
-                <Button Grid.Row="1" Grid.Column="1" Content="..." Click="InstallMannequin_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for mannequin/portrait"/>
-                <TextBlock Grid.Row="2" x:Name="InstallExtraSkin" Text="Install swap skin" VerticalAlignment="Center"/>
-                <Button Grid.Row="2" Grid.Column="1" Click="InstallEmmaSkin_Click" Padding="7 5">
-                    <ImageIcon Source="/Assets/emmafrost.png"/>
-                    <ToolTipService.ToolTip>
-                        <ToolTip Opened="DiamondForm_Opened"/>
-                    </ToolTipService.ToolTip>
-                </Button>
-                <Button Grid.Row="2" Grid.Column="2" Click="InstallHumanTorch_Click" FontWeight="Bold" Margin="5" Padding="5 3">
-                    <ImageIcon Source="/Assets/humantorch.png"/>
-                    <ToolTipService.ToolTip>
-                        <ToolTip Opened="FlameOn_Opened"/>
-                    </ToolTipService.ToolTip>
-                </Button>
-                <Button Grid.Row="2" Grid.Column="3" Content="..." Click="InstallExtraSkin_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for skin for skin swapping (shape changers etc.)"/>
-            </Grid>
-            <ComboBox x:Name="MUAplatforms" Header="Select the target platform:" Margin="0 15">
-                <ComboBoxItem Content="PC 2006"/>
-                <ComboBoxItem Content="PS2"/>
-                <ComboBoxItem Content="PS3"/>
-                <ComboBoxItem Content="PS4"/>
-                <ComboBoxItem Content="PSP"/>
-                <ComboBoxItem Content="Wii"/>
-                <ComboBoxItem Content="Xbox"/>
-                <ComboBoxItem Content="Xbox 360"/>
-                <ComboBoxItem Content="Xbox One, Steam"/>
-            </ComboBox>
-            <ComboBox x:Name="XML2platforms" Header="Select the target platform:" Margin="0 20">
-                <ComboBoxItem Content="PC"/>
-                <ComboBoxItem Content="Gamecube"/>
-                <ComboBoxItem Content="PS2"/>
-                <ComboBoxItem Content="PSP"/>
-                <ComboBoxItem Content="Xbox"/>
-            </ComboBox>
-            <TextBlock x:Name="SkinInfoTitle" Text="Installed Skin Statistics:" FontWeight="Bold"/>
-            <Grid x:Name="SkinInfo">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock x:Name="AlchemyVersionT" Text="Alchemy version:"/>
-                    <TextBlock x:Name="FileSizeT" Text="File size:"/>
-                    <TextBlock x:Name="GeometryFormatsT" Text="Geometry formats:"/>
-                    <TextBlock x:Name="VertexCountT" Text="Vertex count:"/>
-                    <TextBlock x:Name="GeometryCountT" Text="Geometry count:" Foreground="Green"/>
-                    <TextBlock x:Name="TextureFormatsT" Text="Texture formats:"/>
-                    <TextBlock x:Name="BiggestTextureT" Text="Biggest texture:"/>
-                    <TextBlock x:Name="TextureCountT" Text="Texture count:" Foreground="Green"/>
-                    <TextBlock x:Name="MipMapsT" Text="Has mip-maps:" Foreground="Green"/>
-                    <TextBlock x:Name="igSkinNameT" Text="igSkin name:"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Margin="5 0">
-                    <TextBlock x:Name="AlchemyVersion"/>
-                    <TextBlock x:Name="FileSize"/>
-                    <TextBlock x:Name="GeometryFormats"/>
-                    <TextBlock x:Name="VertexCount"/>
-                    <TextBlock x:Name="GeometryCount" Foreground="Green"/>
-                    <TextBlock x:Name="TextureFormats"/>
-                    <TextBlock x:Name="BiggestTexture"/>
-                    <TextBlock x:Name="TextureCount" Foreground="Green"/>
-                    <TextBlock x:Name="MipMaps" Foreground="Green"/>
-                    <TextBlock x:Name="igSkinName"/>
-                </StackPanel>
-            </Grid>
-        </StackPanel>
-        <ContentDialog x:Name="WarningDialog" Title="Information" CloseButtonText="OK"/>
+        <ScrollViewer Grid.Column="1">
+            <StackPanel x:Name="SkinInstaller" Margin="10">
+                <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Skin Installer"/>
+                <!--I added this invisible box to run the command when the FloatingCharacter changes. Didn't find another way-->
+                <TextBox Text="{x:Bind Cfg.Dynamic.FloatingCharacter, Mode=OneWay}" TextChanged="FloatingCharacter_Changed" MinWidth="0" Width="0"/>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Grid.Row="0" x:Name="InstallSkins" VerticalAlignment="Center"/>
+                    <Button Grid.Row="0" Grid.Column="1" Content="..." Click="InstallSkins_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for skin"/>
+                    <Button Grid.Row="0" Grid.Column="2" Content="..." Click="InstallHuds_Click" FontWeight="Bold" Margin="5" ToolTipService.ToolTip="Browse for HUD head" x:Name="HudHeadBrowse"/>
+                    <Button Grid.Row="0" Grid.Column="3" Content="..." Click="Install3DHead_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for 3D head" x:Name="ThreeDHeadBrowse"/>
+                    <TextBlock Grid.Row="1" x:Name="InstallMannequin" Margin="0 0 5 0" VerticalAlignment="Center" ToolTipService.ToolTip="MUA: Mannequin; XML2: Selection Portrait"/>
+                    <Button Grid.Row="1" Grid.Column="1" Content="..." Click="InstallMannequin_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for mannequin/portrait"/>
+                    <TextBlock Grid.Row="2" x:Name="InstallExtraSkin" Text="Install swap skin" VerticalAlignment="Center"/>
+                    <Button Grid.Row="2" Grid.Column="1" Click="InstallEmmaSkin_Click" Padding="7 5">
+                        <ImageIcon Source="/Assets/emmafrost.png"/>
+                        <ToolTipService.ToolTip>
+                            <ToolTip Opened="DiamondForm_Opened"/>
+                        </ToolTipService.ToolTip>
+                    </Button>
+                    <Button Grid.Row="2" Grid.Column="2" Click="InstallHumanTorch_Click" FontWeight="Bold" Margin="5" Padding="5 3">
+                        <ImageIcon Source="/Assets/humantorch.png"/>
+                        <ToolTipService.ToolTip>
+                            <ToolTip Opened="FlameOn_Opened"/>
+                        </ToolTipService.ToolTip>
+                    </Button>
+                    <Button Grid.Row="2" Grid.Column="3" Content="..." Click="InstallExtraSkin_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for skin for skin swapping (shape changers etc.)"/>
+                </Grid>
+                <ComboBox x:Name="MUAplatforms" Header="Select the target platform:" Margin="0 10">
+                    <ComboBoxItem Content="PC 2006"/>
+                    <ComboBoxItem Content="PS2"/>
+                    <ComboBoxItem Content="PS3"/>
+                    <ComboBoxItem Content="PS4"/>
+                    <ComboBoxItem Content="PSP"/>
+                    <ComboBoxItem Content="Wii"/>
+                    <ComboBoxItem Content="Xbox"/>
+                    <ComboBoxItem Content="Xbox 360"/>
+                    <ComboBoxItem Content="Xbox One, Steam"/>
+                </ComboBox>
+                <ComboBox x:Name="XML2platforms" Header="Select the target platform:" Margin="0 10">
+                    <ComboBoxItem Content="PC"/>
+                    <ComboBoxItem Content="Gamecube"/>
+                    <ComboBoxItem Content="PS2"/>
+                    <ComboBoxItem Content="PSP"/>
+                    <ComboBoxItem Content="Xbox"/>
+                </ComboBox>
+                <Grid x:Name="SkinInfo">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Rectangle Grid.ColumnSpan="2"
+                           Fill="{ThemeResource TextBoxBackgroundThemeBrush}"
+                           RadiusX="4"
+                           RadiusY="4"
+                           Style="{ThemeResource ColorPickerBorderStyle}"/>
+                    <StackPanel Margin="5 5 0 5">
+                        <TextBlock x:Name="SkinInfoTitle" Text="IGB Statistics:" FontWeight="Bold"/>
+                        <TextBlock x:Name="AlchemyVersionT" Text="Alchemy version:"/>
+                        <TextBlock x:Name="FileSizeT" Text="File size:"/>
+                        <TextBlock x:Name="GeometryFormatsT" Text="Geometry formats:"/>
+                        <TextBlock x:Name="VertexCountT" Text="Vertex count:"/>
+                        <TextBlock x:Name="GeometryCountT" Text="Geometry count:" Foreground="Green"/>
+                        <TextBlock x:Name="TextureFormatsT" Text="Texture formats:"/>
+                        <TextBlock x:Name="BiggestTextureT" Text="Biggest texture:"/>
+                        <TextBlock x:Name="TextureCountT" Text="Texture count:" Foreground="Green"/>
+                        <TextBlock x:Name="MipMapsT" Text="Has mip-maps:" Foreground="Green"/>
+                        <TextBlock x:Name="igSkinNameT" Text="igSkin name:"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Margin="5">
+                        <TextBlock Text=" " FontWeight="Bold"/>
+                        <TextBlock x:Name="AlchemyVersion"/>
+                        <TextBlock x:Name="FileSize"/>
+                        <TextBlock x:Name="GeometryFormats"/>
+                        <TextBlock x:Name="VertexCount"/>
+                        <TextBlock x:Name="GeometryCount" Foreground="Green"/>
+                        <TextBlock x:Name="TextureFormats"/>
+                        <TextBlock x:Name="BiggestTexture"/>
+                        <TextBlock x:Name="TextureCount" Foreground="Green"/>
+                        <TextBlock x:Name="MipMaps" Foreground="Green"/>
+                        <TextBlock x:Name="igSkinName"/>
+                    </StackPanel>
+                </Grid>
+            </StackPanel>
+        </ScrollViewer>
         <ContentDialog x:Name="EnterSkinNumber" Title="Install Extra Skin" CloseButtonText="OK" MaxWidth="400">
             <StackPanel>
                 <TextBox x:Name="ExtraSkinNumber" Header="Enter the number that the swap skin should be installed to:" BeforeTextChanging="SkinNumber_BeforeTextChanging" LosingFocus="SkinNumber_LosingFocus" Margin="0 5"/>
                 <TextBlock Text="For mods that use skin specific swap out skins in a similar manner as Emma Frost or Human Torch, but with a different numbering system." TextWrapping="Wrap"/>
-                    <TextBlock Text="Also for morphing, shape changing or certain powers. This is usually not required (e.g. for Mystique), unless you manually want to change the swapped skins." TextWrapping="Wrap"/>
+                <TextBlock Text="Also for morphing, shape changing or certain powers. This is usually not required (e.g. for Mystique), unless you manually want to change the swapped skins." TextWrapping="Wrap"/>
             </StackPanel>
         </ContentDialog>
     </Grid>

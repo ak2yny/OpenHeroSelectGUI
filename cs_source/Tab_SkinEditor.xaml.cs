@@ -19,11 +19,13 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public sealed partial class Tab_SkinEditor : Page
     {
+        public Cfg Cfg { get; set; } = new();
         public Tab_SkinEditor()
         {
             InitializeComponent();
             _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
             _ = SkinDetailsPage.Navigate(typeof(SkinDetailsPage));
+            Cfg.Dynamic.SE_Msg_Info = Cfg.Dynamic.SE_Msg_Error = Cfg.Dynamic.SE_Msg_Success = Cfg.Dynamic.SE_Msg_Warning = Cfg.Dynamic.SE_Msg_WarnPkg = new MessageItem();
         }
 
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -38,17 +40,17 @@ namespace OpenHeroSelectGUI
 
         private async void LoadHerostat_Click(object sender, RoutedEventArgs e)
         {
-            string? HS = await LoadDialogue("*");
-            if (HS != null)
+            if (await LoadDialogue("*") is string HS)
             {
-                Path.GetFileName(HS);
                 if (RavenFormats.Contains(Path.GetExtension(HS)))
                 {
                     DirectoryInfo TempFolder = Directory.CreateDirectory(Path.Combine(cdPath, "Temp"));
                     string DHS = Path.Combine(TempFolder.FullName, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
-                    _ = Util.RunDosCommnand("json2xmlb", $"-d \"{HS}\" \"{DHS}\"");
-                    SplitXMLStats(DHS);
-                    TempFolder.Delete();
+                    if (Util.RunExeInCmd("json2xmlb", $"-d \"{HS}\" \"{DHS}\""))
+                    {
+                        SplitXMLStats(DHS);
+                        TempFolder.Delete();
+                    }
                 }
                 else
                 {

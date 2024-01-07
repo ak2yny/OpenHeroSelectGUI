@@ -37,6 +37,10 @@ namespace OpenHeroSelectGUI
                     ? Cfg.Roster.Selected.OrderBy(i => i.Path).ToArray()
                     : SI == "path.desc"
                     ? Cfg.Roster.Selected.OrderByDescending(i => i.Path).ToArray()
+                    : SI == "num.asc"
+                    ? Cfg.Roster.Selected.OrderBy(i => int.Parse(i.Character_Number ?? "0")).ToArray()
+                    : SI == "num.desc"
+                    ? Cfg.Roster.Selected.OrderByDescending(i => int.Parse(i.Character_Number ?? "0")).ToArray()
                     : Cfg.Roster.Selected.ToArray();
                 Cfg.Roster.Selected.Clear();
                 for (int i = 0; i < Temp.Length; i++)
@@ -57,25 +61,30 @@ namespace OpenHeroSelectGUI
                 Chr.Unlock = !Chr.Starter;
             }
         }
-        /// <summary>
-        /// Key commands. Currently only using Delete, so no key filtering.
-        /// </summary>
-        private void Selected_Character_Delete(UIElement sender, ProcessKeyboardAcceleratorEventArgs args)
+
+        private void Selected_Characters_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
-            int SCcount = SelectedCharactersList.SelectedItems.Count;
-            for (int i = 0; i < SCcount; i++)
+            for (int i = 0; i < SelectedCharactersList.SelectedItems.Count;)
             {
-                if (SelectedCharactersList.SelectedItems[0] is SelectedCharacter SC)
+                if (SelectedCharactersList.SelectedItems[i] is SelectedCharacter SC)
                 {
                     _ = Cfg.Roster.Selected.Remove(SC);
                 }
             }
-            Cfg.Roster.Count = Cfg.Roster.Selected.Count;
+            CharacterListCommands.UpdateClashes();
         }
 
         private void SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (SelectedCharactersList.SelectedItem is SelectedCharacter SC)
+            {
+                Cfg.Dynamic.FloatingCharacter = SC.Path;
+            }
+        }
+
+        private void SelectedCharactersList_DragItemsStarting(object sender, DragItemsStartingEventArgs e)
+        {
+            if (e.Items[0] is SelectedCharacter SC)
             {
                 Cfg.Dynamic.FloatingCharacter = SC.Path;
             }

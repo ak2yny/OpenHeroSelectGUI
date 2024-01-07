@@ -4,7 +4,6 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:settings="using:OpenHeroSelectGUI.Settings"
     mc:Ignorable="d"
     AllowDrop="True"
     DragOver="AvailableCharacters_DragOver"
@@ -41,6 +40,9 @@
                   ItemInvoked="OnSelectionChanged"
                   DoubleTapped="TreeViewItem_DoubleTapped"
                   Margin="0 5">
+            <TreeView.KeyboardAccelerators>
+                <KeyboardAccelerator Key="Delete" Invoked="TreeViewItems_Delete"/>
+            </TreeView.KeyboardAccelerators>
         </TreeView>
     </Grid>
 </Page>

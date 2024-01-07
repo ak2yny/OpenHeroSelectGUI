@@ -65,15 +65,16 @@
   (setup the locations in the stage layouts)
 - Support for the unlocked and starting characters feature of OHS
 - Support for custom order
-- Create teams based on folder structure
 - Just "replace" a character
+- Create teams based on folder structure
+- Modify team bonuses through team_bonus directly in the GUI
+- Skin editor and installer
 - Install herostats through drag & drop
 - Install herostats with a browse button
 - Automatic and manual roster saving and restoring
 - Load the default roster or create a random roster
 - Free-up saves for the selected roster
 - Supports Mod Organizer 2
-- Skin editor and installer
 - Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours
 
  Version 0.1:
@@ -142,13 +143,15 @@
 - (Make a tutorial and/or presentation video)
 
 #### Updated Plans by ak2yny
-- ~~Change teams to ini files and~~ add support for `data/team_bonus.engb` in XML format, using json2xmlb.exe to compile.
-- Add function to install from archive, if possible.
-- Add more installer functions for other mods.
-- EXE hex-editing (changing the Spidey upside-down arrow)
+- [Planned Features #14](https://github.com/user/repo/issues/14)
 <br/><br/>
 
 ## Changelog
+
+ |08.01.2023|Beta 0.3.0: New features, few bugs fixed, better messages
+ - Added stage selection with thumbnails
+ - Added team bonus editor
+ - Added clash notifications
 
  |08.01.2023|Beta 0.2.5: Added installer, fixed bugs
 

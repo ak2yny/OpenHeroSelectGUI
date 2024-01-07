@@ -8,25 +8,25 @@
     NavigationCacheMode="Required"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Grid Margin="40 10">
+    <Grid Margin="30 10">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <StackPanel>
+        <StackPanel Margin="0 0 20 0">
             <TextBlock x:Uid="Info_About" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5"/>
             <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-            <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Margin="5 0">
+            <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Margin="5">
                 <Run x:Uid="AppName"/>
                 <Run Text="{x:Bind Cfg.GUI.VersionDescription, Mode=OneWay}"/>
             </TextBlock>
+            <TextBlock Text="GNU General Public License 3.0" Margin="5 0"/>
             <TextBlock x:Uid="Info_AboutDescription"
-                       HorizontalAlignment="Left"
-                       Margin="20 5"
+                       Margin="5 15"
                        MaxWidth="320"
                        Style="{ThemeResource BodyTextBlockStyle}"
                        TextWrapping="Wrap"/>
-            <HyperlinkButton x:Uid="Info_Link" Margin="5" NavigateUri="{x:Bind Cfg.GUI.GitHub}" />
+            <HyperlinkButton x:Uid="Info_Link" Margin="-7 0" NavigateUri="{x:Bind Cfg.GUI.GitHub}" />
         </StackPanel>
         <StackPanel Grid.Column="1">
             <TextBlock x:Uid="Info_Credits" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5"/>

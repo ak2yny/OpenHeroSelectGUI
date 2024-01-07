@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
@@ -107,35 +108,50 @@ namespace OpenHeroSelectGUI
             // Only navigate if the selected page isn't currently loaded.
             if (navPageType is not null && !Equals(preNavPageType, navPageType))
             {
-                ContentFrame.Navigate(navPageType, null, transitionInfo);
+                _ = ContentFrame.Navigate(navPageType, null, transitionInfo);
             }
         }
         /// <summary>
         /// Run OpenHeroSelect with the specified settings and backup saves if enabled.
         /// </summary>
-        private void RunOHS()
+        private async void RunOHS()
         {
-            if (string.IsNullOrEmpty(GUIsettings.Instance.Game)) return;
-            if (GUIsettings.Instance.Game == "mua") InstallStage();
+            if (string.IsNullOrEmpty(GUIsettings.Instance.Game)) { ShowWarning("MUA or XML2 not defined."); return; }
             if (File.Exists(Path.Combine(cdPath, "OpenHeroSelect.exe")))
             {
                 string DP = Path.Combine(OHSsettings.Instance.GameInstallPath, "data");
                 if (Directory.Exists(DP))
                 {
-                    SaveSettings();
-                    string arg = (GUIsettings.Instance.Game == "xml2") ?
-                        "-a -x" :
-                        "-a";
-                    Util.RunElevated("OpenHeroSelect.exe", arg);
+                    OHSWarning.IsOpen = !(OHSRunning.IsOpen = true);
+                    await Task.Run(() =>
+                    {
+                        SaveSettings();
+                        if (GUIsettings.Instance.Game == "mua" && GUIsettings.Instance.CopyStage) { InstallStage(); }
+                        MarvelModsXML.TeamBonusCopy();
+                        if (GUIsettings.Instance.FreeSaves && OHSsettings.Instance.LaunchGame) { MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}"); }
+                        // if this waits until the game has closed (OHS doesn't wait AFAIK) then we can restore the saves after
+
+                        string arg = (GUIsettings.Instance.Game == "xml2") ?
+                            "-a -x" :
+                            "-a";
+                        Util.RunElevated("OpenHeroSelect.exe", arg);
+                    });
                     string elog = Path.Combine(cdPath, "error.log");
                     if (File.Exists(elog))
                     {
+                        ShowWarning("OHS hit an error. Check the error.log.");
                         _ = Process.Start("explorer.exe", $"/select, \"{elog}\"");
+                    }
+                    else
+                    {
+                        OHSSuccess.IsOpen = !(OHSWarning.IsOpen = OHSRunning.IsOpen = false);
+                        await Task.Delay(3000);
+                        OHSSuccess.IsOpen = false;
                     }
                 }
                 else
                 {
-                    ShowWarning($"Installation path not valid!\r\n'{DP}' not found.");
+                    ShowWarning($"Installation path not valid! '{DP}' not found.");
                 }
             }
             else
@@ -144,12 +160,12 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Show a warning dialogue box.
+        /// Show a warning info bar.
         /// </summary>
-        private async void ShowWarning(string message)
+        private void ShowWarning(string message)
         {
-            WarningDialog.Content = message;
-            await WarningDialog.ShowAsync();
+            OHSWarning.Message = message;
+            OHSWarning.IsOpen = !(OHSRunning.IsOpen = false);
         }
         private static void InstallStage()
         {
@@ -195,16 +211,16 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Run OpenHeroSelect with the specified settings and backup saves if enabled.
         /// </summary>
-        private void BtnRun_Click(object sender, RoutedEventArgs e)
-        {
-            if (GUIsettings.Instance.FreeSaves && OHSsettings.Instance.LaunchGame) MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
-            RunOHS();
-            // if this waits until the game has closed (OHS doesn't wait AFAIK) then we can restore the saves after
-        }
+        private void BtnRun_Click(object sender, RoutedEventArgs e) => RunOHS();
         /// <summary>
         /// Save settings to the default location, using config values for the CFG files.
         /// </summary>
-        private void BtnSave_Click(object sender, RoutedEventArgs e) => SaveSettings();
+        private void BtnSave_Click(object sender, RoutedEventArgs e)
+        {
+            SaveSettings();
+            _ = MarvelModsXML.TeamBonusSerializer(MarvelModsXML.team_bonus);
+        }
+
         /// <summary>
         /// Save settings by defining an INI file.
         /// </summary>
@@ -219,6 +235,8 @@ namespace OpenHeroSelectGUI
             {
                 LoadSettings(IniPath);
                 LoadRosterVal();
+                if (NavView.SelectedItem.GetType() == typeof(Tab_Teams)) { _ = ContentFrame.Navigate(typeof(Tab_Teams), null); }
+                // Note: This creates a duplicate in the back stack. The stack is currently unused.
             }
         }
         /// <summary>
@@ -227,6 +245,7 @@ namespace OpenHeroSelectGUI
         private void Window_Closed(object sender, WindowEventArgs args)
         {
             SaveSettings();
+            _ = MarvelModsXML.TeamBonusSerializer(MarvelModsXML.team_bonus);
             if (Directory.Exists(Path.Combine(cdPath, "Temp")) && !OHSsettings.Instance.SaveTempFiles)
                 Directory.Delete(Path.Combine(cdPath, "Temp"), true);
         }

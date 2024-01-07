@@ -108,6 +108,7 @@ namespace OpenHeroSelectGUI
             if (Cfg.Dynamic.FloatingCharacter is string FC)
             {
                 AddToSelected(FC);
+                UpdateClashes();
             }
         }
         /// <summary>
@@ -141,7 +142,7 @@ namespace OpenHeroSelectGUI
         private void XML2_Clear(object sender, RoutedEventArgs e)
         {
             Cfg.Roster.Selected.Clear();
-            Cfg.Roster.Count = 0;
+            Cfg.Roster.NumClash = false;
         }
 
         private void SkinDetailsBtn_Click(object sender, RoutedEventArgs e)

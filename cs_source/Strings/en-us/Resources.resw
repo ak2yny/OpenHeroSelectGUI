@@ -133,11 +133,10 @@
     <value>XML2</value>
   </data>
   <data name="Info_About.Text" xml:space="preserve">
-    <value>Information</value>
+    <value>About this app</value>
   </data>
   <data name="Info_AboutDescription.Text" xml:space="preserve">
-    <value>Graphical User Interface for Open Hero Select</value>
-    <comment>WIP</comment>
+    <value>Graphical User Interface for Open Hero Select. To create and modify rosters for Marvel Ultimate Alliance and X-Men Legends 2 games.</value>
   </data>
   <data name="Info_Link.Content" xml:space="preserve">
     <value>GitHub page</value>
@@ -146,7 +145,7 @@
     <value>Information</value>
   </data>
   <data name="Tab_SkinEditor.Content" xml:space="preserve">
-    <value>Skin Editor</value>
+    <value>Skins</value>
   </data>
   <data name="Info_Credits.Text" xml:space="preserve">
     <value>Credits</value>
@@ -165,5 +164,8 @@
   </data>
   <data name="Stage_Confirm.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Confirm the selection and return to the MUA tab</value>
+  </data>
+  <data name="Tab_Teams.Content" xml:space="preserve">
+    <value>Teams</value>
   </data>
 </root>
