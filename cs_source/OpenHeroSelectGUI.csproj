@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows10.0.22000.0</TargetFramework>
+    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>OpenHeroSelectGUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <Platforms>x86;x64;ARM64</Platforms>
-    <RuntimeIdentifiers>win10-x86;win10-x64;win10-arm64</RuntimeIdentifiers>
+    <RuntimeIdentifiers>win-x86;win-x64;win-arm64</RuntimeIdentifiers>
     <PublishProfile>win10-$(Platform).pubxml</PublishProfile>
     <UseWinUI>true</UseWinUI>
     <EnableMsixTooling>true</EnableMsixTooling>
@@ -16,13 +16,17 @@
     <Title>Open Hero Select GUI</Title>
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
+    <Description>Graphical User Interface for Open Hero Select</Description>
     <VersionPrefix>0.3.0</VersionPrefix>
     <Version>$(VersionPrefix)-beta</Version>
+    <AssemblyTitle>$(Description)</AssemblyTitle>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
-	<PackageIcon>SHIELD_Logo_GUI.png</PackageIcon>
+    <PackageIcon>SHIELD_Logo_GUI.png</PackageIcon>
     <InvariantGlobalization>true</InvariantGlobalization>
     <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
     <WindowsPackageType>None</WindowsPackageType>
+    <Trimming>full</Trimming>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="AvailableCharacters.xaml" />
@@ -58,9 +62,13 @@
     <Content Include="Assets\SplashScreen.scale-200.png" />
   </ItemGroup>
   <ItemGroup>
-    <ContentWithTargetPath Include="Assets\team_bonus.engb.xml">
+    <ContentWithTargetPath Include="Assets\team_bonus_mua.engb.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <TargetPath>\team_bonus.engb.xml</TargetPath>
+      <TargetPath>\mua\team_bonus.engb.xml</TargetPath>
+    </ContentWithTargetPath>
+    <ContentWithTargetPath Include="Assets\team_bonus_xml2.engb.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <TargetPath>\xml2\team_bonus.engb.xml</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +177,6 @@
   </ItemGroup>
 
   <Target Name="PostPublish" AfterTargets="Publish">
-	  <Exec Command="cd bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish&#xD;&#xA;call InstallerFiles\BuildInstaller.bat" />
+	  <Exec Command="cd bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish&#xD;&#xA;call InstallerFiles\BuildInstaller.bat $(Version)" />
   </Target>
 </Project>

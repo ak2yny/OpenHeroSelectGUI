@@ -26,22 +26,22 @@ namespace OpenHeroSelectGUI
             {
                 string? SI = SortItem.Tag.ToString();
                 SelectedCharacter[]? Temp = SI == "loc.asc"
-                    ? Cfg.Roster.Selected.OrderBy(i => i.Loc).ToArray()
+                    ? [.. Cfg.Roster.Selected.OrderBy(i => i.Loc)]
                     : SI == "loc.desc"
-                    ? Cfg.Roster.Selected.OrderByDescending(i => i.Loc).ToArray()
+                    ? [.. Cfg.Roster.Selected.OrderByDescending(i => i.Loc)]
                     : SI == "name.asc"
-                    ? Cfg.Roster.Selected.OrderBy(i => i.Character_Name).ToArray()
+                    ? [.. Cfg.Roster.Selected.OrderBy(i => i.Character_Name)]
                     : SI == "name.desc"
-                    ? Cfg.Roster.Selected.OrderByDescending(i => i.Character_Name).ToArray()
+                    ? [.. Cfg.Roster.Selected.OrderByDescending(i => i.Character_Name)]
                     : SI == "path.asc"
-                    ? Cfg.Roster.Selected.OrderBy(i => i.Path).ToArray()
+                    ? [.. Cfg.Roster.Selected.OrderBy(i => i.Path)]
                     : SI == "path.desc"
-                    ? Cfg.Roster.Selected.OrderByDescending(i => i.Path).ToArray()
+                    ? [.. Cfg.Roster.Selected.OrderByDescending(i => i.Path)]
                     : SI == "num.asc"
-                    ? Cfg.Roster.Selected.OrderBy(i => int.Parse(i.Character_Number ?? "0")).ToArray()
+                    ? [.. Cfg.Roster.Selected.OrderBy(i => int.Parse(i.Character_Number ?? "0"))]
                     : SI == "num.desc"
-                    ? Cfg.Roster.Selected.OrderByDescending(i => int.Parse(i.Character_Number ?? "0")).ToArray()
-                    : Cfg.Roster.Selected.ToArray();
+                    ? [.. Cfg.Roster.Selected.OrderByDescending(i => int.Parse(i.Character_Number ?? "0"))]
+                    : [.. Cfg.Roster.Selected];
                 Cfg.Roster.Selected.Clear();
                 for (int i = 0; i < Temp.Length; i++)
                 {
@@ -72,6 +72,14 @@ namespace OpenHeroSelectGUI
                 }
             }
             CharacterListCommands.UpdateClashes();
+        }
+
+        private void DeleteSwipeMember_Invoked(SwipeItem sender, SwipeItemInvokedEventArgs args)
+        {
+            if (args.SwipeControl.DataContext is SelectedCharacter SC)
+            {
+                _ = Cfg.Roster.Selected.Remove(SC);
+            }
         }
 
         private void SelectionChanged(object sender, SelectionChangedEventArgs e)

@@ -99,7 +99,7 @@ namespace OpenHeroSelectGUI
                 StageDetails.Text = "";
                 StageImage.Source = null;
                 if (GetXmlElement(CfgModels) is XmlElement Models
-                        && Models.SelectSingleNode($"descendant::Model[Name='{Cfg.GUI.Model}']") is XmlElement M
+                        && Models.SelectSingleNode($"descendant::Model[Name=\"{Cfg.GUI.Model}\"]") is XmlElement M
                         && Cfg.Dynamic.Layout.SelectSingleNode($"descendant::Model[text()='{M.ParentNode.Name}']") is XmlElement CM
                         && GetStageInfo(M, CM) is StageModel StageItem)
                 {

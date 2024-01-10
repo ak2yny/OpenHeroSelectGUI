@@ -123,12 +123,12 @@ namespace OpenHeroSelectGUI.Settings
         /// <returns>Array with matching folder paths as strings or empty array</returns>
         public static string[] GetFoldersWpkg()
         {
-            string[] PkgSourceFolders = { OHSsettings.Instance.GameInstallPath, GUIsettings.Instance.GameInstallPath };
+            string[] PkgSourceFolders = [OHSsettings.Instance.GameInstallPath, GUIsettings.Instance.GameInstallPath];
             if (Directory.Exists(OHSsettings.Instance.GameInstallPath)
                 && Directory.GetParent(OHSsettings.Instance.GameInstallPath) is DirectoryInfo MO2
                 && MO2.Name == "mods")
             {
-                PkgSourceFolders = PkgSourceFolders.Concat(MO2.EnumerateDirectories().Select(d => d.FullName)).ToArray();
+                PkgSourceFolders = [.. PkgSourceFolders, .. MO2.EnumerateDirectories().Select(d => d.FullName)];
             }
             return PkgSourceFolders.Where(f => Directory.Exists(Path.Combine(f, "packages", "generated", "characters"))).Distinct().ToArray();
         }
@@ -218,35 +218,55 @@ namespace OpenHeroSelectGUI.Settings
                 }
             }
         }
-        public static readonly string team_bonus = Path.Combine(cdPath, "team_bonus.engb.xml");
+        public static string Team_bonus() => Path.Combine(cdPath, GUIsettings.Instance.Game, "team_bonus.engb.xml");
+        private static void UpdateTeams()
+        {
+            CharacterLists.Instance.Teams = GUIsettings.Instance.Game == "xml2" ? CharacterLists.Instance.TeamsXML2 : CharacterLists.Instance.TeamsMUA;
+        }
         /// <summary>
         /// Loads the team_bonus file as XML and deserializes it to a list for binding
         /// </summary>
         /// <returns>A Team list with the team bonus content</returns>
         public static void TeamBonusDeserializer(StandardUICommand DeleteCommand)
         {
-            if (File.Exists(team_bonus) && GUIXML.GetXmlElement(team_bonus) is XmlElement Bonuses)
+            UpdateTeams();
+            if (CharacterLists.Instance.Teams.Count == 0
+                && File.Exists(Team_bonus())
+                && GUIXML.GetXmlElement(Team_bonus()) is XmlElement Bonuses)
             {
-                CharacterLists.Instance.Teams.Clear();
                 for (int i = 0; i < Bonuses.ChildNodes.Count; i++)
                 {
                     TeamBonus Team = new()
                     {
-                        Members = new ObservableCollection<TeamMember>(),
+                        Members = [],
                         Command = DeleteCommand
                     };
-                    if (Bonuses.ChildNodes[i]!.Attributes is XmlAttributeCollection XAC && Bonuses.ChildNodes[i]!.ChildNodes is XmlNodeList XM)
+                    if (Bonuses.ChildNodes[i]!.Attributes is XmlAttributeCollection XAC
+                        && Bonuses.ChildNodes[i]!.ChildNodes is XmlNodeList XM
+                        && (XM.Count > 0 || XAC.GetNamedItem("skinset") is not null))
                     {
-                        Team.Name = (XAC.GetNamedItem("descname2") is XmlAttribute D2) ? $"{XAC.GetNamedItem("descname1")!.Value} {D2.Value}" : XAC.GetNamedItem("descname1")!.Value;
+                        Team.Name = XAC.GetNamedItem("descname2") is XmlAttribute D2
+                            ? $"{XAC.GetNamedItem("descname1")!.Value} {D2.Value}"
+                            : XAC.GetNamedItem("descname1")!.Value;
                         Team.Sound = XAC.GetNamedItem("sound")!.Value;
                         Team.Descbonus = XAC.GetNamedItem("descbonus")!.Value!.Replace("%%", "%");
+                        Team.Skinset = GUIsettings.Instance.Game == "xml2" && XAC.GetNamedItem("skinset") is XmlAttribute SS ? SS.Value : "";
                         for (int m = 0; m < XM.Count; m++)
                         {
                             if (XM[m]!.Attributes is XmlAttributeCollection XMA && XMA.GetNamedItem("name") is XmlAttribute M)
                                 Team.Members.Add(new TeamMember { Name = M.Value, Skin = XMA.GetNamedItem("skin") is XmlAttribute S ? S.Value : "" });
                         }
+                        CharacterLists.Instance.Teams.Add(Team);
                     }
-                    CharacterLists.Instance.Teams.Add(Team);
+                }
+                switch (GUIsettings.Instance.Game)
+                {
+                    case "xml2":
+                        CharacterLists.Instance.TeamsXML2 = CharacterLists.Instance.Teams;
+                        break;
+                    default:
+                        CharacterLists.Instance.TeamsMUA = CharacterLists.Instance.Teams;
+                        break;
                 }
             }
         }
@@ -255,53 +275,68 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static bool TeamBonusSerializer(string BonusFile)
         {
-            if (CharacterLists.Instance.Teams.Count == 0) { return false; }
-            XmlDocument Bonuses = new();
-            Bonuses.LoadXml("<bonuses></bonuses>");
-            for (int i = 0; i < CharacterLists.Instance.Teams.Count; i++)
+            UpdateTeams();
+            if (CharacterLists.Instance.Teams.Count > 0)
             {
-                if (Bonuses.DocumentElement!.AppendChild(Bonuses.CreateElement("bonus")) is XmlElement Bonus && CharacterLists.Instance.Teams[i].Descbonus is string DB && CharacterLists.Instance.Teams[i].Members is ObservableCollection<TeamMember> M)
+                XmlDocument Bonuses = new();
+                Bonuses.LoadXml("<bonuses></bonuses>");
+                Dictionary<string, string> PU = GUIsettings.Instance.Game == "mua" ? TeamPowerups : TeamPowerupsXML2;
+                for (int i = 0; i < CharacterLists.Instance.Teams.Count; i++)
                 {
-                    Bonus.SetAttribute("descbonus", DB.Replace("%", "%%"));
-                    Bonus.SetAttribute("descname1", CharacterLists.Instance.Teams[i].Name);
-                    if (CharacterLists.Instance.Teams[i].Name is string N && N.Length > 8 && N.Split(" ") is string[] Names && Names.Length > 1)
+                    if (CharacterLists.Instance.Teams[i] is TeamBonus TB
+                        && TB.Descbonus is string DB
+                        && TB.Members is ObservableCollection<TeamMember> M
+                        && TB.Name is string N
+                        && Bonuses.DocumentElement!.AppendChild(Bonuses.CreateElement("bonus")) is XmlElement Bonus)
                     {
-                        int Split = N.Length;
-                        for (int s = 0, l = 0; s < Names.Length; s++)
+                        Bonus.SetAttribute("descbonus", DB.Replace("%", "%%"));
+                        Bonus.SetAttribute("descname1", N);
+                        if (N.Length > 8 && N.Split(" ") is string[] Names && Names.Length > 1)
                         {
-                            l += Names[s].Length + 1;
-                            Split = Math.Abs((N.Length / 2) - l) < Math.Abs((N.Length / 2) - Split) ? l : Split;
+                            int Split = N.Length;
+                            for (int s = 0, l = 0; s < Names.Length; s++)
+                            {
+                                l += Names[s].Length + 1;
+                                Split = Math.Abs((N.Length / 2) - l) < Math.Abs((N.Length / 2) - Split) ? l : Split;
+                            }
+                            Bonus.SetAttribute("descname1", N[..(Split - 1)]);
+                            Bonus.SetAttribute("descname2", N[Split..]);
                         }
-                        Bonus.SetAttribute("descname1", N[..(Split - 1)]);
-                        Bonus.SetAttribute("descname2", N[Split..]);
-                    }
-                    Bonus.SetAttribute("powerup", TeamPowerups[DB]);
-                    Bonus.SetAttribute("sound", CharacterLists.Instance.Teams[i].Sound);
-
-                    for (int m = 0; m < M.Count; m++)
-                    {
-                        if (Bonus.AppendChild(Bonuses.CreateElement("hero")) is XmlElement Hero)
+                        Bonus.SetAttribute("powerup", PU[DB]);
+                        if (!string.IsNullOrEmpty(TB.Skinset))
                         {
-                            Hero.SetAttribute("name", M[m].Name);
-                            if (!string.IsNullOrEmpty(M[m].Skin)) { Hero.SetAttribute("skin", M[m].Skin); }
+                            Bonus.SetAttribute("skinset", TB.Skinset);
                         }
+                        else
+                        {
+                            for (int m = 0; m < M.Count; m++)
+                            {
+                                if (Bonus.AppendChild(Bonuses.CreateElement("hero")) is XmlElement Hero)
+                                {
+                                    Hero.SetAttribute("name", M[m].Name);
+                                    if (!string.IsNullOrEmpty(M[m].Skin)) { Hero.SetAttribute("skin", M[m].Skin); }
+                                }
+                            }
+                        }
+                        Bonus.SetAttribute("sound", TB.Sound);
                     }
                 }
+                XmlWriterSettings xws = new() { OmitXmlDeclaration = true, Indent = true };
+                using XmlWriter xw = XmlWriter.Create(BonusFile, xws);
+                Bonuses.Save(xw);
+                return true;
             }
-            XmlWriterSettings xws = new() { OmitXmlDeclaration = true };
-            using XmlWriter xw = XmlWriter.Create(BonusFile, xws);
-            Bonuses.Save(xw);
-            return true;
+            return false;
         }
         /// <summary>
         /// Serializes the Team list to XML and saves it to the compiled team_bonus file in the game folder. May fail.
         /// </summary>
         public static void TeamBonusCopy()
         {
-            if (TeamBonusSerializer(team_bonus))
+            if (TeamBonusSerializer(Team_bonus()))
             {
                 string CompiledName = Path.Combine(OHSsettings.Instance.GameInstallPath, "data", $"team_bonus{Path.GetExtension(OHSsettings.Instance.HerostatName)}");
-                _ = Util.RunExeInCmd("json2xmlb", $"\"{team_bonus}\" \"{CompiledName}\"");
+                _ = Util.RunExeInCmd("json2xmlb", $"\"{Team_bonus}\" \"{CompiledName}\"");
             }
         }
     }
@@ -343,25 +378,28 @@ namespace OpenHeroSelectGUI.Settings
         /// Parse the XML stage details to Stage info with image and details
         /// </summary>
         /// <returns>Stage info</returns>
-        public static StageModel? GetStageInfo(XmlElement? M, XmlElement? CM)
+        public static StageModel? GetStageInfo(XmlElement M, XmlElement CM)
         {
-            DirectoryInfo ModelFolder = new(Path.Combine(ModelPath, M["Path"].InnerText));
-            if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
+            if (Path.Combine(ModelPath, M["Path"]!.InnerText) is string MP && Directory.Exists(MP))
             {
-                IEnumerable<FileInfo> ModelImages = ModelFolder
-                    .EnumerateFiles("*.png")
-                    .Union(ModelFolder.EnumerateFiles("*.jpg"))
-                    .Union(ModelFolder.EnumerateFiles("*.bmp"))
-                    .Union(new DirectoryInfo(ModelPath).EnumerateFiles(".NoPreview.png"));
-                StageModel StageItem = new()
+                DirectoryInfo ModelFolder = new(MP);
+                if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
                 {
-                    Name = M["Name"].InnerText,
-                    Creator = M["Creator"].InnerText,
-                    Path = ModelFolder,
-                    Image = new BitmapImage(new Uri(ModelImages.First().FullName)),
-                    Riser = CM.InnerText == "Official" && CM.GetAttribute("Riser") == "true"
-                };
-                return StageItem;
+                    IEnumerable<FileInfo> ModelImages = ModelFolder
+                        .EnumerateFiles("*.png")
+                        .Union(ModelFolder.EnumerateFiles("*.jpg"))
+                        .Union(ModelFolder.EnumerateFiles("*.bmp"))
+                        .Union(new DirectoryInfo(ModelPath).EnumerateFiles(".NoPreview.png"));
+                    StageModel StageItem = new()
+                    {
+                        Name = M["Name"]!.InnerText,
+                        Creator = M["Creator"]!.InnerText,
+                        Path = ModelFolder,
+                        Image = new BitmapImage(new Uri(ModelImages.First().FullName)),
+                        Riser = CM.InnerText == "Official" && CM.GetAttribute("Riser") == "true"
+                    };
+                    return StageItem;
+                }
             }
             return null;
         }

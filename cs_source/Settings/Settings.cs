@@ -218,10 +218,10 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void LoadSettings(string Oini)
         {
-            LoadGuiSettings(Oini.Remove(Oini.LastIndexOf(".")) + "_GUI.xml");
+            LoadGuiSettings($"{Oini.Remove(Oini.LastIndexOf('.'))}_GUI.xml");
             LoadOHSsettings(Oini);
-            FileInfo TeamBonus = new(Oini.Remove(Oini.LastIndexOf(".")) + "_team_bonus.xml");
-            if (TeamBonus.Exists) { _ = TeamBonus.CopyTo(MarvelModsXML.team_bonus, true); }
+            FileInfo TeamBonus = new($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml");
+            if (TeamBonus.Exists) { _ = TeamBonus.CopyTo(Path.Combine(cdPath, GUIsettings.Instance.Game, "team_bonus.engb.xml"), true); }
         }
         /// <summary>
         /// Load GUI settings from the default XML file.
@@ -270,9 +270,9 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void SaveSettings(string Oini, string rv)
         {
-            SaveIniXml(Oini, Oini.Remove(Oini.LastIndexOf(".")) + "_GUI.xml");
+            SaveIniXml(Oini, $"{Oini.Remove(Oini.LastIndexOf('.'))}_GUI.xml");
             GenerateCfgFiles(rv, rv);
-            _ = MarvelModsXML.TeamBonusSerializer(Oini.Remove(Oini.LastIndexOf(".")) + "_team_bonus.xml");
+            _ = MarvelModsXML.TeamBonusSerializer($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml");
         }
 
         /// <summary>

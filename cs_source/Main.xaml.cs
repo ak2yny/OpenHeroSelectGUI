@@ -218,7 +218,7 @@ namespace OpenHeroSelectGUI
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
             SaveSettings();
-            _ = MarvelModsXML.TeamBonusSerializer(MarvelModsXML.team_bonus);
+            _ = MarvelModsXML.TeamBonusSerializer(MarvelModsXML.Team_bonus());
         }
 
         /// <summary>
@@ -245,7 +245,7 @@ namespace OpenHeroSelectGUI
         private void Window_Closed(object sender, WindowEventArgs args)
         {
             SaveSettings();
-            _ = MarvelModsXML.TeamBonusSerializer(MarvelModsXML.team_bonus);
+            _ = MarvelModsXML.TeamBonusSerializer(MarvelModsXML.Team_bonus());
             if (Directory.Exists(Path.Combine(cdPath, "Temp")) && !OHSsettings.Instance.SaveTempFiles)
                 Directory.Delete(Path.Combine(cdPath, "Temp"), true);
         }

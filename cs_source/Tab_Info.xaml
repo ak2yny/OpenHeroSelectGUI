@@ -22,8 +22,9 @@
             </TextBlock>
             <TextBlock Text="GNU General Public License 3.0" Margin="5 0"/>
             <TextBlock x:Uid="Info_AboutDescription"
+                       HorizontalAlignment="Left"
                        Margin="5 15"
-                       MaxWidth="320"
+                       MaxWidth="300"
                        Style="{ThemeResource BodyTextBlockStyle}"
                        TextWrapping="Wrap"/>
             <HyperlinkButton x:Uid="Info_Link" Margin="-7 0" NavigateUri="{x:Bind Cfg.GUI.GitHub}" />
@@ -31,7 +32,7 @@
         <StackPanel Grid.Column="1">
             <TextBlock x:Uid="Info_Credits" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5"/>
             <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-            <Grid Style="{ThemeResource BodyTextBlockStyle}" Margin="5 0">
+            <Grid Margin="5 0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>

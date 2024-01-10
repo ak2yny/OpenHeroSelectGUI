@@ -32,6 +32,7 @@ namespace OpenHeroSelectGUI.Settings
         public string? Name { get; set; }
         public string? Descbonus { get; set; }
         public string? Sound { get; set; }
+        public string? Skinset { get; set; }
         public ObservableCollection<TeamMember>? Members { get; set; }
         public StandardUICommand? Command;
     }
@@ -45,8 +46,10 @@ namespace OpenHeroSelectGUI.Settings
     /// </summary>
     public partial class CharacterLists : ObservableRecipient
     {
-        public ObservableCollection<SelectedCharacter> Selected { get; set; } = new();
-        public ObservableCollection<TeamBonus> Teams { get; set; } = new();
+        public ObservableCollection<SelectedCharacter> Selected { get; set; } = [];
+        public ObservableCollection<TeamBonus> Teams { get; set; } = [];
+        public ObservableCollection<TeamBonus> TeamsMUA { get; set; } = [];
+        public ObservableCollection<TeamBonus> TeamsXML2 { get; set; } = [];
         [ObservableProperty]
         private string[]? available;
         [ObservableProperty]
@@ -94,23 +97,41 @@ namespace OpenHeroSelectGUI.Settings
         }
     }
     /// <summary>
-    /// Visibility converter, so that UI controls can show or hide, depending on boolean binding
+    /// Visibility converter. Returns Visible, if value is true (Collapsed if false). Use ConvertParameter "Invert" to invert returns.
     /// </summary>
     public class BooleanToVisibilityConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            return (bool)value ^ (parameter as string ?? string.Empty).Equals("Visible") ? Visibility.Collapsed : Visibility.Visible;
+            return value is bool b && b ^ (parameter as string ?? string.Empty).Equals("Invert") ? Visibility.Visible : Visibility.Collapsed;
         }
-
         public object ConvertBack(object value, Type targetType, object parameter, string language)
         {
-            return (Visibility)value == Visibility.Collapsed ^ (parameter as string ?? string.Empty).Equals("Visible");
+            return value is Visibility v && v == Visibility.Visible ^ (parameter as string ?? string.Empty).Equals("Invert");
         }
     }
-    public class CharacterListCommands
+    /// <summary>
+    /// Visibility converter. Returns Visible, if value string equals ConvertParameter (Collapsed if not). ConvertBack only works for game conversion.
+    /// </summary>
+    public class GameToVisibilityConverter : IValueConverter
     {
+        public object Convert(object value, Type targetType, object parameter, string language)
+        {
+            return value is string game && parameter is string cp && game == cp ? Visibility.Visible : Visibility.Collapsed;
+        }
+        public object? ConvertBack(object value, Type targetType, object parameter, string language)
+        {
+            string cp = parameter as string ?? string.Empty;
+            return value is Visibility v && v == Visibility.Visible ? cp : cp == "mua" ? "xml2" : "mua";
+        }
+    }
+    public partial class CharacterListCommands
+    {
+        [GeneratedRegex(@"(?<=charactername\W*)\b[\w\s&]+\b", RegexOptions.IgnoreCase, "en-CA")]
+        public static partial Regex CharNameRX();  // optionally use [^;="\n], but should probably also not use \b
+
         private static Cfg Cfg { get; } = new();
+
         /// <summary>
         /// Load OHS JSON data from the default OHS ini & load the roster according to its settings.
         /// </summary>
@@ -159,7 +180,7 @@ namespace OpenHeroSelectGUI.Settings
             IEnumerable<int>? LL = Cfg.GUI.Game == "mua"
                 ? Cfg.Dynamic.LayoutLocs
                 : Cfg.Dynamic.RosterRange;
-            LoadRoster(LL is null ? Array.Empty<int>() : LL.ToArray(), LL, Roster);
+            LoadRoster(LL is null ? [] : LL.ToArray(), LL, Roster);
         }
         /// <summary>
         /// Load a roster by providing an array or menulocations, a list of available locations and an array of characters (paths).
@@ -192,7 +213,7 @@ namespace OpenHeroSelectGUI.Settings
                 // using a public static Random would assure that the generator doesn't use already used numbers anymore.
                 // There is a complicated use of Random, combined with a Fisher-Yates-Shuffle worth mentioning: https://stackoverflow.com/questions/273313/randomize-a-listt
                 Random rng = new();
-                string[] RR = Cfg.Roster.Available.OrderBy(a => rng.Next()).ToArray();
+                string[] RR = [.. Cfg.Roster.Available.OrderBy(a => rng.Next())];
                 LoadRoster(RR);
             }
         }
@@ -258,12 +279,11 @@ namespace OpenHeroSelectGUI.Settings
         public static void AddHerostat(string Herostat) => AddHerostat(Herostat, Herostat, Path.GetExtension(Herostat));
         public static void AddHerostat(string HSpath, string HSname, string HSext)
         {
-            Regex rx = new(@"(?<=charactername\W*)\b[\w\s&]+\b", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             string[] HSlines = File.ReadAllLines(HSpath);
-            string? CharLine = HSlines.FirstOrDefault(l => l.ToLower().Contains("charactername"));
-            string? Name = (CharLine is null || rx.Matches(CharLine).Count == 0) ?
-                Path.GetFileNameWithoutExtension(HSname) :
-                rx.Match(CharLine).Value;
+            string? Name = HSlines.FirstOrDefault(l => l.Contains("charactername", StringComparison.CurrentCultureIgnoreCase)) is string CharLine
+                && CharNameRX().Match(CharLine) is Match M && M.Success
+                ? M.Value
+                : Path.GetFileNameWithoutExtension(HSname);
             DirectoryInfo Hsf = Directory.CreateDirectory(GetHerostatFolder());
             string Target = Path.Combine(Hsf.FullName, Name + HSext);
             if (File.Exists(Target)) Target = Path.Combine(Hsf.FullName, Name + $"{DateTime.Now:-yyMMdd-HHmmss}" + HSext);
@@ -344,10 +364,10 @@ namespace OpenHeroSelectGUI.Settings
         {
             Regex RXstartsWith = new($"^\"?{name}(\": | =)");
             string[] Lines = Array.FindAll(array, c => RXstartsWith.IsMatch(c.Trim().ToLower()));
-            if (Lines.Any())
+            if (Lines.Length != 0)
             {
                 DynamicSettings.Instance.HsFormat = Lines[0].Trim()[0] == '"' ? ':' : '=';
-                return Lines[0].Split(new[] { DynamicSettings.Instance.HsFormat }, 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"');
+                return Lines[0].Split([DynamicSettings.Instance.HsFormat], 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"');
             }
             return string.Empty;
         }

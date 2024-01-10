@@ -10,6 +10,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
+using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI
@@ -19,6 +20,9 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public sealed partial class Tab_SkinEditor : Page
     {
+        [GeneratedRegex(@"^""?menulocation(\"": | = )")]
+        private static partial Regex MLRX();
+
         public Cfg Cfg { get; set; } = new();
         public Tab_SkinEditor()
         {
@@ -74,18 +78,18 @@ namespace OpenHeroSelectGUI
         {
             if (GUIXML.GetXmlElement(XMLFilePath) is XmlElement Characters)
             {
-                List<string> MlL = new(), CnL = new();
-                DirectoryInfo HSFolder = Directory.CreateDirectory(CharacterListCommands.GetOHSFolder(OutputFolder.Text));
+                List<string> MlL = [], CnL = [];
+                DirectoryInfo HSFolder = Directory.CreateDirectory(GetOHSFolder(OutputFolder.Text));
                 for (int i = 0; i < Characters.ChildNodes.Count; i++)
                 {
-                    string CN = ((XmlElement)Characters.ChildNodes[i]).GetAttribute("charactername");
-                    string ML = ((XmlElement)Characters.ChildNodes[i]).GetAttribute("menulocation");
-                    if (!string.IsNullOrEmpty(CN) && CN != "defaultman")
+                    if (Characters.ChildNodes[i] is XmlElement XE
+                        && XE.GetAttribute("charactername") is string CN
+                        && CN is not "" and not "defaultman")
                     {
                         XmlDocument Xdoc = new();
-                        Xdoc.LoadXml(Characters.ChildNodes[i].OuterXml);
+                        Xdoc.LoadXml(XE.OuterXml);
                         Xdoc.Save(Path.Combine(HSFolder.FullName, $"{CN}.xml"));
-                        CnL.Add(CN); MlL.Add(ML);
+                        CnL.Add(CN); MlL.Add(XE.GetAttribute("menulocation"));
                     }
                 }
                 WriteCfgFiles(MlL, CnL);
@@ -98,11 +102,10 @@ namespace OpenHeroSelectGUI
         private void SplitOtherStats(string[] LoadedHerostat, char HsFormat)
         {
             int Depth = HsFormat == '{' ? -1 : 0;
-            List<string> SplitStat = new(), MlL = new(), CnL = new();
-            Regex RXisChar = new(@"^""?charactername(\"": | = )"), RXisMl = new(@"^""?menulocation(\"": | = )");
+            List<string> SplitStat = [], MlL = [], CnL = [];
             string CN = "", ML = "";
             string Ext = HsFormat == '{' ? ".json" : ".txt";
-            DirectoryInfo HSFolder = Directory.CreateDirectory(CharacterListCommands.GetOHSFolder(OutputFolder.Text));
+            DirectoryInfo HSFolder = Directory.CreateDirectory(GetOHSFolder(OutputFolder.Text));
             for (int i = 0; i < LoadedHerostat.Length; i++)
             {
                 string Line = LoadedHerostat[i].Trim();
@@ -115,10 +118,10 @@ namespace OpenHeroSelectGUI
                     if (Line[0] == '{' || Line[^1] == '{') Depth++;
                     if (Line[0] == '}' || Line.TrimEnd(',')[^1] == '}') Depth--;
                 }
-                if (RXisChar.IsMatch(Line))
-                    CN = LoadedHerostat[i].Split(new[] { HsFormat == '{' ? ':' : '=' }, 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"');
-                if (RXisMl.IsMatch(Line))
-                    ML = LoadedHerostat[i].Split(new[] { HsFormat == '{' ? ':' : '=' }, 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"');
+                if (CharNameRX().Match(Line) is Match M && M.Success)
+                    CN = M.Value;
+                if (MLRX().IsMatch(Line))
+                    ML = Line.Split(HsFormat == '{' ? ':' : '=', 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"');
                 if (i > 5 && Depth == 1)
                 {
                     if (CN is not "" and not "defaultman")
@@ -136,18 +139,23 @@ namespace OpenHeroSelectGUI
         private static void WriteCfgFiles(List<string> MlL, List<string> CnL)
         {
             File.WriteAllLines(Path.Combine(cdPath, GUIsettings.Instance.Game, "rosters", $"Roster-{DateTime.Now:yyMMdd-HHmmss}.cfg"), CnL);
+            if (GUIsettings.Instance.Game == "xml2") { return; }
             File.WriteAllLines(Path.Combine(cdPath, GUIsettings.Instance.Game, "menulocations", $"Menulocations-{DateTime.Now:yyMMdd-HHmmss}.cfg"), MlL);
         }
         private async void SplitFinished()
         {
-            SuccessMessage.Text = "Successfully Split";
-            await Task.Delay(TimeSpan.FromSeconds(1.5));
-            SuccessMessage.Text = "";
+            Cfg.Dynamic.SE_Msg_Success = new MessageItem
+            {
+                Message = $"Split herostats to '{GetOHSFolder(OutputFolder.Text)}'",
+                IsOpen = true
+            };
+            await Task.Delay(5000);
+            Cfg.Dynamic.SE_Msg_Success = new MessageItem() { IsOpen = false };
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
-            _ = Process.Start("explorer.exe", $"/select, \"{CharacterListCommands.GetOHSFolder(OutputFolder.Text)}\"");
+            _ = Process.Start("explorer.exe", $"/select, \"{GetOHSFolder(OutputFolder.Text)}\"");
         }
     }
 }

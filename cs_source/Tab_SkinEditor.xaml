@@ -33,7 +33,6 @@
                 </StackPanel>
                 <StackPanel Grid.Row="1" Margin="0 10" Orientation="Horizontal">
                     <Button Content="Load Herostat ..." Click="LoadHerostat_Click"/>
-                    <TextBlock x:Name="SuccessMessage" Foreground="Green" Margin="8"/>
                 </StackPanel>
                 <Button Grid.Row="1" Content="Open Folder" Click="OpenFolder_Click" Margin="250 10 0 10" HorizontalAlignment="Right" VerticalAlignment="Top"/>
             </Grid>

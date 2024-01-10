@@ -5,11 +5,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Threading.Tasks;
-using Windows.Storage.Pickers;
-using Windows.Storage;
 using static OpenHeroSelectGUI.Settings.CfgCommands;
-using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI
 {
@@ -18,7 +14,7 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public partial class Tab_Settings : Page
     {
-        public ObservableCollection<string> SaveBackups { get; } = new();
+        public ObservableCollection<string> SaveBackups { get; } = [];
         public string? Herostat { get; set; }
         public Settings.Cfg Cfg { get; set; } = new();
         public Tab_Settings()
@@ -34,11 +30,11 @@ namespace OpenHeroSelectGUI
         {
             if (Cfg.OHS != null && Cfg.OHS.HerostatName != null && Cfg.OHS.ExeName != null)
             {
-                int Dot = Cfg.OHS.HerostatName.LastIndexOf(".");
+                int Dot = Cfg.OHS.HerostatName.LastIndexOf('.');
                 Herostat = Cfg.OHS.HerostatName.Remove(Dot);
                 LanguageCode.SelectedItem = LanguageCode.FindName(Cfg.OHS.HerostatName.Substring(Dot + 1, 3));
-                Dot = Cfg.OHS.ExeName.LastIndexOf(".");
-                ExeName.Text = (Dot > 0) ? Cfg.OHS.ExeName.Remove(Dot) : (Cfg.GUI.Game == "xml2") ? "Xmen" : "Game";
+                Dot = Cfg.OHS.ExeName.LastIndexOf('.');
+                ExeName.Text = (Dot > 0) ? Cfg.OHS.ExeName.Remove(Dot) : Cfg.GUI.Game == "xml2" ? "Xmen" : "Game";
             }
         }
         /// <summary>
@@ -73,7 +69,7 @@ namespace OpenHeroSelectGUI
         /// <returns>The FixedLengthFN with extension, or the Fallback string if verification fails</returns>
         private static string FixedLength(string FixedLengthFN, string Fallback)
         {
-            string Ext = Fallback[Fallback.LastIndexOf(".")..];
+            string Ext = Fallback[Fallback.LastIndexOf('.')..];
             string NewName = TrimEnd(FixedLengthFN, Ext) + Ext;
             if (NewName.Length != Fallback.Length)
             {

@@ -78,7 +78,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         public static void PopulateAvailable(TreeViewNode Parent, string RemainingPath, string PathInfo)
         {
-            string[] Node = RemainingPath.Split(new[] { '/' }, 2);
+            string[] Node = RemainingPath.Split('/', 2);
             TreeViewNode? child = Parent.Children.SingleOrDefault(x => ((Character)x.Content).Name == Node[0]);
             if (child == null)
             {

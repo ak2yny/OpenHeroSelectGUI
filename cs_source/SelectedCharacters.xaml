@@ -9,6 +9,10 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
+        <SwipeItems Mode="Execute" x:Key="DeleteSwipeMember">
+            <SwipeItem Background="Red"
+                       Invoked="DeleteSwipeMember_Invoked"/>
+        </SwipeItems>
         <DataTemplate x:Key="CharacterListTemplate" x:DataType="settings:SelectedCharacter">
             <Grid>
                 <Grid.RowDefinitions>
@@ -22,6 +26,11 @@
                     <ColumnDefinition MaxWidth="30"/>
                     <ColumnDefinition MaxWidth="72"/>
                 </Grid.ColumnDefinitions>
+                <SwipeControl RightItems="{StaticResource DeleteSwipeMember}"
+                              Grid.ColumnSpan="5"
+                              Grid.RowSpan="2"
+                              HorizontalAlignment="Right"
+                              MaxWidth="300"/>
                 <TextBlock Grid.RowSpan="2"
                            x:Name="LocColumn"
                            Text="{x:Bind Loc, Mode=OneWay}"
@@ -30,18 +39,17 @@
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
                 <TextBlock Grid.Column="1"
-                           Text="{x:Bind Character_Name, Mode=OneWay}"
                            x:Phase="1"
+                           Text="{x:Bind Character_Name, Mode=OneWay}"
                            Style="{ThemeResource BaseTextBlockStyle}"
                            Margin="12 6 24 0"/>
                 <Rectangle Grid.Column="1" Grid.Row="1"
-                           x:Phase="2"
                            Fill="Red"
                            Margin="6 0 18 4"
                            Opacity="0.2"
                            RadiusX="4"
                            RadiusY="4"
-                           Visibility="{x:Bind NumClash, Mode=OneWay, ConverterParameter=Visible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                           Visibility="{x:Bind NumClash, Mode=OneWay}"/>
                 <TextBlock Grid.Column="1" Grid.Row="1"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            Margin="12 0 24 6">
@@ -87,17 +95,22 @@
                     <ColumnDefinition/>
                     <ColumnDefinition MaxWidth="30"/>
                 </Grid.ColumnDefinitions>
+                <SwipeControl RightItems="{StaticResource DeleteSwipeMember}"
+                              Grid.ColumnSpan="5"
+                              Grid.RowSpan="2"
+                              HorizontalAlignment="Right"
+                              MaxWidth="300"/>
                 <TextBlock Text="{x:Bind Character_Name, Mode=OneWay}"
                            Style="{ThemeResource BaseTextBlockStyle}"
+                           x:Phase="1"
                            Margin="12,6,24,0"/>
                 <Rectangle Grid.Row="1"
-                           x:Phase="2"
                            Fill="Red"
                            Margin="6 0 18 4"
                            Opacity="0.2"
                            RadiusX="4"
                            RadiusY="4"
-                           Visibility="{x:Bind NumClash, Mode=OneWay, ConverterParameter=Visible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                           Visibility="{x:Bind NumClash, Mode=OneWay}"/>
                 <TextBlock Grid.Row="1"
                            Style="{ThemeResource BodyTextBlockStyle}"
                            Margin="12 0 24 6">
@@ -106,8 +119,8 @@
                 </TextBlock>
                 <CheckBox Grid.Column="1" Grid.RowSpan="2"
                           x:Name="UnlockColumn"
+                          x:Phase="2"
                           IsChecked="{x:Bind Unlock, Mode=TwoWay}"
-                          x:Phase="1"
                           HorizontalAlignment="Left"
                           VerticalAlignment="Center"
                           Margin="1"
@@ -117,7 +130,6 @@
         <settings:GameTemplateSelector x:Key="LVcolumnSelector"
                                        MUA="{StaticResource CharacterListTemplate}"
                                        XML2="{StaticResource CharacterListTemplateXML2}"/>
-        <settings:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
     </Page.Resources>
 
     <Grid>
@@ -164,7 +176,7 @@
             <TextBlock x:Name="EffectHeader" Grid.Column="4" Text="Effects" HorizontalAlignment="Center" VerticalAlignment="Center" Width="72"/>
         </Grid>
 
-        <Canvas Grid.Row="1" Background="Red" Opacity="0.1" Visibility="{x:Bind Cfg.Roster.NumClash, Mode=OneWay, ConverterParameter=Visible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+        <Canvas Grid.Row="1" Background="Red" Opacity="0.1" Visibility="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}"/>
         <ListView x:Name="SelectedCharactersList" Grid.Row="1"
                   ItemsSource="{x:Bind Cfg.Roster.Selected, Mode=TwoWay}"
                   ItemTemplateSelector="{StaticResource LVcolumnSelector}"
@@ -172,7 +184,7 @@
                   CanDragItems="True"
                   CanReorderItems="True"
                   DragItemsStarting="SelectedCharactersList_DragItemsStarting"
-                  HorizontalAlignment="Left"
+                  HorizontalAlignment="Stretch"
                   KeyboardAcceleratorPlacementMode="Hidden"
                   SelectionChanged="SelectionChanged"
                   SelectionMode="Extended"

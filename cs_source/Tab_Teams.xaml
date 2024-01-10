@@ -7,6 +7,156 @@
     xmlns:settings="using:OpenHeroSelectGUI.Settings"
     mc:Ignorable="d">
 
+    <Page.Resources>
+        <DataTemplate x:Key="TeamBonusTemplate" x:DataType="settings:TeamBonus">
+            <UserControl PointerEntered="TeamTemplate_PointerEntered" PointerExited="TeamTemplate_PointerExited">
+                <Grid AutomationProperties.Name="TeamBonus">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="HoveringStates">
+                            <VisualState x:Name="HoverButtonsHidden" />
+                            <VisualState x:Name="HoverButtonsShown">
+                                <VisualState.Setters>
+                                    <Setter Target="HoverButton.Visibility" Value="Visible" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                    <SwipeControl x:Name="ListViewSwipeContainer">
+                        <SwipeControl.RightItems>
+                            <SwipeItems Mode="Execute">
+                                <SwipeItem x:Name="DeleteSwipeItemX"
+                                           Background="Red"
+                                           Command="{x:Bind Command}"
+                                           CommandParameter="{x:Bind Name}"/>
+                            </SwipeItems>
+                        </SwipeControl.RightItems>
+                        <Grid Padding="5" Margin="20 0" MaxHeight="100" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="160"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition MinWidth="70" Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBox x:Name="TeamName" Text="{x:Bind Name, Mode=TwoWay}" GotFocus="FocusToSelect"/>
+                            <ComboBox x:Name="TeamBonusDesc" Grid.Column="1"
+                                      GotFocus="FocusToSelect"
+                                      HorizontalAlignment="Right"
+                                      ItemsSource="{x:Bind settings:InternalSettings.TeamPowerups.Keys, Mode=OneTime}"
+                                      SelectedItem="{x:Bind Descbonus, Mode=TwoWay}"/>
+                            <TextBox Text="{x:Bind Sound, Mode=TwoWay}" GotFocus="FocusToSelect" Grid.ColumnSpan="2" Grid.Row="1" ToolTipService.ToolTip="Sound hash for callout"/>
+                            <AppBarButton x:Name="HoverButton"
+                                          Command="{x:Bind Command}"
+                                          CommandParameter="{x:Bind Name}"
+                                          Grid.Column="2"
+                                          Grid.RowSpan="2"
+                                          HorizontalAlignment="Right"
+                                          IsTabStop="False"
+                                          VerticalAlignment="Center"
+                                          Visibility="Collapsed"/>
+                        </Grid>
+                    </SwipeControl>
+                </Grid>
+            </UserControl>
+        </DataTemplate>
+        <DataTemplate x:Key="TeamBonusTemplateXML2" x:DataType="settings:TeamBonus">
+            <UserControl PointerEntered="TeamTemplate_PointerEntered" PointerExited="TeamTemplate_PointerExited">
+                <Grid AutomationProperties.Name="TeamBonus">
+                    <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup x:Name="HoveringStates">
+                            <VisualState x:Name="HoverButtonsHidden" />
+                            <VisualState x:Name="HoverButtonsShown">
+                                <VisualState.Setters>
+                                    <Setter Target="HoverButton.Visibility" Value="Visible" />
+                                </VisualState.Setters>
+                            </VisualState>
+                        </VisualStateGroup>
+                    </VisualStateManager.VisualStateGroups>
+                    <SwipeControl x:Name="ListViewSwipeContainerX" >
+                        <SwipeControl.RightItems>
+                            <SwipeItems Mode="Execute">
+                                <SwipeItem x:Name="DeleteSwipeItemX"
+                                           Background="Red"
+                                           Command="{x:Bind Command}"
+                                           CommandParameter="{x:Bind Name}"/>
+                            </SwipeItems>
+                        </SwipeControl.RightItems>
+                        <Grid Padding="5" Margin="20 0" MaxHeight="100" VerticalAlignment="Center">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition MinWidth="160"/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition MinWidth="70" Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <TextBox x:Name="TeamName" Text="{x:Bind Name, Mode=TwoWay}" GotFocus="FocusToSelect"/>
+                            <ComboBox x:Name="TeamBonusDesc" Grid.Column="1"
+                                      GotFocus="FocusToSelect"
+                                      HorizontalAlignment="Right"
+                                      ItemsSource="{x:Bind settings:InternalSettings.TeamPowerupsXML2.Keys, Mode=OneTime}"
+                                      SelectedItem="{x:Bind Descbonus, Mode=TwoWay}"/>
+                            <TextBox Text="{x:Bind Sound, Mode=TwoWay}" GotFocus="FocusToSelect" Grid.Row="1" ToolTipService.ToolTip="Sound hash for callout"/>
+                            <ComboBox x:Name="Skinset" Grid.Column="1" Grid.Row="1"
+                                      GotFocus="FocusToSelect"
+                                      HorizontalAlignment="Right"
+                                      ItemsSource="{x:Bind settings:InternalSettings.XML2Skins, Mode=OneTime}"
+                                      SelectedItem="{x:Bind Skinset, Mode=TwoWay}"
+                                      ToolTipService.ToolTip="Select a skin scope for this team"/>
+                            <AppBarButton x:Name="HoverButton"
+                                          Command="{x:Bind Command}"
+                                          CommandParameter="{x:Bind Name}"
+                                          Grid.Column="2"
+                                          Grid.RowSpan="2"
+                                          HorizontalAlignment="Right"
+                                          IsTabStop="False"
+                                          VerticalAlignment="Center"
+                                          Visibility="Collapsed"/>
+                        </Grid>
+                    </SwipeControl>
+                </Grid>
+            </UserControl>
+        </DataTemplate>
+        <FontIconSource x:Key="DeleteIcon" Glyph="&#xE107;"/>
+        <SwipeItems Mode="Execute" x:Key="DeleteSwipeMember">
+            <SwipeItem IconSource="{StaticResource DeleteIcon}"
+                       Background="Red"
+                       Invoked="DeleteSwipeMember_Invoked"/>
+        </SwipeItems>
+        <DataTemplate x:Key="TeamMemberTemplate" x:DataType="settings:TeamMember">
+            <SwipeControl RightItems="{StaticResource DeleteSwipeMember}">
+                <Grid Padding="0 4 0 6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <TextBlock Text="Inernal name:" Margin="0 0 5 0"/>
+                    <TextBlock Text="Skin filter:" Grid.Row="1" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding Name}" Grid.Column="1" FontWeight="SemiBold"/>
+                    <TextBox Text="{Binding Skin, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" FontSize="12" Height="30" MinHeight="12"/>
+                </Grid>
+            </SwipeControl>
+        </DataTemplate>
+        <DataTemplate x:Key="TeamMemberTemplateXML2" x:DataType="settings:TeamMember">
+            <SwipeControl RightItems="{StaticResource DeleteSwipeMember}">
+                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+            </SwipeControl>
+        </DataTemplate>
+        <settings:GameTemplateSelector x:Key="TeamTemplateSelector"
+                                       MUA="{StaticResource TeamBonusTemplate}"
+                                       XML2="{StaticResource TeamBonusTemplateXML2}"/>
+        <settings:GameTemplateSelector x:Key="MemberTemplateSelector"
+                                       MUA="{StaticResource TeamMemberTemplate}"
+                                       XML2="{StaticResource TeamMemberTemplateXML2}"/>
+    </Page.Resources>
+
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition/>
@@ -38,14 +188,14 @@
                 <Run Text="Team Name    "/>
                 <Run Text="{x:Bind Cfg.Roster.Teams.Count, Mode=OneWay}"/>
                 <Run Text="/"/>
-                <Run Text="{x:Bind Cfg.Dynamic.TeamsLimit}"/>
+                <Run Text="{x:Bind TeamsLimit}"/>
             </TextBlock>
             <TextBlock x:Name="BonusTitle" Grid.Column="2" Text="Bonus Powerup" Margin="0 0 140 0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
             <TextBlock x:Name="MembersTitle" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center">
                 <Run Text="Team Members    "/>
                 <Run x:Name="TeamMembersCount"/>
                 <Run Text="/"/>
-                <Run Text="{x:Bind Cfg.Dynamic.TeamMembersLimit}"/>
+                <Run Text="{x:Bind TeamMembersLimit}"/>
             </TextBlock>
         </Grid>
         <ScrollViewer Grid.Row="1" Margin="10">
@@ -54,63 +204,9 @@
                           AllowDrop="True"
                           CanReorderItems="True"
                           ItemsSource="{x:Bind Cfg.Roster.Teams}"
+                          ItemTemplateSelector="{StaticResource TeamTemplateSelector}"
                           KeyboardAcceleratorPlacementMode="Hidden"
                           SelectionChanged="AvailableTeams_SelectionChanged">
-                    <ListView.ItemTemplate>
-                        <DataTemplate x:DataType="settings:TeamBonus">
-                            <UserControl PointerEntered="TeamTemplate_PointerEntered" PointerExited="TeamTemplate_PointerExited">
-                                <Grid AutomationProperties.Name="TeamBonus">
-                                    <VisualStateManager.VisualStateGroups>
-                                        <VisualStateGroup x:Name="HoveringStates">
-                                            <VisualState x:Name="HoverButtonsHidden" />
-                                            <VisualState x:Name="HoverButtonsShown">
-                                                <VisualState.Setters>
-                                                    <Setter Target="HoverButton.Visibility" Value="Visible" />
-                                                </VisualState.Setters>
-                                            </VisualState>
-                                        </VisualStateGroup>
-                                    </VisualStateManager.VisualStateGroups>
-                                    <SwipeControl x:Name="ListViewSwipeContainer" >
-                                        <SwipeControl.RightItems>
-                                            <SwipeItems Mode="Execute">
-                                                <SwipeItem x:Name="DeleteSwipeItem"
-                                                           Background="Red"
-                                                           Command="{x:Bind Command}"
-                                                           CommandParameter="{x:Bind Name}"/>
-                                            </SwipeItems>
-                                        </SwipeControl.RightItems>
-                                        <Grid Padding="5" Margin="20 0" MaxHeight="100" VerticalAlignment="Center">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition MinWidth="160"/>
-                                                <ColumnDefinition/>
-                                                <ColumnDefinition MinWidth="70" Width="Auto"/>
-                                            </Grid.ColumnDefinitions>
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition/>
-                                                <RowDefinition/>
-                                            </Grid.RowDefinitions>
-                                            <TextBox x:Name="TeamName" Text="{x:Bind Name, Mode=TwoWay}" GotFocus="FocusToSelect"/>
-                                            <ComboBox x:Name="TeamBonusDesc" Grid.Column="1"
-                                                      GotFocus="FocusToSelect"
-                                                      HorizontalAlignment="Right"
-                                                      ItemsSource="{x:Bind settings:InternalSettings.TeamPowerups.Keys, Mode=OneTime}"
-                                                      SelectedItem="{x:Bind Descbonus, Mode=TwoWay}"/>
-                                            <TextBox x:Name="Sound" Text="{x:Bind Sound, Mode=TwoWay}" GotFocus="FocusToSelect" Grid.ColumnSpan="2" Grid.Row="1" ToolTipService.ToolTip="Sound hash for callout"/>
-                                            <AppBarButton x:Name="HoverButton"
-                                                          Command="{x:Bind Command}"
-                                                          CommandParameter="{x:Bind Name}"
-                                                          Grid.Column="2"
-                                                          Grid.RowSpan="2"
-                                                          HorizontalAlignment="Right"
-                                                          IsTabStop="False"
-                                                          VerticalAlignment="Center"
-                                                          Visibility="Collapsed"/>
-                                        </Grid>
-                                    </SwipeControl>
-                                </Grid>
-                            </UserControl>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
                     <ListView.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Delete" Invoked="AvailableTeams_Delete"/>
                     </ListView.KeyboardAccelerators>
@@ -134,30 +230,13 @@
                 <DataTemplate x:DataType="settings:TeamBonus">
                     <ListView x:Name="TeamMembers"
                               ItemsSource="{x:Bind Members, Mode=TwoWay}"
+                              ItemTemplateSelector="{StaticResource MemberTemplateSelector}"
                               AllowDrop="True"
                               CanReorderItems="True"
                               DragEnter="TeamMembers_DragEnter"
                               KeyboardAcceleratorPlacementMode="Hidden"
                               SelectionMode="Extended"
                               Margin="0 5">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Padding="0 4 0 6">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition/>
-                                    </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition/>
-                                        <RowDefinition/>
-                                    </Grid.RowDefinitions>
-                                    <TextBlock Text="Inernal name:" Margin="0 0 5 0"/>
-                                    <TextBlock Text="Skin filter:" Grid.Row="1" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding Name}" Grid.Column="1" FontWeight="SemiBold"/>
-                                    <TextBox Text="{Binding Skin, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" FontSize="12" Height="30" MinHeight="12"/>
-                                </Grid>
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
                         <ListView.KeyboardAccelerators>
                             <KeyboardAccelerator Key="Delete" Invoked="TeamMembers_Delete"/>
                         </ListView.KeyboardAccelerators>
@@ -179,6 +258,7 @@
                DoubleTapped="SelectedCharacters_DoubleTapped"
                Grid.Column="2"
                Grid.RowSpan="2"
-               MaxWidth="450"/>
+               MaxWidth="450"
+               MinWidth="300"/>
     </Grid>
 </Page>

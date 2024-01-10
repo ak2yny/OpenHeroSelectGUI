@@ -1,13 +1,14 @@
 @echo off
 
-for /f "tokens=2 delims=/" %%v in ('findstr /i "OpenHeroSelectGUI/" ^<OpenHeroSelectGUI.deps.json') do set version=%%v
-set version=%version:~,-4%
+REM Argument %1 is version number
 
-set z=OHSGUI-%version%
-set zf=OHSGUI-%version%-full
+set z=OHSGUI-%1
+set zf=OHSGUI-%1-full
 
 del %z%.7z %zf%.7z 2>nul
 rmdir /q /s OHSGUI 2>nul
+for /f "delims=" %%f in ('dir /a-d /b /s mua\*, xml2\* 2^>nul ^| find /i /v "team_bonus.engb.xml"') do del %%f
+for /f "delims=" %%d in ('dir /ad /b /s mua\*, xml2\* 2^>nul') do rd %%d
 mkdir OHSGUI
 
 for %%a in (
@@ -21,9 +22,9 @@ for %%a in (
 ) do move %%a OHSGUI\
 (
  echo ;!@Install@!UTF-8!
- echo Title="OpenHeroSelectGUI v%version%"
+ echo Title="OpenHeroSelectGUI v%1"
  echo ExtractPathText="Please enter the OHS installation path:"
- echo ExtractPathTitle="OpenHeroSelectGUI v%version%"
+ echo ExtractPathTitle="OpenHeroSelectGUI v%1"
  echo ExtractTitle="Extracting..."
  echo GUIFlags="128"
  echo InstallPath="%%UserProfile%%\Desktop\OpenHeroSelect"
@@ -52,6 +53,6 @@ del MkLink.bat
 EXIT
 
 :BuildInstaller
-InstallerFiles\7z.exe a -t7z %1.7z OHSGUI/ stages/ MkLink.bat -xr!"stages/.models/Super Team Stage Marvel Mods" -xr!"stages/.models/TeamStageCollection"
+InstallerFiles\7z.exe a -t7z %1.7z OHSGUI/ stages/ mua/ xml2/ MkLink.bat -xr!"stages/.models/Super Team Stage Marvel Mods" -xr!"stages/.models/TeamStageCollection"
 copy /b InstallerFiles\7zSD.sfx + InstallerFiles\config.txt + %1.7z %1.exe
 EXIT /b

@@ -27,12 +27,15 @@ namespace OpenHeroSelectGUI
         private void ReloadLayouts()
         {
             StageLayouts.Items.Clear();
-            DirectoryInfo folder = new(Path.Combine(cdPath, "stages"));
-            foreach (DirectoryInfo f in folder.GetDirectories().Where(d => !d.Name.StartsWith(".") && File.Exists(Path.Combine(d.FullName, "config.xml"))).ToList())
+            if (Path.Combine(cdPath, "stages") is string SP && Directory.Exists(SP))
             {
-                StageLayouts.Items.Add(f.Name);
+                DirectoryInfo folder = new(SP);
+                foreach (DirectoryInfo f in folder.GetDirectories().Where(d => !d.Name.StartsWith('.') && File.Exists(Path.Combine(d.FullName, "config.xml"))).ToList())
+                {
+                    StageLayouts.Items.Add(f.Name);
+                }
+                StageLayouts.SelectedIndex = StageLayouts.Items.IndexOf(Cfg.GUI.Layout);
             }
-            StageLayouts.SelectedIndex = StageLayouts.Items.IndexOf(Cfg.GUI.Layout);
         }
         /// <summary>
         /// Load the compatible models from the config and populate the thumbnails
@@ -43,13 +46,19 @@ namespace OpenHeroSelectGUI
             {
                 StageThumbnails.Items.Clear();
                 Cfg.Dynamic.Layout = GetXmlElement(Config);
-                foreach (XmlElement CM in Cfg.Dynamic.Layout["Compatible_Models"].ChildNodes)
+                if (Cfg.Dynamic.Layout is XmlElement Layout && Layout["Compatible_Models"] is XmlNode CMP)
                 {
-                    foreach (XmlElement M in GetXmlElement(Path.Combine(ModelPath, "config.xml"))[CM.InnerText].ChildNodes)
+                    foreach (XmlElement CM in CMP.ChildNodes)
                     {
-                        if (GetStageInfo(M, CM) is StageModel StageItem)
+                        if (GetXmlElement(Path.Combine(ModelPath, "config.xml")) is XmlElement MCfg && MCfg[CM.InnerText] is XmlNode MC)
                         {
-                            StageThumbnails.Items.Add(StageItem);
+                            foreach (XmlElement M in MC.ChildNodes)
+                            {
+                                if (GetStageInfo(M, CM) is StageModel StageItem)
+                                {
+                                    StageThumbnails.Items.Add(StageItem);
+                                }
+                            }
                         }
                     }
                 }

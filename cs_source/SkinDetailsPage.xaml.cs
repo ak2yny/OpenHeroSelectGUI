@@ -24,6 +24,11 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public sealed partial class SkinDetailsPage : Page
     {
+        [GeneratedRegex(@"\S")]
+        private static partial Regex Indent();
+        [GeneratedRegex(@"ig.*Matrix.*Select", RegexOptions.IgnoreCase, "en-CA")]
+        private static partial Regex igSkinRX();
+
         private string? InternalName;
         private readonly StandardUICommand DeleteCommand = new(StandardUICommandKind.Delete);
         public Cfg Cfg { get; set; } = new();
@@ -155,11 +160,11 @@ namespace OpenHeroSelectGUI
                 }
                 else
                 {
-                    int Indx = Array.IndexOf(LoadedHerostat, LoadedHerostat.FirstOrDefault(l => l.Trim().Trim('"').ToLower().StartsWith("skin")));
+                    int Indx = Array.IndexOf(LoadedHerostat, LoadedHerostat.FirstOrDefault(l => l.Trim().Trim('"').StartsWith("skin", StringComparison.CurrentCultureIgnoreCase)));
                     if (Indx > -1)
                     {
                         // A skin should always be present, but in case it isn't and a child element with a skin attribut exists, the result will be corrupted, but the herostat is already corrupted in that case
-                        string indent = new Regex(@"\S").Split(LoadedHerostat[Indx])[0];
+                        string indent = Indent().Split(LoadedHerostat[Indx])[0];
                         int M = IsMUA ? 2 : 1;
                         for (int i = 0; i < GetSkinIdentifiers().Length * M; i++)
                         {
@@ -180,20 +185,20 @@ namespace OpenHeroSelectGUI
                                     : Cfg.Dynamic.HsFormat == ':'
                                         ? $"\"skin_0{(i - 1) / 2 + 1}_name\": \"{Cfg.Skins.SkinsList[(i - 1) / 2].Name}\","
                                         : $"skin_0{(i - 1) / 2 + 1}_name = {Cfg.Skins.SkinsList[(i - 1) / 2].Name} ;";
-                                if (LoadedHerostat[Indx + i].Trim().Trim('"').ToLower().StartsWith("skin"))
+                                if (LoadedHerostat[Indx + i].Trim().Trim('"').StartsWith("skin", StringComparison.CurrentCultureIgnoreCase))
                                 {
                                     LoadedHerostat[Indx + i] = indent + NewLine;
                                 }
                                 else
                                 {
-                                    List<string> TempLines = LoadedHerostat.ToList();
+                                    List<string> TempLines = [.. LoadedHerostat];
                                     TempLines.Insert(Indx + i, indent + NewLine);
-                                    LoadedHerostat = TempLines.ToArray();
+                                    LoadedHerostat = [.. TempLines];
                                 }
                             }
                             else
                             {
-                                LoadedHerostat = LoadedHerostat.Where((vl, ix) => !vl.Trim().Trim('"').ToLower().StartsWith("skin") || ix != Indx + i).ToArray();
+                                LoadedHerostat = LoadedHerostat.Where((vl, ix) => !vl.Trim().Trim('"').StartsWith("skin", StringComparison.CurrentCultureIgnoreCase) || ix != Indx + i).ToArray();
                                 Indx--;
                             }
                         }
@@ -232,7 +237,7 @@ namespace OpenHeroSelectGUI
         private void FixSkins(string? SourceIGB, string GamePath, string Name)
         {
             int i = 0; bool x = false;
-            List<string> Opt = new();
+            List<string> Opt = [];
             if (GetSkinStats(SourceIGB) is string Stats)
             {
                 string[] StatLines = Stats.Split(Environment.NewLine);
@@ -303,7 +308,7 @@ namespace OpenHeroSelectGUI
                 TextureCount.Text = TextureLines.Count().ToString();
                 MipMaps.Text = TextureLines.Any(s => s.Split('|')[4].Contains("Mip", StringComparison.OrdinalIgnoreCase)).ToString();
 
-                string? igSkinLine = StatLines.FirstOrDefault(s => new Regex(@"ig.*Matrix.*Select", RegexOptions.IgnoreCase).IsMatch(s));
+                string? igSkinLine = StatLines.FirstOrDefault(s => igSkinRX().IsMatch(s));
                 igSkinName.Text = string.IsNullOrEmpty(igSkinLine) ? "" : igSkinLine.Split('|')[0].Trim();
                 igSkinName.Foreground = igSkinNameT.Foreground =
                     (x = (Plat is 1 or 6 or 10 or 11 or 12 or 14) && igSkinName.Text != Name && !string.IsNullOrEmpty(igSkinLine))

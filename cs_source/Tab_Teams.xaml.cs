@@ -16,6 +16,8 @@ namespace OpenHeroSelectGUI
     public sealed partial class Tab_Teams : Page
     {
         public Cfg Cfg { get; set; } = new();
+        public int TeamsLimit = GUIsettings.Instance.Game == "mua" ? 32 : 17;
+        public int TeamMembersLimit = GUIsettings.Instance.Game == "mua" ? 8 : 6;
         private readonly StandardUICommand DeleteCommand = new(StandardUICommandKind.Delete);
 
         /// <summary>
@@ -32,11 +34,9 @@ namespace OpenHeroSelectGUI
 
         private void LoadTeams()
         {
-            if (Cfg.Roster.Teams.Count == 0)
-            {
-                TeamBonusDeserializer(DeleteCommand);
-            }
-            AddTeam.Visibility = Cfg.Roster.Teams.Count < Cfg.Dynamic.TeamsLimit
+            TeamBonusDeserializer(DeleteCommand);
+            Cfg.Roster.Teams = Cfg.GUI.Game == "xml2" ? Cfg.Roster.TeamsXML2 : Cfg.Roster.TeamsMUA;
+            AddTeam.Visibility = Cfg.Roster.Teams.Count < TeamsLimit
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
@@ -47,9 +47,9 @@ namespace OpenHeroSelectGUI
             {
                 string? SI = SortItem.Tag.ToString();
                 TeamBonus[]? Temp = SI == "name.asc"
-                    ? Cfg.Roster.Teams.OrderBy(i => i.Name).ToArray()
+                    ? [.. Cfg.Roster.Teams.OrderBy(i => i.Name)]
                     : SI == "name.desc"
-                    ? Cfg.Roster.Teams.OrderByDescending(i => i.Name).ToArray()
+                    ? [.. Cfg.Roster.Teams.OrderByDescending(i => i.Name)]
                     : Cfg.Roster.Teams.ToArray();
                 Cfg.Roster.Teams.Clear();
                 for (int i = 0; i < Temp.Length; i++)
@@ -85,7 +85,7 @@ namespace OpenHeroSelectGUI
         private void RemoveTeam(TeamBonus Team)
         {
             _ = Cfg.Roster.Teams.Remove(Team);
-            AddTeam.Visibility = Cfg.Roster.Teams.Count < Cfg.Dynamic.TeamsLimit
+            AddTeam.Visibility = Cfg.Roster.Teams.Count < TeamsLimit
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
@@ -124,11 +124,11 @@ namespace OpenHeroSelectGUI
                     Name = "",
                     Descbonus = "+5 All Resistances",
                     Sound = "common/team_bonus_",
-                    Members = new(),
+                    Members = [],
                     Command = DeleteCommand
                 }
             );
-            AddTeam.Visibility = Cfg.Roster.Teams.Count < Cfg.Dynamic.TeamsLimit
+            AddTeam.Visibility = Cfg.Roster.Teams.Count < TeamsLimit
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
@@ -137,7 +137,7 @@ namespace OpenHeroSelectGUI
         {
             if (AvailableTeams.SelectedItem is TeamBonus ST
                 && ST.Members is not null
-                && ST.Members.Count < Cfg.Dynamic.TeamMembersLimit
+                && ST.Members.Count < TeamMembersLimit
                 && GetInternalName() is string Hero
                 && !ST.Members.Select(m => m.Name).Contains(Hero))
             {
@@ -163,9 +163,20 @@ namespace OpenHeroSelectGUI
             args.Handled = true;
         }
 
+        private void DeleteSwipeMember_Invoked(SwipeItem sender, SwipeItemInvokedEventArgs args)
+        {
+            if (AvailableTeams.SelectedItem is TeamBonus ST && args.SwipeControl.DataContext is TeamMember TM && ST.Members is not null)
+            {
+                _ = ST.Members.Remove(TM);
+            }
+        }
+
         private void TeamMembers_DragEnter(object sender, DragEventArgs e)
         {
-            TeamMembersDropArea.Visibility = Visibility.Visible;
+            if (AvailableTeams.SelectedItem is TeamBonus ST && string.IsNullOrEmpty(ST.Skinset))
+            {
+                TeamMembersDropArea.Visibility = Visibility.Visible;
+            }
         }
 
         private void TeamMembers_DragLeave(object sender, DragEventArgs e)
