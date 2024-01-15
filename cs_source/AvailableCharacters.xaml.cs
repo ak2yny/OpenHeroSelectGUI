@@ -2,6 +2,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using Microsoft.UI.Xaml.Navigation;
+using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System;
 using System.Collections.Immutable;
@@ -9,7 +10,6 @@ using System.IO;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
-using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 
 namespace OpenHeroSelectGUI
@@ -29,11 +29,11 @@ namespace OpenHeroSelectGUI
             PopulateAvailable();
         }
         /// <summary>
-        /// Load characters from disk
+        /// Load characters from the herostat folder
         /// </summary>
         private void PopulateAvailable()
         {
-            DirectoryInfo folder = new(GetHerostatFolder());
+            DirectoryInfo folder = new(OHSpath.HsFolder);
             if (folder.Exists)
             {
                 string[] NewAvailable = folder.EnumerateFiles("*", SearchOption.AllDirectories)
@@ -58,7 +58,7 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Generate Tree View Data from a files list
+        /// Populate the <see cref="TreeView"/> with the file structure from the <paramref name="AvailableList"/> (a <see langword="string[]"/> of paths)
         /// </summary>
         private void PopulateAvailable(string[] AvailableList)
         {
@@ -74,7 +74,7 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Generate the Tree View structure from a file path
+        /// Generate the <see cref="TreeView"/> structure from a file <paramref name="PathInfo"/>. Add <paramref name="RemainingPath"/> to <paramref name="Parent"/> recursively.
         /// </summary>
         public static void PopulateAvailable(TreeViewNode Parent, string RemainingPath, string PathInfo)
         {
@@ -82,16 +82,15 @@ namespace OpenHeroSelectGUI
             TreeViewNode? child = Parent.Children.SingleOrDefault(x => ((Character)x.Content).Name == Node[0]);
             if (child == null)
             {
-                string PathToAdd = (Node.Length > 1) ? "" : PathInfo;
                 Character CharInfo = new()
                 {
                     Name = Node[0],
-                    Path = PathToAdd
+                    Path = (Node.Length > 1) ? "" : PathInfo
                 };
-                child = new TreeViewNode() { Content = CharInfo,  };
+                child = new TreeViewNode() { Content = CharInfo };
                 Parent.Children.Add(child);
             }
-            if (Node.Length > 1) PopulateAvailable(child, Node[1], PathInfo);
+            if (Node.Length > 1) { PopulateAvailable(child, Node[1], PathInfo); }
         }
         /// <summary>
         /// Search typing
@@ -104,11 +103,12 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Add a herostat to disk, and re-load the available characters from disk.
+        /// Open file picker to select a herostat file and add it to the herostat folder, then re-load the available characters from disk.
         /// </summary>
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            string? Herostat = await LoadDialogue("*");
+            // WIP: Should this accept multiple selected files? Let's see how others react.
+            string? Herostat = await CfgCmd.LoadDialogue("*");
             if (Herostat != null)
             {
                 AddHerostat(Herostat);
@@ -116,7 +116,7 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Reload the available characters from disk
+        /// Re-load the available characters from disk
         /// </summary>
         private void BtnReload_Click(object sender, RoutedEventArgs e) => PopulateAvailable();
         /// <summary>
@@ -154,7 +154,7 @@ namespace OpenHeroSelectGUI
             if (args.Items[0] is TreeViewNode Selected && Selected.Content is Character SC)
             {
                 args.Cancel = Selected.Children.Count > 0;
-                Cfg.Dynamic.FloatingCharacter = SC.Path;
+                Cfg.Var.FloatingCharacter = SC.Path;
             }
             else
             {
@@ -168,20 +168,22 @@ namespace OpenHeroSelectGUI
         {
             if (args.InvokedItem is TreeViewNode Selected && Selected.Content is Character SC && SC.Path is string CharInfo)
             {
-                Cfg.Dynamic.FloatingCharacter = CharInfo;
+                Cfg.Var.FloatingCharacter = CharInfo;
                 if (Selected.Children.Count > 0)
                 {
                     Selected.IsExpanded = !Selected.IsExpanded;
-                    Cfg.Dynamic.FloatingCharacter = null;
+                    Cfg.Var.FloatingCharacter = null;
                 }
             }
         }
-
+        /// <summary>
+        /// Add the selected character to the selected list on double-tap, or, if a parent is double-tapped, add all direct leaf children
+        /// </summary>
         private void TreeViewItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (Cfg.Dynamic.FloatingCharacter is not null)
+            if (Cfg.Var.FloatingCharacter is not null)
             {
-                _ = AddToSelected(Cfg.Dynamic.FloatingCharacter);
+                _ = AddToSelected(Cfg.Var.FloatingCharacter);
                 UpdateClashes();
             }
             else if (trvAvailableChars.SelectedItem is TreeViewNode Node)
@@ -206,7 +208,7 @@ namespace OpenHeroSelectGUI
             args.Handled = true;
         }
         /// <summary>
-        /// Remove the node and all its child nodes, including the herostat files.
+        /// Remove the <paramref name="Node"/> and all its child nodes, including the herostat files.
         /// </summary>
         private void RemoveCharacters(TreeViewNode Node)
         {
@@ -217,14 +219,14 @@ namespace OpenHeroSelectGUI
             RemoveCharacter(Node);
         }
         /// <summary>
-        /// Remove the node and the corresponding herostat file according to the node's path property.
+        /// Remove the <paramref name="Node"/> and the corresponding herostat file according to the node's path property.
         /// </summary>
         private void RemoveCharacter(TreeViewNode Node)
         {
             if (Node.Content is Character Chr
                 && Node.Parent.Children.Remove(Node)
                 && !string.IsNullOrEmpty(Chr.Path)
-                && GetHerostatFile(Chr.Path) is FileInfo HS)
+                && Herostat.GetFile(Chr.Path) is FileInfo HS)
             {
                 HS.Delete();
             }

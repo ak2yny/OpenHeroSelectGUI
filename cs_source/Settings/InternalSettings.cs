@@ -1,6 +1,5 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Media.Imaging;
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,7 +19,7 @@ namespace OpenHeroSelectGUI.Settings
         public bool Riser { get; set; }
     }
     /// <summary>
-    /// Class with strings (message + title) and boolean (IsOpen) properties for message binding.
+    /// Class with <see cref="Message"/> + <see cref="Title"/> (<see cref="string"/>s) and <see cref="IsOpen"/> (<see cref="bool"/>) properties for message binding.
     /// </summary>
     public class MessageItem
     {
@@ -29,9 +28,9 @@ namespace OpenHeroSelectGUI.Settings
         public bool IsOpen { get; set; }
     }
     /// <summary>
-    /// Dynamic internal settings, observable
+    /// Variable internal settings, <see cref="ObservableRecipient"/>
     /// </summary>
-    public partial class DynamicSettings : ObservableRecipient
+    public partial class VariableSettings : ObservableRecipient
     {
         [ObservableProperty]
         private StageModel? selectedStage;
@@ -62,9 +61,7 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private MessageItem? sE_Msg_WarnPkg;
 
-        public static DynamicSettings Instance { get; set; } = new();
-
-        public DynamicSettings()
+        public VariableSettings()
         {
             rosterValueDefault = "";
             menulocationsValueDefault = "";
@@ -76,9 +73,6 @@ namespace OpenHeroSelectGUI.Settings
     /// </summary>
     public static class InternalSettings
     {
-        public static readonly string cdPath = Directory.GetCurrentDirectory();  // Directory.GetCurrentDirectory()
-        public static readonly string ModelPath = Path.Combine(cdPath, "stages", ".models");
-        public static readonly string Activision = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "Activision");
         private static readonly string[] XML2SkinNames =
         [
             "skin",
@@ -91,28 +85,18 @@ namespace OpenHeroSelectGUI.Settings
             "skin_winter",
             "skin_civilian"
         ];
-        public static readonly string[] XML2Skins = XML2SkinNames[1..].Select(s => s.Replace("skin_", "")).ToArray();
-        private static string[] GetMUASkinNames()
-        {
-            string[] MUAskins = new string[6];
-            MUAskins[0] = "skin";
-            for (int i = 1; i < 6; i++) { MUAskins[i] = $"skin_0{i + 1}"; }
-            return MUAskins;
-        }
-        private static readonly string[] MUASkinNames = GetMUASkinNames();
-        public static string[] GetSkinIdentifiers()
-        {
-            return (GUIsettings.Instance.Game == "xml2")
+        public static readonly string[] XML2Skins = XML2SkinNames[1..].Select(s => s[5..]).ToArray();
+        private static readonly string[] MUASkinNames = ["skin", .. Enumerable.Range(2, 5).Select(x => $"skin_0{x}")];
+        public static string[] SkinIdentifiers => CfgSt.GUI.Game == "xml2"
             ? XML2SkinNames
             : MUASkinNames;
-        }
         public static readonly string[] RavenFormatsXML =
         [
             "xml", "eng", "fre", "ger", "ita", "pol", "rus", "spa", "pkg", "boy", "chr", "nav"
         ];
         public static readonly string[] RavenFormats = RavenFormatsXML.Select(x => $".{x}b").ToArray();
         /// <summary>
-        /// Team bonus powerups with description for use in team_bonus files
+        /// Team bonus powerups with description for use in MUA team_bonus files
         /// </summary>
         public static readonly Dictionary<string, string> TeamPowerups = new()
         {
@@ -133,7 +117,7 @@ namespace OpenHeroSelectGUI.Settings
             ["15% Reduced Energy Cost"] = "shared_team_reduce_energy_cost_dlc"
         };
         /// <summary>
-        /// Team bonus powerups with description for use in team_bonus files
+        /// Team bonus powerups with description for use in XML2 team_bonus files
         /// </summary>
         public static readonly Dictionary<string, string> TeamPowerupsXML2 = new()
         {
@@ -150,94 +134,5 @@ namespace OpenHeroSelectGUI.Settings
             ["+15% Max Health"] = "shared_team_new_xmen",
             ["+60% Techbit drops"] = "shared_team_raven_knights"
         };
-
-        // Alchemy static resources, WIP: can be improved
-        public static readonly string? AlchemyRoot = Environment.GetEnvironmentVariable("IG_ROOT");
-        public static readonly string Alchemy_ini = Path.Combine(Path.GetTempPath(), "OHSGUI_Alchemy.ini");
-        public static readonly string GetSkinInfo = string.Join(Environment.NewLine, new string[] { AlchemyHead(3), AlchemyiST(1), AlchemyiSG(2), AlchemyiSS(3) });
-        public static string AlchemyHead(int N)
-        {
-            string[] Lines =
-            [
-                "[OPTIMIZE]",
-                $"optimizationCount = {N}",
-                "hierarchyCheck = true"
-            ];
-            return string.Join(Environment.NewLine, Lines);
-        }
-        private static string AlchemyiST(int N)
-        {
-            string[] Lines =
-            [
-                $"[OPTIMIZATION{N}]",
-                "name = igStatisticsTexture",
-                AlchemyStats("0x00000117"),
-                "useFullPath = false"
-            ];
-            return string.Join(Environment.NewLine, Lines);
-        }
-        private static string AlchemyiSG(int N)
-        {
-            string[] Lines =
-            [
-                $"[OPTIMIZATION{N}]",
-                "name = igStatisticsGeometry",
-                AlchemyStats("0x00500000")
-            ];
-            return string.Join(Environment.NewLine, Lines);
-        }
-        private static string AlchemyiSS(int N)
-        {
-            string[] Lines =
-            [
-                $"[OPTIMIZATION{N}]",
-                "name = igStatisticsSkin",
-                AlchemyStats("0x00000006")
-            ];
-            return string.Join(Environment.NewLine, Lines);
-        }
-        private static string AlchemyStats(string Mask)
-        {
-            string[] Lines =
-            [
-                "separatorString = |",
-                "columnMaxWidth = -1",
-                $"showColumnsMask = {Mask}",
-                "sortColumn = -1"
-            ];
-            return string.Join(Environment.NewLine, Lines);
-        }
-        public static string AlchemyRen(int N, string SourceName, string NewName)
-        {
-            string[] Lines =
-            [
-                $"[OPTIMIZATION{N}]",
-                "name = igChangeObjectName",
-                "objectTypeName = igNamedObject",
-                $"targetName = ^{SourceName}$",
-                $"newName = {NewName}"
-            ];
-            return string.Join(Environment.NewLine, Lines);
-        }
-        public static string AlchemyGGC(int N)
-        {
-            string[] Lines =
-            [
-                $"[OPTIMIZATION{N}]",
-                "name = igGenerateGlobalColor"
-            ];
-            return string.Join(Environment.NewLine, Lines);
-        }
-        public static string AlchemyCGA(int N)
-        {
-            string[] Lines =
-            [
-                $"[OPTIMIZATION{N}]",
-                "name = igConvertGeometryAttr",
-                "accessMode = 3",
-                "storeBoundingVolume = false"
-            ];
-            return string.Join(Environment.NewLine, Lines);
-        }
     }
 }

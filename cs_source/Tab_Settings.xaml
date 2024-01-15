@@ -19,7 +19,7 @@
                 <StackPanel>
                     <TextBlock Text="Common Settings" Style="{ThemeResource SubtitleTextBlockStyle}"/>
                     <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-                    <StackPanel Orientation="Horizontal" Width="Auto">
+                    <StackPanel Margin="0 0 0 10" Orientation="Horizontal" Width="Auto">
                         <TextBox x:Name="GameInstallPath" Header="Game Installation Path:" Text="{x:Bind Cfg.GUI.GameInstallPath, Mode=OneWay}" IsReadOnly="True" MinWidth="180" MaxWidth="350" ToolTipService.ToolTip="The path to the game - pick any .exe in the game's main folder"/>
                         <Button x:Name="BrowseButton" FontWeight="Bold" Content="..." Click="ExeBrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
                     </StackPanel>
@@ -33,7 +33,7 @@
                         <Button x:Name="HBrowseButton" FontWeight="Bold" Content="..." Click="HBrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <ToggleSwitch x:Name="FreeSavesToggle" Header="Free Saves" IsOn="{x:Bind Cfg.GUI.FreeSaves, Mode=TwoWay}" OffContent="Keep" OnContent="Free" MinWidth="100" ToolTipService.ToolTip="Free: Backup the current saves and start with a new set. Applies when starting the game through OHS GUI."/>
+                        <ToggleSwitch x:Name="FreeSavesToggle" Header="Free Saves" IsOn="{x:Bind Cfg.GUI.FreeSaves, Mode=TwoWay}" OffContent="Keep" OnContent="Free" MinWidth="100" ToolTipService.ToolTip="Free: Backup the current saves and start with a new set."/>
                         <Button x:Name="FreeSavesButton" Content="Free saves now" Click="FreeSavesButton_Click"/>
                     </StackPanel>
                     <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Width="Auto">
@@ -57,8 +57,8 @@
                             <ColumnDefinition/>
                             <ColumnDefinition/>
                         </Grid.ColumnDefinitions>
-                        <TextBox x:Name="HerostatName" Header="Name of Herostat" Text="herostat" LosingFocus="Herostat_TextChanged"/>
-                        <ComboBox x:Name="LanguageCode" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" SelectionChanged="Language_SelectionChanged" SelectedItem="eng">
+                        <TextBox x:Name="HerostatName" Header="Name of Herostat" Text="herostat" LosingFocus="Herostat_TextChanged" ToolTipService.ToolTip="Without extension (choose language on the left instead)"/>
+                        <ComboBox x:Name="LanguageCode" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" SelectionChanged="Language_SelectionChanged" SelectedItem="eng" ToolTipService.ToolTip="Changes the herostat extension">
                             <ComboBoxItem x:Name="eng" Content="English (engb)"/>
                             <ComboBoxItem x:Name="ita" Content="Italian (itab)"/>
                             <ComboBoxItem x:Name="fre" Content="French (freb)"/>
@@ -69,10 +69,11 @@
                             <ComboBoxItem x:Name="xml" Content="None (xmlb)"/>
                         </ComboBox>
                     </Grid>
-                    <TextBox x:Name="NewGamePyName" Header="Name of new_game.py" Text="{x:Bind Cfg.OHS.NewGamePyName, Mode=TwoWay}" LosingFocus="NewGamePy_TextChanged" Margin="0 0 0 10"/>
-                    <TextBox x:Name="CharactersHeadsPackageName" Header="Selection Head/Mannequin Package" Text="{x:Bind Cfg.OHS.CharactersHeadsPackageName, Mode=TwoWay}" LosingFocus="CharHead_TextChanged" Margin="0 0 0 10"/>
+                    <TextBox x:Name="NewGamePyName" Header="Name of new_game.py" Text="{x:Bind Cfg.OHS.NewGamePyName, Mode=TwoWay}" LosingFocus="NewGamePy_TextChanged" Margin="0 0 0 10" ToolTipService.ToolTip="With .py extension"/>
+                    <TextBox x:Name="CharactersHeadsPackageName" Header="Selection Head/Mannequin Package" Text="{x:Bind Cfg.OHS.CharactersHeadsPackageName, Mode=TwoWay}" LosingFocus="CharHead_TextChanged" Margin="0 0 0 10" ToolTipService.ToolTip="With .pkgb extension"/>
                     <TextBox x:Name="MannequinFolder" Header="MUA only: Mannequin Folder Name" Text="{x:Bind Cfg.MUA.MannequinFolder, Mode=TwoWay}" LosingFocus="MannequinFolder_TextChanged" Margin="0 0 0 10"/>
-                    <TextBox x:Name="CharinfoName" Header="MUA only: Name of charinfo.xmlb" Text="{x:Bind Cfg.MUA.CharinfoName, Mode=TwoWay}" LosingFocus="Charinfo_TextChanged" Margin="0 0 0 10"/>
+                    <TextBox x:Name="CharinfoName" Header="MUA only: Name of charinfo.xmlb" Text="{x:Bind Cfg.MUA.CharinfoName, Mode=TwoWay}" LosingFocus="Charinfo_TextChanged" Margin="0 0 0 10" ToolTipService.ToolTip="With .xmlb extension"/>
+                    <TextBox x:Name="TeamBonusName" Header="Name of team_bonus" Text="{x:Bind Cfg.GUI.TeamBonusName, Mode=TwoWay}" LosingFocus="TeamBonus_TextChanged" Margin="0 0 0 10" ToolTipService.ToolTip="Without extension, uses same extension as herostat"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2" Margin="15 0">

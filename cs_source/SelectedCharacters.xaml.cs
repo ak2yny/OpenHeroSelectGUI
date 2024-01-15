@@ -16,6 +16,7 @@ namespace OpenHeroSelectGUI
         {
             InitializeComponent();
             LocColumn.Visibility = StarterHeader.Visibility = EffectHeader.Visibility = Cfg.GUI.Game == "xml2" ? Visibility.Collapsed : Visibility.Visible;
+            Clashes.Message = "Clashing characters will have\nidentical mannequins.";
         }
         /// <summary>
         /// List sorting function
@@ -72,6 +73,7 @@ namespace OpenHeroSelectGUI
                 }
             }
             CharacterListCommands.UpdateClashes();
+            args.Handled = true;
         }
 
         private void DeleteSwipeMember_Invoked(SwipeItem sender, SwipeItemInvokedEventArgs args)
@@ -79,6 +81,7 @@ namespace OpenHeroSelectGUI
             if (args.SwipeControl.DataContext is SelectedCharacter SC)
             {
                 _ = Cfg.Roster.Selected.Remove(SC);
+                CharacterListCommands.UpdateClashes();
             }
         }
 
@@ -86,7 +89,7 @@ namespace OpenHeroSelectGUI
         {
             if (SelectedCharactersList.SelectedItem is SelectedCharacter SC)
             {
-                Cfg.Dynamic.FloatingCharacter = SC.Path;
+                Cfg.Var.FloatingCharacter = SC.Path;
             }
         }
 
@@ -94,7 +97,7 @@ namespace OpenHeroSelectGUI
         {
             if (e.Items[0] is SelectedCharacter SC)
             {
-                Cfg.Dynamic.FloatingCharacter = SC.Path;
+                Cfg.Var.FloatingCharacter = SC.Path;
             }
         }
     }

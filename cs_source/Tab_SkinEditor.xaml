@@ -40,28 +40,28 @@
         <StackPanel Grid.ColumnSpan="3" Margin="20" VerticalAlignment="Bottom">
             <InfoBar x:Name="PkgWarning"
                      Severity="Warning"
-                     IsOpen="{x:Bind Cfg.Dynamic.SE_Msg_WarnPkg.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Cfg.Var.SE_Msg_WarnPkg.IsOpen, Mode=TwoWay}"
                      Title="Missing packages"
                      Message="HUD head and powers might not show correctly."/>
             <InfoBar x:Name="Warning"
                      Severity="Warning"
-                     IsOpen="{x:Bind Cfg.Dynamic.SE_Msg_Warning.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Cfg.Var.SE_Msg_Warning.IsOpen, Mode=TwoWay}"
                      Title="Warning"
-                     Message="{x:Bind Cfg.Dynamic.SE_Msg_Warning.Message, Mode=OneWay}"/>
+                     Message="{x:Bind Cfg.Var.SE_Msg_Warning.Message, Mode=OneWay}"/>
             <InfoBar x:Name="Error"
                      Severity="Error"
-                     IsOpen="{x:Bind Cfg.Dynamic.SE_Msg_Error.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Cfg.Var.SE_Msg_Error.IsOpen, Mode=TwoWay}"
                      Title="Error"
-                     Message="{x:Bind Cfg.Dynamic.SE_Msg_Error.Message, Mode=OneWay}"/>
+                     Message="{x:Bind Cfg.Var.SE_Msg_Error.Message, Mode=OneWay}"/>
             <InfoBar x:Name="Success"
                      Severity="Success"
-                     IsOpen="{x:Bind Cfg.Dynamic.SE_Msg_Success.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Cfg.Var.SE_Msg_Success.IsOpen, Mode=TwoWay}"
                      Title="Success"
-                     Message="{x:Bind Cfg.Dynamic.SE_Msg_Success.Message, Mode=OneWay}"/>
+                     Message="{x:Bind Cfg.Var.SE_Msg_Success.Message, Mode=OneWay}"/>
             <InfoBar x:Name="Infobar"
-                     IsOpen="{x:Bind Cfg.Dynamic.SE_Msg_Info.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Cfg.Var.SE_Msg_Info.IsOpen, Mode=TwoWay}"
                      Title="Information"
-                     Message="{x:Bind Cfg.Dynamic.SE_Msg_Info.Message, Mode=OneWay}"/>
+                     Message="{x:Bind Cfg.Var.SE_Msg_Info.Message, Mode=OneWay}"/>
         </StackPanel>
     </Grid>
 </Page>

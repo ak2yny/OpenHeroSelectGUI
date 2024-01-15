@@ -1,28 +1,24 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
-using static OpenHeroSelectGUI.Settings.CharacterListCommands;
-using static OpenHeroSelectGUI.Settings.MarvelModsXML;
 
 namespace OpenHeroSelectGUI
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// Tab to build and modify teams and bonuses
     /// </summary>
     public sealed partial class Tab_Teams : Page
     {
         public Cfg Cfg { get; set; } = new();
-        public int TeamsLimit = GUIsettings.Instance.Game == "mua" ? 32 : 17;
-        public int TeamMembersLimit = GUIsettings.Instance.Game == "mua" ? 8 : 6;
+        public int TeamsLimit = CfgSt.GUI.Game == "xml2" ? 17 : 32;
+        public int TeamMembersLimit = CfgSt.GUI.Game == "xml2" ? 6 : 8;
         private readonly StandardUICommand DeleteCommand = new(StandardUICommandKind.Delete);
 
-        /// <summary>
-        /// Page to build and modify teams and bonuses
-        /// </summary>
         public Tab_Teams()
         {
             DeleteCommand.ExecuteRequested += DeleteCommand_ExecuteRequested;
@@ -34,8 +30,7 @@ namespace OpenHeroSelectGUI
 
         private void LoadTeams()
         {
-            TeamBonusDeserializer(DeleteCommand);
-            Cfg.Roster.Teams = Cfg.GUI.Game == "xml2" ? Cfg.Roster.TeamsXML2 : Cfg.Roster.TeamsMUA;
+            MarvelModsXML.TeamBonusDeserializer(DeleteCommand);
             AddTeam.Visibility = Cfg.Roster.Teams.Count < TeamsLimit
                 ? Visibility.Visible
                 : Visibility.Collapsed;
@@ -80,7 +75,7 @@ namespace OpenHeroSelectGUI
             VisualStateManager.GoToState(sender as Control, "HoverButtonsHidden", true);
         }
         /// <summary>
-        /// Remove Team
+        /// Remove the <paramref name="Team"/> from the team bonus list and update the visibility of the add button
         /// </summary>
         private void RemoveTeam(TeamBonus Team)
         {
@@ -132,13 +127,15 @@ namespace OpenHeroSelectGUI
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
-
+        /// <summary>
+        /// Add floating character to selected <see cref="TeamBonus"/> as <see cref="TeamMember"/>
+        /// </summary>
         private void AddTeamMember()
         {
             if (AvailableTeams.SelectedItem is TeamBonus ST
                 && ST.Members is not null
                 && ST.Members.Count < TeamMembersLimit
-                && GetInternalName() is string Hero
+                && Herostat.GetInternalName() is string Hero
                 && !ST.Members.Select(m => m.Name).Contains(Hero))
             {
                 ST.Members.Add(new TeamMember { Name = Hero, Skin = "" });
@@ -146,7 +143,7 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Delete selected team members. WIP: Possibly add swipe to team members
+        /// Delete selected team members.
         /// </summary>
         private void TeamMembers_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
@@ -187,7 +184,7 @@ namespace OpenHeroSelectGUI
         private void TeamMembers_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = $"{Cfg.Dynamic.FloatingCharacter}";
+            e.DragUIOverride.Caption = $"{Cfg.Var.FloatingCharacter}";
         }
 
         private void TeamMembers_Drop(object sender, DragEventArgs e)

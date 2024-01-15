@@ -9,52 +9,43 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition MinWidth="100"/>
+            <ColumnDefinition MinWidth="120"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Frame x:Name="AvailableCharacters" DoubleTapped="AvailableCharacters_DoubleTapped" MaxWidth="400"/>
+        <Frame x:Name="AvailableCharacters" MaxWidth="400"/>
         <Grid Grid.Column="1" Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Hidden">
-                <Grid x:Name="MUASettings" HorizontalAlignment="Left">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="120"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                        <RowDefinition/>
-                    </Grid.RowDefinitions>
-                    <StackPanel Grid.RowSpan="3" Margin="0 5 10 0" VerticalAlignment="Top">
-                        <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Margin="0 0 0 5" Padding="16 10" ToolTipService.ToolTip="Run Marvel: Ultimate Alliance only, without running OHS">
-                            <TextBlock TextAlignment="Center">Run Marvel<LineBreak/>Ultimate<LineBreak/>Alliance</TextBlock>
-                        </Button>
-                        <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked" Width="105"/>
+            <Grid x:Name="MUASettings">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+                <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" ToolTipService.ToolTip="Check all selected characters to be unlocked" Width="105"/>
+                <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Grid.Row="1" Grid.RowSpan="2" Margin="0 5 8 0" Padding="16 10" ToolTipService.ToolTip="Run Marvel: Ultimate Alliance only, without running OHS">
+                    <TextBlock TextAlignment="Center">Run Marvel<LineBreak/>Ultimate<LineBreak/>Alliance</TextBlock>
+                </Button>
+                <ScrollViewer Grid.Column="1" Grid.RowSpan="2" HorizontalScrollBarVisibility="Auto" Margin="0 6" VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal">
+                        <ToggleSwitch Grid.Column="0" MinWidth="105" Header="Update Unlocks" x:Name="UnlockToggle" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
+                        <ToggleSwitch Grid.Column="1" MinWidth="105" Header="Character Limit" x:Name="RosterHackToggle" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" OffContent="27" OnContent="50" ToolTipService.ToolTip="Enable the roster hack (RH) limit of 50 characters" Toggled="RosterHack_Toggled"/>
+                        <ToggleSwitch Grid.Column="2" MinWidth="105" Header="Update Stage" x:Name="StageToggle" IsOn="{x:Bind Cfg.GUI.CopyStage, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="Switch this on to copy the selected stage to the game files (mod folder). Leave this on to be save. Turn this off to avoid unnecessary copy processes when the stage or effects haven't been changed."/>
+                        <ToggleSwitch Grid.Column="3" MinWidth="105" Header="Effects Limit" x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" OffContent="Off" OnContent="On" ToolTipService.ToolTip="Only the first two mannequin effects are used if this is on. Otherwise all effects are used, but only effects on locations 03 and 24 are hidden in the F12 menu."/>
                     </StackPanel>
-                    <TextBlock Grid.Column="1" Grid.Row="0" Margin="0 0 5 0" Text="Hidable Effects Only" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Grid.Row="1" Margin="0 0 5 0" Text="Update Stage" VerticalAlignment="Center"/>
-                    <TextBlock Grid.Column="1" Grid.Row="2" Margin="0 0 5 0" Text="Update Unlocks" VerticalAlignment="Center"/>
-                    <ToggleSwitch Grid.Column="2" Grid.Row="0" x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" OffContent="Off" OnContent="On" ToolTipService.ToolTip="Only the first two mannequin effects are used if this is on. Otherwise all effects are used, but only effects on locations 03 and 24 are hidden in the F12 menu."/>
-                    <ToggleSwitch Grid.Column="2" Grid.Row="1" x:Name="StageToggle" IsOn="{x:Bind Cfg.GUI.CopyStage, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="Switch this on to copy the selected stage to the game files (mod folder). Leave this on to be save. Turn this off to avoid unnecessary copy processes when the stage or effects haven't been changed."/>
-                    <ToggleSwitch Grid.Column="2" Grid.Row="2" x:Name="UnlockToggle" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
-                    <StackPanel Grid.Column="3" Grid.RowSpan="3">
-                        <TextBlock x:Name="CharLimit" Text="Character Limit"/>
-                        <ToggleSwitch x:Name="RosterHackToggle" Header="(Roster Hack)" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" OffContent="27" OnContent="50" ToolTipService.ToolTip="Enable/disable the roster hack (RH) limit of 50 characters - if the RH wasn't found it might still work" Toggled="RosterHack_Toggled"/>
-                        <StackPanel Orientation="Horizontal">
-                            <Button x:Name="SelectStage" Click="SelectStage_Click" Content="Select Stage" VerticalAlignment="Bottom"/>
-                            <Button x:Name="RefreshStages" Click="RefreshStages_Click" VerticalAlignment="Bottom" HorizontalAlignment="Left" ToolTipService.ToolTip="Refresh stage info">
-                                <SymbolIcon>Refresh</SymbolIcon>
-                            </Button>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-            </ScrollViewer>
+                </ScrollViewer>
+                <StackPanel Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal">
+                    <Button x:Name="SelectStage" Click="SelectStage_Click" Content="Select Stage" VerticalAlignment="Bottom"/>
+                    <Button x:Name="RefreshStages" Click="RefreshStages_Click" VerticalAlignment="Bottom" HorizontalAlignment="Left" ToolTipService.ToolTip="Refresh stage info">
+                        <SymbolIcon>Refresh</SymbolIcon>
+                    </Button>
+                </StackPanel>
+            </Grid>
             <Grid x:Name="ImagePanel" Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition x:Name="LayoutHeight"/>
@@ -70,7 +61,7 @@
                 <Viewbox x:Name="LocationsBox" Margin="0 5 0 0" HorizontalAlignment="Center" StretchDirection="DownOnly" VerticalAlignment="Top">
                     <Grid x:Name="Locations"/>
                 </Viewbox>
-                <StackPanel Grid.Row="1" Padding="5" Background="{ThemeResource ButtonBackgroundThemeBrush}">
+                <StackPanel Grid.Row="1" Padding="5" Background="{ThemeResource ButtonBackgroundThemeBrush}" CornerRadius="3">
                     <TextBlock x:Name="LayoutDetails"/>
                     <TextBlock x:Name="StageDetails"/>
                 </StackPanel>
@@ -82,9 +73,6 @@
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
             <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" MaxWidth="450">
-                <Frame.KeyboardAccelerators>
-                    <KeyboardAccelerator Key="Delete" Invoked="SelectedCharacters_Delete"/>
-                </Frame.KeyboardAccelerators>
             </Frame>
             <Canvas x:Name="SelectedCharactersDropArea" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop" DragLeave="SelectedCharacters_DragLeave" Visibility="Collapsed"/>
             <StackPanel x:Name="MUAButtons" Grid.Row="1" Orientation="Horizontal">
@@ -104,5 +92,16 @@
                 <Run Text="{x:Bind Cfg.Roster.Total, Mode=OneWay}"/>
             </TextBlock>
         </Grid>
+        <InfoBar x:Name="RHInfo"
+                 Title="Information"
+                 Background="{ThemeResource SystemFillColorSolidNeutralBackground}"
+                 Grid.ColumnSpan="3"
+                 Margin="20"
+                 VerticalAlignment="Bottom">
+            <InfoBar.ActionButton>
+                <HyperlinkButton Content="Download RH now" NavigateUri="https://marvelmods.com/forum/index.php/topic,10774.msg204197.html#msg204197"/>
+            </InfoBar.ActionButton>
+        </InfoBar>
+        <TextBox Text="{x:Bind Cfg.Roster.UpdateCount, Mode=OneWay}" TextChanged="ClashesUpdated" MinWidth="0" Width="0"/>
     </Grid>
 </Page>

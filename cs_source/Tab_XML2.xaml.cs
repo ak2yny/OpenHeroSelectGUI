@@ -1,8 +1,8 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using OpenHeroSelectGUI.Functions;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
-using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 
 namespace OpenHeroSelectGUI
@@ -13,6 +13,7 @@ namespace OpenHeroSelectGUI
     public sealed partial class Tab_XML2 : Page
     {
         public Settings.Cfg Cfg { get; set; } = new();
+
         public Tab_XML2()
         {
             InitializeComponent();
@@ -21,6 +22,9 @@ namespace OpenHeroSelectGUI
             _ = SelectedCharacters.Navigate(typeof(SelectedCharacters));
             _ = SkinDetailsPage.Navigate(typeof(SkinDetailsPage));
         }
+        /// <summary>
+        /// Define the page controls (from saved settings)
+        /// </summary>
         private void LoadXML2Limit()
         {
             int Size = Cfg.Roster.Total = Cfg.XML2.RosterSize;
@@ -31,38 +35,41 @@ namespace OpenHeroSelectGUI
             //    ReplDefaultmanToggle.IsOn = true;
             //}
             SetXML2DefaultRoster(Size);
-            Cfg.Dynamic.RosterRange = Enumerable.Range(1, Size);
+            Cfg.Var.RosterRange = Enumerable.Range(1, Size);
             RosterSizeToggle.SelectedIndex = (Size - 19) / 2;
 
             // Initialize other XML2 settings;
-            if (Cfg.XML2.ExeName == "") Cfg.XML2.ExeName = "Xmen.exe";
+            if (Cfg.XML2.ExeName == "") { Cfg.XML2.ExeName = "Xmen.exe"; }
             SkinDetailsBtn.Content = Cfg.GUI.SkinDetailsVisible
                 ? "Hide Skin Details"
                 : "Show Skin Details";
         }
+        /// <summary>
+        /// Save the selected limit to settings and define the default roster file.
+        /// </summary>
         private void SetXML2Limit()
         {
             if (RosterSizeToggle.SelectedItem is object RT && RT.ToString() is string RS && int.TryParse(RS[..2], out int Limit))
             {
                 //Limit = ReplDefaultmanToggle.IsOn ? Limit + 1 : Limit;
                 Cfg.Roster.Total = Cfg.XML2.RosterSize = Limit;
-                Cfg.Dynamic.RosterRange = Enumerable.Range(1, Limit);
+                Cfg.Var.RosterRange = Enumerable.Range(1, Limit);
                 SetXML2DefaultRoster(Limit);
             }
         }
+        /// <summary>
+        /// Define the default roster file, according to the selected <paramref name="Limit"/>.
+        /// </summary>
         private void SetXML2DefaultRoster(int Limit)
         {
-            Cfg.Dynamic.RosterValueDefault = Limit >= 23
+            Cfg.Var.RosterValueDefault = Limit >= 23
                 ? "Default 23 Character (PSP) Roster"
                 : Limit >= 21
                 ? "Default 21 Character (PC) Roster"
                 : "Default 19 Character (GC, PS2, Xbox) Roster";
         }
         // Control handlers. A few of them are identical to the MUA handlers, can they be combined?
-        private void BtnRunGame_Click(object sender, RoutedEventArgs e)
-        {
-            RunGame(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName, Cfg.GUI.ExeArguments);
-        }
+        private void BtnRunGame_Click(object sender, RoutedEventArgs e) => Util.RunGame();
 
         private void BtnUnlockAll_Click(object sender, RoutedEventArgs e)
         {
@@ -97,7 +104,7 @@ namespace OpenHeroSelectGUI
         private void SelectedCharacters_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = $"{Cfg.Dynamic.FloatingCharacter}";
+            e.DragUIOverride.Caption = $"{Cfg.Var.FloatingCharacter}";
         }
         /// <summary>
         /// Define the drop event for dropped characters
@@ -105,29 +112,25 @@ namespace OpenHeroSelectGUI
         private void SelectedCharacters_Drop(object sender, DragEventArgs e)
         {
             SelectedCharactersDropArea.Visibility = Visibility.Collapsed;
-            if (Cfg.Dynamic.FloatingCharacter is string FC)
+            if (Cfg.Var.FloatingCharacter is string FC)
             {
                 AddToSelected(FC);
                 UpdateClashes();
             }
         }
         /// <summary>
-        /// Load the default roster for the current layout.
+        /// Load the default roster.
         /// </summary>
         private void XML2_LoadDefault(object sender, RoutedEventArgs e)
         {
-            LoadRosterVal(Cfg.Dynamic.RosterValueDefault);
+            LoadRosterVal(Cfg.Var.RosterValueDefault);
         }
         /// <summary>
         /// Browse for a roster file to load.
         /// </summary>
-        private async void XML2_LoadRoster(SplitButton sender, SplitButtonClickEventArgs args)
+        private void XML2_LoadRoster(SplitButton sender, SplitButtonClickEventArgs args)
         {
-            string? RosterValue = await LoadDialogue(".cfg");
-            if (RosterValue != null)
-            {
-                LoadRoster(RosterValue);
-            }
+            LoadRosterBrowse();
         }
         /// <summary>
         /// Generate a random character list from the available characters.

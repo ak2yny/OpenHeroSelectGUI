@@ -9,121 +9,101 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Page.Resources>
+        <FontIconSource x:Key="DeleteIcon" Glyph="&#xE107;"/>
         <SwipeItems Mode="Execute" x:Key="DeleteSwipeMember">
-            <SwipeItem Background="Red"
-                       Invoked="DeleteSwipeMember_Invoked"/>
+            <SwipeItem IconSource="{StaticResource DeleteIcon}"
+                       Background="Red"
+                       Invoked="DeleteSwipeMember_Invoked"
+                       Text="Delete"/>
         </SwipeItems>
+        <DataTemplate x:Key="CharacterNameTemplate" x:DataType="settings:SelectedCharacter">
+            <SwipeControl RightItems="{StaticResource DeleteSwipeMember}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.RowSpan="2"
+                                   x:Name="LocColumn"
+                                   Text="{x:Bind Loc, Mode=OneWay}"
+                                   Style="{ThemeResource SubtitleTextBlockStyle}"
+                                   MinWidth="28"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1"
+                                   x:Phase="1"
+                                   Text="{x:Bind Character_Name, Mode=OneWay}"
+                                   Style="{ThemeResource BaseTextBlockStyle}"
+                                   Margin="12 6 24 0"/>
+                    <Rectangle Grid.Column="1" Grid.Row="1"
+                                   Fill="Red"
+                                   Margin="6 0 18 4"
+                                   Opacity="0.2"
+                                   RadiusX="4"
+                                   RadiusY="4"
+                                   Visibility="{x:Bind NumClash, Mode=OneWay}"/>
+                    <TextBlock Grid.Column="1" Grid.Row="1"
+                                   Style="{ThemeResource BodyTextBlockStyle}"
+                                   Margin="12 0 24 6">
+                            <Run Text="{x:Bind Path, Mode=OneWay}"/>
+                            <Run Text="&#1632;"/>
+                            <Run Text="{x:Bind Character_Number, Mode=OneWay}"/>
+                    </TextBlock>
+                </Grid>
+            </SwipeControl>
+        </DataTemplate>
         <DataTemplate x:Key="CharacterListTemplate" x:DataType="settings:SelectedCharacter">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition MaxWidth="30"/>
-                    <ColumnDefinition MaxWidth="30"/>
-                    <ColumnDefinition MaxWidth="72"/>
                 </Grid.ColumnDefinitions>
-                <SwipeControl RightItems="{StaticResource DeleteSwipeMember}"
-                              Grid.ColumnSpan="5"
-                              Grid.RowSpan="2"
-                              HorizontalAlignment="Right"
-                              MaxWidth="300"/>
-                <TextBlock Grid.RowSpan="2"
-                           x:Name="LocColumn"
-                           Text="{x:Bind Loc, Mode=OneWay}"
-                           Style="{ThemeResource SubtitleTextBlockStyle}"
-                           MinWidth="28"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1"
-                           x:Phase="1"
-                           Text="{x:Bind Character_Name, Mode=OneWay}"
-                           Style="{ThemeResource BaseTextBlockStyle}"
-                           Margin="12 6 24 0"/>
-                <Rectangle Grid.Column="1" Grid.Row="1"
-                           Fill="Red"
-                           Margin="6 0 18 4"
-                           Opacity="0.2"
-                           RadiusX="4"
-                           RadiusY="4"
-                           Visibility="{x:Bind NumClash, Mode=OneWay}"/>
-                <TextBlock Grid.Column="1" Grid.Row="1"
-                           Style="{ThemeResource BodyTextBlockStyle}"
-                           Margin="12 0 24 6">
-                    <Run Text="{x:Bind Path, Mode=OneWay}"/>
-                    <Run Text="{x:Bind Character_Number, Mode=OneWay}"/>
-                </TextBlock>
-                <CheckBox Grid.Column="2" Grid.RowSpan="2"
-                          x:Name="UnlockColumn"
-                          IsChecked="{x:Bind Unlock, Mode=TwoWay}"
-                          x:Phase="2"
-                          HorizontalAlignment="Left"
-                          VerticalAlignment="Center"
-                          Margin="1"
-                          ToolTipService.ToolTip="Unlock?"/>
-                <CheckBox Grid.Column="3" Grid.RowSpan="2"
-                          x:Name="StarterColumn"
-                          Click="Starter_Click"
-                          IsChecked="{x:Bind Starter, Mode=TwoWay}"
-                          x:Phase="2"
-                          HorizontalAlignment="Left"
-                          VerticalAlignment="Center"
-                          Margin="1"
-                          ToolTipService.ToolTip="Starter?"/>
-                <ComboBox Grid.Column="4" Grid.RowSpan="2"
-                          x:Name="EffectSelection"
-                          x:Phase="2"
-                          ItemsSource="{x:Bind AvailableEffects}" 
-                          SelectedValue="{x:Bind Effect, Mode=TwoWay}"
-                          Background="{ThemeResource CardBackgroundFillColorSecondary}"
-                          BorderBrush="{ThemeResource CheckBoxBorderThemeBrush}"
-                          HorizontalAlignment="Left"
-                          VerticalAlignment="Center"
-                          ToolTipService.ToolTip="Select a mannequin effect  | Effects will activate on that location when running OHS with the option to update the stage. They stay that way until OHS runs again. Effects are not saved."/>
+                <ContentPresenter ContentTemplate="{StaticResource CharacterNameTemplate}"/>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <CheckBox x:Name="UnlockColumn"
+                              IsChecked="{x:Bind Unlock, Mode=TwoWay}"
+                              x:Phase="2"
+                              Margin="1"
+                              MinWidth="30"
+                              ToolTipService.ToolTip="Unlock?"/>
+                    <CheckBox x:Name="StarterColumn"
+                              Click="Starter_Click"
+                              IsChecked="{x:Bind Starter, Mode=TwoWay}"
+                              x:Phase="2"
+                              Margin="1"
+                              MinWidth="30"
+                              ToolTipService.ToolTip="Starter?"/>
+                    <ComboBox x:Name="EffectSelection"
+                              x:Phase="2"
+                              ItemsSource="{x:Bind AvailableEffects}" 
+                              SelectedValue="{x:Bind Effect, Mode=TwoWay}"
+                              Background="{ThemeResource CardBackgroundFillColorSecondary}"
+                              BorderBrush="{ThemeResource CheckBoxBorderThemeBrush}"
+                              MinWidth="72"
+                              MaxWidth="72"
+                              ToolTipService.ToolTip="Select a mannequin effect | Effects will activate on that location when running OHS with the option to update the stage. They stay that way until OHS runs again. This selection isn't saved."/>
+                </StackPanel>
             </Grid>
         </DataTemplate>
         <DataTemplate x:Key="CharacterListTemplateXML2" x:DataType="settings:SelectedCharacter">
             <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>
-                    <ColumnDefinition MaxWidth="30"/>
                 </Grid.ColumnDefinitions>
-                <SwipeControl RightItems="{StaticResource DeleteSwipeMember}"
-                              Grid.ColumnSpan="5"
-                              Grid.RowSpan="2"
-                              HorizontalAlignment="Right"
-                              MaxWidth="300"/>
-                <TextBlock Text="{x:Bind Character_Name, Mode=OneWay}"
-                           Style="{ThemeResource BaseTextBlockStyle}"
-                           x:Phase="1"
-                           Margin="12,6,24,0"/>
-                <Rectangle Grid.Row="1"
-                           Fill="Red"
-                           Margin="6 0 18 4"
-                           Opacity="0.2"
-                           RadiusX="4"
-                           RadiusY="4"
-                           Visibility="{x:Bind NumClash, Mode=OneWay}"/>
-                <TextBlock Grid.Row="1"
-                           Style="{ThemeResource BodyTextBlockStyle}"
-                           Margin="12 0 24 6">
-                    <Run Text="{x:Bind Path, Mode=OneWay}"/>
-                    <Run Text="{x:Bind Character_Number, Mode=OneWay}"/>
-                </TextBlock>
-                <CheckBox Grid.Column="1" Grid.RowSpan="2"
+                <ContentPresenter ContentTemplate="{StaticResource CharacterNameTemplate}"/>
+                <CheckBox Grid.Column="1"
                           x:Name="UnlockColumn"
                           x:Phase="2"
                           IsChecked="{x:Bind Unlock, Mode=TwoWay}"
-                          HorizontalAlignment="Left"
+                          HorizontalAlignment="Right"
                           VerticalAlignment="Center"
                           Margin="1"
+                          MinWidth="30"
                           ToolTipService.ToolTip="Unlock?"/>
             </Grid>
         </DataTemplate>
@@ -190,19 +170,17 @@
                   SelectionMode="Extended"
                   Margin="0 5">
             <ListView.KeyboardAccelerators>
-                <KeyboardAccelerator Key="Delete" Invoked="Selected_Characters_Delete"/>
+                <KeyboardAccelerator Key="Delete" Invoked="Selected_Characters_Delete" ScopeOwner="{x:Bind SelectedCharactersList}"/>
             </ListView.KeyboardAccelerators>
             <!--BorderThickness="1"
                   BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
         </ListView>
 
         <InfoBar x:Name="Clashes"
-                 Title="Character number clashes found"
-                 Message="Mannequins of clashing characters will be identical."
+                 Title="Character number clash found"
                  IsOpen="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}"
                  Grid.Row="1"
                  Margin="5"
-                 MaxWidth="300"
                  VerticalAlignment="Bottom">
             <InfoBar.ActionButton>
                 <HyperlinkButton Content="More information" NavigateUri="https://marvelmods.com/forum/index.php/topic,10809.msg203622.html#msg203622"/>

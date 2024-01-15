@@ -1,12 +1,11 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using static OpenHeroSelectGUI.Settings.GUIXML;
-using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI
 {
@@ -27,7 +26,7 @@ namespace OpenHeroSelectGUI
         private void ReloadLayouts()
         {
             StageLayouts.Items.Clear();
-            if (Path.Combine(cdPath, "stages") is string SP && Directory.Exists(SP))
+            if (Path.Combine(OHSpath.CD, "stages") is string SP && Directory.Exists(SP))
             {
                 DirectoryInfo folder = new(SP);
                 foreach (DirectoryInfo f in folder.GetDirectories().Where(d => !d.Name.StartsWith('.') && File.Exists(Path.Combine(d.FullName, "config.xml"))).ToList())
@@ -42,19 +41,19 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (StageLayouts.SelectedItem is string Selected && Path.Combine(cdPath, "stages", Selected, "config.xml") is string Config && File.Exists(Config))
+            if (StageLayouts.SelectedItem is string Selected && Path.Combine(OHSpath.CD, "stages", Selected, "config.xml") is string Config && File.Exists(Config))
             {
                 StageThumbnails.Items.Clear();
-                Cfg.Dynamic.Layout = GetXmlElement(Config);
-                if (Cfg.Dynamic.Layout is XmlElement Layout && Layout["Compatible_Models"] is XmlNode CMP)
+                Cfg.Var.Layout = GUIXML.GetXmlElement(Config);
+                if (Cfg.Var.Layout is XmlElement Layout && Layout["Compatible_Models"] is XmlNode CMP)
                 {
                     foreach (XmlElement CM in CMP.ChildNodes)
                     {
-                        if (GetXmlElement(Path.Combine(ModelPath, "config.xml")) is XmlElement MCfg && MCfg[CM.InnerText] is XmlNode MC)
+                        if (GUIXML.GetXmlElement(Path.Combine(OHSpath.Model, "config.xml")) is XmlElement MCfg && MCfg[CM.InnerText] is XmlNode MC)
                         {
                             foreach (XmlElement M in MC.ChildNodes)
                             {
-                                if (GetStageInfo(M, CM) is StageModel StageItem)
+                                if (GUIXML.GetStageInfo(M, CM) is StageModel StageItem)
                                 {
                                     StageThumbnails.Items.Add(StageItem);
                                 }
@@ -67,7 +66,7 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Load the compatible models from the config and populate the thumbnails
+        /// Save the selection to <see cref="GUIsettings"/> and navigate back to the <see cref="Tab_MUA"/>
         /// </summary>
         private void StageConfirmed()
         {

@@ -13,6 +13,7 @@
 
     <Page.KeyboardAccelerators>
         <KeyboardAccelerator Key="F3" Invoked="TVsearch_Shortcut_Invoked"/>
+        <KeyboardAccelerator Modifiers="Control" Key="F" Invoked="TVsearch_Shortcut_Invoked"/>
     </Page.KeyboardAccelerators>
 
     <Grid>
@@ -41,7 +42,7 @@
                   DoubleTapped="TreeViewItem_DoubleTapped"
                   Margin="0 5">
             <TreeView.KeyboardAccelerators>
-                <KeyboardAccelerator Key="Delete" Invoked="TreeViewItems_Delete"/>
+                <KeyboardAccelerator Key="Delete" Invoked="TreeViewItems_Delete" ScopeOwner="{x:Bind trvAvailableChars}"/>
             </TreeView.KeyboardAccelerators>
         </TreeView>
     </Grid>

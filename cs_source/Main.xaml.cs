@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Media.Animation;
+using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,8 @@ using System.Threading.Tasks;
 using Windows.Storage;
 using Windows.Storage.Pickers;
 using WinRT.Interop;
-using static OpenHeroSelectGUI.Settings.CfgCommands;
+using static OpenHeroSelectGUI.Settings.CfgCmd;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
-using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -73,19 +73,19 @@ namespace OpenHeroSelectGUI
             {
                 if (!NavView.FooterMenuItems.Contains(NavView.SelectedItem))  // prevent footer pages from becoming home
                 {
-                    if (navPageType == typeof(Tab_XML2) && GUIsettings.Instance.Game != "xml2")
+                    if (navPageType == typeof(Tab_XML2) && CfgSt.GUI.Game != "xml2")
                     {
                         SaveSettings();
-                        GUIsettings.Instance.Game = "xml2";
+                        CfgSt.GUI.Game = "xml2";
                         LoadRoster();
                     }
-                    else if (navPageType == typeof(Tab_MUA) && GUIsettings.Instance.Game != "mua")
+                    else if (navPageType == typeof(Tab_MUA) && CfgSt.GUI.Game != "mua")
                     {
                         SaveSettings();
-                        GUIsettings.Instance.Game = "mua";
+                        CfgSt.GUI.Game = "mua";
                         LoadRoster();
                     }
-                    GUIsettings.Instance.Home = sender.MenuItems.IndexOf(args.SelectedItem);
+                    CfgSt.GUI.Home = sender.MenuItems.IndexOf(args.SelectedItem);
                 }
                 NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo);
             }
@@ -95,10 +95,10 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void NavView_Loaded(object sender, RoutedEventArgs e)
         {
-            NavView.SelectedItem = NavView.MenuItems[GUIsettings.Instance.Home];
+            NavView.SelectedItem = NavView.MenuItems[CfgSt.GUI.Home];
         }
         /// <summary>
-        /// Navigation View: Change the page/tab according to the selection.
+        /// Navigation View: Change the page/tab according to the selected <paramref name="navPageType"/>.
         /// </summary>
         private void NavView_Navigate(Type navPageType, NavigationTransitionInfo transitionInfo)
         {
@@ -116,27 +116,25 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private async void RunOHS()
         {
-            if (string.IsNullOrEmpty(GUIsettings.Instance.Game)) { ShowWarning("MUA or XML2 not defined."); return; }
-            if (File.Exists(Path.Combine(cdPath, "OpenHeroSelect.exe")))
+            if (string.IsNullOrEmpty(CfgSt.GUI.Game)) { ShowWarning("MUA or XML2 not defined."); return; }
+            if (File.Exists(Path.Combine(OHSpath.CD, "OpenHeroSelect.exe")))
             {
-                string DP = Path.Combine(OHSsettings.Instance.GameInstallPath, "data");
+                string DP = Path.Combine(CfgSt.OHS.GameInstallPath, "data");
                 if (Directory.Exists(DP))
                 {
                     OHSWarning.IsOpen = !(OHSRunning.IsOpen = true);
                     await Task.Run(() =>
                     {
                         SaveSettings();
-                        if (GUIsettings.Instance.Game == "mua" && GUIsettings.Instance.CopyStage) { InstallStage(); }
+                        InstallStage();
                         MarvelModsXML.TeamBonusCopy();
-                        if (GUIsettings.Instance.FreeSaves && OHSsettings.Instance.LaunchGame) { MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}"); }
-                        // if this waits until the game has closed (OHS doesn't wait AFAIK) then we can restore the saves after
+                        if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
 
-                        string arg = (GUIsettings.Instance.Game == "xml2") ?
+                        Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2") ?
                             "-a -x" :
-                            "-a";
-                        Util.RunElevated("OpenHeroSelect.exe", arg);
+                            "-a");
                     });
-                    string elog = Path.Combine(cdPath, "error.log");
+                    string elog = Path.Combine(OHSpath.CD, "error.log");
                     if (File.Exists(elog))
                     {
                         ShowWarning("OHS hit an error. Check the error.log.");
@@ -160,36 +158,38 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Show a warning info bar.
+        /// Show a warning <paramref name="message"/> in an <see cref="InfoBar"/>.
         /// </summary>
         private void ShowWarning(string message)
         {
             OHSWarning.Message = message;
             OHSWarning.IsOpen = !(OHSRunning.IsOpen = false);
         }
+        /// <summary>
+        /// Install the stage files to the game/mod folder
+        /// </summary>
         private static void InstallStage()
         {
-            string StagesPath = Path.Combine(cdPath, "stages");
-            string RiserPath = Path.Combine(StagesPath, ".riser");
-            string SelectedLayoutPath = Path.Combine(StagesPath, GUIsettings.Instance.Layout);
-            if (DynamicSettings.Instance.SelectedStage is StageModel Stage)
+            if (CfgSt.GUI.Game == "mua" && CfgSt.GUI.CopyStage && CfgSt.Var.SelectedStage is StageModel Stage)
             {
-                if (Stage.Path is DirectoryInfo ModelFolder && ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
+                string RiserPath = Path.Combine(OHSpath.CD, "stages", ".riser");
+                string SelectedLayoutPath = Path.Combine(OHSpath.CD, "stages", CfgSt.GUI.Layout);
+                if (Stage.Path is DirectoryInfo ModelFolder && ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").FirstOrDefault() is FileInfo M)
                 {
-                    CopyGameFile(ModelFolder.FullName, Path.Combine("ui", "models"), ModelFolder.EnumerateFiles("*.igb").First().Name, "m_team_stage.igb");
+                    OHSpath.CopyToGame(ModelFolder.FullName, Path.Combine("ui", "models"), M.Name, "m_team_stage.igb");
                 }
 
-                CopyGameFile(SelectedLayoutPath, Path.Combine("ui", "menus"), "mlm_team_back.igb");
-                CopyGameFile(Path.GetDirectoryName(MarvelModsXML.UpdateLayout(Path.Combine(SelectedLayoutPath, "team_back.xmlb"), Stage.Riser))!, Path.Combine("ui", "menus"), "team_back.xmlb");
+                OHSpath.CopyToGame(SelectedLayoutPath, Path.Combine("ui", "menus"), "mlm_team_back.igb");
+                OHSpath.CopyToGame(Path.GetDirectoryName(MarvelModsXML.UpdateLayout(Path.Combine(SelectedLayoutPath, "team_back.xmlb"), Stage.Riser)), Path.Combine("ui", "menus"), "team_back.xmlb");
                 if (Stage.Riser)
                 {
-                    CopyGameFileWStrctr(RiserPath, Path.Combine("effects", "menu"), "riser.xmlb");
-                    CopyGameFileWStrctr(RiserPath, Path.Combine("models", "effects"), "riser.igb");
-                    CopyGameFileWStrctr(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.pkgb");
+                    OHSpath.CopyToGameRel(RiserPath, Path.Combine("effects", "menu"), "riser.xmlb");
+                    OHSpath.CopyToGameRel(RiserPath, Path.Combine("models", "effects"), "riser.igb");
+                    OHSpath.CopyToGameRel(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.pkgb");
                 }
                 else
                 {
-                    CopyGameFileWStrctr(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.bkp.pkgb", "team_back.pkgb");
+                    OHSpath.CopyToGameRel(RiserPath, Path.Combine("packages", "generated", "maps", "package", "menus"), "team_back.bkp.pkgb", "team_back.pkgb");
                 }
             }
         }
@@ -204,7 +204,7 @@ namespace OpenHeroSelectGUI
             StorageFile file = await savePicker.PickSaveFileAsync();
             if (file != null)
             {
-                MUAsettings.Instance.MenulocationsValue = OHSsettings.Instance.RosterValue = file.DisplayName;
+                CfgSt.MUA.MenulocationsValue = CfgSt.OHS.RosterValue = file.DisplayName;
                 SaveSettings(file.Path, file.DisplayName);
             }
         }
@@ -218,7 +218,7 @@ namespace OpenHeroSelectGUI
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
             SaveSettings();
-            _ = MarvelModsXML.TeamBonusSerializer(MarvelModsXML.Team_bonus());
+            _ = MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
         }
 
         /// <summary>
@@ -235,7 +235,7 @@ namespace OpenHeroSelectGUI
             {
                 LoadSettings(IniPath);
                 LoadRosterVal();
-                if (NavView.SelectedItem.GetType() == typeof(Tab_Teams)) { _ = ContentFrame.Navigate(typeof(Tab_Teams), null); }
+                if (NavView.SelectedItem.GetType() == typeof(Tab_Teams)) { _ = ContentFrame.Navigate(typeof(Tab_Teams)); }
                 // Note: This creates a duplicate in the back stack. The stack is currently unused.
             }
         }
@@ -245,9 +245,9 @@ namespace OpenHeroSelectGUI
         private void Window_Closed(object sender, WindowEventArgs args)
         {
             SaveSettings();
-            _ = MarvelModsXML.TeamBonusSerializer(MarvelModsXML.Team_bonus());
-            if (Directory.Exists(Path.Combine(cdPath, "Temp")) && !OHSsettings.Instance.SaveTempFiles)
-                Directory.Delete(Path.Combine(cdPath, "Temp"), true);
+            _ = MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
+            if (Directory.Exists(Path.Combine(OHSpath.CD, "Temp")) && !CfgSt.OHS.SaveTempFiles)
+                Directory.Delete(Path.Combine(OHSpath.CD, "Temp"), true);
         }
     }
 }

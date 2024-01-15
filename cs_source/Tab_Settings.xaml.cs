@@ -1,11 +1,12 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
+using OpenHeroSelectGUI.Functions;
+using OpenHeroSelectGUI.Settings;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using static OpenHeroSelectGUI.Settings.CfgCommands;
 
 namespace OpenHeroSelectGUI
 {
@@ -16,7 +17,8 @@ namespace OpenHeroSelectGUI
     {
         public ObservableCollection<string> SaveBackups { get; } = [];
         public string? Herostat { get; set; }
-        public Settings.Cfg Cfg { get; set; } = new();
+        public Cfg Cfg { get; set; } = new();
+
         public Tab_Settings()
         {
             InitializeComponent();
@@ -43,15 +45,16 @@ namespace OpenHeroSelectGUI
         private void ReadSaveBackups()
         {
             SaveBackups.Clear();
-            foreach (var f in Directory.GetDirectories(GetSaveFolder()))
+            foreach (var f in Directory.GetDirectories(OHSpath.SaveFolder))
             {
                 string Save = Path.GetFileName(f);
                 if (!(Save is "Save" or "Screenshots")) SaveBackups.Add(Save);
             }
         }
         /// <summary>
-        /// Trim a string from the end of a string, if found. By Shane Yu @ StackOverflow
+        /// Trim a <see cref="string"/> (<paramref name="Trim"/>) from the end of another <see cref="string"/> (<paramref name="inputText"/>), if found. By Shane Yu @ StackOverflow
         /// </summary>
+        /// <returns>Trimmed <paramref name="inputText"/></returns>
         private static string TrimEnd(string inputText, string Trim, StringComparison comparisonType = StringComparison.CurrentCultureIgnoreCase)
         {
             if (!string.IsNullOrEmpty(Trim))
@@ -64,23 +67,20 @@ namespace OpenHeroSelectGUI
             return inputText;
         }
         /// <summary>
-        /// Verifies the FixedLengthFN filename for a fixed length defined by a Fallback string.
+        /// Verifies the <paramref name="FixedLengthFN"/> filename for a fixed length defined by a <paramref name="Fallback"/> <see cref="string"/>. Must have same extension as <paramref name="Fallback"/>.
         /// </summary>
-        /// <returns>The FixedLengthFN with extension, or the Fallback string if verification fails</returns>
+        /// <returns>The <paramref name="FixedLengthFN"/> (with <paramref name="Fallback"/> extension), or the <paramref name="Fallback"/> string if verification fails</returns>
         private static string FixedLength(string FixedLengthFN, string Fallback)
         {
-            string Ext = Fallback[Fallback.LastIndexOf('.')..];
-            string NewName = TrimEnd(FixedLengthFN, Ext) + Ext;
-            if (NewName.Length != Fallback.Length)
-            {
-                NewName = Fallback;
-            }
-            return NewName;
+            int Dot = Fallback.LastIndexOf('.');
+            string Ext = Dot == -1 ? "" : Fallback[Dot..];
+            FixedLengthFN = TrimEnd(FixedLengthFN, Ext) + Ext;
+            return FixedLengthFN.Length == Fallback.Length ? FixedLengthFN : Fallback;
         }
         // UI control handlers:
         private async void ExeBrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            if (await LoadDialogue(".exe") is string Exe)
+            if (await CfgCmd.LoadDialogue(".exe") is string Exe)
             {
                 FileInfo? ExeFile = new(Exe);
                 Cfg.OHS.ExeName = ExeFile.Name;
@@ -94,7 +94,7 @@ namespace OpenHeroSelectGUI
         private async void MO2BrowseButton_Click(object sender, RoutedEventArgs e)
         {
             Warning.IsOpen = false;
-            Cfg.OHS.GameInstallPath = await BrowseFolder();
+            Cfg.OHS.GameInstallPath = await CfgCmd.BrowseFolder();
         }
         private void MO2ModFolder_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -106,12 +106,12 @@ namespace OpenHeroSelectGUI
         }
         private async void HBrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            Cfg.OHS.HerostatFolder = TrimGameFolder(await BrowseFolder());
+            Cfg.OHS.HerostatFolder = OHSpath.TrimGameFolder(await CfgCmd.BrowseFolder());
         }
 
         private void FreeSavesButton_Click(object sender, RoutedEventArgs e)
         {
-            MoveSaves("Save", $"{DateTime.Now:yyMMdd-HHmmss}");
+            OHSpath.BackupSaves();
         }
 
         private void RestoreSaves_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -121,8 +121,8 @@ namespace OpenHeroSelectGUI
                 string? Save = RestoreSaves.SelectedValue.ToString();
                 if (!string.IsNullOrEmpty(Save))
                 {
-                    MoveSaves("Save", $"AutoBackup-{DateTime.Now:yyMMdd-HHmmss}");
-                    MoveSaves(Save, "Save");
+                    OHSpath.MoveSaves("Save", $"AutoBackup-{DateTime.Now:yyMMdd-HHmmss}");
+                    OHSpath.MoveSaves(Save, "Save");
                     ReadSaveBackups();
                 }
             }
@@ -130,7 +130,7 @@ namespace OpenHeroSelectGUI
 
         private void OpenSaves_Click(object sender, RoutedEventArgs e)
         {
-            Process.Start("explorer.exe", @$"{GetSaveFolder()}");
+            _ = Process.Start("explorer.exe", @$"{OHSpath.SaveFolder}");
         }
 
         private void RefreshSaves_Click(object sender, RoutedEventArgs e)
@@ -173,6 +173,11 @@ namespace OpenHeroSelectGUI
         private void Charinfo_TextChanged(UIElement sender, LosingFocusEventArgs args)
         {
             CharinfoName.Text = FixedLength(CharinfoName.Text, "charinfo.xmlb");
+        }
+
+        private void TeamBonus_TextChanged(UIElement sender, LosingFocusEventArgs args)
+        {
+            TeamBonusName.Text = FixedLength(TeamBonusName.Text, "team_bonus");
         }
     }
 }

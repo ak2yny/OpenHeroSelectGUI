@@ -41,6 +41,7 @@ call :BuildInstaller %z%
 
 for %%a in (
  createdump.exe
+ RestartAgent.exe
  OpenHeroSelectGUI.pdb
  *.winmd
 ) do move %%a OHSGUI\

@@ -95,10 +95,10 @@
                     <Run x:Name="CharacterName"/>
                     <Run Text="Skin Details"/>
                 </TextBlock>
-                <TextBlock x:Name="CharacterPath" Text="{x:Bind Cfg.Dynamic.FloatingCharacter, Mode=OneWay}" Margin="0 10"/>
+                <TextBlock x:Name="CharacterPath" Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}" Margin="0 10"/>
                 <ListView x:Name="Skins"
                       ItemContainerStyle="{StaticResource SkinItems}"
-                      ItemsSource="{x:Bind Cfg.Skins.SkinsList}"
+                      ItemsSource="{x:Bind Cfg.Roster.SkinsList}"
                       ItemTemplateSelector="{StaticResource SkinTemplateSelector}"
                       AllowDrop="True"
                       CanReorderItems="True"
@@ -127,7 +127,7 @@
             <StackPanel x:Name="SkinInstaller" Margin="10">
                 <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Skin Installer"/>
                 <!--I added this invisible box to run the command when the FloatingCharacter changes. Didn't find another way-->
-                <TextBox Text="{x:Bind Cfg.Dynamic.FloatingCharacter, Mode=OneWay}" TextChanged="FloatingCharacter_Changed" MinWidth="0" Width="0"/>
+                <TextBox Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}" TextChanged="FloatingCharacter_Changed" MinWidth="0" Width="0"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

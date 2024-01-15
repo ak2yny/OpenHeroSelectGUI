@@ -124,7 +124,8 @@
         <SwipeItems Mode="Execute" x:Key="DeleteSwipeMember">
             <SwipeItem IconSource="{StaticResource DeleteIcon}"
                        Background="Red"
-                       Invoked="DeleteSwipeMember_Invoked"/>
+                       Invoked="DeleteSwipeMember_Invoked"
+                       Text="Delete"/>
         </SwipeItems>
         <DataTemplate x:Key="TeamMemberTemplate" x:DataType="settings:TeamMember">
             <SwipeControl RightItems="{StaticResource DeleteSwipeMember}">
@@ -208,7 +209,7 @@
                           KeyboardAcceleratorPlacementMode="Hidden"
                           SelectionChanged="AvailableTeams_SelectionChanged">
                     <ListView.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Delete" Invoked="AvailableTeams_Delete"/>
+                        <KeyboardAccelerator Key="Delete" Invoked="AvailableTeams_Delete" ScopeOwner="{x:Bind AvailableTeams}"/>
                     </ListView.KeyboardAccelerators>
                 </ListView>
                 <!--BorderThickness="1"

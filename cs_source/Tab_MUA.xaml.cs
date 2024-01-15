@@ -2,17 +2,14 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
+using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System;
 using System.IO;
 using System.Linq;
 using System.Xml;
 using Windows.ApplicationModel.DataTransfer;
-using static OpenHeroSelectGUI.Settings.CfgCommands;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
-using static OpenHeroSelectGUI.Settings.GUIXML;
-using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI
 {
@@ -23,7 +20,7 @@ namespace OpenHeroSelectGUI
     {
         public Cfg Cfg { get; set; } = new();
         public string? FloatingLoc { get; set; }
-        public int? SelectedCount { get => Cfg.Roster.Selected.Count; }
+
         public Tab_MUA()
         {
             InitializeComponent();
@@ -38,41 +35,41 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Load the layout, limit, default, model info using saved data.
+        /// Load the layout, limit, default, model info, using saved data.
         /// </summary>
         private void LoadLayout()
         {
-            string CfgLayout = Path.Combine(cdPath, "stages", Cfg.GUI.Layout, "config.xml");
-            string CfgModels = Path.Combine(ModelPath, "config.xml");
+            string CfgLayout = Path.Combine(OHSpath.CD, "stages", Cfg.GUI.Layout, "config.xml");
+            string CfgModels = Path.Combine(OHSpath.Model, "config.xml");
             if (File.Exists(CfgLayout) && File.Exists(CfgModels))
             {
-                Cfg.Dynamic.Layout ??= GetXmlElement(CfgLayout);
-                if (Cfg.Dynamic.Layout is not null)
+                Cfg.Var.Layout ??= GUIXML.GetXmlElement(CfgLayout);
+                if (Cfg.Var.Layout is XmlElement CL)
                 {
-                    Cfg.Dynamic.RosterValueDefault = Cfg.Dynamic.Layout["Default_Roster"]["roster"].InnerText;
-                    Cfg.Dynamic.MenulocationsValueDefault = Cfg.Dynamic.Layout["Default_Roster"]["menulocations"].InnerText;
+                    Cfg.Var.RosterValueDefault = CL["Default_Roster"]!["roster"]!.InnerText;
+                    Cfg.Var.MenulocationsValueDefault = CL["Default_Roster"]!["menulocations"]!.InnerText;
 
-                    double Multiplier = (Cfg.Dynamic.Layout["Location_Setup"].GetAttribute("spacious") == "true") ? 1 : 1.4;
+                    double Multiplier = (CL["Location_Setup"]!.GetAttribute("spacious") == "true") ? 1 : 1.4;
                     double XStretch = 1;
-                    int MinX = (from XmlElement x in Cfg.Dynamic.Layout.GetElementsByTagName("X") select int.Parse(x.InnerText)).Min();
-                    var AllY = from XmlElement y in Cfg.Dynamic.Layout.GetElementsByTagName("Y") select int.Parse(y.InnerText);
+                    int MinX = (from XmlElement x in CL.GetElementsByTagName("X") select int.Parse(x.InnerText)).Min();
+                    var AllY = from XmlElement y in CL.GetElementsByTagName("Y") select int.Parse(y.InnerText);
                     int MinY = AllY.Min();
                     LayoutHeight.MaxHeight = Cfg.GUI.RowLayout ? 5 : (AllY.Max() - MinY) * Multiplier + 30;
                     Locations.Children.Clear();
                     LocationsBox.VerticalAlignment = Cfg.GUI.RowLayout ?
                         VerticalAlignment.Center :
                         VerticalAlignment.Top;
-                    Cfg.Dynamic.LayoutLocs = from XmlElement l in Cfg.Dynamic.Layout["Location_Setup"].ChildNodes select int.Parse(l.GetAttribute("Number"));
-                    Cfg.Roster.Total = Cfg.Dynamic.Layout["Location_Setup"].ChildNodes.Count;
-                    foreach (XmlElement ML in Cfg.Dynamic.Layout["Location_Setup"].ChildNodes)
+                    Cfg.Var.LayoutLocs = from XmlElement l in CL["Location_Setup"]!.ChildNodes select int.Parse(l.GetAttribute("Number"));
+                    Cfg.Roster.Total = CL["Location_Setup"]!.ChildNodes.Count;
+                    foreach (XmlElement ML in CL["Location_Setup"]!.ChildNodes)
                     {
                         string Loc = ML.GetAttribute("Number").PadLeft(2, '0');
-                        double Y = (int.Parse(ML["Y"].InnerText) - MinY) * Multiplier;
-                        double X = int.Parse(ML["X"].InnerText);
+                        double Y = (int.Parse(ML["Y"]!.InnerText) - MinY) * Multiplier;
+                        double X = int.Parse(ML["X"]!.InnerText);
                         if (Cfg.GUI.RowLayout)
                         {
                             XStretch = Math.Abs(X) / (Math.Abs(MinX) * 1.6) + 1;
-                            Y = int.Parse(ML["Z"].InnerText) * 1.7 + Y * (Multiplier - 0.85);
+                            Y = int.Parse(ML["Z"]!.InnerText) * 1.7 + Y * (Multiplier - 0.85);
                         }
                         X = (X * XStretch - MinX * (Cfg.GUI.RowLayout ? 1 / 1.6 + 1 : 1)) * Multiplier;
                         ToggleButton LocButton = new()
@@ -94,24 +91,24 @@ namespace OpenHeroSelectGUI
 
                         Locations.Children.Add(LocButton);
                     }
-                    LayoutDetails.Text = $"Layout: {Cfg.Dynamic.Layout["Information"]["name"].InnerText} for {Cfg.Dynamic.Layout["Information"]["platform"].InnerText}";
-                }
-                StageDetails.Text = "";
-                StageImage.Source = null;
-                if (GetXmlElement(CfgModels) is XmlElement Models
+                    LayoutDetails.Text = $"Layout: {CL["Information"]!["name"]!.InnerText} for {CL["Information"]!["platform"]!.InnerText}";
+                    StageDetails.Text = "";
+                    StageImage.Source = null;
+                    if (GUIXML.GetXmlElement(CfgModels) is XmlElement Models
                         && Models.SelectSingleNode($"descendant::Model[Name=\"{Cfg.GUI.Model}\"]") is XmlElement M
-                        && Cfg.Dynamic.Layout.SelectSingleNode($"descendant::Model[text()='{M.ParentNode.Name}']") is XmlElement CM
-                        && GetStageInfo(M, CM) is StageModel StageItem)
-                {
-                    Cfg.Dynamic.SelectedStage = StageItem;
-                    StageDetails.Text = $"Model: {StageItem.Name} by {StageItem.Creator}";
-                    StageImage.Source = StageItem.Image;
+                        && M.ParentNode is XmlElement P
+                        && CL.SelectSingleNode($"descendant::Model[text()='{P.Name}']") is XmlElement CM
+                        && GUIXML.GetStageInfo(M, CM) is StageModel StageItem)
+                    {
+                        Cfg.Var.SelectedStage = StageItem;
+                        StageDetails.Text = $"Model: {StageItem.Name} by {StageItem.Creator}";
+                        StageImage.Source = StageItem.Image;
+                    }
                 }
             }
-            UpdateLocBoxes();
         }
         /// <summary>
-        /// Update the state of all location boxes. Required after each add process except when clicked (or dragged?).
+        /// Update the state of all location boxes. Required after each add and remove process except when clicked or dragged on unoccupied locations.
         /// </summary>
         private void UpdateLocBoxes()
         {
@@ -121,10 +118,7 @@ namespace OpenHeroSelectGUI
             }
         }
         // Control handlers:
-        private void BtnRunGame_Click(object sender, RoutedEventArgs e)
-        {
-            RunGame(Cfg.GUI.GameInstallPath, Cfg.OHS.ExeName, Cfg.GUI.ExeArguments);
-        }
+        private void BtnRunGame_Click(object sender, RoutedEventArgs e) => Util.RunGame();
 
         private void BtnUnlockAll_Click(object sender, RoutedEventArgs e)
         {
@@ -134,30 +128,34 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Roster Hack switch: A red number warns us about missing roster hack files.
+        /// Roster Hack switch: A message warns us about potentially missing roster hack files.
         /// </summary>
         private void RosterHack_Toggled(object sender, RoutedEventArgs e)
         {
-            string GamePath = string.IsNullOrEmpty(Cfg.GUI.GameInstallPath)
-                ? Cfg.OHS.GameInstallPath
-                : Cfg.GUI.GameInstallPath;
-            string dinput = Path.Combine(GamePath, "dinput8.dll");
-            if (File.Exists(dinput)) { dinput = File.ReadAllText(dinput); }
-            bool RHFilesExist = Directory.Exists(Path.Combine(GamePath, "plugins")) && dinput.Contains("asi-loader");
-
-            RosterHackToggle.Foreground = RosterHackToggle.IsOn && !RHFilesExist
-                ? new SolidColorBrush(Microsoft.UI.Colors.Red)
-                : UnlockToggle.Foreground;
-            RosterHackToggle.Header = RosterHackToggle.IsOn
-                ? RHFilesExist
-                ? "(Roster Hack)"
-                : "(RH not found!)"
-                : "(Default)";
+            if (RosterHackToggle.IsOn)
+            {
+                string GamePath = string.IsNullOrEmpty(Cfg.GUI.GameInstallPath)
+                    ? Cfg.OHS.GameInstallPath
+                    : Cfg.GUI.GameInstallPath;
+                string dinput = Path.Combine(GamePath, "dinput8.dll");
+                if (File.Exists(dinput)) { dinput = File.ReadAllText(dinput); }
+                RHInfo.Message = $"Roster hack (RH) not detected in '{GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. The RH fixes a crash when using more than 27 characters.";
+                RHInfo.IsOpen = !Directory.Exists(Path.Combine(GamePath, "plugins")) || !dinput.Contains("asi-loader");
+            }
+            else
+            {
+                RHInfo.IsOpen = false;
+            }
         }
         /// <summary>
-        /// Reload stage info from configuration files and images.
+        /// Re-load stage info from configuration files and images.
         /// </summary>
-        private void RefreshStages_Click(object sender, RoutedEventArgs e) => LoadLayout();
+        private void RefreshStages_Click(object sender, RoutedEventArgs e)
+        {
+            LoadLayout();
+            UpdateLocBoxes();
+        }
+
         /// <summary>
         /// Open the stage selection tab.
         /// </summary>
@@ -168,19 +166,22 @@ namespace OpenHeroSelectGUI
 
         private void LocButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is ToggleButton LocBox) AddToSelectedMUA(LocBox);
+            if (sender is ToggleButton LocBox) { AddToSelectedMUA(LocBox); }
         }
 
         private void LocButton_Drop(object sender, DragEventArgs e)
         {
-            if (sender is ToggleButton LocBox) AddToSelectedMUA(LocBox);
+            if (sender is ToggleButton LocBox) { AddToSelectedMUA(LocBox); }
         }
+        /// <summary>
+        /// Add the floating character to the selected list on location <paramref name="LocBox"/>
+        /// </summary>
         private void AddToSelectedMUA(ToggleButton LocBox)
         {
-            if (!string.IsNullOrEmpty(Cfg.Dynamic.FloatingCharacter))
+            if (!string.IsNullOrEmpty(Cfg.Var.FloatingCharacter))
             {
-                if (AddToSelected(LocBox.Content.ToString(), Cfg.Dynamic.FloatingCharacter)) { UpdateLocBoxes(); }
-                UpdateClashes();
+                if (AddToSelected(LocBox.Content.ToString(), Cfg.Var.FloatingCharacter)) { UpdateLocBoxes(); }
+                UpdateClashes(false);
             }
             LocBox.IsChecked = Cfg.Roster.Selected.Any(c => c.Loc == LocBox.Content.ToString());
         }
@@ -189,7 +190,6 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void LocButton_PointerEntered(object sender, PointerRoutedEventArgs e)
         {
-            // we may need an event to clear the floating character on exit, but it's probably better to not, so it stays available until entering the next location.
             if (sender is ToggleButton Loc)
             {
                 FloatingLoc = Loc.Content as string;
@@ -228,7 +228,7 @@ namespace OpenHeroSelectGUI
         private void SelectedCharacters_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = $"{Cfg.Dynamic.FloatingCharacter}";
+            e.DragUIOverride.Caption = $"{Cfg.Var.FloatingCharacter}";
         }
         /// <summary>
         /// Define the drop event for dropped characters
@@ -236,10 +236,9 @@ namespace OpenHeroSelectGUI
         private void SelectedCharacters_Drop(object sender, DragEventArgs e)
         {
             SelectedCharactersDropArea.Visibility = Visibility.Collapsed;
-            if (Cfg.Dynamic.FloatingCharacter is string FC)
+            if (Cfg.Var.FloatingCharacter is string FC)
             {
                 _ = AddToSelected(FC);
-                UpdateLocBoxes();
                 UpdateClashes();
             }
         }
@@ -248,28 +247,21 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void MUA_LoadDefault(object sender, RoutedEventArgs e)
         {
-            LoadRosterVal(Cfg.Dynamic.RosterValueDefault, Cfg.Dynamic.MenulocationsValueDefault);
-            UpdateLocBoxes();
+            LoadRosterVal(Cfg.Var.RosterValueDefault, Cfg.Var.MenulocationsValueDefault);
         }
         /// <summary>
         /// Browse for a roster file to load. Populates according to the layout setup, should be left to right. Currently ignores menulocation files.
         /// </summary>
-        private async void MUA_LoadRoster(SplitButton sender, SplitButtonClickEventArgs args)
+        private void MUA_LoadRoster(SplitButton sender, SplitButtonClickEventArgs args)
         {
-            string? RosterValue = await LoadDialogue(".cfg");
-            if (RosterValue != null)
-            {
-                LoadRoster(RosterValue);
-                UpdateLocBoxes();
-            }
+            LoadRosterBrowse();
         }
         /// <summary>
-        /// Generate a random character list from the available characters.
+        /// Generate a <see cref="Random"/> character list from the available characters.
         /// </summary>
         private void MUA_Random(object sender, RoutedEventArgs e)
         {
             LoadRandomRoster();
-            UpdateLocBoxes();
         }
         /// <summary>
         /// Clear the selected roster list
@@ -278,11 +270,11 @@ namespace OpenHeroSelectGUI
         {
             Cfg.Roster.Selected.Clear();
             Cfg.Roster.NumClash = false;
-            UpdateLocBoxes();
+            foreach (ToggleButton LocBox in Locations.Children.Cast<ToggleButton>()) { LocBox.IsChecked = false; }
         }
-
-        private void SelectedCharacters_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args) => UpdateLocBoxes();
-
-        private void AvailableCharacters_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e) => UpdateLocBoxes();
+        /// <summary>
+        /// Invoked when the text of a hidden text box changes, which happens on UpdateClash events, due to binding.
+        /// </summary>
+        private void ClashesUpdated(object sender, TextChangedEventArgs e) => UpdateLocBoxes();
     }
 }
