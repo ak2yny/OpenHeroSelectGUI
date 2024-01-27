@@ -21,7 +21,7 @@ namespace OpenHeroSelectGUI.Functions
         /// </summary>
         public static string Game => CfgSt.GUI.Game == "" ? "mua" : CfgSt.GUI.Game;
         /// <summary>
-        /// Get the saves folder for the current tab (game).
+        /// Get the saves folder for the current tab (game). Must be checked for existence.
         /// </summary>
         public static string SaveFolder => Path.Combine(Activision, Game == "xml2" ? "X-Men Legends 2" : "Marvel Ultimate Alliance");
         public static string Team_bonus => Path.Combine(CD, Game, "team_bonus.engb.xml");
@@ -125,20 +125,24 @@ namespace OpenHeroSelectGUI.Functions
             DateTime Date = Herostat.Exists
                 ? Herostat.LastWriteTime
                 : DateTime.Now;
-            MoveSaves("Save", $"{Date:yyMMdd-HHmmss}");
-            if (Herostat.Exists) { _ = Herostat.CopyTo(Path.Combine(SaveFolder, $"{Date:yyMMdd-HHmmss}", CfgSt.OHS.HerostatName)); }
+            if (Herostat.Exists && MoveSaves("Save", $"{Date:yyMMdd-HHmmss}"))
+            {
+                _ = Herostat.CopyTo(Path.Combine(SaveFolder, $"{Date:yyMMdd-HHmmss}", CfgSt.OHS.HerostatName));
+            }
         }
 
         /// <summary>
         /// Move folders in the game's save location by providing names.
         /// </summary>
-        public static void MoveSaves(string From, string To)
+        public static bool MoveSaves(string From, string To)
         {
             DirectoryInfo Source = new(Path.Combine(SaveFolder, From));
             if (Source.Exists && Source.EnumerateFiles().Any())
             {
                 Source.MoveTo(Path.Combine(SaveFolder, To));
+                return true;
             }
+            return false;
         }
     }
 }
