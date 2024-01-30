@@ -16,13 +16,21 @@ namespace OpenHeroSelectGUI
     public partial class Tab_Settings : Page
     {
         public ObservableCollection<string> SaveBackups { get; } = [];
-        public string? Herostat { get; set; }
         public Cfg Cfg { get; set; } = new();
+        public string[] DataExt = [
+            "English (engb)",
+            "Italian (itab)",
+            "French (freb)",
+            "Spanish (spab)",
+            "German (gerb)",
+            "Russian (rusb)",
+            "Polish (polb)",
+            "None (xmlb)"
+        ];
 
         public Tab_Settings()
         {
             InitializeComponent();
-            LoadCfg();
             ReadSaveBackups();
         }
         /// <summary>
@@ -34,12 +42,8 @@ namespace OpenHeroSelectGUI
             {
                 if (Cfg.OHS.HerostatName is string HS && HS.LastIndexOf('.') is int DH && DH > 0 && DH < (HS.Length - 3))
                 {
-                    Herostat = HS.Remove(DH);
-                    LanguageCode.SelectedItem = LanguageCode.FindName(HS.Substring(DH + 1, 3));
-                }
-                if (Cfg.OHS.ExeName is string EX && EX.LastIndexOf('.') is int DE)
-                {
-                    ExeName.Text = (DE > 0) ? EX.Remove(DE) : Cfg.GUI.Game == "xml2" ? "Xmen" : "Game";
+                    HerostatName.Text = HS.Remove(DH);
+                    LanguageCode.SelectedIndex = Array.FindIndex(DataExt, w => w.Contains(HS[(DH + 1)..]));
                 }
             }
         }
@@ -81,7 +85,7 @@ namespace OpenHeroSelectGUI
             string NewName = Fallback.LastIndexOf('.') is int Dot && Dot > 0 && Fallback[Dot..] is string Ext
                 ? TrimEnd(FixedLengthFN, Ext) + Ext
                 : FixedLengthFN;
-            return NewName.Length == Fallback.Length ? NewName : Fallback;
+            return NewName.Length > Fallback.Length || string.IsNullOrWhiteSpace(FixedLengthFN) ? Fallback : NewName;
         }
         // UI control handlers:
         private async void ExeBrowseButton_Click(object sender, RoutedEventArgs e)
@@ -150,12 +154,13 @@ namespace OpenHeroSelectGUI
         private void Herostat_TextChanged(UIElement sender, LosingFocusEventArgs args)
         {
             HerostatName.Text = FixedLength(HerostatName.Text, "herostat");
-            Cfg.OHS.HerostatName = $"{HerostatName.Text}.{((ComboBoxItem)LanguageCode.SelectedItem).Name}b";
+            Cfg.OHS.HerostatName = HerostatName.Text + DataExt[LanguageCode.SelectedIndex][^5..^1];
         }
 
         private void Language_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            Cfg.OHS.HerostatName = $"{HerostatName.Text}.{((ComboBoxItem)LanguageCode.SelectedItem).Name}b";
+            //if (LanguageCode.SelectedIndex > -1) { return; }
+            Cfg.OHS.HerostatName = HerostatName.Text + DataExt[LanguageCode.SelectedIndex][^5..^1];
         }
 
         private void NewGamePy_TextChanged(UIElement sender, LosingFocusEventArgs args)
@@ -181,6 +186,11 @@ namespace OpenHeroSelectGUI
         private void TeamBonus_TextChanged(UIElement sender, LosingFocusEventArgs args)
         {
             TeamBonusName.Text = FixedLength(TeamBonusName.Text, "team_bonus");
+        }
+
+        private void SettingsCard_Loaded(object sender, RoutedEventArgs e)
+        {
+            LoadCfg();
         }
     }
 }

@@ -252,7 +252,9 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Browse for a roster file to load. Populates according to the layout setup, should be left to right. Currently ignores menulocation files.
         /// </summary>
+#pragma warning disable CA1822 // Mark members as static
         private void MUA_LoadRoster(SplitButton sender, SplitButtonClickEventArgs args)
+#pragma warning restore CA1822 // Mark members as static
         {
             LoadRosterBrowse();
         }

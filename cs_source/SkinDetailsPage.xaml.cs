@@ -542,7 +542,7 @@ namespace OpenHeroSelectGUI
         {
             if (sender is ToolTip Tt && Skins.SelectedItem is SkinDetails Skin)
             {
-                Tt.Content = $"Browse for Emma Frost's Diamond Form skin to install as {Skin.CharNum}{GetDiamondFormNumber(Skin.Number)}.igb - Works for other characters that use this system";
+                Tt.Content = $"Browse for Emma Frost's Diamond Form skin to install as {Skin.CharNum}{GetDiamondFormNumber(Skin.Number).ToString().PadLeft(2, '0')}.igb - Works for other characters that use this system";
             }
         }
 
@@ -558,7 +558,7 @@ namespace OpenHeroSelectGUI
         {
             if (Skins.SelectedItem is SkinDetails Skin)
             {
-                InstallSkinFiles("actors", $"{Skin.CharNum}{GetDiamondFormNumber(Skin.Number)}");
+                InstallSkinFiles("actors", $"{Skin.CharNum}{GetDiamondFormNumber(Skin.Number).ToString().PadLeft(2, '0')}");
             }
         }
 

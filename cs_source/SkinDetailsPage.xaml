@@ -29,10 +29,10 @@
                             </SwipeItems>
                         </SwipeControl.RightItems>
                         <Grid VerticalAlignment="Center">
-                            <StackPanel x:Name="SkinDetails" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="CharacterNumber" Text="{x:Bind CharNum}" Margin="5"/>
+                            <StackPanel x:Name="SkinDetails" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                                <TextBlock x:Name="CharacterNumber" Text="{x:Bind CharNum}" Margin="0 5"/>
                                 <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging" LosingFocus="SkinNumber_LosingFocus"/>
-                                <TextBox x:Name="SkinName" Text="{x:Bind Name, Mode=TwoWay}" Margin="5 0" MinWidth="150"/>
+                                <TextBox x:Name="SkinName" Text="{x:Bind Name, Mode=TwoWay}" MinWidth="150"/>
                                 <Canvas x:Name="SpaceForButton" Background="{ThemeResource AppBarItemBackgroundThemeBrush}" MinWidth="70"/>
                             </StackPanel>
                             <AppBarButton x:Name="HoverButton" Command="{x:Bind Command}" CommandParameter="{x:Bind Number}" IsTabStop="False" HorizontalAlignment="Right" Visibility="Collapsed"/>
@@ -61,10 +61,10 @@
                             </SwipeItems>
                         </SwipeControl.RightItems>
                         <Grid VerticalAlignment="Center">
-                            <StackPanel x:Name="SkinDetails" Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock x:Name="CharacterNumber" Text="{x:Bind CharNum}" Margin="5" VerticalAlignment="Center"/>
-                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging"/>
-                                <TextBlock x:Name="SkinNameXML2" Text="{x:Bind Name}" Margin="10 0" MinWidth="150" VerticalAlignment="Center"/>
+                            <StackPanel x:Name="SkinDetails" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
+                                <TextBlock x:Name="CharacterNumber" Text="{x:Bind CharNum}" Margin="0 5"/>
+                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging" LosingFocus="SkinNumber_LosingFocus"/>
+                                <TextBlock x:Name="SkinNameXML2" Text="{x:Bind Name}" Margin="5" MinWidth="150"/>
                                 <Canvas x:Name="SpaceForButton" Background="{ThemeResource AppBarItemBackgroundThemeBrush}" MinWidth="70"/>
                             </StackPanel>
                             <AppBarButton x:Name="HoverButton" Command="{x:Bind Command}" CommandParameter="{x:Bind Number}" IsTabStop="False" HorizontalAlignment="Right" Visibility="Collapsed"/>
@@ -90,12 +90,12 @@
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
         <ScrollViewer Margin="10">
-            <StackPanel>
+            <StackPanel Spacing="10">
                 <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}">
                     <Run x:Name="CharacterName"/>
                     <Run Text="Skin Details"/>
                 </TextBlock>
-                <TextBlock x:Name="CharacterPath" Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}" Margin="0 10"/>
+                <TextBlock x:Name="CharacterPath" Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}"/>
                 <ListView x:Name="Skins"
                       ItemContainerStyle="{StaticResource SkinItems}"
                       ItemsSource="{x:Bind Cfg.Roster.SkinsList}"
@@ -113,8 +113,8 @@
                         <RowDefinition Height="Auto"/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
-                    <StackPanel x:Name="AddButton" Orientation="Horizontal" Margin="0 10">
-                        <TextBlock x:Name="AddCharNum" Margin="21 0 5 0" VerticalAlignment="Center"/>
+                    <StackPanel x:Name="AddButton" Orientation="Horizontal">
+                        <TextBlock x:Name="AddCharNum" Margin="16 0 5 0" VerticalAlignment="Center"/>
                         <Button x:Name="AddSkinSlot" Click="AddSkinSlot_Click" Padding="10 5">
                             <SymbolIcon>Add</SymbolIcon>
                         </Button>
@@ -124,10 +124,10 @@
             </StackPanel>
         </ScrollViewer>
         <ScrollViewer Grid.Column="1">
-            <StackPanel x:Name="SkinInstaller" Margin="10">
+            <StackPanel x:Name="SkinInstaller" Margin="10" Spacing="10">
                 <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Skin Installer"/>
                 <!--I added this invisible box to run the command when the FloatingCharacter changes. Didn't find another way-->
-                <TextBox Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}" TextChanged="FloatingCharacter_Changed" MinWidth="0" Width="0"/>
+                <TextBox Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}" TextChanged="FloatingCharacter_Changed" Height="20" MinHeight="20" MinWidth="0" Width="0"/>
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -161,7 +161,7 @@
                     </Button>
                     <Button Grid.Row="2" Grid.Column="3" Content="..." Click="InstallExtraSkin_Click" FontWeight="Bold" ToolTipService.ToolTip="Browse for skin for skin swapping (shape changers etc.)"/>
                 </Grid>
-                <ComboBox x:Name="MUAplatforms" Header="Select the target platform:" Margin="0 10">
+                <ComboBox x:Name="MUAplatforms" Header="Select the target platform:">
                     <ComboBoxItem Content="PC 2006"/>
                     <ComboBoxItem Content="PS2"/>
                     <ComboBoxItem Content="PS3"/>
@@ -172,7 +172,7 @@
                     <ComboBoxItem Content="Xbox 360"/>
                     <ComboBoxItem Content="Xbox One, Steam"/>
                 </ComboBox>
-                <ComboBox x:Name="XML2platforms" Header="Select the target platform:" Margin="0 10">
+                <ComboBox x:Name="XML2platforms" Header="Select the target platform:">
                     <ComboBoxItem Content="PC"/>
                     <ComboBoxItem Content="Gamecube"/>
                     <ComboBoxItem Content="PS2"/>

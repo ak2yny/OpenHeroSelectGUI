@@ -86,7 +86,7 @@
             </NavigationView.FooterMenuItems>
             <Frame x:Name="ContentFrame" />
         </NavigationView>
-        <StackPanel Grid.Row="1" Margin="68 0 20 20" VerticalAlignment="Bottom">
+        <StackPanel Grid.Row="1" Margin="68 0 20 20" Spacing="2" VerticalAlignment="Bottom">
             <InfoBar x:Name="OHSWarning"
                      Severity="Warning"
                      Title="Warning"/>

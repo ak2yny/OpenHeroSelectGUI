@@ -128,7 +128,9 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Browse for a roster file to load.
         /// </summary>
+#pragma warning disable CA1822 // Mark members as static
         private void XML2_LoadRoster(SplitButton sender, SplitButtonClickEventArgs args)
+#pragma warning restore CA1822 // Mark members as static
         {
             LoadRosterBrowse();
         }

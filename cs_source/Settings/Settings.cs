@@ -108,6 +108,8 @@ namespace OpenHeroSelectGUI.Settings
         private string exeArguments;
         [ObservableProperty]
         private string teamBonusName;
+        [ObservableProperty]
+        private bool modPack;
         // MUA specific settings
         [ObservableProperty]
         private string layout;
@@ -169,10 +171,6 @@ namespace OpenHeroSelectGUI.Settings
         private bool xML2;
         [ObservableProperty]
         private bool mUA;
-        [ObservableProperty]
-        private Visibility vXML2;
-        [ObservableProperty]
-        private Visibility vMUA;
 
         partial void OnXML2Changed(bool value)
         {
@@ -182,19 +180,9 @@ namespace OpenHeroSelectGUI.Settings
         {
             UpdateFolder(!value);
         }
-        partial void OnVMUAChanged(Visibility value)
-        {
-            UpdateFolder(value == Visibility.Collapsed);
-        }
-        partial void OnVXML2Changed(Visibility value)
-        {
-            UpdateFolder(value == Visibility.Visible);
-        }
         partial void OnFolderChanged(string? value)
         {
             MUA = !(XML2 = value == "xml2");
-            VXML2 = value == "xml2" ? Visibility.Visible : Visibility.Collapsed;
-            VMUA = value != "xml2" ? Visibility.Visible : Visibility.Collapsed;
         }
         private void UpdateFolder(bool IsX)
         {
@@ -236,6 +224,9 @@ namespace OpenHeroSelectGUI.Settings
     /// </summary>
     public class CfgCmd
     {
+        private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        private static readonly JsonSerializerOptions JsonOptionsD = new() { PropertyNameCaseInsensitive = true };
+
         /// <summary>
         /// Open file dialogue.
         /// </summary>
@@ -291,25 +282,55 @@ namespace OpenHeroSelectGUI.Settings
         {
             if (File.Exists(Oini))
             {
-                // Important note: Json deserialization doesn't activate the property changed event, which `CfgSt.OHS.ExeName = "Game.exe";` does (for example). OHS settings (all 3) need to use the static instance therefore, except in Xaml, where the instances all are updated anyway.
-                JsonSerializerOptions options = new() { PropertyNameCaseInsensitive = true };
                 CfgSt.OHS = CfgSt.GUI.Game == "xml2"
-                    ? (CfgSt.XML2 = JsonSerializer.Deserialize<XML2settings>(File.ReadAllText(Oini), options)!)
-                    : (CfgSt.MUA = JsonSerializer.Deserialize<MUAsettings>(File.ReadAllText(Oini), options)!);
+                    ? (CfgSt.XML2 = JsonSerializer.Deserialize<XML2settings>(File.ReadAllText(Oini), JsonOptionsD)!)
+                    : (CfgSt.MUA = JsonSerializer.Deserialize<MUAsettings>(File.ReadAllText(Oini), JsonOptionsD)!);
                 CfgSt.OHS.RosterValue = FilterDefaultRV(CfgSt.OHS.RosterValue);
                 CfgSt.MUA.MenulocationsValue = FilterDefaultMV(CfgSt.MUA.MenulocationsValue);
                 CharacterListCommands.LoadRosterVal();
             }
         }
         /// <summary>
+        /// Save OHS settings in JSON &amp; GUI settings in XML to the default location. Saves CFG files according to these settings. Use default names if mod pack setting is disabled.
+        /// </summary>
+        public static void SaveSettingsMP()
+        {
+            XML2settings XS = new();
+            MUAsettings MS = new();
+            if (!CfgSt.GUI.ModPack)
+            {
+                MS.RosterValue = XS.RosterValue = CfgSt.OHS.RosterValue;
+                MS.GameInstallPath = XS.GameInstallPath = CfgSt.OHS.GameInstallPath;
+                MS.ExeName = XS.ExeName = CfgSt.OHS.ExeName;
+                MS.Unlocker = XS.Unlocker = CfgSt.OHS.Unlocker;
+                MS.LaunchGame = XS.LaunchGame = CfgSt.OHS.LaunchGame;
+                MS.SaveTempFiles = XS.SaveTempFiles = CfgSt.OHS.SaveTempFiles;
+                MS.ShowProgress = XS.ShowProgress = CfgSt.OHS.ShowProgress;
+                MS.DebugMode = XS.DebugMode = CfgSt.OHS.DebugMode;
+                MS.HerostatFolder = XS.HerostatFolder = CfgSt.OHS.HerostatFolder;
+                MS.MenulocationsValue = CfgSt.MUA.MenulocationsValue;
+                MS.RosterHack = CfgSt.MUA.RosterHack;
+                XS.RosterSize = CfgSt.XML2.RosterSize;
+                XS.UnlockSkins = CfgSt.XML2.UnlockSkins;
+            }
+            object Cfg = !CfgSt.GUI.ModPack
+                ? CfgSt.GUI.Game == "xml2"
+                ? XS
+                : MS
+                : CfgSt.GUI.Game == "xml2"
+                ? CfgSt.XML2
+                : CfgSt.MUA;
+            SaveIniXml(OHSpath.FilePath("config.ini"), Path.Combine(OHSpath.CD, "config.xml"), Cfg);
+            GenerateCfgFiles(CfgSt.OHS.RosterValue, CfgSt.MUA.MenulocationsValue);
+        }
+        /// <summary>
         /// Save OHS settings in JSON &amp; GUI settings in XML to the default location. Saves CFG files according to these settings.
         /// </summary>
         public static void SaveSettings()
         {
-            SaveIniXml(Path.Combine(OHSpath.CD, CfgSt.GUI.Game, "config.ini"), Path.Combine(OHSpath.CD, "config.xml"));
+            SaveIniXml(OHSpath.FilePath("config.ini"), Path.Combine(OHSpath.CD, "config.xml"));
             GenerateCfgFiles(CfgSt.OHS.RosterValue, CfgSt.MUA.MenulocationsValue);
         }
-
         /// <summary>
         /// Save OHS settings in JSON &amp; GUI settings in XML by providing a path (<paramref name="Oini"/>). Saves roster and menulocations to <paramref name="rv"/>.cfg files.
         /// </summary>
@@ -319,24 +340,24 @@ namespace OpenHeroSelectGUI.Settings
             GenerateCfgFiles(rv, rv);
             _ = MarvelModsXML.TeamBonusSerializer($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml");
         }
-
         /// <summary>
         /// Save OHS settings in JSON (<paramref name="Oini"/>) &amp; GUI settings in XML (<paramref name="Gini"/>) by providing both paths.
         /// </summary>
-        private static void SaveIniXml(string Oini, string Gini)
+        private static void SaveIniXml(string Oini, string Gini) => SaveIniXml(Oini, Gini, (CfgSt.GUI.Game == "xml2") ? CfgSt.XML2 : CfgSt.MUA);
+        /// <summary>
+        /// Save OHS settings in JSON (<paramref name="Oini"/>) &amp; GUI settings in XML (<paramref name="Gini"/>) by providing both paths and the <paramref name="GameCfg"/> class.
+        /// </summary>
+        private static void SaveIniXml(string Oini, string Gini, object GameCfg)
         {
             // JSON
             string? Opath = Path.GetDirectoryName(Oini);
             if (string.IsNullOrEmpty(Opath)) return;
             _ = Directory.CreateDirectory(Opath);
-            var JsonOptions = new JsonSerializerOptions { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
-            string JsonString = (CfgSt.GUI.Game == "xml2") ?
-                    JsonSerializer.Serialize(CfgSt.XML2, JsonOptions) :
-                    JsonSerializer.Serialize(CfgSt.MUA, JsonOptions);
+            string JsonString = JsonSerializer.Serialize(GameCfg, JsonOptions);
             // Using the MVVM toolkit generates an IsActive property which gets serialized, unfortunately. I didn't find a solution, yet.
             string[] JsonSplit = JsonString.Split(Environment.NewLine).Where(l => !l.Contains("\"isActive\":")).ToArray();
             JsonSplit[^2] = JsonSplit[^2].TrimEnd().TrimEnd(',');
-            File.WriteAllText(Oini, string.Join(Environment.NewLine, JsonSplit));
+            File.WriteAllLines(Oini, JsonSplit);
 
             // XML
             XmlSerializer XS = new(typeof(GUIsettings));
@@ -354,7 +375,7 @@ namespace OpenHeroSelectGUI.Settings
                 {
                     WriteCfg(Path.Combine(OHSpath.CD, "mua", "menulocations", $"{mv}.cfg"), 0);
                 }
-                WriteCfg(Path.Combine(OHSpath.CD, CfgSt.GUI.Game, "rosters", $"{rv}.cfg"), 2);
+                WriteCfg(OHSpath.FilePath(Path.Combine("rosters", $"{rv}.cfg")), 2);
             }
         }
         /// <summary>

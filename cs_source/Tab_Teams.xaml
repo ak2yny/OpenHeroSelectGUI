@@ -200,7 +200,7 @@
             </TextBlock>
         </Grid>
         <ScrollViewer Grid.Row="1" Margin="10">
-            <StackPanel>
+            <StackPanel Spacing="5">
                 <ListView x:Name="AvailableTeams"
                           AllowDrop="True"
                           CanReorderItems="True"
@@ -212,15 +212,11 @@
                         <KeyboardAccelerator Key="Delete" Invoked="AvailableTeams_Delete" ScopeOwner="{x:Bind AvailableTeams}"/>
                     </ListView.KeyboardAccelerators>
                 </ListView>
+                <Button x:Name="AddTeam" Click="AddTeam_Click" Margin="40 0" Padding="10 5">
+                    <SymbolIcon>Add</SymbolIcon>
+                </Button>
                 <!--BorderThickness="1"
                   BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
-                <Grid>
-                    <StackPanel x:Name="AddButton" Orientation="Horizontal" Margin="40 10">
-                        <Button x:Name="AddTeam" Click="AddTeam_Click" Padding="10 5">
-                            <SymbolIcon>Add</SymbolIcon>
-                        </Button>
-                    </StackPanel>
-                </Grid>
             </StackPanel>
         </ScrollViewer>
         <ContentPresenter x:Name="TeamMembersPresenter"

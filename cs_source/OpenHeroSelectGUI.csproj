@@ -17,7 +17,7 @@
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
     <Description>Graphical User Interface for Open Hero Select</Description>
-    <VersionPrefix>0.3.1</VersionPrefix>
+    <VersionPrefix>0.3.2</VersionPrefix>
     <Version>$(VersionPrefix)-beta</Version>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
@@ -30,6 +30,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="AvailableCharacters.xaml" />
+    <None Remove="Controls\SettingsCardContent.xaml" />
     <None Remove="SelectedCharacters.xaml" />
     <None Remove="SkinDetailsPage.xaml" />
     <None Remove="Tab_Info.xaml" />
@@ -150,6 +151,12 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="Tab_Info.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Controls\SettingsCardContent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

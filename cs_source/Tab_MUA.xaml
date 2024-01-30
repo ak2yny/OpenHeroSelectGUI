@@ -33,13 +33,13 @@
                 </Button>
                 <ScrollViewer Grid.Column="1" Grid.RowSpan="2" HorizontalScrollBarVisibility="Auto" Margin="0 6" VerticalAlignment="Top">
                     <StackPanel Orientation="Horizontal">
-                        <ToggleSwitch Grid.Column="0" MinWidth="105" Header="Update Unlocks" x:Name="UnlockToggle" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
+                        <ToggleSwitch Grid.Column="0" MinWidth="105" Header="Update Unlocks" x:Name="UnlockToggle" IsOn="{x:Bind Cfg.MUA.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="Also updates the starting characters. If off, any previously saved unlock scripts will be used."/>
                         <ToggleSwitch Grid.Column="1" MinWidth="105" Header="Character Limit" x:Name="RosterHackToggle" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" OffContent="27" OnContent="50" ToolTipService.ToolTip="Enable the roster hack (RH) limit of 50 characters" Toggled="RosterHack_Toggled"/>
                         <ToggleSwitch Grid.Column="2" MinWidth="105" Header="Update Stage" x:Name="StageToggle" IsOn="{x:Bind Cfg.GUI.CopyStage, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="Switch this on to copy the selected stage to the game files (mod folder). Leave this on to be save. Turn this off to avoid unnecessary copy processes when the stage or effects haven't been changed."/>
                         <ToggleSwitch Grid.Column="3" MinWidth="105" Header="Effects Limit" x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" OffContent="Off" OnContent="On" ToolTipService.ToolTip="Only the first two mannequin effects are used if this is on. Otherwise all effects are used, but only effects on locations 03 and 24 are hidden in the F12 menu."/>
                     </StackPanel>
                 </ScrollViewer>
-                <StackPanel Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal">
+                <StackPanel Grid.ColumnSpan="2" Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal" Spacing="3">
                     <Button x:Name="SelectStage" Click="SelectStage_Click" Content="Select Stage" VerticalAlignment="Bottom"/>
                     <Button x:Name="RefreshStages" Click="RefreshStages_Click" VerticalAlignment="Bottom" HorizontalAlignment="Left" ToolTipService.ToolTip="Refresh stage info">
                         <SymbolIcon>Refresh</SymbolIcon>
@@ -72,8 +72,7 @@
                 <RowDefinition/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" MaxWidth="450">
-            </Frame>
+            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" MaxWidth="450"/>
             <Canvas x:Name="SelectedCharactersDropArea" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop" DragLeave="SelectedCharacters_DragLeave" Visibility="Collapsed"/>
             <StackPanel x:Name="MUAButtons" Grid.Row="1" Orientation="Horizontal">
                 <SplitButton x:Name="BtnLoadRoster" Content="Load ..." Click="MUA_LoadRoster" ToolTipService.ToolTip="Load roster from an OHS .cfg file in the rosters folder - Matches characters top-down > left-right, unless the menulocations have been customized">

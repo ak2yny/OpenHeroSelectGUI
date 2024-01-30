@@ -125,14 +125,14 @@ namespace OpenHeroSelectGUI
                     OHSWarning.IsOpen = !(OHSRunning.IsOpen = true);
                     await Task.Run(() =>
                     {
-                        SaveSettings();
+                        SaveSettingsMP();
                         InstallStage();
                         MarvelModsXML.TeamBonusCopy();
                         if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
 
-                        Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2") ?
-                            "-a -x" :
-                            "-a");
+                        Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2")
+                            ? "-a -x"
+                            : "-a");
                     });
                     string elog = Path.Combine(OHSpath.CD, "error.log");
                     if (File.Exists(elog))

@@ -13,26 +13,25 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <StackPanel Margin="0 0 20 0">
-            <TextBlock x:Uid="Info_About" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5"/>
-            <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-            <TextBlock Style="{ThemeResource BodyTextBlockStyle}" Margin="5">
+        <StackPanel Margin="0 0 20 0" Spacing="10">
+            <TextBlock x:Uid="Info_About" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+            <TextBlock Text=" "/>
+            <TextBlock Style="{ThemeResource BodyTextBlockStyle}">
                 <Run x:Uid="AppName"/>
                 <Run Text="{x:Bind Cfg.GUI.VersionDescription, Mode=OneWay}"/>
             </TextBlock>
-            <TextBlock Text="GNU General Public License 3.0" Margin="5 0"/>
+            <TextBlock Text="GNU General Public License 3.0"/>
             <TextBlock x:Uid="Info_AboutDescription"
                        HorizontalAlignment="Left"
-                       Margin="5 15"
                        MaxWidth="300"
                        Style="{ThemeResource BodyTextBlockStyle}"
                        TextWrapping="Wrap"/>
-            <HyperlinkButton x:Uid="Info_Link" Margin="-7 0" NavigateUri="{x:Bind Cfg.GUI.GitHub}" />
+            <HyperlinkButton x:Uid="Info_Link" Margin="-12 0" NavigateUri="{x:Bind Cfg.GUI.GitHub}" />
         </StackPanel>
-        <StackPanel Grid.Column="1">
-            <TextBlock x:Uid="Info_Credits" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="5"/>
-            <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-            <Grid Margin="5 0">
+        <StackPanel Grid.Column="1" Spacing="10">
+            <TextBlock x:Uid="Info_Credits" Style="{ThemeResource SubtitleTextBlockStyle}"/>
+            <TextBlock Text=" "/>
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition/>

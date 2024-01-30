@@ -49,8 +49,8 @@
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <StackPanel>
-                <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Margin="0 0 0 15" Padding="20 10" ToolTipService.ToolTip="Run X - Men Legends II only, without running OHS">
+            <StackPanel Spacing="15">
+                <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Padding="20 10" ToolTipService.ToolTip="Run X - Men Legends II only, without running OHS">
                     <TextBlock TextAlignment="Center">Run<LineBreak/>X - Men<LineBreak/>Legends II</TextBlock>
                 </Button>
                 <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" Padding="20 5" ToolTipService.ToolTip="Check all selected characters to be unlocked"/>

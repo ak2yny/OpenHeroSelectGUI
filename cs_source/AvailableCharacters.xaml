@@ -21,11 +21,11 @@
             <RowDefinition Height="35"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <StackPanel Orientation="Horizontal" Margin="40 0 0 0">
-            <AutoSuggestBox x:Name="TVsearch" Margin="3 0" MinWidth="100" MaxWidth="280" PlaceholderText="Search" QueryIcon="Find" TextChanged="TVsearch_QuerySubmitted"/>
+        <StackPanel Orientation="Horizontal" Margin="40 0 0 0" Spacing="3">
+            <AutoSuggestBox x:Name="TVsearch" MinWidth="100" MaxWidth="280" PlaceholderText="Search" QueryIcon="Find" TextChanged="TVsearch_QuerySubmitted"/>
             <!--WIP: If TextChanged doesn't perform well, we should probably change it to QuerySubmitted.-->
             <Button x:Name="BrowseButton" FontWeight="Bold" Click="BrowseButton_Click" Content="..." ToolTipService.ToolTip="Browse for a new herostat to add" Height="35"/>
-            <Button x:Name="BtnReload" Click="BtnReload_Click" ToolTipService.ToolTip="F5 | Reload the available characters" Height="35" Margin="3 0">
+            <Button x:Name="BtnReload" Click="BtnReload_Click" ToolTipService.ToolTip="F5 | Reload the available characters" Height="35">
                 <SymbolIcon>Refresh</SymbolIcon>
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="F5" />

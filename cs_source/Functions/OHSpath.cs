@@ -26,6 +26,11 @@ namespace OpenHeroSelectGUI.Functions
         public static string SaveFolder => Path.Combine(Activision, Game == "xml2" ? "X-Men Legends 2" : "Marvel Ultimate Alliance");
         public static string Team_bonus => Path.Combine(CD, Game, "team_bonus.engb.xml");
         /// <summary>
+        /// Expand the <paramref name="File"/> path into the current selected game path within the OHS folder. <paramref name="File"/> may be a relative path inside the OHS game folder.
+        /// </summary>
+        /// <returns>The complete path to <paramref name="File"/></returns>
+        public static string FilePath(string File) => Path.Combine(CD, Game, File);
+        /// <summary>
         /// Get the full path to the herostat folder.
         /// </summary>
         /// <returns>Full path to the herostat folder</returns>
@@ -127,7 +132,7 @@ namespace OpenHeroSelectGUI.Functions
                 : DateTime.Now;
             if (Herostat.Exists && MoveSaves("Save", $"{Date:yyMMdd-HHmmss}"))
             {
-                _ = Herostat.CopyTo(Path.Combine(SaveFolder, $"{Date:yyMMdd-HHmmss}", CfgSt.OHS.HerostatName));
+                _ = Herostat.CopyTo(Path.Combine(SaveFolder, $"{Date:yyMMdd-HHmmss}", Herostat.Name), true);
             }
         }
 

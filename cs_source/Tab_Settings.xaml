@@ -4,97 +4,256 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:OpenHeroSelectGUI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
     <!--IntelliSense automatically works with x:Bind. When we use Binding, we should use Page.DataContext (or Page.Resources)-->
 
-    <Grid Margin="15 10">
-        <ScrollViewer HorizontalScrollBarVisibility="Auto">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition MaxWidth="500"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-                <StackPanel>
-                    <TextBlock Text="Common Settings" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBlock Text=" " FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-                    <StackPanel Margin="0 0 0 10" Orientation="Horizontal" Width="Auto">
-                        <TextBox x:Name="GameInstallPath" Header="Game Installation Path:" Text="{x:Bind Cfg.GUI.GameInstallPath, Mode=OneWay}" IsReadOnly="True" MinWidth="180" MaxWidth="350" ToolTipService.ToolTip="The path to the game - pick any .exe in the game's main folder"/>
-                        <Button x:Name="BrowseButton" FontWeight="Bold" Content="..." Click="ExeBrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
-                    </StackPanel>
-                    <TextBox x:Name="ExeArguments" Header="Arguments for MO2:" Margin="0 0 0 10" Text="{x:Bind Cfg.GUI.ExeArguments, Mode=TwoWay}" MinWidth="180" MaxWidth="350" HorizontalAlignment="Left" ToolTipService.ToolTip="For MO2 users: Select ModOrganizer.exe for installation path and paste the moshortcut argument here.  This can also be used for other exe arguments."/>
-                    <StackPanel Margin="0 0 0 10" Orientation="Horizontal" Width="Auto">
-                        <TextBox x:Name="MO2ModFolder" Header="Game or Mod Path:" Text="{x:Bind Cfg.OHS.GameInstallPath, Mode=OneWay}" IsReadOnly="True" MinWidth="180" MaxWidth="350" TextChanged="MO2ModFolder_TextChanged" ToolTipService.ToolTip="The path to the game or an MO2 mod folder - must contain a 'data' folder"/>
-                        <Button x:Name="MO2BrowseButton" FontWeight="Bold" Content="..." Click="MO2BrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
-                    </StackPanel>
-                    <StackPanel Margin="0 0 0 10" Orientation="Horizontal" Width="Auto">
-                        <TextBox x:Name="HerostatFolder" Text="{x:Bind Cfg.OHS.HerostatFolder, Mode=TwoWay}" Header="Herostat Folder Name:" MinWidth="180" MaxWidth="350" ToolTipService.ToolTip="The folder where the herostat files for OHS are located. 'xml' by default."/>
-                        <Button x:Name="HBrowseButton" FontWeight="Bold" Content="..." Click="HBrowseButton_Click" ToolTipService.ToolTip="Browse" VerticalAlignment="Bottom" Margin="3 0 0 0"/>
-                    </StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <ToggleSwitch x:Name="FreeSavesToggle" Header="Free Saves" IsOn="{x:Bind Cfg.GUI.FreeSaves, Mode=TwoWay}" OffContent="Keep" OnContent="Free" MinWidth="100" ToolTipService.ToolTip="Free: Backup the current saves and start with a new set."/>
-                        <Button x:Name="FreeSavesButton" Content="Free saves now" Click="FreeSavesButton_Click"/>
-                    </StackPanel>
-                    <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Width="Auto">
-                        <ComboBox x:Name="RestoreSaves" Header="Restore Saves" ItemsSource="{x:Bind SaveBackups, Mode=OneWay}" SelectionChanged="RestoreSaves_SelectionChanged"/>
-                        <Button x:Name="OpenSaves" Content="Open folder" Click="OpenSaves_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-                        <Button x:Name="RefreshSaves" Click="RefreshSaves_Click" Padding="10 5" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Refresh">
-                            <SymbolIcon>Refresh</SymbolIcon>
-                        </Button>
-                    </StackPanel>
-                </StackPanel>
+    <Page.Resources>
+        <Style x:Key="SettingsSectionHeaderStyle" BasedOn="{StaticResource BodyStrongTextBlockStyle}" TargetType="TextBlock">
+            <Setter Property="Margin" Value="1 20 0 5"/>
+        </Style>
+        <Style x:Key="SettingsCard" TargetType="Grid">
+            <Setter Property="Background" Value="{ThemeResource ExpanderHeaderBackground}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource ExpanderHeaderBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="{ThemeResource ExpanderHeaderBorderThickness}"/>
+            <Setter Property="Padding" Value="16 10"/>
+            <Setter Property="CornerRadius" Value="4"/>
+        </Style>
+        <Style TargetType="Expander">
+            <Setter Property="Background" Value="{ThemeResource ExpanderHeaderBackground}"/>
+            <Setter Property="BorderBrush" Value="{ThemeResource ExpanderHeaderBorderBrush}"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+        </Style>
+    </Page.Resources>
 
-                <StackPanel Grid.Column="1" Margin="15 0 0 0">
-                    <TextBlock Text="Mod Pack Settings" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBlock Text="Change when using a mod pack only." FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-                    <Grid Margin="0 0 0 10">
-                        <TextBox x:Name="ExeName" Header="Name of Executable" Text="{x:Bind Cfg.OHS.ExeName, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0"/>
-                        <Button x:Name="ExeBrowseButton" FontWeight="Bold" Content="..." Click="ExeBrowseButton_Click" ToolTipService.ToolTip="Browse" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="WideLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="640" />
+                    </VisualState.StateTriggers>
+                </VisualState>
+                <VisualState x:Name="NarrowLayout">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SettingsList.Padding" Value="5,0" />
+                        <Setter Target="SettingsTitle.Margin" Value="36,10,0,0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        <TextBlock x:Name="SettingsTitle"
+                   Margin="36 10 36 0"
+                   Style="{ThemeResource SubtitleTextBlockStyle}"
+                   Text="Settings" />
+        <ScrollViewer x:Name="SettingsList"
+                      Grid.Row="1"
+                      IsTabStop="False"
+                      Padding="36 8">
+            <StackPanel Spacing="3" Margin="0 0 0 10">
+                <!--<StackPanel.ChildrenTransitions>
+                    <EntranceThemeTransition FromVerticalOffset="50" />
+                    <RepositionThemeTransition IsStaggeringEnabled="False" />
+                </StackPanel.ChildrenTransitions>-->
+                <TextBlock Text="Common Settings" Style="{StaticResource SettingsSectionHeaderStyle}"/>
+                <Expander x:Name="GameInstallPath">
+                    <Expander.Header>
+                        <controls:SettingsCardContent Description="Path to the folder with the executable" Header="Game Installation Path" Margin="0 10">
+                            <controls:SettingsCardContent.Icon>
+                                <FontIcon Glyph="&#xE7FC;"/>
+                            </controls:SettingsCardContent.Icon>
+                            <Grid VerticalAlignment="Center">
+                                <TextBox Text="{x:Bind Cfg.GUI.GameInstallPath, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0"/>
+                                <Button Content="..." FontWeight="Bold" Click="ExeBrowseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse - pick any .exe to start the game with, either in the main game folder or a wrapper like a mod organizer, ripper, etc."/>
+                            </Grid>
+                        </controls:SettingsCardContent>
+                    </Expander.Header>
+                    <Grid Style="{StaticResource SettingsCard}" BorderBrush="Transparent" Padding="16 10 60 10">
+                        <controls:SettingsCardContent x:Name="ExeArguments" Description="Arguments to pass to the executable" Header="Arguments for MO2">
+                            <TextBox Text="{x:Bind Cfg.GUI.ExeArguments, Mode=TwoWay}" ToolTipService.ToolTip="For MO2 users: Select ModOrganizer.exe for installation path and paste the moshortcut argument here.  This can also be used for other .exe arguments."/>
+                        </controls:SettingsCardContent>
                     </Grid>
-                    <Grid Margin="0 0 0 10">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="HerostatName" Header="Name of Herostat" Text="herostat" LosingFocus="Herostat_TextChanged" ToolTipService.ToolTip="Without extension (choose language on the left instead)"/>
-                        <ComboBox x:Name="LanguageCode" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" SelectionChanged="Language_SelectionChanged" SelectedItem="eng" ToolTipService.ToolTip="Changes the herostat extension">
-                            <ComboBoxItem x:Name="eng" Content="English (engb)"/>
-                            <ComboBoxItem x:Name="ita" Content="Italian (itab)"/>
-                            <ComboBoxItem x:Name="fre" Content="French (freb)"/>
-                            <ComboBoxItem x:Name="spa" Content="Spanish (spab)"/>
-                            <ComboBoxItem x:Name="ger" Content="German (gerb)"/>
-                            <ComboBoxItem x:Name="rus" Content="Russian (rusb)"/>
-                            <ComboBoxItem x:Name="pol" Content="Polish (polb)"/>
-                            <ComboBoxItem x:Name="xml" Content="None (xmlb)"/>
-                        </ComboBox>
+                </Expander>
+                <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
+                    <controls:SettingsCardContent x:Name="MO2ModFolder" Description="Path to the game or an MO2 mod folder - must contain a 'data' folder" Header="Game or Mod Path">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xEC50;"/>
+                        </controls:SettingsCardContent.Icon>
+                        <Grid VerticalAlignment="Center">
+                            <TextBox Text="{x:Bind Cfg.OHS.GameInstallPath, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0" MinWidth="200" TextChanged="MO2ModFolder_TextChanged"/>
+                            <Button Content="..." FontWeight="Bold" Click="MO2BrowseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse"/>
+                        </Grid>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
+                    <controls:SettingsCardContent x:Name="HerostatFolder" Description="Path or name of the OHS herostats folder ('xml' by default)" Header="Herostat Folder Name">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xED41;"/>
+                        </controls:SettingsCardContent.Icon>
+                        <Grid VerticalAlignment="Center">
+                            <TextBox Text="{x:Bind Cfg.OHS.HerostatFolder, Mode=TwoWay}" Margin="0 0 40 0"/>
+                            <Button Content="..." FontWeight="Bold" Click="HBrowseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse"/>
+                        </Grid>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Expander>
+                    <Expander.Header>
+                        <controls:SettingsCardContent x:Name="FreeSaves" Description="Enable saves backup and clearing at runtime. Expand for more options." Header="Free Saves" Margin="0 10">
+                            <controls:SettingsCardContent.Icon>
+                                <FontIcon Glyph="&#xE78C;" />
+                            </controls:SettingsCardContent.Icon>
+                            <ToggleSwitch x:Name="FreeSavesToggle" IsOn="{x:Bind Cfg.GUI.FreeSaves, Mode=TwoWay}" MinWidth="50" OffContent="Keep" OnContent="Free" ToolTipService.ToolTip="Free: Backup the current saves and start with a new set. Helps for starting a new game"/>
+                        </controls:SettingsCardContent>
+                    </Expander.Header>
+                    <Grid Style="{StaticResource SettingsCard}" BorderBrush="Transparent" Padding="16 0 60 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <controls:SettingsCardContent x:Name="Restore" Description="Pick a previously backed up save folder to restore" Header="Restore Saves" Margin="0 10">
+                            <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
+                                <ComboBox x:Name="RestoreSaves" ItemsSource="{x:Bind SaveBackups, Mode=OneWay}" SelectionChanged="RestoreSaves_SelectionChanged"/>
+                                <Button x:Name="RefreshSaves" Click="RefreshSaves_Click" Padding="10 5" ToolTipService.ToolTip="Refresh">
+                                    <SymbolIcon>Refresh</SymbolIcon>
+                                </Button>
+                            </StackPanel>
+                        </controls:SettingsCardContent>
+                        <controls:SettingsCardContent x:Name="FreeSavesButton" Header="Free Saves Now" Grid.Row="1">
+                            <Button Content="Free now" Click="FreeSavesButton_Click"/>
+                        </controls:SettingsCardContent>
+                        <controls:SettingsCardContent x:Name="OpenSaves" Header="Open Save Folder" Grid.Row="2" Margin="0 10">
+                            <Button Content="Open folder" Click="OpenSaves_Click"/>
+                        </controls:SettingsCardContent>
                     </Grid>
-                    <TextBox x:Name="NewGamePyName" Header="Name of new_game.py" Text="{x:Bind Cfg.OHS.NewGamePyName, Mode=TwoWay}" LosingFocus="NewGamePy_TextChanged" Margin="0 0 0 10" ToolTipService.ToolTip="With .py extension"/>
-                    <TextBox x:Name="CharactersHeadsPackageName" Header="Selection Head/Mannequin Package" Text="{x:Bind Cfg.OHS.CharactersHeadsPackageName, Mode=TwoWay}" LosingFocus="CharHead_TextChanged" Margin="0 0 0 10" ToolTipService.ToolTip="With .pkgb extension"/>
-                    <TextBox x:Name="MannequinFolder" Header="MUA only: Mannequin Folder Name" Text="{x:Bind Cfg.MUA.MannequinFolder, Mode=TwoWay}" LosingFocus="MannequinFolder_TextChanged" Margin="0 0 0 10"/>
-                    <TextBox x:Name="CharinfoName" Header="MUA only: Name of charinfo.xmlb" Text="{x:Bind Cfg.MUA.CharinfoName, Mode=TwoWay}" LosingFocus="Charinfo_TextChanged" Margin="0 0 0 10" ToolTipService.ToolTip="With .xmlb extension"/>
-                    <TextBox x:Name="TeamBonusName" Header="Name of team_bonus" Text="{x:Bind Cfg.GUI.TeamBonusName, Mode=TwoWay}" LosingFocus="TeamBonus_TextChanged" Margin="0 0 0 10" ToolTipService.ToolTip="Without extension, uses same extension as herostat"/>
-                </StackPanel>
+                </Expander>
 
-                <StackPanel Grid.Column="2" Margin="15 0">
-                    <TextBlock Text="Runtime Settings" Style="{ThemeResource SubtitleTextBlockStyle}"/>
-                    <TextBlock Text="Apply when OHS runs." FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-                    <ToggleSwitch x:Name="LaunchToggle" Header="Launch Game" IsOn="{x:Bind Cfg.OHS.LaunchGame, Mode=TwoWay}" OffContent="Off" OnContent="On"/>
-                    <ToggleSwitch x:Name="TempToggle" Header="Save Temp Files" IsOn="{x:Bind Cfg.OHS.SaveTempFiles, Mode=TwoWay}" OffContent="Off" OnContent="On"/>
-                    <ToggleSwitch x:Name="ShowProgressToggle" Header="Show Progress in %" IsOn="{x:Bind Cfg.OHS.ShowProgress, Mode=TwoWay}" OffContent="Off" OnContent="On"/>
-                    <ToggleSwitch x:Name="DebugToggle" Header="Test Herostats" IsOn="{x:Bind Cfg.OHS.DebugMode, Mode=TwoWay}" OffContent="Off" OnContent="On"/>
+                <TextBlock Text="UI Settings for MUA" Style="{ThemeResource SettingsSectionHeaderStyle}"/>
+                <Grid Style="{StaticResource SettingsCard}">
+                    <controls:SettingsCardContent Description="Switch between bird view (Classic) and front view (Row)" Header="Location Layout View">
+                        <controls:SettingsCardContent.Icon>
+                            <Viewbox Margin="3 6 3 3">
+                                <PathIcon Data="m 20.572266,20.882812 c -3.631122,0 -6.607422,2.995383 -6.607422,6.628907 0,3.633524 2.9763,6.630859 6.607422,6.630859 3.631121,0 6.605468,-2.997335 6.605468,-6.630859 0,-3.633524 -2.974347,-6.628906 -6.605468,-6.628907 z m 0,3.871094 c 1.528331,0 2.734375,1.206702 2.734375,2.757813 0,1.551111 -1.206044,2.757812 -2.734375,2.757812 -1.528332,0 -2.736329,-1.206701 -2.736329,-2.757812 0,-1.551111 1.207997,-2.757813 2.736329,-2.757813 z m 14.085937,-3.871094 c -3.631121,0 -6.607422,2.995383 -6.607422,6.628907 0,3.633524 2.976301,6.630859 6.607422,6.630859 3.631121,0 6.605469,-2.997335 6.605469,-6.630859 0,-3.633524 -2.974348,-6.628906 -6.605469,-6.628907 z m 0,3.871094 c 1.528331,0 2.734375,1.206702 2.734375,2.757813 0,1.551111 -1.206044,2.757812 -2.734375,2.757812 -1.528331,0 -2.736328,-1.206701 -2.736328,-2.757812 0,-1.551111 1.207997,-2.757813 2.736328,-2.757813 z M 6.1875,21.816406 c -3.6311213,0 -6.60742188,2.995383 -6.60742188,6.628906 1e-8,3.633524 2.97630058,6.63086 6.60742188,6.63086 3.6311213,0 6.607422,-2.997336 6.607422,-6.63086 0,-3.633523 -2.9763007,-6.628906 -6.607422,-6.628906 z m 0,3.871094 c 1.5283314,0 2.734375,1.206702 2.734375,2.757812 0,1.551111 -1.2060436,2.757813 -2.734375,2.757813 -1.5283314,0 -2.734375,-1.206702 -2.734375,-2.757813 0,-1.55111 1.2060436,-2.757812 2.734375,-2.757812 z m 42.556641,-3.871094 c -3.631122,0 -6.607422,2.995383 -6.607422,6.628906 0,3.633524 2.9763,6.63086 6.607422,6.63086 3.631121,0 6.607422,-2.997336 6.607421,-6.63086 0,-3.633523 -2.9763,-6.628906 -6.607421,-6.628906 z m 0,3.871094 c 1.528331,0 2.734375,1.206702 2.734375,2.757812 0,1.551111 -1.206044,2.757813 -2.734375,2.757813 -1.528332,0 -2.736328,-1.206702 -2.736329,-2.757813 0,-1.55111 1.207997,-2.757812 2.736329,-2.757812 z M 27.465004,-21.46104 c -12.144723,-1.3e-5 -23.5308975,5.928805 -30.4968272,15.8771733 a 2.4199957,2.4199957 0 0 0 0.5932195,3.370551 2.4199957,2.4199957 0 0 0 3.37055848,-0.5956706 C 6.9950307,-11.467942 16.894358,-16.622153 27.465004,-16.622153 c 10.570633,0 20.469965,5.154211 26.533039,13.8131667 a 2.4199957,2.4199957 0 0 0 3.370563,0.5956706 2.4199957,2.4199957 0 0 0 0.595671,-3.370551 C 50.998354,-15.532235 39.609713,-21.46104 27.465004,-21.46104 Z m 0,9.680246 c -10.182968,0 -19.5462515,5.6261699 -24.3268641,14.6171925 A 2.4199957,2.4199957 0 0 0 4.140728,6.1089031 2.4199957,2.4199957 0 0 0 7.4132351,5.1087725 C 11.357937,-2.3101321 19.062571,-6.9419068 27.465004,-6.9419068 c 8.402431,1.25e-5 16.109513,4.6317747 20.05421,12.0506793 a 2.4199957,2.4199957 0 0 0 3.272517,1.0001306 2.4199957,2.4199957 0 0 0 1.000131,-3.2725046 C 47.011248,-6.1546241 37.64797,-11.780794 27.465004,-11.780794 Z m 0,9.6802466 c -7.504756,0 -14.227192,4.706803 -16.79397,11.7589625 a 2.4199957,2.4199957 0 0 0 1.446277,3.1009109 2.4199957,2.4199957 0 0 0 3.103366,-1.446272 c 1.876552,-5.1557803 6.757659,-8.5747144 12.244327,-8.5747018 5.486668,-1.26e-5 10.370223,3.4189215 12.246772,8.5747018 a 2.4199957,2.4199957 0 0 0 3.100911,1.446272 2.4199957,2.4199957 0 0 0 1.446284,-3.1009109 C 41.692195,2.6062556 34.969756,-2.1005599 27.465004,-2.1005474 Z"/>
+                            </Viewbox>
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="RowLayoutToggle" IsOn="{x:Bind Cfg.GUI.RowLayout, Mode=TwoWay}" MinWidth="116" OffContent="Classic" OnContent="Row"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}">
+                    <controls:SettingsCardContent Description="Limit the size of the menulocation boxes. Use the slider for a custom width, if scale is set to 'Both'." Header="Location Layout Width">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xECE8;" />
+                        </controls:SettingsCardContent.Icon>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <Slider x:Name="MaxLayoutWidth" Minimum="600" Maximum="2200" MinWidth="160" StepFrequency="100" TickFrequency="400" Value="{x:Bind Cfg.GUI.LayoutMaxWidth, Mode=TwoWay}" VerticalAlignment="Center"/>
+                            <ToggleSwitch x:Name="MaxLayoutWidthToggle" IsOn="{x:Bind Cfg.GUI.LayoutWidthUpscale, Mode=TwoWay}" MinWidth="116" OffContent="Downscale" OnContent="Both" ToolTipService.ToolTip="'Downscale' scales them to fit to width if not enough space. 'Both' always scales them to width, but only as wide as specified with the slider."/>
+                        </StackPanel>
+                    </controls:SettingsCardContent>
+                </Grid>
 
-                    <TextBlock Text="UI Settings" Style="{ThemeResource SubtitleTextBlockStyle}" Margin="0 15 0 0"/>
-                    <TextBlock Text="Change interface look." FontSize="12" TextWrapping="Wrap" Margin="0 0 0 10"/>
-                    <ToggleSwitch x:Name="RowLayoutToggle" Header="Location Layout" IsOn="{x:Bind Cfg.GUI.RowLayout, Mode=TwoWay}" OffContent="Classic" OnContent="Row"/>
-                    <ToggleSwitch x:Name="MaxLayoutWidthToggle" Header="Location Layout Width" IsOn="{x:Bind Cfg.GUI.LayoutWidthUpscale, Mode=TwoWay}" OffContent="Downscale" OnContent="Both" ToolTipService.ToolTip="Limit the size of the menulocation boxes. Downscale scales them to fit width if not enough space. Both always scales to width but maximal as wide as specified with the slider below."/>
-                    <Slider x:Name="MaxLayoutWidth" Minimum="600" Maximum="2200" StepFrequency="100" TickFrequency="400" Value="{x:Bind Cfg.GUI.LayoutMaxWidth, Mode=TwoWay}"/>
-                </StackPanel>
-            </Grid>
+                <TextBlock Text="Mod Pack Settings" Style="{ThemeResource SettingsSectionHeaderStyle}"/>
+                <Expander>
+                    <Expander.Header>
+                        <controls:SettingsCardContent x:Name="ModPackSettings" Description="Only change when using a mod pack. Expand to show options." Header="Enable Mod Pack Names" Margin="0 10">
+                            <controls:SettingsCardContent.Icon>
+                                <FontIcon Glyph="&#xF5ED;" />
+                            </controls:SettingsCardContent.Icon>
+                            <ToggleSwitch x:Name="ModPackToggle" IsOn="{x:Bind Cfg.GUI.ModPack, Mode=TwoWay}" MinWidth="50"/>
+                        </controls:SettingsCardContent>
+                    </Expander.Header>
+                    <Grid Style="{StaticResource SettingsCard}" BorderBrush="Transparent" Padding="16 0 60 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <controls:SettingsCardContent Description="Choose an executable to start the game with" Header="Executable Name" Margin="0 10">
+                            <Grid VerticalAlignment="Center">
+                                <TextBox x:Name="ExeName" Text="{x:Bind Cfg.OHS.ExeName, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0"/>
+                                <Button Content="..." FontWeight="Bold" Click="ExeBrowseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse - pick any .exe to start the game with, either in the main game folder or a wrapper like a mod organizer, ripper, etc."/>
+                            </Grid>
+                        </controls:SettingsCardContent>
+                        <controls:SettingsCardContent Description="Name of the herostat without extension (choose extension)" Header="Herostat Name"  Grid.Row="1">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="HerostatName" Text="herostatt" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" LosingFocus="Herostat_TextChanged" ToolTipService.ToolTip="Must be 8 characters or less (without extension)"/>
+                                <ComboBox x:Name="LanguageCode" Grid.Column="1" ItemsSource="{x:Bind DataExt}" Loaded="SettingsCard_Loaded" SelectionChanged="Language_SelectionChanged" ToolTipService.ToolTip="Changes the herostat extension"/>
+                            </Grid>
+                        </controls:SettingsCardContent>
+                        <controls:SettingsCardContent Description="Name of new_game.py with .py extension" Header="New Game Script Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="2" Margin="0 10">
+                            <TextBox x:Name="NewGamePyName" Text="{x:Bind Cfg.OHS.NewGamePyName, Mode=TwoWay}" LosingFocus="NewGamePy_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 11 characters or less (incl. extension)"/>
+                        </controls:SettingsCardContent>
+                        <controls:SettingsCardContent Description="Name of characters_heads.pkgb with .pkgb extension" Header="Selection Head/Mannequin Package Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="3">
+                            <TextBox x:Name="CharactersHeadsPackageName" Text="{x:Bind Cfg.OHS.CharactersHeadsPackageName, Mode=TwoWay}" LosingFocus="CharHead_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 21 characters or less (incl. extension)"/>
+                        </controls:SettingsCardContent>
+                        <controls:SettingsCardContent Description="MUA only: Name of the mannequin folder in 'ui/models'" Header="Mannequin Folder Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="4" Margin="0 10">
+                            <TextBox x:Name="MannequinFolder" Text="{x:Bind Cfg.MUA.MannequinFolder, Mode=TwoWay}" LosingFocus="MannequinFolder_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 9 characters or less"/>
+                        </controls:SettingsCardContent>
+                        <controls:SettingsCardContent Description="MUA only: Name of charinfo.xmlb with .xmlb extension" Header="Character Info File Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="5">
+                            <TextBox x:Name="CharinfoName" Text="{x:Bind Cfg.MUA.CharinfoName, Mode=TwoWay}" LosingFocus="Charinfo_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 13 characters or less (incl. extension)"/>
+                        </controls:SettingsCardContent>
+                        <controls:SettingsCardContent Description="Name of team_bonus without extension - uses same extension as herostat" Header="Team Bonus File Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="6" Margin="0 10">
+                            <TextBox x:Name="TeamBonusName" Text="{x:Bind Cfg.GUI.TeamBonusName, Mode=TwoWay}" LosingFocus="TeamBonus_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 10 characters or less (without extension)"/>
+                        </controls:SettingsCardContent>
+                    </Grid>
+                </Expander>
+
+                <TextBlock Text="Runtime Settings" Style="{ThemeResource SettingsSectionHeaderStyle}"/>
+                <Grid Style="{StaticResource SettingsCard}">
+                    <controls:SettingsCardContent Description="Launch the game automatically after running OHS (MO2 users disable this)" Header="Launch Game">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE7FC;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="LaunchToggle" IsOn="{x:Bind Cfg.OHS.LaunchGame, Mode=TwoWay}" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}">
+                    <controls:SettingsCardContent Description="Save the intermediate temp files (to help finding errors)" Header="Save Temp Files">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xEA35;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="TempToggle" IsOn="{x:Bind Cfg.OHS.SaveTempFiles, Mode=TwoWay}" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}">
+                    <controls:SettingsCardContent Description="Show progress in % while running OHS (GUI users disable this)" Header="Show Progress">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE94C;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="ShowProgressToggle" IsOn="{x:Bind Cfg.OHS.ShowProgress, Mode=TwoWay}" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}">
+                    <controls:SettingsCardContent Description="Adds herostat names to some messages (to help finding errors)" Header="Test Herostats">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xEBE8;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="DebugToggle" IsOn="{x:Bind Cfg.OHS.DebugMode, Mode=TwoWay}" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+            </StackPanel>
         </ScrollViewer>
         <InfoBar x:Name="Warning"
                  Severity="Warning"
                  Title="Warning"
+                 Grid.Row="1"
                  Margin="20"
                  VerticalAlignment="Bottom"/>
     </Grid>
