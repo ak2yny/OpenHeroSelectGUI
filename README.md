@@ -128,7 +128,7 @@
 - Make sure to add the dependencies before building, as always.
 - I recommend to leave the project as self contained (no dependencies), since WinUI is contained anyway.
 - A Windows App SDK can be built [unpackaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-unpackaged) or [packaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-packaged) (MSIX). As a WinUI3 project, it can be easily re-targeted to a UWP project, but it lacks permission (file access, running OHS) and signature details.
-- Theoretically, the project can be made cross platform through the UNO platform (and a native cross-platform feature seems to be planned), but OHS is currently Windows 10+ exclusive.
+- Theoretically, the project can be made cross platform through [.Net MAUI](https://dotnet.microsoft.com/en-us/apps/maui) or other platforms, like [UNO](https://platform.uno/), but OHS is currently Windows 10+ exclusive.
  
  Version 0.1:
 - Requires Newtonsoft.JOSN. The DLL file can be added to the built project.
@@ -148,20 +148,22 @@
 
 ## Changelog
 
- |01.15.2024|Beta 0.3.1: Fixed bugs
+ |30.01.2024|Beta 0.3.2: Fixed bugs, New settings layout
 
- |01.10.2023|Beta 0.3.0: New features, few bugs fixed, better messages
+ |15.01.2024|Beta 0.3.1: Fixed bugs
+
+ |10.01.2023|Beta 0.3.0: New features, few bugs fixed, better messages
  - Added stage selection with thumbnails
  - Added team bonus editor
  - Added clash notifications
 
- |08.01.2023|Beta 0.2.5: Added installer, fixed bugs
+ |01.08.2023|Beta 0.2.5: Added installer, fixed bugs
 
- |07.30.2023|Beta 0.2.4: Fixed bugs, added effects and skin installer
+ |30.07.2023|Beta 0.2.4: Fixed bugs, added effects and skin installer
 
- |07.14.2023|Beta 0.2.3: Fixed bugs (file picker, skin editor), added stages
+ |14.07.2023|Beta 0.2.3: Fixed bugs (file picker, skin editor), added stages
 
- |07.14.2023|Beta 0.2.2: Added Skin Editor
+ |14.07.2023|Beta 0.2.2: Added Skin Editor
 
  |07.12.2023|Beta 0.2.1: Better banner, fixed bugs
 
