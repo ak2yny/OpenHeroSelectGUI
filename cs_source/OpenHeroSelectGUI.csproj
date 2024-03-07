@@ -84,6 +84,9 @@
       <TargetPath>InstallerFiles\%(RecursiveDir)%(FileName)%(Extension)</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
+  <ItemGroup>
+    <InstallerFiles Include="..\InstallerFiles\**"/>
+  </ItemGroup>
 
   <ItemGroup>
     <None Include="..\..\.editorconfig" Link=".editorconfig" />
@@ -92,6 +95,12 @@
       <PackagePath>\</PackagePath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\InstallerFiles\7z.dll;..\InstallerFiles\7z.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -184,6 +193,7 @@
   </ItemGroup>
 
   <Target Name="PostPublish" AfterTargets="Publish">
-	  <Exec Command="cd bin\$(Configuration)\$(TargetFramework)\$(RuntimeIdentifier)\publish&#xD;&#xA;call InstallerFiles\BuildInstaller.bat $(Version)" />
+	  <Copy SourceFiles="@(InstallerFiles)" DestinationFolder="$(PublishDir)\InstallerFiles" SkipUnchangedFiles="true" />
+	  <Exec Command="cd $(PublishDir)&#xD;&#xA;call InstallerFiles\BuildInstaller.bat $(Version)" />
   </Target>
 </Project>

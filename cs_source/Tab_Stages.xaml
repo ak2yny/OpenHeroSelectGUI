@@ -33,7 +33,7 @@
                     Click="BtnReload_Click"
                     Height="35"
                     ToolTipService.ToolTip="F5 | Refresh layouts and models">
-                <SymbolIcon>Refresh</SymbolIcon>
+                <SymbolIcon Symbol="Refresh"/>
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="F5" />
                 </Button.KeyboardAccelerators>

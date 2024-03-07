@@ -26,10 +26,18 @@ namespace OpenHeroSelectGUI.Functions
         public static string SaveFolder => Path.Combine(Activision, Game == "xml2" ? "X-Men Legends 2" : "Marvel Ultimate Alliance");
         public static string Team_bonus => Path.Combine(CD, Game, "team_bonus.engb.xml");
         /// <summary>
+        /// Get the OHS temp folder path as a <see cref="string"/>.
+        /// </summary>
+        public static string Temp => Directory.CreateDirectory(Path.Combine(CD, "Temp")).FullName;
+        /// <summary>
         /// Expand the <paramref name="File"/> path into the current selected game path within the OHS folder. <paramref name="File"/> may be a relative path inside the OHS game folder.
         /// </summary>
         /// <returns>The complete path to <paramref name="File"/></returns>
         public static string FilePath(string File) => Path.Combine(CD, Game, File);
+        /// <summary>
+        /// Tries to construct the path to MUA's Game.exe.
+        /// </summary>
+        public static string GameExe => string.IsNullOrEmpty(CfgSt.GUI.ActualGameExe) ? Path.Combine(CfgSt.GUI.GameInstallPath, CfgSt.OHS.ExeName) : CfgSt.GUI.ActualGameExe;
         /// <summary>
         /// Get the full path to the herostat folder.
         /// </summary>
@@ -119,6 +127,20 @@ namespace OpenHeroSelectGUI.Functions
             {
                 DirectoryInfo TP = Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, GameFolder));
                 File.Copy(SourceFile.FullName, Path.Combine(TP.FullName, Target), true);
+            }
+        }
+        /// <summary>
+        /// Recursively copy a complete <paramref name="Source"/> folder with all contents to a <paramref name="Target"/> path. Existing files are replaced.
+        /// </summary>
+        public static void CopyFilesRecursively(DirectoryInfo Source, string Target)
+        {
+            foreach (DirectoryInfo dirPath in Source.GetDirectories("*", SearchOption.AllDirectories))
+            {
+                _ = Directory.CreateDirectory(dirPath.FullName.Replace(Source.FullName, Target));
+            }
+            foreach (FileInfo SourceFile in Source.GetFiles("*", SearchOption.AllDirectories))
+            {
+                _ = SourceFile.CopyTo(SourceFile.FullName.Replace(Source.FullName, Target), true);
             }
         }
         /// <summary>

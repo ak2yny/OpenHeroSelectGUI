@@ -105,6 +105,8 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private string gameInstallPath;
         [ObservableProperty]
+        private string actualGameExe;
+        [ObservableProperty]
         private string exeArguments;
         [ObservableProperty]
         private string teamBonusName;
@@ -140,6 +142,7 @@ namespace OpenHeroSelectGUI.Settings
             // Note: XML2 seems to have an issue when the settings.dat is removed.
             freeSaves = false;
             gameInstallPath = "";
+            actualGameExe = "";
             exeArguments = "";
             teamBonusName = "team_bonus";
             layout = "25 Default PC 2006";

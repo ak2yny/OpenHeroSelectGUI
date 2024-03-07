@@ -13,6 +13,7 @@ mkdir OHSGUI
 
 for %%a in (
  OpenHeroSelectGUI.exe
+ 7z.exe
  *.dll
  *.json
  *.pri

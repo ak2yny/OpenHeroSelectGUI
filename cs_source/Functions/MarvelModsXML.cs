@@ -24,7 +24,7 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns>The filename for the decompiled file (.xml)</returns>
         private static string? DecompileToTemp(string CompiledName)
         {
-            string DecompiledName = Path.Combine(Directory.CreateDirectory(Path.Combine(OHSpath.CD, "Temp")).FullName, $"{Path.GetFileNameWithoutExtension(CompiledName)}.xml");
+            string DecompiledName = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(CompiledName)}.xml");
             return Util.RunExeInCmd("json2xmlb", $"-d \"{CompiledName}\" \"{DecompiledName}\"") ? DecompiledName : null;
         }
         /// <summary>
@@ -33,17 +33,22 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns><see langword="True" />, if the file could be compiled, otherwise <see langword="false" />.</returns>
         private static bool CompileToTarget(XmlDocument XmlData, string CompiledName)
         {
-            string DecompiledName = Path.Combine(Directory.CreateDirectory(Path.Combine(OHSpath.CD, "Temp")).FullName, $"{Path.GetFileNameWithoutExtension(CompiledName)}.xml");
+            string DecompiledName = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(CompiledName)}.xml");
             XmlData.Save(DecompiledName);
             return Directory.Exists(Path.GetDirectoryName(CompiledName)) && Util.RunExeInCmd("json2xmlb", $"\"{DecompiledName}\" \"{CompiledName}\"");
         }
         /// <summary>
-        /// Add data from settings to team_back.xmlb (<paramref name="LayoutDataFile"/>): Riser (<paramref name="HasRiser"/>), Effects | WIP: Possibly make this a general function for other files as well (no others currently, charinfo etc are handled by OHS)
+        /// Add data from settings to <paramref name="LayoutDataFile"/> (team_back.xmlb): Riser (if <paramref name="HasRiser"/>), Effects
         /// </summary>
-        /// <returns>The updated team_back.xmlb file name <see cref="string"/>, or the input file name (<paramref name="LayoutDataFile"/>) if failed or no changes necessary</returns>
+        /// <returns>The updated team_back.xmlb file name <see cref="string"/>, or the input <paramref name="LayoutDataFile"/> name if failed or no changes necessary</returns>
         public static string UpdateLayout(string LayoutDataFile, bool HasRiser)
         {
-            SelectedCharacter[] EL = CfgSt.Roster.Selected.Where(c => !string.IsNullOrEmpty(c.Effect)).ToArray();
+            ObservableCollection<SelectedCharacter> SCS = CfgSt.Roster.Selected;
+            int GR = SCS.IndexOf(SCS.FirstOrDefault(c => c.Loc == "03")!);
+            if (GR > 0) { SCS.Move(GR, 0); }
+            int HT = SCS.IndexOf(SCS.FirstOrDefault(c => c.Loc == "24")!);
+            if (HT is not 1 or -1) { SCS.Move(HT, 1); }
+            SelectedCharacter[] EL = SCS.Where(c => !string.IsNullOrEmpty(c.Effect)).ToArray();
             if ((HasRiser || EL.Length > 0) && DecompileToTemp(LayoutDataFile) is string DLDF)
             {
                 XmlDocument LayoutData = new();
@@ -54,9 +59,8 @@ namespace OpenHeroSelectGUI.Functions
                         _ = menu_items.AppendChild(LayoutData.ImportNode(Riser, true));
                     for (int i = 0; i < (CfgSt.GUI.HidableEffectsOnly && EL.Length > 1 ? 2 : EL.Length); i++)
                     {
-                        SelectedCharacter SC = EL[i];
-                        // WIP: Currently, the user must have effects on 24 and 03 to have hidden effects. We can freely use locations an hex edit though. The limit's still 2.
-                        if (AddEffect(SC.Loc, SC.Effect!, CfgSt.GUI.HidableEffectsOnly ? i > 1 ? "24" : "03" : SC.Loc!) is XmlNode EffectLine)
+                        // Alternatively, we could hex-edit to hide effects on different slots: Util.HexEdit(0x3cc67b, SC.Loc!, CfgSt.GUI.ActualGamePath + "/Game.exe")
+                        if (AddEffect(EL[i].Loc, EL[i].Effect!, EL[i].Loc == "24" || i > 1 ? EL[i].Loc! : i > 0 ? "24" : "03") is XmlNode EffectLine)
                         {
                             _ = menu_items.AppendChild(LayoutData.ImportNode(EffectLine, true));
                         }

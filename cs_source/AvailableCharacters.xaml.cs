@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
+using Windows.Storage.Pickers;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 
 namespace OpenHeroSelectGUI
@@ -20,6 +21,32 @@ namespace OpenHeroSelectGUI
     public sealed partial class AvailableCharacters : Page
     {
         public Cfg Cfg { get; set; } = new();
+        private static readonly string[] GameFolders =
+        [
+            "actors",
+            "automaps",
+            "conversations",
+            "data",
+            "dialogs",
+            "effects",
+            "hud",
+            "maps",
+            "models",
+            "motionpaths",
+            "movies",
+            "packages",
+            "plugins",
+            "scripts",
+            "shaders",
+            "skybox",
+            "sounds",
+            "subtitles",
+            "texs",
+            "textures",
+            "ui"
+        ];
+        private static readonly string[] HSexts = [".txt", ".xml", ".json"];
+
         public AvailableCharacters()
         {
             InitializeComponent();
@@ -107,11 +134,16 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            // WIP: Should this accept multiple selected files? Let's see how others react.
-            string? Herostat = await CfgCmd.LoadDialogue("*");
-            if (Herostat != null)
+            FileOpenPicker filePicker = new();
+            filePicker.FileTypeFilter.Add("*");
+            WinRT.Interop.InitializeWithWindow.Initialize(filePicker, WinRT.Interop.WindowNative.GetWindowHandle(App.MainWindow));
+            System.Collections.Generic.IReadOnlyList<StorageFile> Mods = await filePicker.PickMultipleFilesAsync();
+            if (Mods != null)
             {
-                AddHerostat(Herostat);
+                for (int i = 0; i < Mods.Count; i++)
+                {
+                    Install(Mods[i]);
+                }
                 PopulateAvailable();
             }
         }
@@ -128,7 +160,17 @@ namespace OpenHeroSelectGUI
             {
                 e.AcceptedOperation = DataPackageOperation.Copy;
                 e.DragUIOverride.Caption = "Add herostat(s)";
+                AvailableCharactersDropArea.Visibility = Visibility.Visible;
             }
+        }
+        /// <summary>
+        /// Hide the drop visuals
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AvailableCharacters_DragLeave(object sender, DragEventArgs e)
+        {
+            AvailableCharactersDropArea.Visibility = Visibility.Collapsed;
         }
         /// <summary>
         /// Define the drop event for dropped herostats.
@@ -141,10 +183,88 @@ namespace OpenHeroSelectGUI
                 int i;
                 for (i = 0; i < Items.Count; i++)
                 {
-                    if (Items[i] is StorageFile Herostat) { AddHerostat(Herostat); }
+                    if (Items[i] is StorageFile Mod)
+                    {
+                        Install(Mod);
+                    }
                 }
                 if (i > 0) { PopulateAvailable(); }
             }
+        }
+        /// <summary>
+        /// Install a mod from an extracted <paramref name="ModPath"/>.
+        /// </summary>
+        private void Install(StorageFile Mod)
+        {
+            try
+            {
+                string ExtModPath = Path.Combine(OHSpath.Temp, Mod.DisplayName);
+                if (Util.RunExeInCmd("7z", $"x \"{Mod.Path}\" -o\"{ExtModPath}\" -y"))
+                {
+                    DirectoryInfo MP = new(ExtModPath);
+                    if (MP.EnumerateDirectories("*", SearchOption.AllDirectories)
+                        .FirstOrDefault(g => GameFolders.Contains(g.Name)) is DirectoryInfo FGF
+                        && FGF.Parent is DirectoryInfo Source)
+                    {
+                        string? Target = null;
+                        if (File.Exists(Path.Combine(Cfg.OHS.GameInstallPath, "Game.exe")))
+                        {
+                            Target = Cfg.OHS.GameInstallPath;
+                        }
+                        else // assuming it's an MO2 mod folder
+                        {
+                            if (Cfg.OHS.GameInstallPath is string GIPs
+                                && new DirectoryInfo(GIPs) is DirectoryInfo GIP
+                                && GIP.Exists
+                                && GIP.Parent is DirectoryInfo Mods)
+                            {
+                                Target = Path.Combine(Mods.FullName, Mod.DisplayName);
+                                if (Directory.Exists(Target)) { Target += $"-{DateTime.Now:yyMMdd-HHmmss}"; }
+                                string MetaP = Path.Combine(Source.FullName, "meta.ini");
+                                if (!File.Exists(MetaP))
+                                {
+                                    string[] meta =
+                                    [
+                                        "[General]",
+                                        $"gameName={Cfg.GUI.Game.PadRight(4, '1')}",
+                                        "modid=0",
+                                        $"version=d{DateTime.Now:yyyy.M.d}",
+                                        "newestVersion=",
+                                        "category=0",
+                                        "nexusFileStatus=1",
+                                        $"installationFile={Mod.Path.Replace("\\", "/")}",
+                                        "repository=Nexus"
+                                    ];
+                                    File.WriteAllLines(MetaP, meta);
+                                }
+                            }
+                        }
+                        CopyInfo.IsOpen = Target is null;
+                        if (Target is not null)
+                        {
+                            OHSpath.CopyFilesRecursively(Source, Target);
+                        }
+                        if (Source.EnumerateFiles("*.*", SearchOption.AllDirectories)
+                            .FirstOrDefault(h => HSexts.Contains(h.Extension)
+                                && (h.Name.Contains("herostat")
+                                || File.ReadAllText(h.FullName).Contains("stats", StringComparison.CurrentCultureIgnoreCase))) is FileInfo Hs)
+                        {
+                            AddHerostat(Hs.FullName, Hs.Name, Hs.Extension);
+                            HSsuccess.IsOpen = !(HSinfo.IsOpen = false);
+                        }
+                        else
+                        {
+                            HSsuccess.IsOpen = !(HSinfo.IsOpen = true);
+                        }
+                    }
+                    // Otherwise it's not an MUA or XML2 mod. No action for now.
+                }
+                else
+                {
+                    AddHerostat(Mod);
+                }
+            }
+            catch { AddHerostat(Mod); }
         }
         /// <summary>
         /// Define the allowed drag items 
@@ -210,7 +330,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Remove the <paramref name="Node"/> and all its child nodes, including the herostat files.
         /// </summary>
-        private void RemoveCharacters(TreeViewNode Node)
+        private static void RemoveCharacters(TreeViewNode Node)
         {
             for (int i = 0; i < Node.Children.Count;)
             {
@@ -221,7 +341,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Remove the <paramref name="Node"/> and the corresponding herostat file according to the node's path property.
         /// </summary>
-        private void RemoveCharacter(TreeViewNode Node)
+        private static void RemoveCharacter(TreeViewNode Node)
         {
             if (Node.Content is Character Chr
                 && Node.Parent.Children.Remove(Node)

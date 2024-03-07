@@ -125,7 +125,7 @@
                             <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
                                 <ComboBox x:Name="RestoreSaves" ItemsSource="{x:Bind SaveBackups, Mode=OneWay}" SelectionChanged="RestoreSaves_SelectionChanged"/>
                                 <Button x:Name="RefreshSaves" Click="RefreshSaves_Click" Padding="10 5" ToolTipService.ToolTip="Refresh">
-                                    <SymbolIcon>Refresh</SymbolIcon>
+                                    <SymbolIcon Symbol="Refresh"/>
                                 </Button>
                             </StackPanel>
                         </controls:SettingsCardContent>

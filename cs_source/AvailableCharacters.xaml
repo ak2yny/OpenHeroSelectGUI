@@ -7,6 +7,7 @@
     mc:Ignorable="d"
     AllowDrop="True"
     DragOver="AvailableCharacters_DragOver"
+    DragLeave="AvailableCharacters_DragLeave"
     Drop="AvailableCharacters_Drop"
     KeyboardAcceleratorPlacementMode="Hidden"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -21,12 +22,13 @@
             <RowDefinition Height="35"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+        <Canvas x:Name="AvailableCharactersDropArea" Grid.RowSpan="2" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" Visibility="Collapsed"/>
         <StackPanel Orientation="Horizontal" Margin="40 0 0 0" Spacing="3">
             <AutoSuggestBox x:Name="TVsearch" MinWidth="100" MaxWidth="280" PlaceholderText="Search" QueryIcon="Find" TextChanged="TVsearch_QuerySubmitted"/>
             <!--WIP: If TextChanged doesn't perform well, we should probably change it to QuerySubmitted.-->
-            <Button x:Name="BrowseButton" FontWeight="Bold" Click="BrowseButton_Click" Content="..." ToolTipService.ToolTip="Browse for a new herostat to add" Height="35"/>
+            <Button x:Name="BrowseButton" FontWeight="Bold" Click="BrowseButton_Click" Content="..." ToolTipService.ToolTip="Browse for a new herostat to add. Can be a mod archive or a herostat text." Height="35"/>
             <Button x:Name="BtnReload" Click="BtnReload_Click" ToolTipService.ToolTip="F5 | Reload the available characters" Height="35">
-                <SymbolIcon>Refresh</SymbolIcon>
+                <SymbolIcon Symbol="Refresh"/>
                 <Button.KeyboardAccelerators>
                     <KeyboardAccelerator Key="F5" />
                 </Button.KeyboardAccelerators>
@@ -45,5 +47,17 @@
                 <KeyboardAccelerator Key="Delete" Invoked="TreeViewItems_Delete" ScopeOwner="{x:Bind trvAvailableChars}"/>
             </TreeView.KeyboardAccelerators>
         </TreeView>
+        <StackPanel Grid.Row="1" Margin="20" Spacing="2" VerticalAlignment="Bottom">
+            <InfoBar x:Name="HSsuccess"
+                     Severity="Success"
+                     Title="Success"
+                     Message="Herostat successfully added."/>
+            <InfoBar x:Name="HSinfo"
+                     Title="Herostat not found"
+                     Message="Herostat not added."/>
+            <InfoBar x:Name="CopyInfo"
+                     Title="Mod installation failed"
+                     Message="Mod not added."/>
+        </StackPanel>
     </Grid>
 </Page>

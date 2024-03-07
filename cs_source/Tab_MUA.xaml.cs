@@ -33,6 +33,14 @@ namespace OpenHeroSelectGUI
                 LocationsBox.StretchDirection = StretchDirection.Both;
                 LocationsBox.MaxWidth = Cfg.GUI.LayoutMaxWidth;
             }
+            if (Util.GameExe(OHSpath.GameExe) is FileStream fs)
+            {
+                byte[] bytes = new byte[2];
+                fs.Position = 0x3cc28f;
+                _ = fs.Read(bytes, 0, bytes.Length);
+                fs.Close();
+                USDnum.Text = System.Text.Encoding.Default.GetString(bytes);
+            }
         }
         /// <summary>
         /// Load the layout, limit, default, model info, using saved data.
@@ -117,6 +125,28 @@ namespace OpenHeroSelectGUI
                 LocBox.IsChecked = Cfg.Roster.Selected.Any(c => c.Loc == LocBox.Content.ToString());
             }
         }
+        /// <summary>
+        /// If RH option is on, checks for the roster hack in the game folder and updates the RH message.
+        /// </summary>
+        private void UpdateRH()
+        {
+            if (RosterHackToggle.IsOn)
+            {
+                string GamePath = Path.GetDirectoryName(Cfg.GUI.ActualGameExe) is string ActualGamePath && ActualGamePath != ""
+                    ? ActualGamePath
+                    : string.IsNullOrEmpty(Cfg.GUI.GameInstallPath)
+                    ? Cfg.OHS.GameInstallPath
+                    : Cfg.GUI.GameInstallPath;
+                string dinput = Path.Combine(GamePath, "dinput8.dll");
+                if (File.Exists(dinput)) { dinput = File.ReadAllText(dinput); }
+                RHInfo.Message = $"Roster hack (RH) not detected in '{GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. MO2 users can browse for the actual game .exe, to keep this message from opening in the future. The RH fixes a crash when using more than 27 characters.";
+                RHInfo.IsOpen = !Directory.Exists(Path.Combine(GamePath, "plugins")) || !dinput.Contains("asi-loader");
+            }
+            else
+            {
+                RHInfo.IsOpen = false;
+            }
+        }
         // Control handlers:
         private void BtnRunGame_Click(object sender, RoutedEventArgs e) => Util.RunGame();
 
@@ -132,20 +162,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void RosterHack_Toggled(object sender, RoutedEventArgs e)
         {
-            if (RosterHackToggle.IsOn)
-            {
-                string GamePath = string.IsNullOrEmpty(Cfg.GUI.GameInstallPath)
-                    ? Cfg.OHS.GameInstallPath
-                    : Cfg.GUI.GameInstallPath;
-                string dinput = Path.Combine(GamePath, "dinput8.dll");
-                if (File.Exists(dinput)) { dinput = File.ReadAllText(dinput); }
-                RHInfo.Message = $"Roster hack (RH) not detected in '{GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. The RH fixes a crash when using more than 27 characters.";
-                RHInfo.IsOpen = !Directory.Exists(Path.Combine(GamePath, "plugins")) || !dinput.Contains("asi-loader");
-            }
-            else
-            {
-                RHInfo.IsOpen = false;
-            }
+            UpdateRH();
         }
         /// <summary>
         /// Re-load stage info from configuration files and images.
@@ -163,10 +180,22 @@ namespace OpenHeroSelectGUI
         {
             _ = Frame.Navigate(typeof(Tab_Stages));
         }
-
+        /// <summary>
+        /// Hex edits the upside-down arrow location, if the USD button was pressed, otherwise adds the Cfg.Var.FloatingCharacter to the selected characters list, at the location of the clicked location box.
+        /// </summary>
         private void LocButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is ToggleButton LocBox) { AddToSelectedMUA(LocBox); }
+            if (sender is ToggleButton LocBox)
+            {
+                if (Cfg.Var.FloatingCharacter == "<"
+                    && LocBox.Content.ToString() is string Loc
+                    && Util.HexEdit(0x3cc28f, Loc, OHSpath.GameExe))
+                {
+                    USDnum.Text = Loc;
+                    Cfg.Var.FloatingCharacter = "";
+                }
+                AddToSelectedMUA(LocBox);
+            }
         }
 
         private void LocButton_Drop(object sender, DragEventArgs e)
@@ -178,7 +207,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void AddToSelectedMUA(ToggleButton LocBox)
         {
-            if (!string.IsNullOrEmpty(Cfg.Var.FloatingCharacter))
+            if (!string.IsNullOrEmpty(Cfg.Var.FloatingCharacter) && Cfg.Var.FloatingCharacter != "<")
             {
                 if (AddToSelected(LocBox.Content.ToString(), Cfg.Var.FloatingCharacter)) { UpdateLocBoxes(); }
                 UpdateClashes(false);
@@ -278,5 +307,26 @@ namespace OpenHeroSelectGUI
         /// Invoked when the text of a hidden text box changes, which happens on UpdateClash events, due to binding.
         /// </summary>
         private void ClashesUpdated(object sender, TextChangedEventArgs e) => UpdateLocBoxes();
+        /// <summary>
+        /// Browse for the game folder with the roster hack, if using MO2.
+        /// </summary>
+        private async void BrowseRH_Click(object sender, RoutedEventArgs e)
+        {
+            Cfg.GUI.ActualGameExe = await CfgCmd.LoadDialogue(".exe") ?? "";
+            UpdateRH();
+        }
+
+        private void USD_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
+        {
+            if (Util.HexEdit(0x3cc28f, "00", OHSpath.GameExe))
+            {
+                USDnum.Text = "00";
+            }
+        }
+
+        private void USD_Click(object sender, RoutedEventArgs e)
+        {
+            Cfg.Var.FloatingCharacter = "<";
+        }
     }
 }

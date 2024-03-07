@@ -23,6 +23,7 @@
 ## Credits
 - Inspired by [HeroSelect](http://marvelmods.com/forum/index.php?topic=732) from Norrin Radd
 - Based on [MUAOpenHeroSelect](https://code.google.com/archive/p/muaopenheroselect/) by [@adamatti](https://github.com/adamatti) 2008-2009
+- Using [7-zip](https://7-zip.org/) by Igor Pavlov & contributors (open source under the GNU LGPL licence, but source not included)
 - Using code samples from helpful developers on sites like StackOverflow
 - Using a lot of samples from the WinUI and Windows App SDK tutorials from [Microsoft](https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/)
 - Using a few assets from X-Men Legends and Ultimate Alliance by Raven Software (Activision, Marvel)
@@ -69,11 +70,11 @@
 - Create teams based on folder structure
 - Modify team bonuses through team_bonus directly in the GUI
 - Skin editor and installer
-- Install herostats through drag & drop
-- Install herostats with a browse button
+- Install herostats and mods through drag & drop or with a browse button
 - Automatic and manual roster saving and restoring
 - Load the default roster or create a random roster
 - Free-up saves for the selected roster
+- Change the location of the upside-down arrow in the CSS
 - Supports Mod Organizer 2
 - Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours
 

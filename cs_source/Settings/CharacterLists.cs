@@ -236,10 +236,6 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void AddHerostat(StorageFile Herostat) => AddHerostat(Herostat.Path, Herostat.Name, Herostat.FileType);
         /// <summary>
-        /// Adds a <paramref name="Herostat"/> from the provided path <see cref="string"/> (file must exist) to the available characters.
-        /// </summary>
-        public static void AddHerostat(string Herostat) => AddHerostat(Herostat, Herostat, Path.GetExtension(Herostat));
-        /// <summary>
         /// Reads a herostat file from the provided <paramref name="HSpath"/> (file must exist) and copies the file to the available characters with <paramref name="HSext"/> extension, using the charactername found or <paramref name="HSname"/>.
         /// </summary>
         public static void AddHerostat(string HSpath, string HSname, string HSext)

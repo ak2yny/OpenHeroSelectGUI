@@ -1,4 +1,5 @@
 ﻿using OpenHeroSelectGUI.Settings;
+using System;
 using System.Diagnostics;
 using System.IO;
 
@@ -9,7 +10,7 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Run an <paramref name="exe" /> through CMD, if it exists. Doesn't evaluate the arguments or return the output.
         /// </summary>
-        /// <returns><see langword="True" />, if the <paramref name="exe" /> esits, <see langword="false" /> if it doesn't.</returns>
+        /// <returns><see langword="True" />, if the <paramref name="exe" /> exists, <see langword="false" /> if it doesn't.</returns>
         public static bool RunExeInCmd(string exe, string args)
         {
             if (File.Exists(exe.EndsWith(".exe") ? exe : $"{exe}.exe"))
@@ -65,6 +66,40 @@ namespace OpenHeroSelectGUI.Functions
                 WorkingDirectory = CfgSt.GUI.GameInstallPath,
             };
             _ = Process.Start(Game);
+        }
+        /// <summary>
+        /// Checks the <paramref name="FilePath"/> if it's a compatible Game.exe from MUA.
+        /// </summary>
+        /// <returns>The <see cref="FileStream"/> from <paramref name="FilePath"/>, if it's a compatible Game.exe, otherwise <see langword="null"/>.</returns>
+        public static FileStream? GameExe(string FilePath)
+        {
+            if (File.Exists(FilePath))
+            {
+                byte[] buffer = new byte[512];
+                FileStream fs = File.Open(FilePath, FileMode.Open);
+                fs.Position = 0x3aea90;
+                _ = fs.Read(buffer, 0, buffer.Length);
+                if (fs.Length > 4200000 && "D3-02-54-8B-CC-E6-32-31-A7-EA-C3-43-12-98-DD-7E" == BitConverter.ToString(System.Security.Cryptography.MD5.HashData(buffer)))
+                {
+                    return fs;
+                }
+            }
+            return null;
+        }
+        /// <summary>
+        /// Hex edit the file in <paramref name="FilePath"/> at <paramref name="position"/> to <paramref name="NewValue"/>. Verifies .exe for known MD5 hash (section only).
+        /// </summary>
+        public static bool HexEdit(long position, string NewValue, string FilePath)
+        {
+            if (GameExe(FilePath) is FileStream fs)
+            {
+                byte[] bytes = System.Text.Encoding.ASCII.GetBytes(NewValue);
+                fs.Position = position;
+                fs.Write(bytes, 0, bytes.Length);
+                fs.Close();
+                return true;
+            }
+            return false;
         }
     }
 }

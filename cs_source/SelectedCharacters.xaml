@@ -183,8 +183,9 @@
                  Margin="5"
                  VerticalAlignment="Bottom">
             <InfoBar.ActionButton>
-                <HyperlinkButton Content="More information" NavigateUri="https://marvelmods.com/forum/index.php/topic,10809.msg203622.html#msg203622"/>
+                <HyperlinkButton Content="More information" NavigateUri="https://marvelmods.com/forum/index.php?msg=203622"/>
             </InfoBar.ActionButton>
+            <Button Content="Resolve Clashes" Margin="-10 -10 0 10"/>
         </InfoBar>
     </Grid>
 </Page>
