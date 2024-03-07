@@ -17,8 +17,8 @@
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
     <Description>Graphical User Interface for Open Hero Select</Description>
-    <VersionPrefix>0.3.2</VersionPrefix>
-    <Version>$(VersionPrefix)-beta</Version>
+    <VersionPrefix>1.0.0</VersionPrefix>
+    <Version>$(VersionPrefix)</Version>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
