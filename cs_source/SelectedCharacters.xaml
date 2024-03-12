@@ -185,7 +185,6 @@
             <InfoBar.ActionButton>
                 <HyperlinkButton Content="More information" NavigateUri="https://marvelmods.com/forum/index.php?msg=203622"/>
             </InfoBar.ActionButton>
-            <Button Content="Resolve Clashes" Margin="-10 -10 0 10"/>
         </InfoBar>
     </Grid>
 </Page>

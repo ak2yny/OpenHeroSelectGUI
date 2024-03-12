@@ -190,81 +190,75 @@ namespace OpenHeroSelectGUI
                 }
                 if (i > 0) { PopulateAvailable(); }
             }
+            AvailableCharactersDropArea.Visibility = Visibility.Collapsed;
         }
         /// <summary>
-        /// Install a mod from an extracted <paramref name="ModPath"/>.
+        /// Install a <paramref name="Mod"/>.
         /// </summary>
         private void Install(StorageFile Mod)
         {
-            try
+            if (Util.Run7z(Mod.Path, Mod.DisplayName) is string ExtModPath)
             {
-                string ExtModPath = Path.Combine(OHSpath.Temp, Mod.DisplayName);
-                if (Util.RunExeInCmd("7z", $"x \"{Mod.Path}\" -o\"{ExtModPath}\" -y"))
+                DirectoryInfo MP = new(ExtModPath);
+                if (MP.EnumerateDirectories("*", SearchOption.AllDirectories)
+                    .FirstOrDefault(g => GameFolders.Contains(g.Name)) is DirectoryInfo FGF
+                    && FGF.Parent is DirectoryInfo Source)
                 {
-                    DirectoryInfo MP = new(ExtModPath);
-                    if (MP.EnumerateDirectories("*", SearchOption.AllDirectories)
-                        .FirstOrDefault(g => GameFolders.Contains(g.Name)) is DirectoryInfo FGF
-                        && FGF.Parent is DirectoryInfo Source)
+                    string? Target = null;
+                    string GIPs = Cfg.OHS.GameInstallPath;
+                    if (File.Exists(Path.Combine(GIPs, "Game.exe")))
                     {
-                        string? Target = null;
-                        if (File.Exists(Path.Combine(Cfg.OHS.GameInstallPath, "Game.exe")))
+                        Target = GIPs;
+                    }
+                    else if (!string.IsNullOrEmpty(GIPs)
+                        && new DirectoryInfo(GIPs) is DirectoryInfo GIP
+                        && GIP.Exists
+                        && GIP.Parent is DirectoryInfo Mods)
+                    {
+                        Target = Path.Combine(Mods.FullName, Mod.DisplayName);
+                        if (Directory.Exists(Target)) { Target += $"-{DateTime.Now:yyMMdd-HHmmss}"; }
+                        string MetaP = Path.Combine(Source.FullName, "meta.ini");
+                        if (!File.Exists(MetaP))
                         {
-                            Target = Cfg.OHS.GameInstallPath;
-                        }
-                        else // assuming it's an MO2 mod folder
-                        {
-                            if (Cfg.OHS.GameInstallPath is string GIPs
-                                && new DirectoryInfo(GIPs) is DirectoryInfo GIP
-                                && GIP.Exists
-                                && GIP.Parent is DirectoryInfo Mods)
-                            {
-                                Target = Path.Combine(Mods.FullName, Mod.DisplayName);
-                                if (Directory.Exists(Target)) { Target += $"-{DateTime.Now:yyMMdd-HHmmss}"; }
-                                string MetaP = Path.Combine(Source.FullName, "meta.ini");
-                                if (!File.Exists(MetaP))
-                                {
-                                    string[] meta =
-                                    [
-                                        "[General]",
-                                        $"gameName={Cfg.GUI.Game.PadRight(4, '1')}",
-                                        "modid=0",
-                                        $"version=d{DateTime.Now:yyyy.M.d}",
-                                        "newestVersion=",
-                                        "category=0",
-                                        "nexusFileStatus=1",
-                                        $"installationFile={Mod.Path.Replace("\\", "/")}",
-                                        "repository=Nexus"
-                                    ];
-                                    File.WriteAllLines(MetaP, meta);
-                                }
-                            }
-                        }
-                        CopyInfo.IsOpen = Target is null;
-                        if (Target is not null)
-                        {
-                            OHSpath.CopyFilesRecursively(Source, Target);
-                        }
-                        if (Source.EnumerateFiles("*.*", SearchOption.AllDirectories)
-                            .FirstOrDefault(h => HSexts.Contains(h.Extension)
-                                && (h.Name.Contains("herostat")
-                                || File.ReadAllText(h.FullName).Contains("stats", StringComparison.CurrentCultureIgnoreCase))) is FileInfo Hs)
-                        {
-                            AddHerostat(Hs.FullName, Hs.Name, Hs.Extension);
-                            HSsuccess.IsOpen = !(HSinfo.IsOpen = false);
-                        }
-                        else
-                        {
-                            HSsuccess.IsOpen = !(HSinfo.IsOpen = true);
+                            string[] meta =
+                            [
+                                "[General]",
+                                $"gameName={Cfg.GUI.Game.PadRight(4, '1')}",
+                                "modid=0",
+                                $"version=d{DateTime.Now:yyyy.M.d}",
+                                "newestVersion=",
+                                "category=0",
+                                "nexusFileStatus=1",
+                                $"installationFile={Mod.Path.Replace("\\", "/")}",
+                                "repository=Nexus"
+                            ];
+                            File.WriteAllLines(MetaP, meta);
                         }
                     }
-                    // Otherwise it's not an MUA or XML2 mod. No action for now.
+                    CopyInfo.IsOpen = Target is null;
+                    if (Target is not null)
+                    {
+                        OHSpath.CopyFilesRecursively(Source, Target);
+                    }
+                    if (Source.EnumerateFiles("*.*", SearchOption.AllDirectories)
+                        .FirstOrDefault(h => HSexts.Contains(h.Extension)
+                            && (h.Name.Contains("herostat")
+                            || File.ReadAllText(h.FullName).Contains("stats", StringComparison.CurrentCultureIgnoreCase))) is FileInfo Hs)
+                    {
+                        AddHerostat(Hs.FullName, Hs.Name, Hs.Extension);
+                        HSsuccess.IsOpen = !(HSinfo.IsOpen = false);
+                    }
+                    else
+                    {
+                        HSsuccess.IsOpen = !(HSinfo.IsOpen = true);
+                    }
                 }
-                else
-                {
-                    AddHerostat(Mod);
-                }
+                // Otherwise it's not an MUA or XML2 mod. No action for now.
             }
-            catch { AddHerostat(Mod); }
+            else
+            {
+                AddHerostat(Mod);
+            }
         }
         /// <summary>
         /// Define the allowed drag items 

@@ -8,15 +8,14 @@ namespace OpenHeroSelectGUI.Functions
     public class Util
     {
         /// <summary>
-        /// Run an <paramref name="exe" /> through CMD, if it exists. Doesn't evaluate the arguments or return the output.
+        /// Run an <paramref name="exe" /> through CMD, if it exists. Output is converted to boolean.
         /// </summary>
-        /// <returns><see langword="True" />, if the <paramref name="exe" /> exists, <see langword="false" /> if it doesn't.</returns>
+        /// <returns><see langword="True" />, if the <paramref name="exe" /> exists and if the output was returned (not <see langword="null"/>), otherwise <see langword="false"/>.</returns>
         public static bool RunExeInCmd(string exe, string args)
         {
             if (File.Exists(exe.EndsWith(".exe") ? exe : $"{exe}.exe"))
             {
-                _ = RunDosCommnand(exe, args);
-                return true;
+                return RunDosCommnand(exe, args) is not null;
             }
             return false;
         }
@@ -26,8 +25,8 @@ namespace OpenHeroSelectGUI.Functions
         /// <seealso cref="http://forums.microsoft.com/MSDN/ShowPost.aspx?PostID=457996"/>
         /// <param name="cmd">Executable to run (runs in console by default) - use "cmd" for command prompt and pass commands as arguments</param>
         /// <param name="vars">Arguments passed to the executable</param>
-        /// <returns>The <see cref="Process.StandardOutput" /> or empty string if <see cref="Process" /> couldn't srart</returns>
-        public static string RunDosCommnand(string cmd, string vars)
+        /// <returns>The <see cref="Process.StandardOutput" /> or <see langword="null"/> if <see cref="Process" /> couldn't srart, returned no output/error exit code, or threw an exception.</returns>
+        public static string? RunDosCommnand(string cmd, string vars)
         {
             ProcessStartInfo sinf = new(cmd, vars)
             {
@@ -40,7 +39,8 @@ namespace OpenHeroSelectGUI.Functions
             // Now we create a process, assign its ProcessStartInfo
             Process p = new() { StartInfo = sinf };
             // We can now start the process and, if the process starts successfully, return the output string...
-            return p.Start() ? p.StandardOutput.ReadToEnd() : "";
+            try { return p.Start() && p.StandardOutput.ReadToEnd() is string SO && p.ExitCode == 0 ? SO : null; }
+            catch { return null; }
         }
         /// <summary>
         /// Run an elevated command <paramref name="ecmd" /> <paramref name="vars" /> for OHS. OHS uses the error.log...
@@ -54,6 +54,17 @@ namespace OpenHeroSelectGUI.Functions
             _ = p.Start();
             p.WaitForExit();
             // We're not returning any result, instead we open explorer to the error.log at call.
+        }
+        /// <summary>
+        /// Use 7-zip to try to extract an <paramref name="Archive"/> (any file path). Currently hard coded to extract to <paramref name="ExtName"/> within the temp folder.
+        /// </summary>
+        /// <returns>The full path in the temp folder, if 7-zip was found and could extract the file as an archive, otherwise <see langword="null"/>.</returns>
+        public static string? Run7z(string Archive, string ExtName)
+        {
+            string ExtPath = Path.Combine(OHSpath.Temp, ExtName);
+            return RunExeInCmd(File.Exists("7z.exe") ? "7z" : Path.Combine(OHSpath.CD, "OHSGUI", "7z.exe"), $"x \"{Archive}\" -o\"{ExtPath}\" -y")
+                ? ExtPath
+                : null;
         }
         /// <summary>
         /// Run the game's .exe as defined in settings, using arguments as defined in settings. Note: May fail silently.

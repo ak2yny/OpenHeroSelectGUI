@@ -237,7 +237,7 @@ namespace OpenHeroSelectGUI
         {
             int i = 0; bool x = false;
             string[] Op = [];
-            if (GetSkinStats(SourceIGB) is string Stats && Stats != "")
+            if (GetSkinStats(SourceIGB) is string Stats)
             {
                 string[] StatLines = Stats.Split(Environment.NewLine);
                 IEnumerable<string> GeometryLines = StatLines.Where(s => s.Contains("igGeometryAttr")).Select(s => s.Split('|')[2].Trim()).ToArray();
@@ -368,7 +368,7 @@ namespace OpenHeroSelectGUI
             if (Alchemy.Optimizer is null || !File.Exists(SourceIGB)) { return null; }
             FileInfo IGBFI = new(SourceIGB);
             File.WriteAllLines(Alchemy.INI, Opt.GetSkinInfo);
-            string Stats = Util.RunDosCommnand(Alchemy.Optimizer, $"\"{SourceIGB}\" \"{Path.Combine(Directory.CreateDirectory(Path.Combine(OHSpath.CD, "Temp")).FullName, IGBFI.Name)}\" \"{Alchemy.INI}\"");
+            string? Stats = Util.RunDosCommnand(Alchemy.Optimizer, $"\"{SourceIGB}\" \"{Path.Combine(Directory.CreateDirectory(Path.Combine(OHSpath.CD, "Temp")).FullName, IGBFI.Name)}\" \"{Alchemy.INI}\"");
             if (string.IsNullOrEmpty(Stats)) { return null; }
 
             using FileStream fs = new(IGBFI.FullName, FileMode.Open);
