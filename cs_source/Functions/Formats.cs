@@ -4,21 +4,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Windows.Storage;
 
 namespace OpenHeroSelectGUI.Functions
 {
     internal static class Formats
     {
         /// <summary>
-        /// Search a fake XML or JSON file as <paramref name="array" /> for an attribute <paramref name="name" />. Ignores parent/child relations. Treats nodes as attributes but returns empty.
+        /// Search a fake XML or JSON file as <paramref name="array"/> for an attribute <paramref name="name"/>. Ignores parent/child relations. Treats nodes as attributes but returns empty.
         /// </summary>
-        /// <param name="array">A <see cref="string[]" /> of lines read from a fake XML or JSON file</param>
+        /// <param name="array">A <see langword="string[]" /> of lines read from a fake XML or JSON file</param>
         /// <param name="name">The name of the attribute</param>
-        /// <returns>The value of the first matching attribute or <see cref="string.Empty" /> if not found</returns>
+        /// <returns>The value of the first matching attribute or <see cref="string.Empty"/> if not found</returns>
         public static string GetAttr(string[] array, string name)
         {
-            Regex RXstartsWith = new($"^\"?{name}(\": | =)");
-            string[] Lines = Array.FindAll(array, c => RXstartsWith.IsMatch(c.Trim().ToLower()));
+            string[] Lines = Array.FindAll(array, c => new Regex($"^\"?{name}(\": | =)").IsMatch(c.Trim().ToLower()));
             if (Lines.Length != 0)
             {
                 CfgSt.Var.HsFormat = Lines[0].Trim()[0] == '"' ? ':' : '=';
@@ -29,8 +29,13 @@ namespace OpenHeroSelectGUI.Functions
     }
     internal static partial class Herostat
     {
-        [GeneratedRegex(@"^""?menulocation(\"": | = )")]
+        [GeneratedRegex(@"^""?menulocation(\"": | = )", RegexOptions.IgnoreCase)]
         private static partial Regex MLRX();
+
+        [GeneratedRegex(@"(?<=charactername[=:""\s]*)[^=:""\s][^;=""\n]+[^;=""\s]", RegexOptions.IgnoreCase)]
+        public static partial Regex CharNameRX();
+
+        private static readonly string[] HSexts = [".txt", ".xml", ".json"];
 
         /// <summary>
         /// Load herostat for the character defined in the argument as relative path.
@@ -49,9 +54,9 @@ namespace OpenHeroSelectGUI.Functions
             return null;
         }
         /// <summary>
-        /// Get the full path to the herostat file, providing the path relative in the herostat folder.
+        /// Get the full path to the herostat file, providing the <paramref name="HsPath"/> relative in the herostat folder.
         /// </summary>
-        /// <returns><see cref="FileInfo"/> of the first herostat found or <see langword="null" /> if not found</returns>
+        /// <returns><see cref="FileInfo"/> of the first herostat found or <see langword="null"/> if not found</returns>
         public static FileInfo? GetFile(string HsPath)
         {
             return Path.Combine(OHSpath.HsFolder, HsPath) is string FolderString
@@ -61,6 +66,32 @@ namespace OpenHeroSelectGUI.Functions
                 && folder.EnumerateFiles($"{FolderString[(S + 1)..]}.??????????").FirstOrDefault() is FileInfo HS
                 ? HS
                 : null;
+        }
+        /// <summary>
+        /// Find herostats in a <paramref name="ModFolder"/>.
+        /// </summary>
+        /// <returns><see cref="IEnumerable{FileInfo}"/> of all <see cref="FileInfo"/> that match a herostat name or content.</returns>
+        public static IEnumerable<FileInfo> GetFile(DirectoryInfo ModFolder)
+        {
+            return ModFolder.EnumerateFiles("*.*")
+                .Where(h => HSexts.Contains(h.Extension)
+                    && (h.Name.Contains("herostat")
+                    || File.ReadAllText(h.FullName).Contains("stats", StringComparison.OrdinalIgnoreCase)));
+        }
+        /// <summary>
+        /// Find herostats in a <paramref name="ModFolder"/>.
+        /// </summary>
+        /// <returns><see cref="IEnumerable{FileInfo}"/> of all <see cref="FileInfo"/> that match a herostat name or content.</returns>
+        public static IEnumerable<FileInfo> GetFiles(DirectoryInfo ModFolder)
+        {
+            return Herostat.GetFile(ModFolder) is IEnumerable<FileInfo> Hs && Hs.Any()
+                ? Hs
+                : ModFolder.EnumerateDirectories("data").FirstOrDefault() is DirectoryInfo D
+                && Herostat.GetFile(D) is IEnumerable<FileInfo> HsD && HsD.Any()
+                ? HsD
+                : ModFolder.Parent is DirectoryInfo P
+                ? Herostat.GetFile(P)
+                : Enumerable.Empty<FileInfo>();
         }
         /// <summary>
         /// Gets the internal name from the currently selected character
@@ -79,6 +110,31 @@ namespace OpenHeroSelectGUI.Functions
             return Herostat[0].Trim()[0] == '<' ? GUIXML.GetRootAttribute(Herostat, AttrName) : Formats.GetAttr(Herostat, AttrName);
         }
         /// <summary>
+        /// Adds a <paramref name="Herostat"/> from an existing <see cref="StorageFile"/> to the available characters.
+        /// </summary>
+        public static void Add(StorageFile Herostat) => Add(Herostat.Path, Herostat.Name, Herostat.FileType);
+        /// <summary>
+        /// Reads a herostat file from the provided <paramref name="HSpath"/> (file must exist) and copies the file to the available characters with <paramref name="HSext"/> extension, using the charactername found or <paramref name="HSname"/>.
+        /// </summary>
+        public static void Add(string HSpath, string HSname, string HSext)
+        {
+            string? Name = File.ReadAllLines(HSpath)
+                .FirstOrDefault(l => l.Contains("charactername", StringComparison.OrdinalIgnoreCase)) is string CharLine
+                && CharNameRX().Match(CharLine) is Match M && M.Success
+                ? M.Value
+                : Path.GetFileNameWithoutExtension(HSname);
+            File.Copy(HSpath, OHSpath.GetVacant(Path.Combine(OHSpath.HsFolder, Name), HSext), true);
+        }
+        /// <summary>
+        /// Clone a herostat (<paramref name="HF"/>), using its content <paramref name="HS"/>, and changing the number from <paramref name="ON"/> to <paramref name="NN"/>.
+        /// </summary>
+        public static void Clone(string HS, FileInfo HF, string ON, string NN)
+        {
+            string New = OHSpath.GetVacant($"{HF.FullName[..^HF.Extension.Length]} {NN}", HF.Extension);
+            File.WriteAllText(New, Regex.Replace(HS, $@"((characteranims|skin)[=:""\s]+){ON}(_|\d\d)", "${1}" + NN + "${3}"));
+            CfgSt.Var.FloatingCharacter = Path.GetRelativePath(OHSpath.HsFolder, New)[..^HF.Extension.Length].Replace("\\", "/");
+        }
+        /// <summary>
         /// Splits <paramref name="Herostat"/> <see langword="string[]"/>, based on depth count by curly brackets. Saves them in <paramref name="HsFormat"/> to the <paramref name="OutputFolder"/>, if they have the charactername line.
         /// </summary>
         public static void Split(string[] Herostat, char HsFormat, string OutputFolder)
@@ -87,7 +143,6 @@ namespace OpenHeroSelectGUI.Functions
             List<string> SplitStat = [], MlL = [], CnL = [];
             string CN = "", ML = "";
             string Ext = HsFormat == '{' ? ".json" : ".txt";
-            DirectoryInfo HSFolder = Directory.CreateDirectory(OHSpath.GetOHSFolder(OutputFolder));
             for (int i = 0; i < Herostat.Length; i++)
             {
                 string Line = Herostat[i].Trim();
@@ -100,7 +155,7 @@ namespace OpenHeroSelectGUI.Functions
                     if (Line[0] == '{' || Line[^1] == '{') Depth++;
                     if (Line[0] == '}' || Line.TrimEnd(',')[^1] == '}') Depth--;
                 }
-                if (CharacterListCommands.CharNameRX().Match(Line) is Match M && M.Success)
+                if (CharNameRX().Match(Line) is Match M && M.Success)
                     CN = M.Value;
                 if (MLRX().IsMatch(Line))
                     ML = Line.Split(HsFormat == '{' ? ':' : '=', 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"');
@@ -108,7 +163,7 @@ namespace OpenHeroSelectGUI.Functions
                 {
                     if (CN is not "" and not "defaultman")
                     {
-                        File.WriteAllLines(Path.Combine(HSFolder.FullName, CN + Ext), SplitStat);
+                        File.WriteAllLines(Path.Combine(Directory.CreateDirectory(OHSpath.GetRooted(OutputFolder)).FullName, CN + Ext), SplitStat);
                         CnL.Add(CN); MlL.Add(ML);
                     }
                     SplitStat.Clear();

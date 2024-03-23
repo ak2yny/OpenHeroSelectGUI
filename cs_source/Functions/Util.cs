@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Text;
 
 namespace OpenHeroSelectGUI.Functions
 {
@@ -98,17 +99,48 @@ namespace OpenHeroSelectGUI.Functions
             return null;
         }
         /// <summary>
-        /// Hex edit the file in <paramref name="FilePath"/> at <paramref name="position"/> to <paramref name="NewValue"/>. Verifies .exe for known MD5 hash (section only).
+        /// Hex edit the file in <paramref name="FilePath"/> at <paramref name="Position"/> to <paramref name="NewValue"/>. Verifies .exe for known MD5 hash (section only).
         /// </summary>
-        public static bool HexEdit(long position, string NewValue, string FilePath)
+        public static bool HexEdit(long Position, string NewValue, string FilePath)
         {
             if (GameExe(FilePath) is FileStream fs)
             {
-                byte[] bytes = System.Text.Encoding.ASCII.GetBytes(NewValue);
-                fs.Position = position;
+                byte[] bytes = Encoding.ASCII.GetBytes(NewValue);
+                fs.Position = Position;
                 fs.Write(bytes, 0, bytes.Length);
                 fs.Close();
                 return true;
+            }
+            return false;
+        }
+        //public static void HexEdit(long Position, string NewValue, string FilePath) => HexEdit(Position, Encoding.ASCII.GetBytes(NewValue), FilePath);
+        /// <summary>
+        /// Hex edit the file in <paramref name="FilePath"/> at <paramref name="Position"/> to <paramref name="NewValue"/>.
+        /// </summary>
+        public static void HexEdit(long Position, byte[] NewValue, string FilePath)
+        {
+            using FileStream fs = new(FilePath, FileMode.Open);
+            fs.Position = Position;
+            fs.Write(NewValue, 0, NewValue.Length);
+        }
+        /// <summary>
+        /// Hex edit the file in <paramref name="FilePath"/> at its first occurrence of <paramref name="OldValue"/> to <paramref name="NewValue"/>, if any.
+        /// </summary>
+        public static bool HexEdit(string OldValue, string NewValue, string FilePath)
+        {
+            if (NewValue.Length <= OldValue.Length)
+            {
+                byte[] Bytes = File.ReadAllBytes(FilePath);
+                // apparently, you should use UTF32, because otherwise some string characters might span over multiple bytes
+                int Pos = Encoding.UTF8.GetString(Bytes, 0, Bytes.Length).IndexOf(OldValue);
+                if (Pos > -1)
+                {
+                    Bytes = Encoding.ASCII.GetBytes(OldValue);
+                    byte[] New = Encoding.ASCII.GetBytes(NewValue);
+                    for (int i = 0; i < Bytes.Length; i++) { Bytes[i] = i < New.Length ? New[i] : new byte(); }
+                    HexEdit(Pos, Bytes, FilePath);
+                    return true;
+                }
             }
             return false;
         }

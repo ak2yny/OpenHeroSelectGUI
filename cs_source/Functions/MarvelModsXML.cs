@@ -7,7 +7,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Xml;
-using static OpenHeroSelectGUI.Settings.InternalSettings;
 
 namespace OpenHeroSelectGUI.Functions
 {
@@ -125,31 +124,28 @@ namespace OpenHeroSelectGUI.Functions
         {
             for (int p = 0; p < PkgSourceFolders.Length; p++)
             {
-                DirectoryInfo PkgSrcF = new(Path.Combine(PkgSourceFolders[p], "packages", "generated", "characters"));
+                DirectoryInfo PkgSrcF = new(OHSpath.Packages(PkgSourceFolders[p]));
                 if (File.Exists(Path.Combine(PkgSrcF.FullName, $"{IntName}_{Skin.CharNum}{Skin.Number}.pkgb"))) { return true; }
                 if (PkgSrcF.EnumerateFiles($"{IntName}_{Skin.CharNum}??.pkgb")
                            .FirstOrDefault() is FileInfo PkgSrc)
-                { return ClonePackage(PkgSrc.FullName, IntName, Skin.CharNum, Skin.Number); }
+                { return ClonePackage(PkgSrc.FullName,
+                    OHSpath.Packages(CfgSt.OHS.GameInstallPath, $"{IntName}_{Skin.CharNum}{Skin.Number}"),
+                    Skin.CharNum, Skin.CharNum, Skin.Number); }
             }
             return false;
         }
         /// <summary>
-        /// Clone <paramref name="SourcePkg" /> for <paramref name="IntName" />_<paramref name="CharNum" /> to new <paramref name="TargetNum" />.
+        /// Clone <paramref name="SourcePkg" /> to new <paramref name="PkgBasePath" /> (plus _nc if available), replacing <paramref name="CharNum"/> (plus num from source pkg) references with <paramref name="NewCharNum"/><paramref name="TargetNum"/>. <paramref name="SourcePkg" /> must be the path to an existing package.
         /// </summary>
         /// <returns><see langword="True" /> if both packages were cloned successfully, otherwise <see langword="false" />.</returns>
-        public static bool ClonePackage(string SourcePkg, string? IntName, string CharNum, string TargetNum) => ClonePackage(SourcePkg, IntName, CharNum, CharNum, TargetNum);
-        /// <summary>
-        /// Clone <paramref name="SourcePkg" /> to new <paramref name="IntName" />_<paramref name="NewCharNum" /><paramref name="TargetNum" />, specifying source <paramref name="CharNum" /> for replace. <paramref name="SourcePkg" /> must be the path to an existing package.
-        /// </summary>
-        /// <returns><see langword="True" /> if both packages were cloned successfully, otherwise <see langword="false" />.</returns>
-        public static bool ClonePackage(string SourcePkg, string? IntName, string CharNum, string NewCharNum, string TargetNum)
+        public static bool ClonePackage(string SourcePkg, string? PkgBasePath, string CharNum, string NewCharNum, string TargetNum)
         {
             string SourceNum = Path.GetFileNameWithoutExtension(SourcePkg)[^2..];
             string SourceNCpkg = SourcePkg[..SourcePkg.LastIndexOf('.')] + "_nc.pkgb";
 
-            XmlDocument Pkg = new(), NcPkg = new();
             if (DecompileToTemp(SourcePkg) is string DP)
             {
+                XmlDocument Pkg = new(), NcPkg = new();
                 Pkg.Load(DP);
                 if (Pkg.DocumentElement is XmlElement packagedef)
                 {
@@ -165,40 +161,89 @@ namespace OpenHeroSelectGUI.Functions
                     else
                     {
                         XmlElement PD = NcPkg.CreateElement("packagedef");
-                        for (int i = 0, l = 0; i < packagedef.ChildNodes.Count; i++)
+                        for (int i = 0; i < packagedef.ChildNodes.Count; i++)
                         {
                             if (packagedef.ChildNodes[i] is XmlElement PkgElmt)
                             {
                                 string filename = PkgElmt.GetAttribute("filename");
-                                if (filename == $"hud_head_{CharNum}{SourceNum}") l = i;
-                                PkgElmt.SetAttribute("filename", filename.Replace(CharNum + SourceNum, NewCharNum + TargetNum));
+                                if (filename == $"hud_head_{CharNum}{SourceNum}") { i = packagedef.ChildNodes.Count; }
+                                PkgElmt.SetAttribute("filename", PkgReplace(filename, CharNum, SourceNum, NewCharNum, TargetNum));
+                                _ = PD.AppendChild(PkgElmt);
                             }
-                            if (l <= i) { _ = PD.AppendChild(packagedef.ChildNodes[i]!); }
                         }
                         _ = NcPkg.AppendChild(PD);
                     }
-                    ReplaceInAttributes(packagedef, CharNum + SourceNum, NewCharNum + TargetNum);
-                    ReplaceInAttributes(NcPkg.DocumentElement!, CharNum + SourceNum, NewCharNum + TargetNum);
-                    string PkgBasePath = Path.Combine(CfgSt.OHS.GameInstallPath, "packages", "generated", "characters", $"{IntName}_{NewCharNum}{TargetNum}");
+                    PkgReplInAttr(packagedef, CharNum, SourceNum, NewCharNum, TargetNum);
+                    PkgReplInAttr(NcPkg.DocumentElement!, CharNum, SourceNum, NewCharNum, TargetNum);
                     return CompileToTarget(Pkg, $"{PkgBasePath}.pkgb") && CompileToTarget(NcPkg, $"{PkgBasePath}_nc.pkgb");
                 }
             }
             return false;
         }
         /// <summary>
-        /// Replace <paramref name="SearchString"/> with <paramref name="ReplaceString"/> on all attributes of <see cref="XmlElement"/> <paramref name="XE"/>
+        /// Extended replace method for packages: Call <see cref="PkgReplace"/> on all attributes of <see cref="XmlElement"/> <paramref name="XE"/>
         /// </summary>
-        private static void ReplaceInAttributes(XmlElement XE, string SearchString, string ReplaceString)
+        private static void PkgReplInAttr(XmlElement XE, string CharNum, string SourceNum, string NewCharNum, string TargetNum)
         {
-            XmlNodeList XNL = XE.SelectNodes($"//attribute::*[contains(., '{SearchString}')]/..")!;
+            XmlNodeList XNL = XE.SelectNodes($"//attribute::*[contains(., '{CharNum}')]/..")!;
             for (int i = 0; i < XNL.Count; i++)
             {
                 XmlAttributeCollection XAC = XNL[i]!.Attributes!;
                 for (int a = 0; a < XAC.Count; a++)
                 {
-                    XAC[a].Value = XAC[a].Value.Replace(SearchString, ReplaceString);
+                    XAC[a].Value = PkgReplace(XAC[a].Value, CharNum, SourceNum, NewCharNum, TargetNum);
                 }
             }
+        }
+        /// <summary>
+        /// In <paramref name="filename"/> replace '<paramref name="CharNum"/><paramref name="SourceNum"/>'/'^<paramref name="CharNum"/>_' with '<paramref name="NewCharNum"/><paramref name="TargetNum"/>'/'^<paramref name="NewCharNum"/>_'.
+        /// </summary>
+        /// <returns>The replaced string or <paramref name="filename"/> if nothing to replace.</returns>
+        private static string PkgReplace(string filename, string CharNum, string SourceNum, string NewCharNum, string TargetNum)
+        {
+            return filename.Length > CharNum.Length && filename[..(CharNum.Length + 1)] == $"{CharNum}_"
+                ? $"{NewCharNum}{filename[CharNum.Length..]}"
+                : filename.Replace($"{CharNum}{SourceNum}", $"{NewCharNum}{TargetNum}");
+        }
+        /// <summary>
+        /// Replace all skin_filter references that match any <paramref name="OldSkinNums"/> with <paramref name="NewCharNum"/> (plus [^2..] of old number) in <paramref name="SourceFile"/>. <paramref name="SourceFile"/> must exist and will be replaced. Currently calls itself also on all ents_ (entities) references.
+        /// </summary>
+        /// <returns>An <see cref="XmlDocument"/> if <paramref name="SourceFile"/> could be decompiled, otherwise <see langword="null"/>.</returns>
+        public static bool ReplaceRef(string SourceFile, string[] OldSkinNums, string NewCharNum)
+        {
+            if (DecompileToTemp(SourceFile) is string DP)
+            {
+                XmlDocument XML = new();
+                XML.Load(DP);
+                if (XML.DocumentElement is XmlElement RootE)
+                {
+                    int c = 0;
+                    // Warning: attributes case sensitive! I don't know if XMLB attributes are case sensitive.
+                    for (int s = 0; s < OldSkinNums.Length; s++)
+                    {
+                        if (OldSkinNums[s] is string ON
+                            && RootE.SelectNodes($"//*[@skin_filter=\"{ON}\"]") is XmlNodeList XNL)
+                        {
+                            for (int i = 0; i < XNL.Count; i++)
+                            {
+                                XNL[i]!.Attributes!["skin_filter"]!.Value = NewCharNum + ON[^2..];
+                                c++;
+                            }
+                        }
+                    }
+                    if (!Path.GetFileName(SourceFile).StartsWith("ents_")
+                        && RootE.SelectNodes($"//*[contains(@filename, 'ents_')]") is XmlNodeList Ents)
+                    {
+                        for (int i = 0; i < Ents.Count; i++)
+                        {
+                            FileInfo SF = new(SourceFile);
+                            _ = ReplaceRef(Path.Combine(SF.Directory!.Parent!.FullName, "entities", $"{Ents[i]!.Attributes!["filename"]!.Value}.xmlb"), OldSkinNums, NewCharNum);
+                        }
+                    }
+                    return c > 0 && CompileToTarget(XML, SourceFile);
+                }
+            }
+            return false;
         }
         /// <summary>
         /// Update the Teams character list link to the currently active game
@@ -254,7 +299,7 @@ namespace OpenHeroSelectGUI.Functions
             {
                 XmlDocument Bonuses = new();
                 Bonuses.LoadXml("<bonuses></bonuses>");
-                Dictionary<string, string> PU = CfgSt.GUI.Game == "xml2" ? TeamPowerupsXML2 : TeamPowerups;
+                Dictionary<string, string> PU = CfgSt.GUI.Game == "xml2" ? InternalSettings.TeamPowerupsXML2 : InternalSettings.TeamPowerups;
                 for (int i = 0; i < CfgSt.Roster.Teams.Count; i++)
                 {
                     if (CfgSt.Roster.Teams[i] is TeamBonus TB
@@ -288,7 +333,7 @@ namespace OpenHeroSelectGUI.Functions
                                 if (Bonus.AppendChild(Bonuses.CreateElement("hero")) is XmlElement Hero)
                                 {
                                     Hero.SetAttribute("name", M[m].Name);
-                                    if (!string.IsNullOrEmpty(M[m].Skin)) { Hero.SetAttribute("skin", M[m].Skin); }
+                                    if (!string.IsNullOrWhiteSpace(M[m].Skin)) { Hero.SetAttribute("skin", M[m].Skin); }
                                 }
                             }
                         }
@@ -309,7 +354,8 @@ namespace OpenHeroSelectGUI.Functions
         {
             if (TeamBonusSerializer(OHSpath.Team_bonus))
             {
-                string CompiledName = Path.Combine(CfgSt.OHS.GameInstallPath, "data", $"{CfgSt.GUI.TeamBonusName}{Path.GetExtension(CfgSt.OHS.HerostatName)}");
+                string team_bonus = CfgSt.GUI.ModPack ? CfgSt.GUI.TeamBonusName : "team_bonus";
+                string CompiledName = Path.Combine(CfgSt.OHS.GameInstallPath, "data", $"{team_bonus}{Path.GetExtension(CfgSt.OHS.HerostatName)}");
                 _ = Util.RunExeInCmd("json2xmlb", $"\"{OHSpath.Team_bonus}\" \"{CompiledName}\"");
             }
         }
@@ -335,20 +381,19 @@ namespace OpenHeroSelectGUI.Functions
             return null;
         }
         /// <summary>
-        /// Get the root <see cref="XmlElement"/> by providing the <paramref name="Path" /> to an XML file.
+        /// Get the root <see cref="XmlElement"/> by providing the <paramref name="Path"/> to an XML file.
         /// </summary>
-        /// <returns>The root <see cref="XmlElement"/> containing the complete XML structure</returns>
+        /// <returns>The root <see cref="XmlElement"/> containing the complete XML structure. Returns <see langword="null"/> if file <paramref name="Path"/> doesn't exist or no <see cref="XmlElement"/> could be retreived.</returns>
         public static XmlElement? GetXmlElement(string Path)
         {
-            XmlElement? XmlElement = null;
             if (File.Exists(Path))
             {
                 XmlDocument XmlDocument = new();
                 using XmlReader reader = XmlReader.Create(Path, new XmlReaderSettings() { IgnoreComments = true });
                 XmlDocument.Load(reader);
-                if (XmlDocument.DocumentElement is XmlElement Root) XmlElement = Root;
+                return XmlDocument.DocumentElement;
             }
-            return XmlElement;
+            return null;
         }
         /// <summary>
         /// Get the value of a root <paramref name="Attribute" /> from an <paramref name="XmlData" /> <see langword="string[]" />. Instead of using System.XML.
@@ -413,7 +458,6 @@ namespace OpenHeroSelectGUI.Functions
             if (GetXmlElement(XMLFilePath) is XmlElement Characters)
             {
                 List<string> MlL = [], CnL = [];
-                DirectoryInfo HSFolder = Directory.CreateDirectory(OHSpath.GetOHSFolder(OutputFolder));
                 for (int i = 0; i < Characters.ChildNodes.Count; i++)
                 {
                     if (Characters.ChildNodes[i] is XmlElement XE
@@ -422,7 +466,7 @@ namespace OpenHeroSelectGUI.Functions
                     {
                         XmlDocument Xdoc = new();
                         Xdoc.LoadXml(XE.OuterXml);
-                        Xdoc.Save(Path.Combine(HSFolder.FullName, $"{CN}.xml"));
+                        Xdoc.Save(Path.Combine(Directory.CreateDirectory(OHSpath.GetRooted(OutputFolder)).FullName, $"{CN}.xml"));
                         CnL.Add(CN); MlL.Add(XE.GetAttribute("menulocation"));
                     }
                 }

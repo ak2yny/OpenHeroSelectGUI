@@ -52,9 +52,6 @@
 
 ## Requirements
 - [OpenHeroSelect](https://github.com/TheRealPSV/OpenHeroSelect) and its requirements (Windows 10+)
-
- Version 0.1.1 and earlier:
-- .Net Framework 3.5. [(Windows 7+)](https://learn.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows) [(Earlier Windows)](https://www.microsoft.com/en-us/download/details.aspx?id=21)
 <br/><br/>
 
 ## Features
@@ -76,10 +73,9 @@
 - Free-up saves for the selected roster
 - Change the location of the upside-down arrow in the CSS
 - Supports Mod Organizer 2
+- Notifies character number clashes and provides a button to fix
 - Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours
-
- Version 0.1:
-- Log messages
+- Information bars with success and fail messages
 <br/><br/>
 
 ## Usage Instructions
@@ -90,14 +86,6 @@
  Click `Run OHS` to run OHS and let it build herostat.engb and other files.
  
  Use the controls to adjust the settings for OHS and the GUI.
- 
- 
- Version 0.1:
- 
- Assign a character to the menulocation by double-clicking on its name on the left list. If the number is black, it means that it is already assigned. Remove assigned heroes with the `Remove All` button or by selecting them in the list and pressing the Delete key.
- For XML2, just double-click on characters on the left list. If you want to add more than 21 characters, you must manually enter a higher number in the "Current Position" field.
- Click `Run Open Hero Select` to run OHS and let it build herostat.engb and other files.
- To add different locations (for 50RH etc.), type the number in the "Current Position" field and double-click on the hero you want to place there.
 
 #### How can I add more characters?
  Place the herostats in the herostatFolder (by default `mua/xml` for MUA).
@@ -107,34 +95,19 @@
 #### How can I change the path to MUA/XML2/MO2?
  The path can be browsed in the settings tab.
  Or use the OpenHeroSelect.exe set-up dialogue and paste the path with right-click, when prompted.
- 
-#### What are Save Slots?
- Version 0.1:
- They're supposed to create and restore save backups, so you have free saves for your new roster. I haven't tested them, though. The feature only becomes available, if OHS is set-up to run the game.
 <br/><br/>
 
 ## Coding Instructions
 - [WinUI3 projects with Windows App SDK (non-UWP)](https://learn.microsoft.com/en-us/windows/apps/winui/winui3/create-your-first-winui3-app)
 - The language is C# and Xaml/XML.
-
- Version 0.1:
-- [Tree View](https://www.c-sharpcorner.com/article/treeview-control-in-C-Sharp/)
-- [Read INI Files](https://www.codeproject.com/Articles/1966/An-INI-file-handling-class-using-C)
-- [Work with Events](https://web.archive.org/web/20080215231303/http://www.csharphelp.com/archives/archive253.html)
-- ["Order by" functions](https://learn.microsoft.com/en-us/dotnet/api/system.windows.forms.listview.sort?redirectedfrom=MSDN&view=windowsdesktop-7.0#System_Windows_Forms_ListView_Sort)
 <br/><br/>
 
 ## Build Instructions
-- Use Visual Studio and install .Net with its installer dialogue (I used .Net 8, Framework 3.5 in V0.1). Install Windows App SDK in the same dialogue (it's not possible to build a WinUI project with another application).
+- Use Visual Studio and install .Net with its installer dialogue (.Net 8). Install Windows App SDK in the same dialogue (it's not possible to build a WinUI project with another application).
 - Make sure to add the dependencies before building, as always.
 - I recommend to leave the project as self contained (no dependencies), since WinUI is contained anyway.
 - A Windows App SDK can be built [unpackaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-unpackaged) or [packaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-packaged) (MSIX). As a WinUI3 project, it can be easily re-targeted to a UWP project, but it lacks permission (file access, running OHS) and signature details.
 - Theoretically, the project can be made cross platform through [.Net MAUI](https://dotnet.microsoft.com/en-us/apps/maui) or other platforms, like [UNO](https://platform.uno/), but OHS is currently Windows 10+ exclusive.
- 
- Version 0.1:
-- Requires Newtonsoft.JOSN. The DLL file can be added to the built project.
-- Use MSBuild.
-- Originally developed with [Visual Studio C# Express Edition(VSCEE)](https://visualstudio.microsoft.com/vs/express/) and .Net framework 2.0.
 <br/><br/>
 
 ## Planned Features
@@ -148,6 +121,12 @@
 <br/><br/>
 
 ## Changelog
+
+ |22.03.2024|1.0.3: Added clash resolver, fixed bugs
+
+ |12.03.2024|1.0.2: Fixed bugs
+
+ |07.03.2024|1.0.0: Install mods and herostats from archives
 
  |30.01.2024|Beta 0.3.2: Fixed bugs, New settings layout
 

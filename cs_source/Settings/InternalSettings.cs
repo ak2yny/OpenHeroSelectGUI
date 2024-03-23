@@ -51,6 +51,8 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private FileInfo? hsPath;
         [ObservableProperty]
+        private bool popAvail;
+        [ObservableProperty]
         private MessageItem? sE_Msg_Error;
         [ObservableProperty]
         private MessageItem? sE_Msg_Info;
@@ -59,7 +61,7 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private MessageItem? sE_Msg_Warning;
         [ObservableProperty]
-        private MessageItem? sE_Msg_WarnPkg;
+        private bool sE_Msg_WarnPkg;
 
         public VariableSettings()
         {

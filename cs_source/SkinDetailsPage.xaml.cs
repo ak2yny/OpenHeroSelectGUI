@@ -10,7 +10,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
 using static OpenHeroSelectGUI.Settings.InternalSettings;
@@ -22,11 +21,6 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public sealed partial class SkinDetailsPage : Page
     {
-        [GeneratedRegex(@"\S")]
-        private static partial Regex Indent();
-        [GeneratedRegex(@"ig.*Matrix.*Select", RegexOptions.IgnoreCase, "en-CA")]
-        private static partial Regex igSkinRX();
-
         private string? InternalName;
         private readonly StandardUICommand DeleteCommand = new(StandardUICommandKind.Delete);
         public Cfg Cfg { get; set; } = new();
@@ -159,11 +153,11 @@ namespace OpenHeroSelectGUI
                 }
                 else
                 {
-                    int Indx = Array.IndexOf(LoadedHerostat, LoadedHerostat.FirstOrDefault(l => l.Trim().Trim('"').StartsWith("skin", StringComparison.CurrentCultureIgnoreCase)));
+                    int Indx = Array.IndexOf(LoadedHerostat, LoadedHerostat.FirstOrDefault(l => l.Trim().Trim('"').StartsWith("skin", StringComparison.OrdinalIgnoreCase)));
                     if (Indx > -1)
                     {
                         // A skin should always be present, but in case it isn't and a child element with a skin attribut exists, the result will be corrupted, but the herostat is already corrupted in that case
-                        string indent = Indent().Split(LoadedHerostat[Indx])[0];
+                        string indent = LoadedHerostat[Indx][..^LoadedHerostat[Indx].TrimStart().Length];
                         int M = IsMUA ? 2 : 1;
                         for (int i = 0; i < SkinIdentifiers.Length * M; i++)
                         {
@@ -184,7 +178,7 @@ namespace OpenHeroSelectGUI
                                     : Cfg.Var.HsFormat == ':'
                                         ? $"\"skin_0{(i - 1) / 2 + 1}_name\": \"{Cfg.Roster.SkinsList[(i - 1) / 2].Name}\","
                                         : $"skin_0{(i - 1) / 2 + 1}_name = {Cfg.Roster.SkinsList[(i - 1) / 2].Name} ;";
-                                if (LoadedHerostat[Indx + i].Trim().Trim('"').StartsWith("skin", StringComparison.CurrentCultureIgnoreCase))
+                                if (LoadedHerostat[Indx + i].Trim().Trim('"').StartsWith("skin", StringComparison.OrdinalIgnoreCase))
                                 {
                                     LoadedHerostat[Indx + i] = indent + NewLine;
                                 }
@@ -197,7 +191,7 @@ namespace OpenHeroSelectGUI
                             }
                             else
                             {
-                                LoadedHerostat = LoadedHerostat.Where((vl, ix) => !vl.Trim().Trim('"').StartsWith("skin", StringComparison.CurrentCultureIgnoreCase) || ix != Indx + i).ToArray();
+                                LoadedHerostat = LoadedHerostat.Where((vl, ix) => !vl.Trim().Trim('"').StartsWith("skin", StringComparison.OrdinalIgnoreCase) || ix != Indx + i).ToArray();
                                 Indx--;
                             }
                         }
@@ -223,168 +217,150 @@ namespace OpenHeroSelectGUI
             {
                 AllFound = MarvelModsXML.ClonePackage(PkgSourceFolders, Cfg.Roster.SkinsList[i], InternalName) && AllFound;
             }
-            Cfg.Var.SE_Msg_WarnPkg = new MessageItem { IsOpen = !AllFound };
+            Cfg.Var.SE_Msg_WarnPkg = !AllFound;
         }
         /// <summary>
-        /// Browse for an IGB file and install it to the target <paramref name="GamePath"/> and <paramref name="TargetName"/> (without extension). Then analyze the IGB files for certain properties (meant for skins).
+        /// Browse for an IGB file and install it to <paramref name="GamePath"/> in the game/mod files, renaming it to the selected <see cref="Skins"/> number (plus number <paramref name="N"/> if given and optional <paramref name="Prefix"/>).
         /// </summary>
-        private async void InstallSkinFiles(string GamePath, string TargetName) => FixSkins(await CfgCmd.LoadDialogue(".igb"), GamePath, TargetName);
+        private async void InstallIGB(string GamePath, string N = "", string Prefix = "")
+        {
+            if (Skins.SelectedItem is SkinDetails Skin && await CfgCmd.LoadDialogue(".igb") is string IGB && IGB != "")
+            {
+                FixSkins(IGB, GamePath, $"{Prefix}{Skin.CharNum}{(N == "" ? Skin.Number : N)}");
+            }
+        }
         /// <summary>
         /// Apply Alchemy optimizations to make the <paramref name="SourceIGB"/> compatible if possible and show compatibility information.
         /// Copy <paramref name="SourceIGB"/> to [gameInstallPath]/<paramref name="GamePath"/>/<paramref name="Name"/>.igb.
         /// </summary>
-        private void FixSkins(string? SourceIGB, string GamePath, string Name)
+        private void FixSkins(string SourceIGB, string GamePath, string Name)
         {
-            int i = 0; bool x = false;
-            string[] Op = [];
-            if (GetSkinStats(SourceIGB) is string Stats)
+            int Plat = Cfg.GUI.Game == "xml2"
+                ? XML2platforms.SelectedIndex + 10
+                : MUAplatforms.SelectedIndex;
+            int PAV = Plat is 0 or 2 or 3 or 7 or 8
+                ? 9
+                : Plat is 4 or 5 or 13
+                ? 8
+                : 6;
+
+            SolidColorBrush Red = new(Colors.Red);
+            SolidColorBrush Green = new(Colors.Green);
+
+            GeometryFormats.Text = "";
+            string? igSkin = null;
+            if (Alchemy.GetSkinStats(SourceIGB) is string Stats)
             {
                 string[] StatLines = Stats.Split(Environment.NewLine);
                 IEnumerable<string> GeometryLines = StatLines.Where(s => s.Contains("igGeometryAttr")).Select(s => s.Split('|')[2].Trim()).ToArray();
                 IEnumerable<string> TextureLines = StatLines.Where(s => s.Contains("IG_GFX_TEXTURE_FORMAT_"));
                 int[] TexSizeProds = TextureLines.Select(s => int.Parse(s.Split('|')[1]) * int.Parse(s.Split('|')[2])).ToArray();
                 string[] BiggestTex = TextureLines.ToArray()[Array.IndexOf(TexSizeProds, TexSizeProds.Max())].Split('|');
-                string AV = StatLines[^2];
-                int IGBSZ = int.Parse(StatLines[^1]);
 
-                SolidColorBrush Red = new(Colors.Red);
-                SolidColorBrush Green = new(Colors.Green);
-                int Plat = Cfg.GUI.Game == "xml2"
-                    ? XML2platforms.SelectedIndex + 10
-                    : MUAplatforms.SelectedIndex;
+                int AV;
+                using FileStream fs = new(SourceIGB, FileMode.Open);
+                fs.Position = 0x2C;
+                try { AV = fs.ReadByte(); } catch { AV = 0; }
 
-                bool AVisN = int.TryParse(AV, out int AVN);
-                AlchemyVersion.Text = AV == "4"
+                AlchemyVersion.Text = AV == 4
                     ? "2.5"
-                    : AV == "6"
+                    : AV == 6
                     ? "3.2"
-                    : AV == "8"
+                    : AV == 8
                     ? "3.5"
-                    : AV == "9"
+                    : AV == 9
                     ? "5"
                     : "unknown";
                 AlchemyVersion.Foreground = AlchemyVersionT.Foreground =
-                    (x = (Plat > 9 || Plat is 1 or 6) && AVisN && AVN > 6)
+                    AV > PAV
                     ? Red
                     : Green;
 
-                FileSize.Text = $"{IGBSZ} bytes";
+                FileSize.Text = $"{fs.Length} bytes";
                 FileSize.Foreground = FileSizeT.Foreground =
-                    (x = (Plat == 5 && IGBSZ > 600000)
-                    || ((Plat > 10 || Plat is 1 or 4 or 6) && IGBSZ > 300000))
+                    (Plat == 5 && fs.Length > 600000)
+                    || ((Plat > 10 || Plat is 1 or 4 or 6) && fs.Length > 300000)
                     ? Red
                     : Green;
 
-                // Wii (Plat 5) is buggy when attr2 was added with Alchemy 5 and PSP doesn't seem to work. They support native (Alch 3.5) attr2 however.
+                // Wii (Plat 5) is buggy when attr2 was added with Alchemy 5 and XML2 PSP doesn't support any Alchemy 5. They require native (Alch 3.5) attr2 however.
                 GeometryFormats.Text = string.Join(", ", GeometryLines.Distinct());
                 GeometryFormats.Foreground = GeometryFormatsT.Foreground =
-                    (x = ((Plat is 1 or 6 or 10 or 11 or 12 or 14) && GeometryFormats.Text.Contains('2'))
-                    || ((Plat is 2 or 3 or 4 or 7 or 8 or 13) && GeometryFormats.Text.Contains("1_5")))
+                    (PAV == 6 && GeometryFormats.Text.Contains('2'))
+                    || (PAV > 6 && Plat != 0 && GeometryFormats.Text.Contains("1_5"))
                     ? Red
                     : Green;
                 VertexCount.Text = StatLines.Where(s => s.Contains(" vertex total: ", StringComparison.OrdinalIgnoreCase)).Max(s => s.Split(' ', StringSplitOptions.RemoveEmptyEntries)[3]);
                 GeometryCount.Text = GeometryLines.Count().ToString();
 
                 TextureFormats.Text = string.Join(", ", TextureLines.Select(s => s.Split('|')[3].Trim()).Distinct()).Replace("IG_GFX_TEXTURE_FORMAT_", "");
-                string IncompatibleTexs = Plat is 0 or 10
-                    ? "PSP GAMECUBE"
+                string[] IncompatibleTexs = Plat is 0 or 10
+                    ? ["PSP", "GAMECUBE"]
                     : Plat is 1 or 12
-                    ? "PSP GAMECUBE DXT"
+                    ? ["PSP", "GAMECUBE", "DXT"]
                     : Plat is 4 or 13
-                    ? "GAMECUBE DXT"
+                    ? ["GAMECUBE", "DXT"]
                     : Plat is 5
-                    ? "PSP _X_"
+                    ? ["PSP", "_X_"]
                     : Plat is 11
-                    ? "PSP"
+                    ? ["PSP"]
                     : Plat is 8
-                    ? "PSP GAMECUBE 888 _X_"
-                    : "PSP GAMECUBE _X_";
+                    ? ["PSP", "GAMECUBE", "888", "_X_"]
+                    : ["PSP", "GAMECUBE", "_X_"];
                 TextureFormats.Foreground = TextureFormatsT.Foreground =
-                    (x = IncompatibleTexs.Split().Any(i => TextureFormats.Text.Contains(i)))
+                    IncompatibleTexs.Any(i => TextureFormats.Text.Contains(i))
                     ? Red
                     : Green;
                 BiggestTexture.Text = $"{BiggestTex[1].Trim()} x {BiggestTex[2].Trim()}";
                 TextureCount.Text = TextureLines.Count().ToString();
                 MipMaps.Text = TextureLines.Any(s => s.Split('|')[4].Contains("Mip", StringComparison.OrdinalIgnoreCase)).ToString();
 
-                string? igSkinLine = StatLines.FirstOrDefault(s => igSkinRX().IsMatch(s));
-                igSkinName.Text = string.IsNullOrEmpty(igSkinLine) ? "" : igSkinLine.Split('|')[0].Trim();
-                igSkinName.Foreground = igSkinNameT.Foreground =
-                    (x = (Plat is 1 or 6 or 10 or 11 or 12 or 14) && igSkinName.Text != Name && !string.IsNullOrEmpty(igSkinLine))
-                    ? Red
-                    : Green;
+                igSkinName.Text = igSkin = Alchemy.IntName(StatLines);
+                igSkinName.Foreground = igSkinNameT.Foreground = igSkin == Name ? Green : Red;
 
                 SkinInfo.Visibility = Visibility.Visible;
-
-                if ((Plat is 2 or 3 or 7 or 8) && GeometryFormats.Text.Contains("1_5"))  // convert to attr2
-                {
-                    i++;
-                    Op = [.. Op, .. Opt.CGA(i)];
-                }
-                if (Plat is 0 or 2 or 3 or 7 or 8)  // (there are issues sometimes if gc is already applied)
-                {
-                    i++;
-                    Op = [.. Op, .. Opt.GGC(i)];
-                }
-                if ((Plat is not 1 or 6 or 10 or 11 or 12 or 14) && igSkinName.Text != Name && !igSkinName.Text.StartsWith("Bip01"))
-                {
-                    i++;
-                    Op = [.. Op, .. Opt.Rename(i, igSkinName.Text, Name)];
-                    igSkinName.Text = Name;
-                }
             }
-            if (File.Exists(SourceIGB)) // optimize & optimize successful
+            FileInfo SIGB = new(SourceIGB);
+            if (SIGB.Exists)
             {
+                bool ConvGeo = Plat is 2 or 3 or 4 or 7 or 8 && GeometryFormats.Text.Contains("1_5");
+                bool HexEdit = !(string.IsNullOrWhiteSpace(igSkin) || igSkin == Name || igSkin.StartsWith("Bip01") || GamePath.StartsWith("hud") || GamePath.StartsWith("ui"));
                 string IGB = Path.Combine(Directory.CreateDirectory(Path.Combine(Cfg.OHS.GameInstallPath, GamePath)).FullName, $"{Name}.igb");
-                if (i > 0)
-                {
-                    File.WriteAllLines(Alchemy.INI, [.. Opt.Head(i), .. Op]);
-                    if (Alchemy.Optimizer is not null && Util.RunExeInCmd(Alchemy.Optimizer, $"\"{SourceIGB}\" \"{IGB}\" \"{Alchemy.INI}\""))
-                    {
-                        ShowSuccess($"Skin installed to '{IGB}'.");
-                        return;
-                    }
-                    Cfg.Var.SE_Msg_Warning = new MessageItem
-                    {
-                        Message = $"'{SourceIGB}' is possibly incompatible and can't be converted or conversion has failed. Check the IGB statistics",
-                        IsOpen = x
-                    };
-                }
                 Cfg.Var.SE_Msg_Info = new MessageItem { Message = $"Replaced '{IGB}'.", IsOpen = File.Exists(IGB) };
-                File.Copy(SourceIGB, IGB, true);
+
+                bool optimized = (ConvGeo || HexEdit || !GamePath.StartsWith("ui"))
+                    && Alchemy.CopySkin(SIGB, IGB, Name, PAV, ConvGeo, igSkin, HexEdit);
+
+                if ((optimized
+                    || (SIGB.CopyTo(IGB, true) is FileInfo TIGB
+                    && HexEdit && Util.HexEdit(igSkin ?? "igActor01Appearance", Name, IGB)))
+                    && HexEdit)
+                {
+                    igSkinName.Text = Name;
+                    igSkinName.Foreground = igSkinNameT.Foreground = Green;
+                }
+                if (optimized && ConvGeo) { GeometryFormats.Foreground = GeometryFormatsT.Foreground = Green; }
+                Cfg.Var.SE_Msg_Warning = new MessageItem
+                {
+                    Message = $"'{SourceIGB}' is possibly incompatible and can't be optimized or optimization has failed. Check the IGB statistics",
+                    IsOpen = new[] { AlchemyVersion, FileSize, GeometryFormats, TextureFormats, igSkinName }.Any(t => t.Foreground == Red)
+                };
                 ShowSuccess($"Skin installed to '{IGB}'.");
             }
-            else
-            {
-                ShowError($"'{SourceIGB}' not found.");
-            }
+            else if (!string.IsNullOrWhiteSpace(SourceIGB)) { ShowError($"'{SourceIGB}' not found."); }
         }
         /// <summary>
-        /// Optimizes the <paramref name="SourceIGB"/> file to a temporary folder, using statistic optimizations, and reads the sgOptimizer output.
+        /// Calculate Emma Frosts Diamond Form number for <paramref name="SkinNumber"/>.
         /// </summary>
-        /// <returns>A <see cref="string"/> with the stats or <see langword="null"/> if no stats were found or other errors occurred.</returns>
-        private static string? GetSkinStats(string? SourceIGB)
-        {
-            if (Alchemy.Optimizer is null || !File.Exists(SourceIGB)) { return null; }
-            FileInfo IGBFI = new(SourceIGB);
-            File.WriteAllLines(Alchemy.INI, Opt.GetSkinInfo);
-            string? Stats = Util.RunDosCommnand(Alchemy.Optimizer, $"\"{SourceIGB}\" \"{Path.Combine(Directory.CreateDirectory(Path.Combine(OHSpath.CD, "Temp")).FullName, IGBFI.Name)}\" \"{Alchemy.INI}\"");
-            if (string.IsNullOrEmpty(Stats)) { return null; }
-
-            using FileStream fs = new(IGBFI.FullName, FileMode.Open);
-            fs.Position = 0x2C;
-            string AV;
-            try { AV = string.Format("{0:X}", fs.ReadByte()); } catch { AV = "unknown"; }
-
-            return $"{Stats}{Environment.NewLine}{AV}{Environment.NewLine}{IGBFI.Length}";
-        }
+        /// <returns>Matching Diamond Form number or 99, if invalid.</returns>
         private static int GetDiamondFormNumber(string SkinNumber)
         {
-            int LN = int.Parse(SkinNumber[^1].ToString());
-            return LN == 9
-                ? int.Parse(SkinNumber) + 1
-                : 5 > LN && LN > 0
-                ? int.Parse(SkinNumber) + 4
+            int N = int.Parse(SkinNumber);
+            int LN = N % 10;
+            return LN == 9 && N < 99
+                ? N + 1
+                : LN is < 5 and > 0
+                ? N + 4
                 : 99;
         }
         /// <summary>
@@ -440,14 +416,18 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Restrict skin number input
         /// </summary>
+#pragma warning disable CA1822 // Mark members as static
         private void SkinNumber_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
+#pragma warning restore CA1822 // Mark members as static
         {
             args.Cancel = args.NewText.Any(c => !char.IsDigit(c)) || args.NewText.Length > 2;
         }
         /// <summary>
         /// Ensure two digit number
         /// </summary>
+#pragma warning disable CA1822 // Mark members as static
         private void SkinNumber_LosingFocus(UIElement sender, LosingFocusEventArgs args)
+#pragma warning restore CA1822 // Mark members as static
         {
             if (sender is TextBox SN)
             {
@@ -470,7 +450,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void Skins_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (Skins.SelectedItem is SkinDetails Skin)
+            if (Skins.SelectedItem is SkinDetails Skin && Path.IsPathFullyQualified(Cfg.OHS.GameInstallPath)) // Again, this is not consistent with the relative path that the settings allow.
             {
                 XML2platforms.Visibility = ThreeDHeadBrowse.Visibility = Cfg.GUI.Game != "xml2"
                     ? Visibility.Collapsed
@@ -492,16 +472,20 @@ namespace OpenHeroSelectGUI
                 _ = Cfg.Roster.SkinsList.Remove(Skin);
             }
         }
-
+        /// <summary>
+        /// Browse for an IGB file and install it to actors in the game/mod files, renaming it to the selected <see cref="Skins"/> name.
+        /// This is separate from InstallIGB, because it tries to install the hud heads as well.
+        /// </summary>
         private async void InstallSkins_Click(object sender, RoutedEventArgs e)
         {
-            if (Skins.SelectedItem is SkinDetails Skin && await CfgCmd.LoadDialogue(".igb") is string IGB)
+            if (Skins.SelectedItem is SkinDetails Skin && await CfgCmd.LoadDialogue(".igb") is string IGB && IGB != "")
             {
+                FixSkins(IGB, "actors", $"{Skin.CharNum}{Skin.Number}");
                 string IGBpath = Path.GetDirectoryName(IGB)!;
                 string IGBbase = Path.GetFileNameWithoutExtension(IGB);
                 FileInfo HUD = new(Path.Combine(IGBpath, $"hud_head_{IGBbase}.igb"));
                 FileInfo H3D = new(Path.Combine(IGBpath, $"{IGBbase} (3D Head).igb"));
-                // Note: heads are not evaluated for compatibility. It's assumed that they have the same compatibility
+                // Note: heads are not not optimized. They may not work, if the compatibility is not given. Hex-editing is not necessary.
                 if (HUD.Exists)
                 {
                     OHSpath.CopyToGame(HUD, "hud", $"hud_head_{Skin.CharNum}{Skin.Number}.igb");
@@ -512,30 +496,16 @@ namespace OpenHeroSelectGUI
                     OHSpath.CopyToGame(H3D, Path.Combine("ui", "hud", "characters"), $"{Skin.CharNum}{Skin.Number}.igb");
                     ThreeDHeadBrowse.Visibility = Visibility.Collapsed;
                 }
-                FixSkins(IGB, "actors", $"{Skin.CharNum}{Skin.Number}");
             }
         }
 
-        private void InstallHuds_Click(object sender, RoutedEventArgs e)
-        {
-            if (Skins.SelectedItem is SkinDetails Skin)
-            {
-                InstallSkinFiles("hud", $"hud_head_{Skin.CharNum}{Skin.Number}");
-            }
-        }
+        private void InstallHuds_Click(object sender, RoutedEventArgs e) => InstallIGB("hud", "", "hud_head_");
 
-        private void Install3DHead_Click(object sender, RoutedEventArgs e)
-        {
-            if (Skins.SelectedItem is SkinDetails Skin)
-            {
-                InstallSkinFiles(Path.Combine("ui", "hud", "characters"), $"{Skin.CharNum}{Skin.Number}");
-            }
-        }
+        private void Install3DHead_Click(object sender, RoutedEventArgs e) => InstallIGB(Path.Combine("ui", "hud", "characters"));
 
         private void InstallMannequin_Click(object sender, RoutedEventArgs e)
         {
-            SkinDetails Skin = Cfg.Roster.SkinsList.First();
-            InstallSkinFiles(Path.Combine("ui", "models", Cfg.GUI.Game == "mua" ? Cfg.MUA.MannequinFolder : "characters"), $"{Skin.CharNum}{MqNum}");
+            InstallIGB(Path.Combine("ui", "models", Cfg.GUI.Game == "mua" ? Cfg.MUA.MannequinFolder : "characters"), MqNum);
         }
 
         private void DiamondForm_Opened(object sender, RoutedEventArgs e)
@@ -556,26 +526,26 @@ namespace OpenHeroSelectGUI
 
         private void InstallEmmaSkin_Click(object sender, RoutedEventArgs e)
         {
-            if (Skins.SelectedItem is SkinDetails Skin)
+            if (Skins.SelectedItem is SkinDetails Skin && GetDiamondFormNumber(Skin.Number) is int N && N < 99)
             {
-                InstallSkinFiles("actors", $"{Skin.CharNum}{GetDiamondFormNumber(Skin.Number).ToString().PadLeft(2, '0')}");
+                InstallIGB("actors", $"{N.ToString().PadLeft(2, '0')}");
             }
         }
 
         private void InstallHumanTorch_Click(object sender, RoutedEventArgs e)
         {
-            if (Skins.SelectedItem is SkinDetails Skin)
+            if (Skins.SelectedItem is SkinDetails Skin && int.Parse(Skin.Number) + 10 is int N && N < 100)
             {
-                InstallSkinFiles("actors", $"{Skin.CharNum}{int.Parse(Skin.Number) + 10}");
+                InstallIGB("actors", $"{N}");
             }
         }
 
         private async void InstallExtraSkin_Click(object sender, RoutedEventArgs e)
         {
-            if (Skins.SelectedItem is SkinDetails Skin)
+            ContentDialogResult result = await EnterSkinNumber.ShowAsync();
+            if (result == ContentDialogResult.Primary && string.IsNullOrEmpty(ExtraSkinNumber.Text))
             {
-                _ = await EnterSkinNumber.ShowAsync();
-                InstallSkinFiles("actors", $"{Skin.CharNum}{ExtraSkinNumber.Text}");
+                InstallIGB("actors", ExtraSkinNumber.Text);
             }
         }
         /// <summary>

@@ -21,30 +21,6 @@ namespace OpenHeroSelectGUI
     public sealed partial class AvailableCharacters : Page
     {
         public Cfg Cfg { get; set; } = new();
-        private static readonly string[] GameFolders =
-        [
-            "actors",
-            "automaps",
-            "conversations",
-            "data",
-            "dialogs",
-            "effects",
-            "hud",
-            "maps",
-            "models",
-            "motionpaths",
-            "movies",
-            "packages",
-            "plugins",
-            "scripts",
-            "shaders",
-            "skybox",
-            "sounds",
-            "subtitles",
-            "texs",
-            "textures",
-            "ui"
-        ];
         private static readonly string[] HSexts = [".txt", ".xml", ".json"];
 
         public AvailableCharacters()
@@ -58,30 +34,36 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Load characters from the herostat folder
         /// </summary>
-        private void PopulateAvailable()
+        private void PopulateAvailable(bool KeepFilter = false)
         {
             DirectoryInfo folder = new(OHSpath.HsFolder);
-            if (folder.Exists)
+            string[] NewAvailable = folder.EnumerateFiles("*", SearchOption.AllDirectories)
+                .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
+                .Replace('\\', '/'))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToImmutableSortedSet()
+                .ToArray();
+            if (NewAvailable != Cfg.Roster.Available)
             {
-                string[] NewAvailable = folder.EnumerateFiles("*", SearchOption.AllDirectories)
-                    .Select(f => Path.ChangeExtension(f.FullName, null)
-                    .Replace(folder.FullName, string.Empty)
-                    .Replace('\\', '/')
-                    .TrimStart('/'))
-                    .Distinct()
-                    .ToImmutableSortedSet()
-                    .ToArray();
-                if (NewAvailable != Cfg.Roster.Available)
+                Cfg.Roster.Available = NewAvailable;
+                if (NewAvailable.Length > 0)
                 {
-                    Cfg.Roster.Available = NewAvailable;
-                    PopulateAvailable(NewAvailable);
+                    if (!KeepFilter && !string.IsNullOrEmpty(TVsearch.Text))
+                    {
+                        TVsearch.Text = "";
+                    }
+                    else
+                    {
+                        PopulateAvailable(string.IsNullOrEmpty(TVsearch.Text) || !KeepFilter ? NewAvailable
+                            : NewAvailable.Where(a => a.Contains(TVsearch.Text, StringComparison.CurrentCultureIgnoreCase)).ToArray());
+                    }
                 }
-            }
-            else
-            {
-                TreeViewNode NA = new() { Content = "Drop herostats here to install" };
-                trvAvailableChars.RootNodes.Clear();
-                trvAvailableChars.RootNodes.Add(NA);
+                else
+                {
+                    TreeViewNode NA = new() { Content = "Drop herostats here to install" };
+                    trvAvailableChars.RootNodes.Clear();
+                    trvAvailableChars.RootNodes.Add(NA);
+                }
             }
         }
         /// <summary>
@@ -126,7 +108,8 @@ namespace OpenHeroSelectGUI
         {
             if (Cfg.Roster.Available is not null)
             {
-                PopulateAvailable(Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.InvariantCultureIgnoreCase)).ToArray());
+                PopulateAvailable(string.IsNullOrEmpty(sender.Text) ? Cfg.Roster.Available
+                    : Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.CurrentCultureIgnoreCase)).ToArray());
             }
         }
         /// <summary>
@@ -193,71 +176,34 @@ namespace OpenHeroSelectGUI
             AvailableCharactersDropArea.Visibility = Visibility.Collapsed;
         }
         /// <summary>
-        /// Install a <paramref name="Mod"/>.
+        /// Install a <paramref name="Mod"/>, including herostat. <paramref name="Mod"/> can be a heroatat, which then is installed instead.
         /// </summary>
         private void Install(StorageFile Mod)
         {
             if (Util.Run7z(Mod.Path, Mod.DisplayName) is string ExtModPath)
             {
-                DirectoryInfo MP = new(ExtModPath);
-                if (MP.EnumerateDirectories("*", SearchOption.AllDirectories)
-                    .FirstOrDefault(g => GameFolders.Contains(g.Name)) is DirectoryInfo FGF
-                    && FGF.Parent is DirectoryInfo Source)
+                CopyInfo.IsOpen = HSinfo.IsOpen = false;
+                int i = 0, c = 0;
+                foreach (DirectoryInfo Source in OHSpath.GetModSource(ExtModPath))
                 {
-                    string? Target = null;
-                    string GIPs = Cfg.OHS.GameInstallPath;
-                    if (File.Exists(Path.Combine(GIPs, "Game.exe")))
+                    if (Herostat.GetFiles(Source).FirstOrDefault() is FileInfo Hs)
                     {
-                        Target = GIPs;
+                        Herostat.Add(Hs.FullName, Source.Name, Hs.Extension);
+                        i++;
                     }
-                    else if (!string.IsNullOrEmpty(GIPs)
-                        && new DirectoryInfo(GIPs) is DirectoryInfo GIP
-                        && GIP.Exists
-                        && GIP.Parent is DirectoryInfo Mods)
-                    {
-                        Target = Path.Combine(Mods.FullName, Mod.DisplayName);
-                        if (Directory.Exists(Target)) { Target += $"-{DateTime.Now:yyMMdd-HHmmss}"; }
-                        string MetaP = Path.Combine(Source.FullName, "meta.ini");
-                        if (!File.Exists(MetaP))
-                        {
-                            string[] meta =
-                            [
-                                "[General]",
-                                $"gameName={Cfg.GUI.Game.PadRight(4, '1')}",
-                                "modid=0",
-                                $"version=d{DateTime.Now:yyyy.M.d}",
-                                "newestVersion=",
-                                "category=0",
-                                "nexusFileStatus=1",
-                                $"installationFile={Mod.Path.Replace("\\", "/")}",
-                                "repository=Nexus"
-                            ];
-                            File.WriteAllLines(MetaP, meta);
-                        }
-                    }
-                    CopyInfo.IsOpen = Target is null;
-                    if (Target is not null)
+                    if (OHSpath.GetModTarget(Source, Source.Name, Mod.Path) is string Target)
                     {
                         OHSpath.CopyFilesRecursively(Source, Target);
-                    }
-                    if (Source.EnumerateFiles("*.*", SearchOption.AllDirectories)
-                        .FirstOrDefault(h => HSexts.Contains(h.Extension)
-                            && (h.Name.Contains("herostat")
-                            || File.ReadAllText(h.FullName).Contains("stats", StringComparison.CurrentCultureIgnoreCase))) is FileInfo Hs)
-                    {
-                        AddHerostat(Hs.FullName, Hs.Name, Hs.Extension);
-                        HSsuccess.IsOpen = !(HSinfo.IsOpen = false);
-                    }
-                    else
-                    {
-                        HSsuccess.IsOpen = !(HSinfo.IsOpen = true);
+                        c++;
                     }
                 }
-                // Otherwise it's not an MUA or XML2 mod. No action for now.
+                CopyInfo.IsOpen = c == 0;
+                HSinfo.IsOpen = !(HSsuccess.IsOpen = i > 0);
             }
             else
             {
-                AddHerostat(Mod);
+                Herostat.Add(Mod);
+                HSsuccess.IsOpen = true;
             }
         }
         /// <summary>
@@ -355,6 +301,11 @@ namespace OpenHeroSelectGUI
                 TVsearch.Focus(FocusState.Programmatic);
                 args.Handled = true;
             }
+        }
+
+        private void Reload_Available(object sender, RoutedEventArgs e)
+        {
+            PopulateAvailable(true);
         }
     }
 }

@@ -38,7 +38,7 @@
         <StackPanel Grid.ColumnSpan="3" Margin="20" Spacing="2" VerticalAlignment="Bottom">
             <InfoBar x:Name="PkgWarning"
                      Severity="Warning"
-                     IsOpen="{x:Bind Cfg.Var.SE_Msg_WarnPkg.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Cfg.Var.SE_Msg_WarnPkg, Mode=TwoWay}"
                      Title="Missing packages"
                      Message="HUD head and powers might not show correctly."/>
             <InfoBar x:Name="Warning"

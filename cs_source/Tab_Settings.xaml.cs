@@ -32,6 +32,7 @@ namespace OpenHeroSelectGUI
         {
             InitializeComponent();
             ReadSaveBackups();
+            GIPcheck();
         }
         /// <summary>
         /// Load the GUI configurations and set-up the controls.
@@ -87,6 +88,18 @@ namespace OpenHeroSelectGUI
                 : FixedLengthFN;
             return NewName.Length > Fallback.Length || string.IsNullOrWhiteSpace(FixedLengthFN) ? Fallback : NewName;
         }
+
+        private async void MO2Browse()
+        {
+            Cfg.OHS.GameInstallPath = await CfgCmd.BrowseFolder();
+            GIPcheck();
+        }
+
+        private void GIPcheck()
+        {
+            Warning.Message = (Cfg.OHS.GameInstallPath == "" ? "" : $"No 'data' folder in '{Cfg.OHS.GameInstallPath}'. ") + "Please browse for a valid game installation path or mod folder.";
+            Warning.IsOpen = !Directory.Exists(Path.Combine(Cfg.OHS.GameInstallPath, "data"));
+        }
         // UI control handlers:
         private async void ExeBrowseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -94,26 +107,26 @@ namespace OpenHeroSelectGUI
             {
                 FileInfo? ExeFile = new(Exe);
                 Cfg.OHS.ExeName = ExeFile.Name;
-                Cfg.GUI.GameInstallPath = ExeFile.FullName[..(ExeFile.FullName.Length - ExeFile.Name.Length - 1)];
+                Cfg.GUI.GameInstallPath = ExeFile.FullName[..^(ExeFile.Name.Length + 1)];
                 if (string.IsNullOrEmpty(Cfg.OHS.GameInstallPath))
                 {
                     Cfg.OHS.GameInstallPath = Cfg.GUI.GameInstallPath;
+                    GIPcheck();
                 }
             }
         }
-        private async void MO2BrowseButton_Click(object sender, RoutedEventArgs e)
+
+        private void Warning_CloseButtonClick(InfoBar sender, object args)
         {
-            Warning.IsOpen = false;
-            Cfg.OHS.GameInstallPath = await CfgCmd.BrowseFolder();
+            MO2Browse();
         }
-        private void MO2ModFolder_TextChanged(object sender, TextChangedEventArgs e)
+
+        private void MO2BrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            if (!Directory.Exists(Path.Combine(Cfg.OHS.GameInstallPath, "data")))
-            {
-                Warning.Message = $"No 'data' folder in '{Cfg.OHS.GameInstallPath}'";
-                Warning.IsOpen = true;
-            }
+            MO2Browse();
         }
+
+
         private async void HBrowseButton_Click(object sender, RoutedEventArgs e)
         {
             Cfg.OHS.HerostatFolder = OHSpath.TrimGameFolder(await CfgCmd.BrowseFolder());

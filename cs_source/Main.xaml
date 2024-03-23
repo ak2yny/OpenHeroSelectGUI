@@ -47,7 +47,6 @@
             </Button>
         </StackPanel>
         <NavigationView x:Name="NavView" Grid.Row="1"
-                        CompactModeThresholdWidth="300"
                         ExpandedModeThresholdWidth="1220"
                         IsBackButtonVisible="Collapsed"
                         IsBackEnabled="False"

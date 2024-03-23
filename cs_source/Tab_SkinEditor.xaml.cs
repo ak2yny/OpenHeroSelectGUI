@@ -22,7 +22,7 @@ namespace OpenHeroSelectGUI
             InitializeComponent();
             _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
             _ = SkinDetailsPage.Navigate(typeof(SkinDetailsPage));
-            Cfg.Var.SE_Msg_Info = Cfg.Var.SE_Msg_Error = Cfg.Var.SE_Msg_Success = Cfg.Var.SE_Msg_Warning = Cfg.Var.SE_Msg_WarnPkg = new MessageItem();
+            Cfg.Var.SE_Msg_Info = Cfg.Var.SE_Msg_Error = Cfg.Var.SE_Msg_Success = Cfg.Var.SE_Msg_Warning = new MessageItem();
         }
 
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -39,15 +39,14 @@ namespace OpenHeroSelectGUI
         {
             if (await CfgCmd.LoadDialogue("*") is string HS)
             {
+                string Out = string.IsNullOrWhiteSpace(OutputFolder.Text) ? CfgSt.OHS.HerostatFolder : OutputFolder.Text;
                 if (InternalSettings.RavenFormats.Contains(Path.GetExtension(HS)))
                 {
-                    DirectoryInfo TempFolder = Directory.CreateDirectory(Path.Combine(OHSpath.CD, "Temp"));
-                    string DHS = Path.Combine(TempFolder.FullName, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
+                    string DHS = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
                     if (Util.RunExeInCmd("json2xmlb", $"-d \"{HS}\" \"{DHS}\"")
-                        && GUIXML.SplitXMLStats(DHS, OutputFolder.Text))
+                        && GUIXML.SplitXMLStats(DHS, Out))
                     {
-                        TempFolder.Delete(true);
-                        SplitFinished();
+                        SplitFinished(Out);
                     }
                 }
                 else
@@ -56,24 +55,24 @@ namespace OpenHeroSelectGUI
                     char HsFormat = LoadedHerostat.First(s => !string.IsNullOrEmpty(s.Trim())).Trim()[0];
                     if (HsFormat == '<')
                     {
-                        if (!GUIXML.SplitXMLStats(HS, OutputFolder.Text)) { return; }
+                        if (!GUIXML.SplitXMLStats(HS, Out)) { return; }
                     }
                     else
                     {
-                        Herostat.Split(LoadedHerostat, HsFormat, OutputFolder.Text);
+                        Herostat.Split(LoadedHerostat, HsFormat, Out);
                     }
-                    SplitFinished();
+                    SplitFinished(Out);
                 }
             }
         }
         /// <summary>
         /// Display success message in <see cref="InfoBar"/> for 5 seconds
         /// </summary>
-        private async void SplitFinished()
+        private async void SplitFinished(string Out)
         {
             Cfg.Var.SE_Msg_Success = new MessageItem
             {
-                Message = $"Split herostats to '{OHSpath.GetOHSFolder(OutputFolder.Text)}'",
+                Message = $"Split herostats to '{OHSpath.GetRooted(Out)}'",
                 IsOpen = true
             };
             await Task.Delay(5000);
@@ -82,7 +81,7 @@ namespace OpenHeroSelectGUI
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
-            _ = Process.Start("explorer.exe", $"/select, \"{OHSpath.GetOHSFolder(OutputFolder.Text)}\"");
+            _ = Process.Start("explorer.exe", $"/select, \"{OHSpath.GetRooted(OutputFolder.Text)}\"");
         }
     }
 }

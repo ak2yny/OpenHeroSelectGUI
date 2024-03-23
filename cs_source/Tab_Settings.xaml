@@ -7,6 +7,7 @@
     xmlns:controls="using:OpenHeroSelectGUI.Controls"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <!--May want to add NavigationCacheMode="Enabled", but this won't reload the saves on navigation.-->
     <!--IntelliSense automatically works with x:Bind. When we use Binding, we should use Page.DataContext (or Page.Resources)-->
 
     <Page.Resources>
@@ -84,13 +85,14 @@
                         </controls:SettingsCardContent>
                     </Grid>
                 </Expander>
+                <InfoBar x:Name="Warning" Severity="Warning" Title="Invalid Game or MO2 Folder" CloseButtonClick="Warning_CloseButtonClick"/>
                 <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
                     <controls:SettingsCardContent x:Name="MO2ModFolder" Description="Path to the game or an MO2 mod folder - must contain a 'data' folder" Header="Game or Mod Path">
                         <controls:SettingsCardContent.Icon>
                             <FontIcon Glyph="&#xEC50;"/>
                         </controls:SettingsCardContent.Icon>
                         <Grid VerticalAlignment="Center">
-                            <TextBox Text="{x:Bind Cfg.OHS.GameInstallPath, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0" MinWidth="200" TextChanged="MO2ModFolder_TextChanged"/>
+                            <TextBox Text="{x:Bind Cfg.OHS.GameInstallPath, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0" MinWidth="200"/>
                             <Button Content="..." FontWeight="Bold" Click="MO2BrowseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse"/>
                         </Grid>
                     </controls:SettingsCardContent>
@@ -158,6 +160,18 @@
                             <Slider x:Name="MaxLayoutWidth" Minimum="600" Maximum="2200" MinWidth="160" StepFrequency="100" TickFrequency="400" Value="{x:Bind Cfg.GUI.LayoutMaxWidth, Mode=TwoWay}" VerticalAlignment="Center"/>
                             <ToggleSwitch x:Name="MaxLayoutWidthToggle" IsOn="{x:Bind Cfg.GUI.LayoutWidthUpscale, Mode=TwoWay}" MinWidth="116" OffContent="Downscale" OnContent="Both" ToolTipService.ToolTip="'Downscale' scales them to fit to width if not enough space. 'Both' always scales them to width, but only as wide as specified with the slider."/>
                         </StackPanel>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}">
+                    <controls:SettingsCardContent Description="Show if there are characters with identical numbers in the selected roster." Header="Notify Clashes">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE783;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ComboBox SelectedIndex="{x:Bind Cfg.GUI.ShowClashes, Mode=TwoWay}">
+                            <ComboBoxItem>MUA only</ComboBoxItem>
+                            <ComboBoxItem>Yes</ComboBoxItem>
+                            <ComboBoxItem>No</ComboBoxItem>
+                        </ComboBox>
                     </controls:SettingsCardContent>
                 </Grid>
 
@@ -250,11 +264,5 @@
                 </Grid>
             </StackPanel>
         </ScrollViewer>
-        <InfoBar x:Name="Warning"
-                 Severity="Warning"
-                 Title="Warning"
-                 Grid.Row="1"
-                 Margin="20"
-                 VerticalAlignment="Bottom"/>
     </Grid>
 </Page>

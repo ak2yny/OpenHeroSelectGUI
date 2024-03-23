@@ -39,7 +39,7 @@ namespace OpenHeroSelectGUI
             RosterSizeToggle.SelectedIndex = (Size - 19) / 2;
 
             // Initialize other XML2 settings;
-            if (Cfg.XML2.ExeName == "") { Cfg.XML2.ExeName = "Xmen.exe"; }
+            if (Cfg.XML2.ExeName == "") { Cfg.XML2.ExeName = OHSpath.DefaultExe; }
             SkinDetailsBtn.Content = Cfg.GUI.SkinDetailsVisible
                 ? "Hide Skin Details"
                 : "Show Skin Details";

@@ -58,6 +58,7 @@
             <InfoBar x:Name="CopyInfo"
                      Title="Mod installation failed"
                      Message="Mod not added."/>
+            <ToggleSwitch Toggled="Reload_Available" IsOn="{x:Bind Cfg.Var.PopAvail, Mode=OneWay}" Height="0" MinHeight="0"/>
         </StackPanel>
     </Grid>
 </Page>

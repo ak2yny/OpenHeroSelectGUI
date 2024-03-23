@@ -8,8 +8,6 @@ using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
-using Windows.Storage;
 
 namespace OpenHeroSelectGUI.Settings
 {
@@ -74,9 +72,6 @@ namespace OpenHeroSelectGUI.Settings
     /// </summary>
     public partial class CharacterListCommands
     {
-        [GeneratedRegex(@"(?<=charactername[=:""\s]*)[^=:""\s][^;=""\n]+[^;=""\s]", RegexOptions.IgnoreCase)]
-        public static partial Regex CharNameRX();
-
         private static Cfg Cfg { get; } = new();
 
         /// <summary>
@@ -189,7 +184,7 @@ namespace OpenHeroSelectGUI.Settings
                 && Herostat.RootAttribute(HS, "skin") is string N
                 && N[..^Math.Min(2, N.Length)] is string Number)
             {
-                Number = string.IsNullOrEmpty(Number) || Number.Any(c => !char.IsDigit(c)) ? "00" : Number;
+                Number = string.IsNullOrEmpty(Number) || Number.Any(c => !char.IsDigit(c)) ? "00" : Number.PadLeft(2, '0');
                 bool RemOther = false;
                 for (int i = 0; i < Cfg.Roster.Selected.Count; i++)
                 {
@@ -216,7 +211,10 @@ namespace OpenHeroSelectGUI.Settings
         /// <param name="UpdLocs"></param>
         public static void UpdateClashes(bool UpdLocs = true)
         {
+            // This invokes the text changed event in MUA through binding, which then starts the update locations function
+            Cfg.Roster.UpdateCount += UpdLocs ? 1 : 0;
             Cfg.Roster.NumClash = false;
+            if ((Cfg.GUI.Game == "xml2" && Cfg.GUI.ShowClashes != 1) || Cfg.GUI.ShowClashes == 2) { return; }
             string[] Check = new string[Cfg.Roster.Selected.Count];
             for (int i = 0; i < Check.Length; i++)
             {
@@ -228,27 +226,6 @@ namespace OpenHeroSelectGUI.Settings
                     Check[i] = N;
                 }
             }
-            // This invokes the text changed event in MUA through binding, which then starts the update locations function
-            Cfg.Roster.UpdateCount += UpdLocs ? 1 : 0;
-        }
-        /// <summary>
-        /// Adds a <paramref name="Herostat"/> from an existing <see cref="StorageFile"/> to the available characters.
-        /// </summary>
-        public static void AddHerostat(StorageFile Herostat) => AddHerostat(Herostat.Path, Herostat.Name, Herostat.FileType);
-        /// <summary>
-        /// Reads a herostat file from the provided <paramref name="HSpath"/> (file must exist) and copies the file to the available characters with <paramref name="HSext"/> extension, using the charactername found or <paramref name="HSname"/>.
-        /// </summary>
-        public static void AddHerostat(string HSpath, string HSname, string HSext)
-        {
-            string? Name = File.ReadAllLines(HSpath)
-                .FirstOrDefault(l => l.Contains("charactername", StringComparison.CurrentCultureIgnoreCase)) is string CharLine
-                && CharNameRX().Match(CharLine) is Match M && M.Success
-                ? M.Value
-                : Path.GetFileNameWithoutExtension(HSname);
-            _ = Directory.CreateDirectory(OHSpath.HsFolder);
-            string Target = Path.Combine(OHSpath.HsFolder, Name + HSext);
-            if (File.Exists(Target)) { Target = Path.Combine(OHSpath.HsFolder, Name + $"{DateTime.Now:-yyMMdd-HHmmss}" + HSext); }
-            File.Copy(HSpath, Target, true);
         }
     }
 }

@@ -26,10 +26,9 @@ namespace OpenHeroSelectGUI
         private void ReloadLayouts()
         {
             StageLayouts.Items.Clear();
-            if (Path.Combine(OHSpath.CD, "stages") is string SP && Directory.Exists(SP))
+            if (new DirectoryInfo(Path.Combine(OHSpath.CD, "stages")) is DirectoryInfo SP && SP.Exists)
             {
-                DirectoryInfo folder = new(SP);
-                foreach (DirectoryInfo f in folder.GetDirectories().Where(d => !d.Name.StartsWith('.') && File.Exists(Path.Combine(d.FullName, "config.xml"))).ToList())
+                foreach (DirectoryInfo f in SP.GetDirectories().Where(d => !d.Name.StartsWith('.') && File.Exists(Path.Combine(d.FullName, "config.xml"))))
                 {
                     StageLayouts.Items.Add(f.Name);
                 }
@@ -41,7 +40,9 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (StageLayouts.SelectedItem is string Selected && Path.Combine(OHSpath.CD, "stages", Selected, "config.xml") is string Config && File.Exists(Config))
+            if (StageLayouts.SelectedItem is string Selected
+                && Path.Combine(OHSpath.CD, "stages", Selected, "config.xml") is string Config
+                && File.Exists(Config))
             {
                 StageThumbnails.Items.Clear();
                 Cfg.Var.Layout = GUIXML.GetXmlElement(Config);
@@ -49,7 +50,8 @@ namespace OpenHeroSelectGUI
                 {
                     foreach (XmlElement CM in CMP.ChildNodes)
                     {
-                        if (GUIXML.GetXmlElement(Path.Combine(OHSpath.Model, "config.xml")) is XmlElement MCfg && MCfg[CM.InnerText] is XmlNode MC)
+                        if (GUIXML.GetXmlElement(Path.Combine(OHSpath.Model, "config.xml")) is XmlElement MCfg
+                            && MCfg[CM.InnerText] is XmlNode MC)
                         {
                             foreach (XmlElement M in MC.ChildNodes)
                             {

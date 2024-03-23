@@ -28,10 +28,13 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public sealed partial class Main : Window
     {
+        private int ShowClashes;
+
         public Main()
         {
             Activated += MainWindow_Activated;
             LoadGuiSettings();
+            ShowClashes = CfgSt.GUI.ShowClashes;
             LoadRoster();
 
             InitializeComponent();
@@ -65,7 +68,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            if (args.IsSettingsSelected == true)
+            if (args.IsSettingsSelected)
             {
                 NavView_Navigate(typeof(Tab_Settings), args.RecommendedNavigationTransitionInfo);
             }
@@ -73,21 +76,32 @@ namespace OpenHeroSelectGUI
             {
                 if (!NavView.FooterMenuItems.Contains(NavView.SelectedItem))  // prevent footer pages from becoming home
                 {
-                    if (navPageType == typeof(Tab_XML2) && CfgSt.GUI.Game != "xml2")
-                    {
-                        SaveSettings();
-                        CfgSt.GUI.Game = "xml2";
-                        LoadRoster();
-                    }
-                    else if (navPageType == typeof(Tab_MUA) && CfgSt.GUI.Game != "mua")
-                    {
-                        SaveSettings();
-                        CfgSt.GUI.Game = "mua";
-                        LoadRoster();
-                    }
+                    if (navPageType == typeof(Tab_XML2)) { NavView_PrepGameTab("xml2"); }
+                    else if (navPageType == typeof(Tab_MUA)) { NavView_PrepGameTab("mua"); }
                     CfgSt.GUI.Home = sender.MenuItems.IndexOf(args.SelectedItem);
                 }
                 NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo);
+            }
+        }
+        /// <summary>
+        /// When loading a game tab, if the <paramref name="Game"/> changed, save and load settings and roster, otherwise update clashes, if clash option changed.
+        /// </summary>
+        private void NavView_PrepGameTab(string Game)
+        {
+            if (CfgSt.GUI.Game != Game)
+            {
+                SaveSettings();
+                CfgSt.GUI.Game = Game;
+                LoadRoster();
+            }
+            else if (ShowClashes != CfgSt.GUI.ShowClashes)
+            {
+                ShowClashes = CfgSt.GUI.ShowClashes;
+                if ((Game == "xml2" && ShowClashes != 1) || ShowClashes == 2)
+                {
+                    for (int i = 0; i < CfgSt.Roster.Selected.Count; i++) { CfgSt.Roster.Selected[i].NumClash = false; }
+                }
+                UpdateClashes(false);
             }
         }
         /// <summary>
@@ -95,7 +109,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void NavView_Loaded(object sender, RoutedEventArgs e)
         {
-            NavView.SelectedItem = NavView.MenuItems[CfgSt.GUI.Home];
+            NavView.SelectedItem = Directory.Exists(Path.Combine(CfgSt.OHS.GameInstallPath, "data")) ? NavView.MenuItems[CfgSt.GUI.Home] : NavView.SettingsItem;
         }
         /// <summary>
         /// Navigation View: Change the page/tab according to the selected <paramref name="navPageType"/>.
@@ -116,40 +130,36 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private async void RunOHS()
         {
-            if (string.IsNullOrEmpty(CfgSt.GUI.Game)) { ShowWarning("MUA or XML2 not defined."); return; }
-            if (File.Exists(Path.Combine(OHSpath.CD, "OpenHeroSelect.exe")))
+            if (!Directory.Exists(Path.Combine(CfgSt.OHS.GameInstallPath, "data")))
             {
-                string DP = Path.Combine(CfgSt.OHS.GameInstallPath, "data");
-                if (Directory.Exists(DP))
+                NavView.SelectedItem = NavView.SettingsItem;
+            }
+            else if (string.IsNullOrEmpty(CfgSt.GUI.Game)) { ShowWarning("MUA or XML2 not defined."); }
+            else if (File.Exists(Path.Combine(OHSpath.CD, "OpenHeroSelect.exe")))
+            {
+                OHSWarning.IsOpen = !(OHSRunning.IsOpen = true);
+                await Task.Run(() =>
                 {
-                    OHSWarning.IsOpen = !(OHSRunning.IsOpen = true);
-                    await Task.Run(() =>
-                    {
-                        SaveSettingsMP();
-                        InstallStage();
-                        MarvelModsXML.TeamBonusCopy();
-                        if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
+                    SaveSettingsMP();
+                    InstallStage();
+                    MarvelModsXML.TeamBonusCopy();
+                    if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
 
-                        Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2")
-                            ? "-a -x"
-                            : "-a");
-                    });
-                    string elog = Path.Combine(OHSpath.CD, "error.log");
-                    if (File.Exists(elog))
-                    {
-                        ShowWarning("OHS hit an error. Check the error.log.");
-                        _ = Process.Start("explorer.exe", $"/select, \"{elog}\"");
-                    }
-                    else
-                    {
-                        OHSSuccess.IsOpen = !(OHSWarning.IsOpen = OHSRunning.IsOpen = false);
-                        await Task.Delay(3000);
-                        OHSSuccess.IsOpen = false;
-                    }
+                    Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2")
+                        ? "-a -x"
+                        : "-a");
+                });
+                string elog = Path.Combine(OHSpath.CD, "error.log");
+                if (File.Exists(elog))
+                {
+                    ShowWarning("OHS hit an error. Check the error.log.");
+                    _ = Process.Start("explorer.exe", $"/select, \"{elog}\"");
                 }
                 else
                 {
-                    ShowWarning($"Installation path not valid! '{DP}' not found.");
+                    OHSSuccess.IsOpen = !(OHSWarning.IsOpen = OHSRunning.IsOpen = false);
+                    await Task.Delay(3000);
+                    OHSSuccess.IsOpen = false;
                 }
             }
             else
@@ -246,8 +256,10 @@ namespace OpenHeroSelectGUI
         {
             SaveSettings();
             _ = MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
-            if (Directory.Exists(Path.Combine(OHSpath.CD, "Temp")) && !CfgSt.OHS.SaveTempFiles)
-                Directory.Delete(Path.Combine(OHSpath.CD, "Temp"), true);
+            if (!CfgSt.OHS.SaveTempFiles && Path.Combine(OHSpath.CD, "Temp") is string Temp && Directory.Exists(Temp))
+            {
+                Directory.Delete(Temp, true);
+            }
         }
     }
 }

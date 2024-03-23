@@ -24,7 +24,8 @@ namespace OpenHeroSelectGUI
         public Tab_MUA()
         {
             InitializeComponent();
-            if (Cfg.MUA.ExeName == "") Cfg.MUA.ExeName = "Game.exe";
+            if (Cfg.MUA.ExeName == "") { Cfg.MUA.ExeName = OHSpath.DefaultExe; }
+
             LoadLayout();
             _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
             _ = SelectedCharacters.Navigate(typeof(SelectedCharacters));

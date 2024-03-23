@@ -28,30 +28,32 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.RowSpan="2"
-                                   x:Name="LocColumn"
-                                   Text="{x:Bind Loc, Mode=OneWay}"
-                                   Style="{ThemeResource SubtitleTextBlockStyle}"
-                                   MinWidth="28"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
+                               x:Name="LocColumn"
+                               Text="{x:Bind Loc, Mode=OneWay}"
+                               Style="{ThemeResource SubtitleTextBlockStyle}"
+                               MinWidth="28"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                     <TextBlock Grid.Column="1"
-                                   x:Phase="1"
-                                   Text="{x:Bind Character_Name, Mode=OneWay}"
-                                   Style="{ThemeResource BaseTextBlockStyle}"
-                                   Margin="12 6 24 0"/>
+                               x:Phase="1"
+                               Text="{x:Bind Character_Name, Mode=OneWay}"
+                               Style="{ThemeResource BaseTextBlockStyle}"
+                               Margin="12 6 6 0"/>
                     <Rectangle Grid.Column="1" Grid.Row="1"
-                                   Fill="Red"
-                                   Margin="6 0 18 4"
-                                   Opacity="0.2"
-                                   RadiusX="4"
-                                   RadiusY="4"
-                                   Visibility="{x:Bind NumClash, Mode=OneWay}"/>
+                               Fill="Red"
+                               Margin="6 0 2 4"
+                               Opacity="0.2"
+                               RadiusX="4"
+                               RadiusY="4"
+                               Visibility="{x:Bind NumClash, Mode=OneWay}"/>
                     <TextBlock Grid.Column="1" Grid.Row="1"
-                                   Style="{ThemeResource BodyTextBlockStyle}"
-                                   Margin="12 0 24 6">
-                            <Run Text="{x:Bind Path, Mode=OneWay}"/>
-                            <Run Text="&#1632;"/>
-                            <Run Text="{x:Bind Character_Number, Mode=OneWay}"/>
+                               Style="{ThemeResource BodyTextBlockStyle}"
+                               TextWrapping="Wrap"
+                               Margin="12 0 8 6"
+                               MaxWidth="250">
+                          <Run Text="{x:Bind Path, Mode=OneWay}"/>
+                          <Run Text="&#1632;"/>
+                          <Run Text="{x:Bind Character_Number, Mode=OneWay}"/>
                     </TextBlock>
                 </Grid>
             </SwipeControl>
@@ -116,6 +118,7 @@
         <Grid.RowDefinitions>
             <RowDefinition MaxHeight="48"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid Background="{ThemeResource SolidBackgroundFillColorSecondary}">
             <Grid.ColumnDefinitions>
@@ -156,7 +159,7 @@
             <TextBlock x:Name="EffectHeader" Grid.Column="4" Text="Effects" HorizontalAlignment="Center" VerticalAlignment="Center" Width="72"/>
         </Grid>
 
-        <Canvas Grid.Row="1" Background="Red" Opacity="0.1" Visibility="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}"/>
+        <Canvas Grid.Row="1" Grid.RowSpan="2" Background="Red" Opacity="0.1" Visibility="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}"/>
         <ListView x:Name="SelectedCharactersList" Grid.Row="1"
                   ItemsSource="{x:Bind Cfg.Roster.Selected, Mode=TwoWay}"
                   ItemTemplateSelector="{StaticResource LVcolumnSelector}"
@@ -176,15 +179,36 @@
                   BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
         </ListView>
 
-        <InfoBar x:Name="Clashes"
-                 Title="Character number clash found"
-                 IsOpen="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}"
-                 Grid.Row="1"
-                 Margin="5"
-                 VerticalAlignment="Bottom">
-            <InfoBar.ActionButton>
-                <HyperlinkButton Content="More information" NavigateUri="https://marvelmods.com/forum/index.php?msg=203622"/>
-            </InfoBar.ActionButton>
-        </InfoBar>
+        <StackPanel Grid.Row="2">
+            <InfoBar x:Name="ClsRes"
+                     Severity="Success"
+                     Title="Success"
+                     Message="Clash resolved: New herostat added."/>
+            <InfoBar x:Name="ClsResNo"
+                     Title="Can't Resolve Clash"/>
+            <ProgressBar x:Name="ClsResProg" IsIndeterminate="True" Visibility="Collapsed"/>
+            <InfoBar x:Name="Clashes"
+                     Title="Character number clash found"
+                     Message="Clashing characters will have&#x0a;identical mannequins."
+                     IsOpen="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}">
+                <InfoBar.ActionButton>
+                    <HyperlinkButton Content="More information" NavigateUri="https://marvelmods.com/forum/index.php?msg=203622"/>
+                </InfoBar.ActionButton>
+                <Button Content="Resolve Clashes" Click="ResolveClash_Click" Margin="-12 -10 0 10"/>
+            </InfoBar>
+        </StackPanel>
+        <ContentDialog x:Name="ModRenumber"
+                       Title="Renumber Mod"
+                       IsSecondaryButtonEnabled="False"
+                       PrimaryButtonText="Cancel"
+                       SecondaryButtonText="OK">
+            <StackPanel Spacing="5">
+                <TextBox x:Name="NewModNumber" Header="Enter the new mod number:" BeforeTextChanging="ModNumber_BeforeTextChanging" LosingFocus="ModNumber_LosingFocus" TextChanged="ModNumber_TextChanged"/>
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <Button x:Name="MBrowseButton" Content="Browse for folder" Click="MBrowseButton_Click" ToolTipService.ToolTip="Browse for the mod. A folder may contain files that are not from the mod (e.g. the main game folder), but renumbering might change the wrong files."/>
+                    <ToggleSwitch x:Name="MBrowseSwitch" OffContent="Folder" OnContent="Archive" Toggled="MBrowseSwitch_Toggled" ToolTipService.ToolTip="Choose whether to browse for a mod archive or an installed (or not) mod folder incl. game folder"/>
+                </StackPanel>
+            </StackPanel>
+        </ContentDialog>
     </Grid>
 </Page>
