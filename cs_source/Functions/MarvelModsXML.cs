@@ -42,13 +42,14 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns>The updated team_back.xmlb file name <see cref="string"/>, or the input <paramref name="LayoutDataFile"/> name if failed or no changes necessary</returns>
         public static string UpdateLayout(string LayoutDataFile, bool HasRiser)
         {
-            ObservableCollection<SelectedCharacter> SCS = CfgSt.Roster.Selected;
-            int GR = SCS.IndexOf(SCS.FirstOrDefault(c => c.Loc == "03")!);
-            if (GR > 0) { SCS.Move(GR, 0); }
-            int HT = SCS.IndexOf(SCS.FirstOrDefault(c => c.Loc == "24")!);
-            if (HT is not 1 or -1) { SCS.Move(HT, 1); }
-            SelectedCharacter[] EL = SCS.Where(c => !string.IsNullOrEmpty(c.Effect)).ToArray();
-            if ((HasRiser || EL.Length > 0) && DecompileToTemp(LayoutDataFile) is string DLDF)
+            List<SelectedCharacter> EL = [.. CfgSt.Roster.Selected.Where(c => !string.IsNullOrEmpty(c.Effect))];
+            SelectedCharacter[] GRHT = [.. EL.Where(c => c.Loc is "03" or "24")];
+            foreach (SelectedCharacter C in GRHT)
+            {
+                EL.Remove(C);
+                EL.Insert(0, C);
+            }
+            if ((HasRiser || EL.Count > 0) && DecompileToTemp(LayoutDataFile) is string DLDF)
             {
                 XmlDocument LayoutData = new();
                 LayoutData.Load(DLDF);
@@ -56,7 +57,7 @@ namespace OpenHeroSelectGUI.Functions
                 {
                     if (HasRiser)
                         _ = menu_items.AppendChild(LayoutData.ImportNode(Riser, true));
-                    for (int i = 0; i < (CfgSt.GUI.HidableEffectsOnly && EL.Length > 1 ? 2 : EL.Length); i++)
+                    for (int i = 0; i < (CfgSt.GUI.HidableEffectsOnly && EL.Count > 1 ? 2 : EL.Count); i++)
                     {
                         // Alternatively, we could hex-edit to hide effects on different slots: Util.HexEdit(0x3cc67b, SC.Loc!, CfgSt.GUI.ActualGamePath + "/Game.exe")
                         if (AddEffect(EL[i].Loc, EL[i].Effect!, EL[i].Loc == "24" || i > 1 ? EL[i].Loc! : i > 0 ? "24" : "03") is XmlNode EffectLine)

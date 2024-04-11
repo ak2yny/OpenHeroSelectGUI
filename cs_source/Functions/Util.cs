@@ -44,17 +44,21 @@ namespace OpenHeroSelectGUI.Functions
             catch { return null; }
         }
         /// <summary>
-        /// Run an elevated command <paramref name="ecmd" /> <paramref name="vars" /> for OHS. OHS uses the error.log...
+        /// Run an elevated command <paramref name="ecmd" /> <paramref name="vars" /> in the current directory, for OHS.
         /// </summary>
-        public static void RunElevated(string ecmd, string vars)
+        /// <returns>Exit code or 5 if the command/process couldn't be started.</returns>
+        public static int RunElevated(string ecmd, string vars)
         {
             string cmd = "cmd";
-            string ev = $"/c \"set __COMPAT_LAYER=RUNASINVOKER && \"echo e | {ecmd} {vars}";
+            string ev = $"/c \"set __COMPAT_LAYER=RUNASINVOKER && \"{ecmd} {vars}";
             ProcessStartInfo sinf = new(cmd, ev) { CreateNoWindow = true };
             Process p = new() { StartInfo = sinf };
-            _ = p.Start();
-            p.WaitForExit();
-            // We're not returning any result, instead we open explorer to the error.log at call.
+            if (p.Start())
+            {
+                p.WaitForExit();
+                return p.ExitCode;
+            }
+            return 5;
         }
         /// <summary>
         /// Use 7-zip to try to extract an <paramref name="Archive"/> (any file path). Currently hard coded to extract to <paramref name="ExtName"/> within the temp folder.

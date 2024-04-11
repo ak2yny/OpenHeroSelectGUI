@@ -138,6 +138,7 @@ namespace OpenHeroSelectGUI
             else if (File.Exists(Path.Combine(OHSpath.CD, "OpenHeroSelect.exe")))
             {
                 OHSWarning.IsOpen = !(OHSRunning.IsOpen = true);
+                int EC = 0;
                 await Task.Run(() =>
                 {
                     SaveSettingsMP();
@@ -145,21 +146,24 @@ namespace OpenHeroSelectGUI
                     MarvelModsXML.TeamBonusCopy();
                     if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
 
-                    Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2")
-                        ? "-a -x"
-                        : "-a");
+                    EC = Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2")
+                        ? "-a -q -x"
+                        : "-a -q");
                 });
-                string elog = Path.Combine(OHSpath.CD, "error.log");
-                if (File.Exists(elog))
+                switch (EC)
                 {
-                    ShowWarning("OHS hit an error. Check the error.log.");
-                    _ = Process.Start("explorer.exe", $"/select, \"{elog}\"");
-                }
-                else
-                {
-                    OHSSuccess.IsOpen = !(OHSWarning.IsOpen = OHSRunning.IsOpen = false);
-                    await Task.Delay(3000);
-                    OHSSuccess.IsOpen = false;
+                    case 5:
+                        ShowWarning($"OHS could not start. Please stop it if it's running or re-install OHS into '{OHSpath.CD}'.");
+                        break;
+                    case > 0:
+                        ShowWarning("OHS hit an error. Check the error.log.");
+                        _ = Process.Start("explorer.exe", $"/select, \"{Path.Combine(OHSpath.CD, "error.log")}\"");
+                        break;
+                    default:
+                        OHSSuccess.IsOpen = !(OHSWarning.IsOpen = OHSRunning.IsOpen = false);
+                        await Task.Delay(3000);
+                        OHSSuccess.IsOpen = false;
+                        break;
                 }
             }
             else

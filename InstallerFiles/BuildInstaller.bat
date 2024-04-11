@@ -22,21 +22,10 @@ for %%a in (
  Microsoft.UI.Xaml
 ) do move %%a OHSGUI\
 (
- echo ;!@Install@!UTF-8!
- echo Title="OpenHeroSelectGUI v%1"
- echo ExtractPathText="Please enter the OHS installation path:"
- echo ExtractPathTitle="OpenHeroSelectGUI v%1"
- echo ExtractTitle="Extracting..."
- echo GUIFlags="128"
- echo InstallPath="%%UserProfile%%\Desktop\OpenHeroSelect"
- echo OverwriteMode="0"
- echo RunProgram="MkLink.bat"
- echo ;!@InstallEnd@!
-) >InstallerFiles\config.txt
-(
  echo mklink OpenHeroSelectGUI .\OHSGUI\OpenHeroSelectGUI.exe
  echo del MkLink.bat
 ) >MkLink.bat
+call :WriteCfg %1 "Please enter the OHS installation path:" >InstallerFiles\config.txt
 
 call :BuildInstaller %z%
 
@@ -48,13 +37,31 @@ for %%a in (
 ) do move %%a OHSGUI\
 for /d %%a in (*-*) do move %%a OHSGUI\
 
-call :BuildInstaller %zf%
+Powershell "$client = new-object System.Net.WebClient; $client.DownloadFile('https://github.com/TheRealPSV/OpenHeroSelect/releases/latest/download/OpenHeroSelect-32.7z','%CD%\OpenHeroSelect.7z')"
+InstallerFiles\7z.exe x OpenHeroSelect.7z
+for /d %%a in (OpenHeroSelect*) do robocopy "%%~fa" "%CD%" /S /XF "Source Code.txt" /MOVE & rd /s /q "%%~fa"
+call :WriteCfg %1 "Please select a folder to install OHS and the GUI to:" >InstallerFiles\config.txt
+
+call :BuildInstaller %zf% "help_files/ json2xmlb.exe OpenHeroSelect.exe LICENSE.txt"
 
 del MkLink.bat
 
 EXIT
 
 :BuildInstaller
-InstallerFiles\7z.exe a -t7z %1.7z OHSGUI/ stages/ mua/ xml2/ MkLink.bat -xr!"stages/.models/Super Team Stage Marvel Mods" -xr!"stages/.models/TeamStageCollection"
+InstallerFiles\7z.exe a -t7z %1.7z OHSGUI/ stages/ mua/ xml2/ MkLink.bat %~2 -xr!"stages/.models/Super Team Stage Marvel Mods" -xr!"stages/.models/TeamStageCollection"
 copy /b InstallerFiles\7zSD.sfx + InstallerFiles\config.txt + %1.7z %1.exe
+EXIT /b
+
+:WriteCfg
+echo ;!@Install@!UTF-8!
+echo Title="OpenHeroSelectGUI v%1"
+echo ExtractPathText=%2
+echo ExtractPathTitle="OpenHeroSelectGUI v%1"
+echo ExtractTitle="Extracting..."
+echo GUIFlags="128"
+echo InstallPath="%%UserProfile%%\Desktop\OpenHeroSelect"
+echo OverwriteMode="0"
+echo RunProgram="MkLink.bat"
+echo ;!@InstallEnd@!
 EXIT /b
