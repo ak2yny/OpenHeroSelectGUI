@@ -21,7 +21,6 @@ namespace OpenHeroSelectGUI
     public sealed partial class AvailableCharacters : Page
     {
         public Cfg Cfg { get; set; } = new();
-        private static readonly string[] HSexts = [".txt", ".xml", ".json"];
 
         public AvailableCharacters()
         {
@@ -37,12 +36,16 @@ namespace OpenHeroSelectGUI
         private void PopulateAvailable(bool KeepFilter = false)
         {
             DirectoryInfo folder = new(OHSpath.HsFolder);
-            string[] NewAvailable = folder.EnumerateFiles("*", SearchOption.AllDirectories)
-                .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
-                .Replace('\\', '/'))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToImmutableSortedSet()
-                .ToArray();
+            string[] NewAvailable = CharRosterSwitch.IsOn
+                ? Directory.EnumerateFiles(Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters"), "*.cfg")
+                    .Select(f => Path.GetFileNameWithoutExtension(f))
+                    .ToArray()
+                : folder.EnumerateFiles("*", SearchOption.AllDirectories)
+                    .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
+                    .Replace('\\', '/'))
+                    .Distinct(StringComparer.OrdinalIgnoreCase)
+                    .ToImmutableSortedSet()
+                    .ToArray();
             if (NewAvailable != Cfg.Roster.Available)
             {
                 Cfg.Roster.Available = NewAvailable;
@@ -85,8 +88,13 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Generate the <see cref="TreeView"/> structure from a file <paramref name="PathInfo"/>. Add <paramref name="RemainingPath"/> to <paramref name="Parent"/> recursively.
         /// </summary>
-        public static void PopulateAvailable(TreeViewNode Parent, string RemainingPath, string PathInfo)
+        public void PopulateAvailable(TreeViewNode Parent, string RemainingPath, string PathInfo)
         {
+            if (CharRosterSwitch.IsOn)
+            {
+                Parent.Children.Add(new TreeViewNode() { Content = PathInfo });
+                return;
+            }
             string[] Node = RemainingPath.Split('/', 2);
             TreeViewNode? child = Parent.Children.SingleOrDefault(x => ((Character)x.Content).Name == Node[0]);
             if (child == null)
@@ -186,14 +194,14 @@ namespace OpenHeroSelectGUI
                 int i = 0, c = 0;
                 foreach (DirectoryInfo Source in OHSpath.GetModSource(ExtModPath))
                 {
-                    if (Herostat.GetFiles(Source).FirstOrDefault() is FileInfo Hs)
+                    if (Herostat.GetFiles(Source).FirstOrDefault() is FileInfo Hs
+                        && Herostat.Add(Hs.FullName, Source.Name, Hs.Extension))
                     {
-                        Herostat.Add(Hs.FullName, Source.Name, Hs.Extension);
                         i++;
                     }
-                    if (OHSpath.GetModTarget(Source, Source.Name, Mod.Path) is string Target)
+                    if (OHSpath.GetModTarget(Source, Source.Name, Mod.Path) is string Target
+                        && OHSpath.CopyFilesRecursively(Source, Target))
                     {
-                        OHSpath.CopyFilesRecursively(Source, Target);
                         c++;
                     }
                 }
@@ -202,8 +210,7 @@ namespace OpenHeroSelectGUI
             }
             else
             {
-                Herostat.Add(Mod);
-                HSsuccess.IsOpen = true;
+                HSsuccess.IsOpen = Herostat.Add(Mod);
             }
         }
         /// <summary>
@@ -226,13 +233,16 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void OnSelectionChanged(TreeView AC, TreeViewItemInvokedEventArgs args)
         {
-            if (args.InvokedItem is TreeViewNode Selected && Selected.Content is Character SC && SC.Path is string CharInfo)
+            Cfg.Var.FloatingCharacter = null;
+            if (args.InvokedItem is TreeViewNode Selected && Selected.Content is Character SC && SC.Path is not null)
             {
-                Cfg.Var.FloatingCharacter = CharInfo;
                 if (Selected.Children.Count > 0)
                 {
                     Selected.IsExpanded = !Selected.IsExpanded;
-                    Cfg.Var.FloatingCharacter = null;
+                }
+                else
+                {
+                    Cfg.Var.FloatingCharacter = SC.Path;
                 }
             }
         }
@@ -248,12 +258,19 @@ namespace OpenHeroSelectGUI
             }
             else if (trvAvailableChars.SelectedItem is TreeViewNode Node)
             {
-                for (int i = 0; i < Node.Children.Count; i++)
+                if (CharRosterSwitch.IsOn && Node.Content is string Roster)
                 {
-                    if (Node.Children[i].Children.Count == 0 && Node.Children[i].Content is Character SC)
-                        _ = AddToSelected(SC.Path);
+                    LoadRosterVal(Roster);
                 }
-                UpdateClashes();
+                else
+                {
+                    for (int i = 0; i < Node.Children.Count; i++)
+                    {
+                        if (Node.Children[i].Children.Count == 0 && Node.Children[i].Content is Character SC)
+                            _ = AddToSelected(SC.Path);
+                    }
+                    UpdateClashes();
+                }
             }
         }
         /// <summary>
@@ -270,7 +287,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Remove the <paramref name="Node"/> and all its child nodes, including the herostat files.
         /// </summary>
-        private static void RemoveCharacters(TreeViewNode Node)
+        private void RemoveCharacters(TreeViewNode Node)
         {
             for (int i = 0; i < Node.Children.Count;)
             {
@@ -281,14 +298,25 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Remove the <paramref name="Node"/> and the corresponding herostat file according to the node's path property.
         /// </summary>
-        private static void RemoveCharacter(TreeViewNode Node)
+        private void RemoveCharacter(TreeViewNode Node)
         {
-            if (Node.Content is Character Chr
-                && Node.Parent.Children.Remove(Node)
-                && !string.IsNullOrEmpty(Chr.Path)
-                && Herostat.GetFile(Chr.Path) is FileInfo HS)
+            try
             {
-                HS.Delete();
+                if (Node.Content is Character Chr
+                    && !string.IsNullOrEmpty(Chr.Path)
+                    && Herostat.GetFile(Chr.Path) is FileInfo HS)
+                {
+                    HS.Delete();
+                }
+                else if (Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters", $"{Node.Content}.cfg") is string r
+                    && File.Exists(r))
+                {
+                    File.Delete(r);
+                }
+            }
+            finally
+            {
+                _ = Node.Parent.Children.Remove(Node);
             }
         }
         /// <summary>
@@ -306,6 +334,14 @@ namespace OpenHeroSelectGUI
         private void Reload_Available(object sender, RoutedEventArgs e)
         {
             PopulateAvailable(true);
+        }
+
+        private void CharRosterSwitch_Toggled(object sender, RoutedEventArgs e)
+        {
+            BrowseButton.Visibility = CharRosterSwitch.IsOn
+                ? Visibility.Collapsed
+                : Visibility.Visible;
+            PopulateAvailable();
         }
     }
 }

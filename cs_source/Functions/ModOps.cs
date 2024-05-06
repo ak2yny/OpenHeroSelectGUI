@@ -47,7 +47,7 @@ namespace OpenHeroSelectGUI.Functions
             return Messges;
         }
         /// <summary>
-        /// Renumber a <paramref name="Mod"/>, based on herostat (<paramref name="HF"/>) information from <paramref name="ON"/> (optional) to <paramref name="NN"/>. Installs to <paramref name="NewName"/>.
+        /// Renumber a <paramref name="Mod"/>, based on herostat (<paramref name="HF"/>) information from <paramref name="ON"/> (can be "") to <paramref name="NN"/>. Installs to <paramref name="NewName"/>.
         /// </summary>
         /// <returns>An error message <see cref="string"/> as returned from herostat renumber, or <see langword="null"/> if no error.</returns>
         public static string? Renumber(string Mod, string NewName, string ON, string NN, FileInfo HF)
@@ -56,12 +56,10 @@ namespace OpenHeroSelectGUI.Functions
             try
             {
                 DirectoryInfo Clone = (DirectoryInfo)Res;
-                if (OHSpath.GetModTarget(Clone, NewName, Mod) is string Inst)
-                {
-                    OHSpath.CopyFilesRecursively(Clone, Inst);
-                    return null;
-                }
-                return "Mod installation failed.";
+                return OHSpath.GetModTarget(Clone, NewName, Mod) is string Inst
+                    && OHSpath.CopyFilesRecursively(Clone, Inst)
+                    ? null
+                    : "Mod installation failed.";
             }
             catch
             {
@@ -69,7 +67,7 @@ namespace OpenHeroSelectGUI.Functions
             }
         }
         /// <summary>
-        /// Renumber a <paramref name="Mod"/>, based on herostat (<paramref name="HF"/>) information from <paramref name="ON"/> (optional) to <paramref name="NN"/>.
+        /// Renumber a <paramref name="Mod"/>, based on herostat (<paramref name="HF"/>) information from <paramref name="ON"/> (can be "") to <paramref name="NN"/>.
         /// </summary>
         /// <returns>The mod's <see cref="DirectoryInfo"/> if it was found and no errors found, otherwise an error message <see cref="string"/>.</returns>
         public static object Renumber(string Mod, string ON, string NN, FileInfo HF)
@@ -99,35 +97,39 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Renumber mod files in <paramref name="Source"/> from <paramref name="ON"/> to <paramref name="NN"/>, using <paramref name="name"/>, <paramref name="skins"/>, <paramref name="ca"/>, and <paramref name="ps"/> information.
         /// </summary>
-        /// <returns><see langword="True"/> if skins[0] found, otherwise <see langword="false"/>.</returns>
+        /// <returns><see langword="True"/> if skins[0] found and no exception thrown, otherwise <see langword="false"/>.</returns>
         private static bool Renumber(DirectoryInfo Source, string ON, string NN, string name, string ps, string ca, string[] skins)
         {
             if (File.Exists(Path.Combine(Source.FullName, "actors", $"{skins[0]}.igb")))
             {
-                List<string> FL = Directory.EnumerateFiles(Path.Combine(Source.FullName, "textures", "loading"), $"{ON}*.igb").ToList();
-                FL.Add(Path.Combine(Source.FullName, "ui", "models", "mannequin", $"{ON}01.igb"));
-                FL.Add(Path.Combine(Source.FullName, "actors", $"{ca}.igb"));
-                FL.Add(Path.Combine(Source.FullName, "actors", $"{ca}_4_combat.igb"));
-                for (int f = 0; f < FL.Count; f++)
+                try
                 {
-                    FileInfo IGB = new(FL[f]);
-                    if (IGB.Exists) { IGB.MoveTo(Path.Combine(IGB.DirectoryName!, $"{NN}{IGB.Name[ON.Length..]}"), true); }
-                }
-                for (int n = 0; n < 6; n++)
-                {
-                    if (skins[n] is string F)
+                    List<string> FL = Directory.EnumerateFiles(Path.Combine(Source.FullName, "textures", "loading"), $"{ON}*.igb").ToList();
+                    FL.Add(Path.Combine(Source.FullName, "ui", "models", "mannequin", $"{ON}01.igb"));
+                    FL.Add(Path.Combine(Source.FullName, "actors", $"{ca}.igb"));
+                    FL.Add(Path.Combine(Source.FullName, "actors", $"{ca}_4_combat.igb"));
+                    for (int f = 0; f < FL.Count; f++)
                     {
-                        FileInfo S = new(Path.Combine(Source.FullName, "actors", $"{F}.igb"));
-                        if (Alchemy.CopySkin(S, Path.Combine(S.DirectoryName!, $"{NN}{F[^2..]}.igb"), $"{NN}{F[^2..]}", 9, false, Alchemy.GetIntName(S.FullName)))
-                        { S.Delete(); } // Not testing skin properties or platform. Just for PC 2006.
-                        FileInfo HUD = new(Path.Combine(Source.FullName, "hud", $"hud_head_{F}.igb"));
-                        if (HUD.Exists) { HUD.MoveTo(Path.Combine(HUD.DirectoryName!, $"hud_head_{NN}{F[^2..]}.igb"), true); }
-                        FileInfo PKG = new(OHSpath.Packages(Source.FullName, $"{name}_{F}.pkgb"));
-                        if (PKG.Exists) { _ = MarvelModsXML.ClonePackage(PKG.FullName, Path.Combine(PKG.DirectoryName!, $"{name}_{NN}{F[^2..]}"), ON, NN, F[^2..]); }
+                        FileInfo IGB = new(FL[f]);
+                        if (IGB.Exists) { IGB.MoveTo(Path.Combine(IGB.DirectoryName!, $"{NN}{IGB.Name[ON.Length..]}"), true); }
                     }
+                    for (int n = 0; n < 6; n++)
+                    {
+                        if (skins[n] is string F)
+                        {
+                            FileInfo S = new(Path.Combine(Source.FullName, "actors", $"{F}.igb"));
+                            if (Alchemy.CopySkin(S, Path.Combine(S.DirectoryName!, $"{NN}{F[^2..]}.igb"), $"{NN}{F[^2..]}", 9, false, Alchemy.GetIntName(S.FullName)))
+                            { S.Delete(); } // Not testing skin properties or platform. Just for PC 2006.
+                            FileInfo HUD = new(Path.Combine(Source.FullName, "hud", $"hud_head_{F}.igb"));
+                            if (HUD.Exists) { HUD.MoveTo(Path.Combine(HUD.DirectoryName!, $"hud_head_{NN}{F[^2..]}.igb"), true); }
+                            FileInfo PKG = new(OHSpath.Packages(Source.FullName, $"{name}_{F}.pkgb"));
+                            if (PKG.Exists) { _ = MarvelModsXML.ClonePackage(PKG.FullName, Path.Combine(PKG.DirectoryName!, $"{name}_{NN}{F[^2..]}"), ON, NN, F[^2..]); }
+                        }
+                    }
+                    _ = MarvelModsXML.ReplaceRef(Path.Combine(Source.FullName, "data", "powerstyles", $"{ps}{Path.GetExtension(CfgSt.OHS.HerostatName)}"), skins[0..5], NN);
+                    return true;
                 }
-                _ = MarvelModsXML.ReplaceRef(Path.Combine(Source.FullName, "data", "powerstyles", $"{ps}{Path.GetExtension(CfgSt.OHS.HerostatName)}"), skins[0..5], NN);
-                return true;
+                catch { return false; }
             }
             return false;
         }

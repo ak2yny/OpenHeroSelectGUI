@@ -100,7 +100,7 @@
                                       ItemsSource="{x:Bind settings:InternalSettings.TeamPowerupsXML2.Keys, Mode=OneTime}"
                                       SelectedItem="{x:Bind Descbonus, Mode=TwoWay}"/>
                             <TextBox Text="{x:Bind Sound, Mode=TwoWay}" GotFocus="FocusToSelect" Grid.Row="1" ToolTipService.ToolTip="Sound hash for callout"/>
-                            <ComboBox x:Name="Skinset" Grid.Column="1" Grid.Row="1"
+                            <ComboBox x:Name="SkinFilter" Grid.Column="1" Grid.Row="1"
                                       GotFocus="FocusToSelect"
                                       HorizontalAlignment="Right"
                                       ItemsSource="{x:Bind settings:InternalSettings.XML2Skins, Mode=OneTime}"

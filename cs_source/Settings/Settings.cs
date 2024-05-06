@@ -1,6 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using OpenHeroSelectGUI.Functions;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -111,6 +112,9 @@ namespace OpenHeroSelectGUI.Settings
         private string teamBonusName;
         [ObservableProperty]
         private bool modPack;
+        [ObservableProperty]
+        private bool stageFavouritesOn;
+        public List<string> StageFavourites = [];
         // MUA specific settings
         [ObservableProperty]
         private string layout;
@@ -229,8 +233,15 @@ namespace OpenHeroSelectGUI.Settings
         {
             LoadGuiSettings($"{Oini.Remove(Oini.LastIndexOf('.'))}_GUI.xml");
             LoadOHSsettings(Oini);
-            FileInfo TeamBonus = new($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml");
-            if (TeamBonus.Exists) { _ = TeamBonus.CopyTo(OHSpath.Team_bonus, true); }
+            try
+            {
+                FileInfo TeamBonus = new($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml");
+                if (TeamBonus.Exists) { _ = TeamBonus.CopyTo(OHSpath.Team_bonus, true); }
+            }
+            catch 
+            {
+                // Skippin team bonus, if fails
+            }
         }
         /// <summary>
         /// Load GUI settings from the default XML file.
@@ -244,7 +255,7 @@ namespace OpenHeroSelectGUI.Settings
             if (File.Exists(Gini))
             {
                 XmlSerializer XS = new(typeof(GUIsettings));
-                using FileStream fs = File.Open(Gini, FileMode.Open);
+                using FileStream fs = new(Gini, FileMode.Open, FileAccess.Read);
                 if (XS.Deserialize(fs) is GUIsettings CfgGUI) { CfgSt.GUI = CfgGUI; }
             }
         }
@@ -255,12 +266,18 @@ namespace OpenHeroSelectGUI.Settings
         {
             if (File.Exists(Oini))
             {
-                CfgSt.OHS = CfgSt.GUI.Game == "xml2"
-                    ? (CfgSt.XML2 = JsonSerializer.Deserialize<XML2settings>(File.ReadAllText(Oini), JsonOptionsD)!)
-                    : (CfgSt.MUA = JsonSerializer.Deserialize<MUAsettings>(File.ReadAllText(Oini), JsonOptionsD)!);
-                CfgSt.OHS.RosterValue = FilterDefaultRV(CfgSt.OHS.RosterValue);
-                CfgSt.MUA.MenulocationsValue = FilterDefaultMV(CfgSt.MUA.MenulocationsValue);
-                CharacterListCommands.LoadRosterVal();
+                try
+                {
+                    CfgSt.OHS = CfgSt.GUI.Game == "xml2"
+                        ? (CfgSt.XML2 = JsonSerializer.Deserialize<XML2settings>(File.ReadAllText(Oini), JsonOptionsD)!)
+                        : (CfgSt.MUA = JsonSerializer.Deserialize<MUAsettings>(File.ReadAllText(Oini), JsonOptionsD)!);
+                    CfgSt.OHS.RosterValue = FilterDefaultRV(CfgSt.OHS.RosterValue);
+                    CfgSt.MUA.MenulocationsValue = FilterDefaultMV(CfgSt.MUA.MenulocationsValue);
+                }
+                finally
+                {
+                    CharacterListCommands.LoadRosterVal();
+                }
             }
         }
         /// <summary>
@@ -330,6 +347,8 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         private static void SaveIniXml(string Oini, string Gini, object GameCfg)
         {
+            // IMPORTANT: This makes the app crash, if the files can't be written. That's intentional to let the user know that something is wrong.
+
             // JSON
             string? Opath = Path.GetDirectoryName(Oini);
             if (string.IsNullOrEmpty(Opath)) return;
@@ -379,6 +398,7 @@ namespace OpenHeroSelectGUI.Settings
                 }
             }
         }
+
         private static readonly string[] DefaultRV = [
             "36 Roster Hack Base Roster (Gold Edition Stage)",
             "36 Roster Hack Base Roster (v1.0 and 1.5)",
@@ -391,6 +411,7 @@ namespace OpenHeroSelectGUI.Settings
             "Default 18 Character (GC, PS2, Xbox) Roster",
             "Default 20 Character (PC) Roster",
             "Default 22 Character (PSP) Roster" ];
+
         private static readonly string[] DefaultMV = [
             "25 (Default Base Game)",
             "27 (Official Characters Pack)",
@@ -402,12 +423,14 @@ namespace OpenHeroSelectGUI.Settings
             "36 (for 36RH v1.0 or 1.5 Stage)",
             "36 (for 36RH v2.0 or later Stage)",
             "50 (for 50RH Stage)" ];
+
         private static string FilterDefaultRV(string RV)
         {
             return DefaultRV.Any(r => r.Equals(RV, StringComparison.OrdinalIgnoreCase))
                 ? "temp.OHSGUI"
                 : RV;
         }
+
         private static string FilterDefaultMV(string MV)
         {
             return DefaultMV.Any(m => m.Equals(MV, StringComparison.OrdinalIgnoreCase))

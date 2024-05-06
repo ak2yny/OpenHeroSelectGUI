@@ -17,6 +17,7 @@ namespace OpenHeroSelectGUI.Settings
         public DirectoryInfo? Path { get; set; }
         public BitmapImage? Image { get; set; }
         public bool Riser { get; set; }
+        public bool Favourite { get; set; }
     }
     /// <summary>
     /// Class with <see cref="Message"/> + <see cref="Title"/> (<see cref="string"/>s) and <see cref="IsOpen"/> (<see cref="bool"/>) properties for message binding.

@@ -75,9 +75,13 @@ namespace OpenHeroSelectGUI.Settings
         private static Cfg Cfg { get; } = new();
 
         /// <summary>
-        /// Browse for a roster file to load.
+        /// Browse for a roster file to load. Takes identically named menulocation file, if it exists.
         /// </summary>
-        public static async void LoadRosterBrowse() => LoadRoster(await CfgCmd.LoadDialogue(".cfg"));
+        public static async void LoadRosterBrowse()
+        {
+            string Roster = await CfgCmd.LoadDialogue(".cfg") ?? string.Empty;
+            LoadRoster(Roster, Path.Combine(OHSpath.CD, Cfg.GUI.Game, "menulocations", Path.GetFileName(Roster)));
+        }
         /// <summary>
         /// Load OHS JSON data from the default OHS config.ini & load the roster according to its settings.
         /// </summary>
@@ -95,27 +99,23 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void LoadRosterVal(string Roster, string Mlv)
         {
-            string m = Path.Combine(OHSpath.CD, Cfg.GUI.Game, "menulocations", $"{Mlv}.cfg");
-            string r = Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters", $"{Roster}.cfg");
-            if (File.Exists(m) && File.Exists(r))
+            LoadRoster(Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters", $"{Roster}.cfg"), Path.Combine(OHSpath.CD, Cfg.GUI.Game, "menulocations", $"{Mlv}.cfg"));
+        }
+        /// <summary>
+        /// Load a roster by providing the <paramref name="r"/>oster and <paramref name="m"/>enulocation paths.
+        /// </summary>
+        public static void LoadRoster(string r, string m)
+        {
+            if (!File.Exists(r)) { return; }
+            if (File.Exists(m))
             {
-                IEnumerable<int> Ml = File.ReadAllLines(m).Select(s => string.IsNullOrEmpty(s) ? 0 : int.Parse(s));
+                IEnumerable<int> Ml = File.ReadAllLines(m).Select(s => int.TryParse(s, out int n) ? n : 0);
                 LoadRoster(Ml.ToArray(), Cfg.Var.LayoutLocs is null ? Ml : Ml.Intersect(Cfg.Var.LayoutLocs), File.ReadAllLines(r));
             }
             else
             {
                 Cfg.Var.RosterRange = Enumerable.Range(1, CfgSt.XML2.RosterSize);
-                LoadRoster(r);
-            }
-        }
-        /// <summary>
-        /// Load a roster by providing the full path to a <paramref name="Roster"/> file.
-        /// </summary>
-        public static void LoadRoster(string? Roster)
-        {
-            if (!string.IsNullOrWhiteSpace(Roster) && File.Exists(Roster))
-            {
-                LoadRoster(File.ReadAllLines(Roster));
+                LoadRoster(File.ReadAllLines(r));
             }
         }
         /// <summary>
@@ -133,7 +133,7 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void LoadRoster(int[] Locs, IEnumerable<int>? AvailableLocs, string[] Roster)
         {
-            if (Locs is not null && AvailableLocs is not null)
+            if (AvailableLocs is not null)
             {
                 Cfg.Roster.Selected.Clear();
                 for (int i = 0; i < Math.Min(Locs.Length, Roster.Length); i++)
@@ -170,7 +170,7 @@ namespace OpenHeroSelectGUI.Settings
             IEnumerable<int> AvailableLocs = (Cfg.GUI.Game == "xml2")
                 ? Enumerable.Range(1, CfgSt.XML2.RosterSize)
                 : Cfg.Var.LayoutLocs is null
-                ? Enumerable.Empty<int>()
+                ? []
                 : Cfg.Var.LayoutLocs;
             IEnumerable<int> OccupiedLocs = Cfg.Roster.Selected.Select(c => string.IsNullOrEmpty(c.Loc) ? 0 : int.Parse(c.Loc));
             IEnumerable<int> FreeLocs = AvailableLocs.Except(OccupiedLocs);

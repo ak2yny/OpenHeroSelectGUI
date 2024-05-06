@@ -85,18 +85,20 @@
                         </controls:SettingsCardContent>
                     </Grid>
                 </Expander>
-                <InfoBar x:Name="Warning" Severity="Warning" Title="Invalid Game or MO2 Folder" CloseButtonClick="Warning_CloseButtonClick"/>
-                <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
-                    <controls:SettingsCardContent x:Name="MO2ModFolder" Description="Path to the game or an MO2 mod folder - must contain a 'data' folder" Header="Game or Mod Path">
-                        <controls:SettingsCardContent.Icon>
-                            <FontIcon Glyph="&#xEC50;"/>
-                        </controls:SettingsCardContent.Icon>
-                        <Grid VerticalAlignment="Center">
-                            <TextBox Text="{x:Bind Cfg.OHS.GameInstallPath, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0" MinWidth="200"/>
-                            <Button Content="..." FontWeight="Bold" Click="MO2BrowseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse"/>
-                        </Grid>
-                    </controls:SettingsCardContent>
-                </Grid>
+                <StackPanel>
+                    <InfoBar x:Name="Warning" Severity="Warning" Title="Invalid Game or MO2 Mod Folder" CloseButtonClick="Warning_CloseButtonClick"/>
+                    <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
+                        <controls:SettingsCardContent x:Name="MO2ModFolder" Description="Path to the game or an MO2 mod folder - must contain a 'data' folder" Header="Game or Mod Path">
+                            <controls:SettingsCardContent.Icon>
+                                <FontIcon Glyph="&#xEC50;"/>
+                            </controls:SettingsCardContent.Icon>
+                            <Grid VerticalAlignment="Center">
+                                <TextBox Text="{x:Bind Cfg.OHS.GameInstallPath, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0" MinWidth="200"/>
+                                <Button Content="..." FontWeight="Bold" Click="MO2BrowseButton_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse"/>
+                            </Grid>
+                        </controls:SettingsCardContent>
+                    </Grid>
+                </StackPanel>
                 <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
                     <controls:SettingsCardContent x:Name="HerostatFolder" Description="Path or name of the OHS herostats folder ('xml' by default)" Header="Herostat Folder Name">
                         <controls:SettingsCardContent.Icon>

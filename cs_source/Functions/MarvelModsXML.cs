@@ -426,7 +426,8 @@ namespace OpenHeroSelectGUI.Functions
                         Creator = M["Creator"]!.InnerText,
                         Path = ModelFolder,
                         Image = new BitmapImage(new Uri(ModelImages.First().FullName)),
-                        Riser = CM.InnerText == "Official" && CM.GetAttribute("Riser") == "true"
+                        Riser = CM.InnerText == "Official" && CM.GetAttribute("Riser") == "true",
+                        Favourite = CfgSt.GUI.StageFavourites.Contains(M["Name"]!.InnerText)
                     };
                     return StageItem;
                 }

@@ -92,12 +92,19 @@ namespace OpenHeroSelectGUI.Functions
             if (File.Exists(FilePath))
             {
                 byte[] buffer = new byte[512];
-                FileStream fs = File.Open(FilePath, FileMode.Open);
-                fs.Position = 0x3aea90;
-                _ = fs.Read(buffer, 0, buffer.Length);
-                if (fs.Length > 4200000 && "D3-02-54-8B-CC-E6-32-31-A7-EA-C3-43-12-98-DD-7E" == BitConverter.ToString(System.Security.Cryptography.MD5.HashData(buffer)))
+                try
                 {
-                    return fs;
+                    FileStream fs = File.Open(FilePath, FileMode.Open);
+                    fs.Position = 0x3aea90;
+                    _ = fs.Read(buffer, 0, buffer.Length);
+                    if (fs.Length > 4200000 && "D3-02-54-8B-CC-E6-32-31-A7-EA-C3-43-12-98-DD-7E" == BitConverter.ToString(System.Security.Cryptography.MD5.HashData(buffer)))
+                    {
+                        return fs;
+                    }
+                }
+                catch
+                {
+                    return null;
                 }
             }
             return null;
@@ -121,30 +128,40 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Hex edit the file in <paramref name="FilePath"/> at <paramref name="Position"/> to <paramref name="NewValue"/>.
         /// </summary>
-        public static void HexEdit(long Position, byte[] NewValue, string FilePath)
+        /// <returns><see langword="True"/>, if no exceptions occur, otherwise <see langword="False"/>.</returns>
+        public static bool HexEdit(long Position, byte[] NewValue, string FilePath)
         {
-            using FileStream fs = new(FilePath, FileMode.Open);
-            fs.Position = Position;
-            fs.Write(NewValue, 0, NewValue.Length);
+            try
+            {
+                using FileStream fs = new(FilePath, FileMode.Open);
+                fs.Position = Position;
+                fs.Write(NewValue, 0, NewValue.Length);
+                return true;
+            }
+            catch { return false; }
         }
         /// <summary>
         /// Hex edit the file in <paramref name="FilePath"/> at its first occurrence of <paramref name="OldValue"/> to <paramref name="NewValue"/>, if any.
         /// </summary>
+        /// <returns><see langword="True"/>, if hex-edited, otherwise <see langword="False"/>.</returns>
         public static bool HexEdit(string OldValue, string NewValue, string FilePath)
         {
             if (NewValue.Length <= OldValue.Length)
             {
-                byte[] Bytes = File.ReadAllBytes(FilePath);
-                // apparently, you should use UTF32, because otherwise some string characters might span over multiple bytes
-                int Pos = Encoding.UTF8.GetString(Bytes, 0, Bytes.Length).IndexOf(OldValue);
-                if (Pos > -1)
+                try
                 {
-                    Bytes = Encoding.ASCII.GetBytes(OldValue);
-                    byte[] New = Encoding.ASCII.GetBytes(NewValue);
-                    for (int i = 0; i < Bytes.Length; i++) { Bytes[i] = i < New.Length ? New[i] : new byte(); }
-                    HexEdit(Pos, Bytes, FilePath);
-                    return true;
+                    byte[] Bytes = File.ReadAllBytes(FilePath);
+                    // apparently, you should use UTF32, because otherwise some string characters might span over multiple bytes
+                    int Pos = Encoding.UTF8.GetString(Bytes, 0, Bytes.Length).IndexOf(OldValue);
+                    if (Pos > -1)
+                    {
+                        Bytes = Encoding.ASCII.GetBytes(OldValue);
+                        byte[] New = Encoding.ASCII.GetBytes(NewValue);
+                        for (int i = 0; i < Bytes.Length; i++) { Bytes[i] = i < New.Length ? New[i] : new byte(); }
+                        return HexEdit(Pos, Bytes, FilePath);
+                    }
                 }
+                catch { return false; }
             }
             return false;
         }

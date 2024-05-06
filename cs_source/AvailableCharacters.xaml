@@ -20,6 +20,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Canvas x:Name="AvailableCharactersDropArea" Grid.RowSpan="2" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" Visibility="Collapsed"/>
@@ -34,9 +35,15 @@
                 </Button.KeyboardAccelerators>
             </Button>
         </StackPanel>
+        <ToggleSwitch x:Name="CharRosterSwitch"
+                      Grid.Row="1"
+                      Margin="40 0 0 0"
+                      OffContent="Available Characters"
+                      OnContent="Available Rosters"
+                      Toggled="CharRosterSwitch_Toggled"/>
 
         <TreeView x:Name="trvAvailableChars"
-                  Grid.Row="1"
+                  Grid.Row="2"
                   CanReorderItems="False"
                   SelectionMode="Single"
                   DragItemsStarting="DragItemsStarting"
@@ -47,7 +54,7 @@
                 <KeyboardAccelerator Key="Delete" Invoked="TreeViewItems_Delete" ScopeOwner="{x:Bind trvAvailableChars}"/>
             </TreeView.KeyboardAccelerators>
         </TreeView>
-        <StackPanel Grid.Row="1" Margin="20" Spacing="2" VerticalAlignment="Bottom">
+        <StackPanel Grid.Row="2" Margin="20" Spacing="2" VerticalAlignment="Bottom">
             <InfoBar x:Name="HSsuccess"
                      Severity="Success"
                      Title="Success"

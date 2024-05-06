@@ -7,7 +7,6 @@ using Microsoft.UI.Xaml.Media.Animation;
 using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -213,7 +212,7 @@ namespace OpenHeroSelectGUI
         private static async void SaveDialogue()
         {
             FileSavePicker savePicker = new();
-            savePicker.FileTypeChoices.Add("Configuration File", new List<string>() { ".ini" });
+            savePicker.FileTypeChoices.Add("Configuration File", [".ini"]);
             InitializeWithWindow.Initialize(savePicker, WindowNative.GetWindowHandle(App.MainWindow));
             StorageFile file = await savePicker.PickSaveFileAsync();
             if (file != null)

@@ -91,12 +91,12 @@ namespace OpenHeroSelectGUI.Functions
                 ? HsD
                 : ModFolder.Parent is DirectoryInfo P
                 ? Herostat.GetFile(P)
-                : Enumerable.Empty<FileInfo>();
+                : [];
         }
         /// <summary>
         /// Gets the internal name from the currently selected character
         /// </summary>
-        /// <returns>The internal name or <see cref="string.Empty" /></returns>
+        /// <returns>The internal name or <see cref="string.Empty"/></returns>
         public static string GetInternalName()
         {
             return Load(CfgSt.Var.FloatingCharacter) is string[] HS ? RootAttribute(HS, "name") : string.Empty;
@@ -104,7 +104,7 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Get a herostat root attribute by providing a herostat <see langword="string[]"/>, regardless of the format.
         /// </summary>
-        /// <returns>The value of the attribute or <see cref="string.Empty" /> if not found</returns>
+        /// <returns>The value of the attribute or <see cref="string.Empty"/> if not found</returns>
         public static string RootAttribute(string[] Herostat, string AttrName)
         {
             return Herostat[0].Trim()[0] == '<' ? GUIXML.GetRootAttribute(Herostat, AttrName) : Formats.GetAttr(Herostat, AttrName);
@@ -112,18 +112,25 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Adds a <paramref name="Herostat"/> from an existing <see cref="StorageFile"/> to the available characters.
         /// </summary>
-        public static void Add(StorageFile Herostat) => Add(Herostat.Path, Herostat.Name, Herostat.FileType);
+        /// <returns><see langword="True"/>, if no exceptions occur, otherwise <see langword="False"/>.</returns>
+        public static bool Add(StorageFile Herostat) => Add(Herostat.Path, Herostat.Name, Herostat.FileType);
         /// <summary>
         /// Reads a herostat file from the provided <paramref name="HSpath"/> (file must exist) and copies the file to the available characters with <paramref name="HSext"/> extension, using the charactername found or <paramref name="HSname"/>.
         /// </summary>
-        public static void Add(string HSpath, string HSname, string HSext)
+        /// <returns><see langword="True"/>, if no exceptions occur, otherwise <see langword="False"/>.</returns>
+        public static bool Add(string HSpath, string HSname, string HSext)
         {
-            string? Name = File.ReadAllLines(HSpath)
-                .FirstOrDefault(l => l.Contains("charactername", StringComparison.OrdinalIgnoreCase)) is string CharLine
-                && CharNameRX().Match(CharLine) is Match M && M.Success
-                ? M.Value
-                : Path.GetFileNameWithoutExtension(HSname);
-            File.Copy(HSpath, OHSpath.GetVacant(Path.Combine(OHSpath.HsFolder, Name), HSext), true);
+            try
+            {
+                string? Name = File.ReadAllLines(HSpath)
+                    .FirstOrDefault(l => l.Contains("charactername", StringComparison.OrdinalIgnoreCase)) is string CharLine
+                    && CharNameRX().Match(CharLine) is Match M && M.Success
+                    ? M.Value
+                    : Path.GetFileNameWithoutExtension(HSname);
+                File.Copy(HSpath, OHSpath.GetVacant(Path.Combine(OHSpath.HsFolder, Name), HSext), true);
+                return true;
+            }
+            catch { return false; }
         }
         /// <summary>
         /// Clone a herostat (<paramref name="HF"/>), using its content <paramref name="HS"/>, and changing the number from <paramref name="ON"/> to <paramref name="NN"/>.

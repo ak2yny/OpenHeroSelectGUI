@@ -123,15 +123,17 @@ namespace OpenHeroSelectGUI
                     {
                         ClsResProg.Visibility = Visibility.Visible;
                         string NN = NewModNumber.Text;
-                        bool Arch = MBrowseSwitch.IsOn;
                         string NewName = $"{SC.Character_Name} - {NN}";
                         string? ClsErr = null;
                         await Task.Run(() =>
                         {
                             if (!string.IsNullOrEmpty(Mod)
-                                && (Arch ? Util.Run7z(Mod, NewName) : Path.Combine(OHSpath.Temp, NewName)) is string Clone)
+                                && (MBrowseSwitch.IsOn
+                                ? Util.Run7z(Mod, NewName)
+                                : OHSpath.CopyFilesRecursively(new DirectoryInfo(Mod), Path.Combine(OHSpath.Temp, NewName))
+                                ? Path.Combine(OHSpath.Temp, NewName)
+                                : null) is string Clone)
                             {
-                                if (!Arch) { OHSpath.CopyFilesRecursively(new DirectoryInfo(Mod), Clone); }
                                 ClsErr = ModOps.Renumber(Clone, NewName, SC.Character_Number, NN, HF);
                             }
                             else

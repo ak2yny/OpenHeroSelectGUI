@@ -154,29 +154,36 @@ namespace OpenHeroSelectGUI.Functions
             }
         }
         /// <summary>
-        /// Copy <paramref name="SourceFile" /> (<see cref="FileInfo"/>) to game folder (<paramref name="RelativePath"/> inside game folder from setting), using <paramref name="Target" /> filename to rename simultaneously.
+        /// Copy <paramref name="SourceFile" /> (<see cref="FileInfo"/>) to game folder (<paramref name="RelativePath"/> inside game folder from setting), using <paramref name="Target" /> filename to rename simultaneously. Doesn't copy, if fails or files don't exist.
         /// </summary>
         public static void CopyToGame(FileInfo SourceFile, string RelativePath, string Target)
         {
             if (Path.IsPathFullyQualified(CfgSt.OHS.GameInstallPath) // The settings currently allow relative paths containing a "data" folder. This is not consistent
                 && SourceFile.Exists)
             {
-                File.Copy(SourceFile.FullName, Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, RelativePath)).FullName, Target), true);
+                try { File.Copy(SourceFile.FullName, Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, RelativePath)).FullName, Target), true); }
+                catch { };
             }
         }
         /// <summary>
         /// Recursively copy a complete <paramref name="Source"/> folder with all contents to a <paramref name="Target"/> path (must be a string returned from path info). Existing files are replaced.
         /// </summary>
-        public static void CopyFilesRecursively(DirectoryInfo Source, string Target)
+        /// <returns><see langword="True"/>, if no exceptions occur, otherwise <see langword="False"/>.</returns>
+        public static bool CopyFilesRecursively(DirectoryInfo Source, string Target)
         {
-            foreach (DirectoryInfo dirPath in Source.GetDirectories("*", SearchOption.AllDirectories))
+            try
             {
-                _ = Directory.CreateDirectory(dirPath.FullName.Replace(Source.FullName, Target));
+                foreach (DirectoryInfo dirPath in Source.GetDirectories("*", SearchOption.AllDirectories))
+                {
+                    _ = Directory.CreateDirectory(dirPath.FullName.Replace(Source.FullName, Target));
+                }
+                foreach (FileInfo SourceFile in Source.GetFiles("*", SearchOption.AllDirectories))
+                {
+                    _ = SourceFile.CopyTo(SourceFile.FullName.Replace(Source.FullName, Target), true);
+                }
+                return true;
             }
-            foreach (FileInfo SourceFile in Source.GetFiles("*", SearchOption.AllDirectories))
-            {
-                _ = SourceFile.CopyTo(SourceFile.FullName.Replace(Source.FullName, Target), true);
-            }
+            catch { return false; }
         }
         /// <summary>
         /// Find the actual folder containing the mod files in an existing <paramref name="ModPath"/> by checking the folder names.
@@ -189,7 +196,7 @@ namespace OpenHeroSelectGUI.Functions
                 ? Path.GetRelativePath(FGF.Parent!.FullName, ModPath) == "."
                     ? [FGF.Parent!]
                     : FGF.Parent!.Parent!.EnumerateDirectories("*").Where(f => f.EnumerateDirectories("*").Any(g => GameFolders.Contains(g.Name)))
-                : Enumerable.Empty<DirectoryInfo>();
+                : [];
         }
         /// <summary>
         /// Detect if GameInstallPath is the game folder or a mod folder. If it's a mod folder, prepare a new mod in <paramref name="Source"/> with <paramref name="TargetName"/> and optional <paramref name="InstallationFile"/> info.
@@ -244,13 +251,18 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Move folders in the game's save location by providing names.
         /// </summary>
+        /// <returns><see langword="True"/>, if saves could be moved, otherwise <see langword="False"/>.</returns>
         public static bool MoveSaves(string From, string To)
         {
             DirectoryInfo Source = new(Path.Combine(SaveFolder, From));
             if (Source.Exists && Source.EnumerateFiles().Any())
             {
-                Source.MoveTo(Path.Combine(SaveFolder, To));
-                return true;
+                try
+                {
+                    Source.MoveTo(Path.Combine(SaveFolder, To));
+                    return true;
+                }
+                catch { return false; }
             }
             return false;
         }

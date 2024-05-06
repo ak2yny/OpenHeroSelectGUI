@@ -60,10 +60,10 @@ namespace OpenHeroSelectGUI.Settings
         public static bool CopySkin(FileInfo SourceIGB, string TargetIGB, string Name, int AlchemyCompat, bool ConvGeo, string? igSkin = null, bool HexEdit = true)
         {
             return AlchemyCompat >= 8
+                && Optimizer is not null
                 && SourceIGB.Exists
                 && Path.GetDirectoryName(TargetIGB) is string TD
                 && TD != string.Empty
-                && Optimizer is not null
                 && Opt.Skins(Name, AlchemyCompat, ConvGeo, HexEdit, igSkin)
                 && Util.RunExeInCmd(Optimizer, $"\"{SourceIGB}\" \"{TargetIGB}\" \"{INI}\"");
         }
@@ -126,36 +126,12 @@ namespace OpenHeroSelectGUI.Settings
                 "accessMode = 3",
                 "storeBoundingVolume = false"
             ];
-        public static string[] BNG(int N) =>
-            [
-                $"[OPTIMIZATION{N}]",
-                "name = igBuildNativeGeometry",
-                "targetPlatform = 4",
-                "removeOriginalVertexData = true",
-                "doubleBonePalette = false",
-                "scaleAlphaPsx2 = false"
-            ];
         /// <summary>
         /// Create and write (if any) optimization set to change <paramref name="igSkin"/> to <paramref name="Name"/>, optimize according to <paramref name="AlchemyCompat"/>ibility and convert to Geo 2 if <paramref name="ConvGeo"/>.
         /// </summary>
         /// <returns><see langword="True" />, if any optimizations necessary or possible, otherwise <see langword="false"/>.</returns>
         public static bool Skins(string Name, int AlchemyCompat, bool ConvGeo, bool HexEdit, string? igSkin)
         {
-            // Platforms:
-            // 0 = MUA PC 2006
-            // 1 = MUA PS2
-            // 2 = MUA PS3
-            // 3 = MUA PS4
-            // 4 = MUA PSP
-            // 5 = MUA Wii
-            // 6 = MUA Xbox
-            // 7 = MUA Xbox 360
-            // 8 = MUA Xbox One, Steam
-            // 10 = XML2 PC
-            // 11 = XML2 Gamecube
-            // 12 = XML2 PS2
-            // 13 = XML2 PSP
-            // 14 = XML2 Xbox
             string[] Op = [];
             int i = 0;
             if (ConvGeo)  // convert to attr2

@@ -17,8 +17,8 @@
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
     <Description>Graphical User Interface for Open Hero Select</Description>
-    <VersionPrefix>1.0.4</VersionPrefix>
-    <Version>$(VersionPrefix)-beta</Version>
+    <VersionPrefix>1.0.5</VersionPrefix>
+    <Version>$(VersionPrefix)</Version>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
@@ -85,7 +85,7 @@
     </ContentWithTargetPath>
   </ItemGroup>
   <ItemGroup>
-    <InstallerFiles Include="..\InstallerFiles\**"/>
+    <InstallerFiles Include="..\InstallerFiles\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -105,8 +105,8 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.4.231219000" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.2428" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240428000" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22621.3233" />
   </ItemGroup>
 
   <ItemGroup>

@@ -139,7 +139,7 @@ namespace OpenHeroSelectGUI
                     ? Cfg.OHS.GameInstallPath
                     : Cfg.GUI.GameInstallPath;
                 string dinput = Path.Combine(GamePath, "dinput8.dll");
-                if (File.Exists(dinput)) { dinput = File.ReadAllText(dinput); }
+                if (File.Exists(dinput)) { try { dinput = File.ReadAllText(dinput); } catch { dinput = ""; } }
                 RHInfo.Message = $"Roster hack (RH) not detected in '{GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. MO2 users can browse for the actual game .exe, to keep this message from opening in the future. The RH fixes a crash when using more than 27 characters.";
                 RHInfo.IsOpen = !Directory.Exists(Path.Combine(GamePath, "plugins")) || !dinput.Contains("asi-loader");
             }

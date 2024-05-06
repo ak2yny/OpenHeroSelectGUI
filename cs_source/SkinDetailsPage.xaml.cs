@@ -235,6 +235,21 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void FixSkins(string SourceIGB, string GamePath, string Name)
         {
+            // Platforms:
+            // 0 = MUA PC 2006
+            // 1 = MUA PS2
+            // 2 = MUA PS3
+            // 3 = MUA PS4
+            // 4 = MUA PSP
+            // 5 = MUA Wii
+            // 6 = MUA Xbox
+            // 7 = MUA Xbox 360
+            // 8 = MUA Xbox One, Steam
+            // 10 = XML2 PC
+            // 11 = XML2 Gamecube
+            // 12 = XML2 PS2
+            // 13 = XML2 PSP
+            // 14 = XML2 Xbox
             int Plat = Cfg.GUI.Game == "xml2"
                 ? XML2platforms.SelectedIndex + 10
                 : MUAplatforms.SelectedIndex;
@@ -258,7 +273,7 @@ namespace OpenHeroSelectGUI
                 string[] BiggestTex = TextureLines.ToArray()[Array.IndexOf(TexSizeProds, TexSizeProds.Max())].Split('|');
 
                 int AV;
-                using FileStream fs = new(SourceIGB, FileMode.Open);
+                using FileStream fs = new(SourceIGB, FileMode.Open, FileAccess.Read);
                 fs.Position = 0x2C;
                 try { AV = fs.ReadByte(); } catch { AV = 0; }
 
@@ -330,16 +345,20 @@ namespace OpenHeroSelectGUI
 
                 bool optimized = (ConvGeo || HexEdit || !GamePath.StartsWith("ui"))
                     && Alchemy.CopySkin(SIGB, IGB, Name, PAV, ConvGeo, igSkin, HexEdit);
+                if (optimized && ConvGeo) { GeometryFormats.Foreground = GeometryFormatsT.Foreground = Green; }
 
-                if ((optimized
-                    || (SIGB.CopyTo(IGB, true) is FileInfo TIGB
-                    && HexEdit && Util.HexEdit(igSkin ?? "igActor01Appearance", Name, IGB)))
-                    && HexEdit)
+                try
+                {
+                    optimized = optimized || (SIGB.CopyTo(IGB, true) is not null
+                        && HexEdit && Util.HexEdit(igSkin ?? "igActor01Appearance", Name, IGB));
+                }
+                catch { optimized = false; }
+
+                if (optimized && HexEdit)
                 {
                     igSkinName.Text = Name;
                     igSkinName.Foreground = igSkinNameT.Foreground = Green;
                 }
-                if (optimized && ConvGeo) { GeometryFormats.Foreground = GeometryFormatsT.Foreground = Green; }
                 Cfg.Var.SE_Msg_Warning = new MessageItem
                 {
                     Message = $"'{SourceIGB}' is possibly incompatible and can't be optimized or optimization has failed. Check the IGB statistics",

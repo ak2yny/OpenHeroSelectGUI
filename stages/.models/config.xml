@@ -645,54 +645,124 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Creator>The Outsider &amp; UltraMegaMagnus</Creator>
         </Model>
         <Model>
-            <Name>0</Name>
-            <Path>Super Team Stage Marvel Mods/0</Path>
+            <Name>Stage 0 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/0</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>1</Name>
-            <Path>Super Team Stage Marvel Mods/1</Path>
+            <Name>Stage 1 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/1</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>2</Name>
-            <Path>Super Team Stage Marvel Mods/2</Path>
+            <Name>Stage 2 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/2</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>3</Name>
-            <Path>Super Team Stage Marvel Mods/3</Path>
+            <Name>Stage 3 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/3</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>4</Name>
-            <Path>Super Team Stage Marvel Mods/4</Path>
+            <Name>Stage 4 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/4</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>5</Name>
-            <Path>Super Team Stage Marvel Mods/5</Path>
+            <Name>Stage 5 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/5</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>6</Name>
-            <Path>Super Team Stage Marvel Mods/6</Path>
+            <Name>Stage 6 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/6</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>7</Name>
-            <Path>Super Team Stage Marvel Mods/7</Path>
+            <Name>Stage 7 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/7</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>8</Name>
-            <Path>Super Team Stage Marvel Mods/8</Path>
+            <Name>Stage 8 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/8</Path>
             <Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
-            <Name>9</Name>
-            <Path>Super Team Stage Marvel Mods/9</Path>
+            <Name>Stage 9 from Pack 1</Name>
+            <Path>Super Team Stage Marvel Mods/1/9</Path>
             <Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 1 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/2/1</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 2 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/2/2</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 3 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/2/3</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 4 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/2/4</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 5 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/2/5</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 6 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/2/6</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 7 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/2/7</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 8 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/2/8</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 1 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/3/1</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 2 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/3/2</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 3 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/3/3</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 4 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/3/4</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 5 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/3/5</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 6 from Pack 2</Name>
+        	<Path>Super Team Stage Marvel Mods/3/6</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
             <Name>Cherry World</Name>
@@ -715,6 +785,41 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Creator>Nuhverah</Creator>
         </Model>
         <Model>
+            <Name>Apocalypta</Name>
+            <Path>Custom MUA Stages by Nuhverah/apocalypta</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>FaerieFaurest</Name>
+            <Path>Custom MUA Stages by Nuhverah/faeriefaurest</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Fleeting Dream</Name>
+            <Path>Custom MUA Stages by Nuhverah/fleetingdream</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Fresh Jungle</Name>
+            <Path>Custom MUA Stages by Nuhverah/freshjungle</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Holiday 2023 Theme</Name>
+            <Path>Custom MUA Stages by Nuhverah/holiday2023</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Krystalline</Name>
+            <Path>Custom MUA Stages by Nuhverah/krystalline</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+        <Model>
+            <Name>Rosegarde</Name>
+            <Path>Custom MUA Stages by Nuhverah/rosegarde</Path>
+            <Creator>Nuhverah</Creator>
+        </Model>
+    <Model>
             <Name>Opulence</Name>
             <Path>Custom MUA Stages by Nuhverah/opulence</Path>
             <Creator>Nuhverah</Creator>
