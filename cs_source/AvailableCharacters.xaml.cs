@@ -42,7 +42,7 @@ namespace OpenHeroSelectGUI
                     .ToArray()
                 : folder.EnumerateFiles("*", SearchOption.AllDirectories)
                     .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
-                    .Replace('\\', '/'))
+                    .Replace(Path.DirectorySeparatorChar, '/'))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToImmutableSortedSet()
                     .ToArray();
