@@ -103,6 +103,14 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private bool freeSaves;
         [ObservableProperty]
+        private int showClashes;
+        [ObservableProperty]
+        private bool modPack;
+        [ObservableProperty]
+        private bool availChars;
+        public List<string> StageFavourites = [];
+        // MUA specific settings
+        [ObservableProperty]
         private string gameInstallPath;
         [ObservableProperty]
         private string actualGameExe;
@@ -111,17 +119,13 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private string teamBonusName;
         [ObservableProperty]
-        private bool modPack;
-        [ObservableProperty]
-        private bool stageFavouritesOn;
-        public List<string> StageFavourites = [];
-        // MUA specific settings
-        [ObservableProperty]
         private string layout;
         [ObservableProperty]
         private string model;
         [ObservableProperty]
         private int thumbnailWidth;
+        [ObservableProperty]
+        private bool stageFavouritesOn;
         [ObservableProperty]
         private bool rowLayout;
         [ObservableProperty]
@@ -132,9 +136,13 @@ namespace OpenHeroSelectGUI.Settings
         private bool hidableEffectsOnly;
         [ObservableProperty]
         private bool copyStage;
-        [ObservableProperty]
-        private int showClashes;
         // XML2 specific settings
+        [ObservableProperty]
+        private string xml2InstallPath;
+        [ObservableProperty]
+        private string xml2Arguments;
+        [ObservableProperty]
+        private string xml2BonusName;
         [ObservableProperty]
         private bool skinDetailsVisible;
 
@@ -146,10 +154,8 @@ namespace OpenHeroSelectGUI.Settings
             game = "mua";
             // Note: XML2 seems to have an issue when the settings.dat is removed.
             freeSaves = false;
-            gameInstallPath = "";
-            actualGameExe = "";
-            exeArguments = "";
-            teamBonusName = "team_bonus";
+            gameInstallPath = xml2InstallPath = actualGameExe = exeArguments = xml2Arguments = "";
+            teamBonusName = xml2BonusName = "team_bonus";
             layout = "25 Default PC 2006";
             model = "Default";
             thumbnailWidth = 224;
@@ -379,7 +385,7 @@ namespace OpenHeroSelectGUI.Settings
             }
         }
         /// <summary>
-        /// Write a OHS CFG file to <paramref name="path"/> from the <see cref="CfgSt.Roster.Selected"/> list.
+        /// Write a OHS CFG file to <paramref name="path"/> from the <see cref="CfgSt.Roster.Selected"/> list. Performs a crash on write exceptions.
         /// </summary>
         private static void WriteCfg(string path, int p)
         {

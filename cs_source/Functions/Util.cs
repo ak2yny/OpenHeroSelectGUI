@@ -77,11 +77,16 @@ namespace OpenHeroSelectGUI.Functions
         public static void RunGame()
         {
             if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
-            ProcessStartInfo Game = new(Path.Combine(CfgSt.GUI.GameInstallPath, CfgSt.OHS.ExeName), CfgSt.GUI.ExeArguments)
+            try
             {
-                WorkingDirectory = CfgSt.GUI.GameInstallPath,
-            };
-            _ = Process.Start(Game);
+                ProcessStartInfo Game = new(Path.Combine(OHSpath.GameInstallPath(), CfgSt.OHS.ExeName),
+                                            CfgSt.GUI.Game == "xml2" ? CfgSt.GUI.Xml2Arguments : CfgSt.GUI.ExeArguments)
+                {
+                    WorkingDirectory = OHSpath.GameInstallPath(),
+                };
+                _ = Process.Start(Game);
+            }
+            catch { } // Fail silently
         }
         /// <summary>
         /// Checks the <paramref name="FilePath"/> if it's a compatible Game.exe from MUA.

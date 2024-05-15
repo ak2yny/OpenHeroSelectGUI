@@ -33,7 +33,7 @@ namespace OpenHeroSelectGUI.Functions
         private static bool CompileToTarget(XmlDocument XmlData, string CompiledName)
         {
             string DecompiledName = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(CompiledName)}.xml");
-            XmlData.Save(DecompiledName);
+            try { XmlData.Save(DecompiledName); } catch { return false; }
             return Directory.Exists(Path.GetDirectoryName(CompiledName)) && Util.RunExeInCmd("json2xmlb", $"\"{DecompiledName}\" \"{CompiledName}\"");
         }
         /// <summary>
@@ -52,11 +52,10 @@ namespace OpenHeroSelectGUI.Functions
             if ((HasRiser || EL.Count > 0) && DecompileToTemp(LayoutDataFile) is string DLDF)
             {
                 XmlDocument LayoutData = new();
-                LayoutData.Load(DLDF);
+                try { LayoutData.Load(DLDF); } catch { return LayoutDataFile; }
                 if (LayoutData.DocumentElement is XmlElement menu_items)
                 {
-                    if (HasRiser)
-                        _ = menu_items.AppendChild(LayoutData.ImportNode(Riser, true));
+                    if (HasRiser) { _ = menu_items.AppendChild(LayoutData.ImportNode(Riser, true)); }
                     for (int i = 0; i < (CfgSt.GUI.HidableEffectsOnly && EL.Count > 1 ? 2 : EL.Count); i++)
                     {
                         // Alternatively, we could hex-edit to hide effects on different slots: Util.HexEdit(0x3cc67b, SC.Loc!, CfgSt.GUI.ActualGamePath + "/Game.exe")
@@ -84,33 +83,37 @@ namespace OpenHeroSelectGUI.Functions
                 && Path.Combine(OHSpath.CD, "stages", ".effects", $"{EFN}.xml") is string EFP
                 && File.Exists(EFP))
             {
-                XmlDocument EffectFile = new();
-                EffectFile.Load(EFP);
-                if (EffectFile.DocumentElement is XmlElement Effect
-                    && CfgSt.Var.Layout is XmlElement CL
-                    && CL.SelectSingleNode($"//Location_Setup/Location[@Number='{Loc}']") is XmlNode Coordinates
-                    && SelectedEffect["Offset"] is XmlNode EffectOffset)
+                try
                 {
-                    int X = int.Parse(Coordinates["X"]!.InnerText) + int.Parse(EffectOffset["X"]!.InnerText);
-                    int Y = int.Parse(Coordinates["Y"]!.InnerText) + int.Parse(EffectOffset["Y"]!.InnerText);
-                    int Z = int.Parse(Coordinates["Z"]!.InnerText) + int.Parse(EffectOffset["Z"]!.InnerText);
-                    foreach (XmlElement EffectType in Effect.ChildNodes)
+                    XmlDocument EffectFile = new();
+                    EffectFile.Load(EFP);
+                    if (EffectFile.DocumentElement is XmlElement Effect
+                        && CfgSt.Var.Layout is XmlElement CL
+                        && CL.SelectSingleNode($"//Location_Setup/Location[@Number='{Loc}']") is XmlNode Coordinates
+                        && SelectedEffect["Offset"] is XmlNode EffectOffset)
                     {
-                        XmlAttribute O1 = EffectFile.CreateAttribute("origin");
-                        XmlAttribute O2 = EffectFile.CreateAttribute("origin2");
-                        O1.Value = O2.Value = $"{X} {Y} {Z} {X} {Y} {Z}";
-                        if (EffectType.HasAttribute("origin"))
-                            _ = EffectType.SetAttributeNode(O1);
-                        if (EffectType.HasAttribute("origin2"))
-                            _ = EffectType.SetAttributeNode(O2);
-                    }
-                    EFN = $"{EFN}_{FXslot}";
-                    if (CompileToTarget(EffectFile, Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, "effects", "menu")).FullName, $"{EFN}.xmlb")))
-                    {
-                        // WIP: This seems to work, but is still in beta phase
-                        return GUIXML.ElementFromString($"<item effect=\"menu/{EFN}\" enabled=\"false\" name=\"pad{FXslot}_fx\" neverfocus=\"true\" type=\"MENU_ITEM_EFFECT\" />");
+                        int X = int.Parse(Coordinates["X"]!.InnerText) + int.Parse(EffectOffset["X"]!.InnerText);
+                        int Y = int.Parse(Coordinates["Y"]!.InnerText) + int.Parse(EffectOffset["Y"]!.InnerText);
+                        int Z = int.Parse(Coordinates["Z"]!.InnerText) + int.Parse(EffectOffset["Z"]!.InnerText);
+                        foreach (XmlElement EffectType in Effect.ChildNodes)
+                        {
+                            XmlAttribute O1 = EffectFile.CreateAttribute("origin");
+                            XmlAttribute O2 = EffectFile.CreateAttribute("origin2");
+                            O1.Value = O2.Value = $"{X} {Y} {Z} {X} {Y} {Z}";
+                            if (EffectType.HasAttribute("origin"))
+                                _ = EffectType.SetAttributeNode(O1);
+                            if (EffectType.HasAttribute("origin2"))
+                                _ = EffectType.SetAttributeNode(O2);
+                        }
+                        EFN = $"{EFN}_{FXslot}";
+                        if (CompileToTarget(EffectFile, Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, "effects", "menu")).FullName, $"{EFN}.xmlb")))
+                        {
+                            // WIP: This seems to work, but is still in beta phase
+                            return GUIXML.ElementFromString($"<item effect=\"menu/{EFN}\" enabled=\"false\" name=\"pad{FXslot}_fx\" neverfocus=\"true\" type=\"MENU_ITEM_EFFECT\" />");
+                        }
                     }
                 }
+                catch { return null; }
             }
             return null;
         }
@@ -123,22 +126,28 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns><see langword="True" />, if both packages were cloned successfully or the package exists, otherwise <see langword="false" />.</returns>
         public static bool ClonePackage(string[] PkgSourceFolders, SkinDetails Skin, string? IntName)
         {
-            for (int p = 0; p < PkgSourceFolders.Length; p++)
+            try
             {
-                DirectoryInfo PkgSrcF = new(OHSpath.Packages(PkgSourceFolders[p]));
-                if (File.Exists(Path.Combine(PkgSrcF.FullName, $"{IntName}_{Skin.CharNum}{Skin.Number}.pkgb"))) { return true; }
-                if (PkgSrcF.EnumerateFiles($"{IntName}_{Skin.CharNum}??.pkgb")
-                           .FirstOrDefault() is FileInfo PkgSrc)
-                { return ClonePackage(PkgSrc.FullName,
-                    OHSpath.Packages(CfgSt.OHS.GameInstallPath, $"{IntName}_{Skin.CharNum}{Skin.Number}"),
-                    Skin.CharNum, Skin.CharNum, Skin.Number); }
+                for (int p = 0; p < PkgSourceFolders.Length; p++)
+                {
+                    DirectoryInfo PkgSrcF = new(OHSpath.Packages(PkgSourceFolders[p]));
+                    if (File.Exists(Path.Combine(PkgSrcF.FullName, $"{IntName}_{Skin.CharNum}{Skin.Number}.pkgb"))) { return true; }
+                    if (PkgSrcF.EnumerateFiles($"{IntName}_{Skin.CharNum}??.pkgb")
+                               .FirstOrDefault() is FileInfo PkgSrc)
+                    {
+                        return ClonePackage(PkgSrc.FullName,
+                        OHSpath.Packages(CfgSt.OHS.GameInstallPath, $"{IntName}_{Skin.CharNum}{Skin.Number}"),
+                        Skin.CharNum, Skin.CharNum, Skin.Number);
+                    }
+                }
             }
+            catch { return false; }
             return false;
         }
         /// <summary>
         /// Clone <paramref name="SourcePkg" /> to new <paramref name="PkgBasePath" /> (plus _nc if available), replacing <paramref name="CharNum"/> (plus num from source pkg) references with <paramref name="NewCharNum"/><paramref name="TargetNum"/>. <paramref name="SourcePkg" /> must be the path to an existing package.
         /// </summary>
-        /// <returns><see langword="True" /> if both packages were cloned successfully, otherwise <see langword="false" />.</returns>
+        /// <returns><see langword="True"/> if both packages were cloned successfully, otherwise <see langword="false"/>.</returns>
         public static bool ClonePackage(string SourcePkg, string? PkgBasePath, string CharNum, string NewCharNum, string TargetNum)
         {
             string SourceNum = Path.GetFileNameWithoutExtension(SourcePkg)[^2..];
@@ -147,17 +156,18 @@ namespace OpenHeroSelectGUI.Functions
             if (DecompileToTemp(SourcePkg) is string DP)
             {
                 XmlDocument Pkg = new(), NcPkg = new();
-                Pkg.Load(DP);
+                try { Pkg.Load(DP); } catch { return false; }
                 if (Pkg.DocumentElement is XmlElement packagedef)
                 {
                     if (SourceNum == "nc")
                     {
-                        SourceNum = Path.GetFileNameWithoutExtension(SourcePkg)[^5..^3];
+                        PkgReplInAttr(packagedef, CharNum, Path.GetFileNameWithoutExtension(SourcePkg)[^5..^3], NewCharNum, TargetNum);
+                        return CompileToTarget(Pkg, $"{PkgBasePath}.pkgb");
                     }
                     else if (File.Exists(SourceNCpkg) && DecompileToTemp(SourceNCpkg) is string DN)
                     {
                         using XmlReader NCrdr = XmlReader.Create(DN);
-                        NcPkg.Load(NCrdr);
+                        try { NcPkg.Load(NCrdr); } catch { return false; }
                     }
                     else
                     {
@@ -209,13 +219,13 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Replace all skin_filter references that match any <paramref name="OldSkinNums"/> with <paramref name="NewCharNum"/> (plus [^2..] of old number) in <paramref name="SourceFile"/>. <paramref name="SourceFile"/> must exist and will be replaced. Currently calls itself also on all ents_ (entities) references.
         /// </summary>
-        /// <returns>An <see cref="XmlDocument"/> if <paramref name="SourceFile"/> could be decompiled, otherwise <see langword="null"/>.</returns>
+        /// <returns><see langword="True"/> if <paramref name="SourceFile"/> is an XML file with a root and could be accessed successfully, otherwise <see langword="false"/>.</returns>
         public static bool ReplaceRef(string SourceFile, string[] OldSkinNums, string NewCharNum)
         {
             if (DecompileToTemp(SourceFile) is string DP)
             {
                 XmlDocument XML = new();
-                XML.Load(DP);
+                try { XML.Load(DP); } catch { return false; }
                 if (XML.DocumentElement is XmlElement RootE)
                 {
                     int c = 0;
@@ -293,6 +303,7 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Serializes the Team <see cref="ObservableCollection{T}"/> to XML and saves it to the <paramref name="BonusFile"/> (team_bonus)
         /// </summary>
+        /// <returns><see langword="True"/> if a new file was created, otherwise <see langword="false"/>.</returns>
         public static bool TeamBonusSerializer(string BonusFile)
         {
             UpdateTeams();
@@ -341,10 +352,14 @@ namespace OpenHeroSelectGUI.Functions
                         Bonus.SetAttribute("sound", TB.Sound);
                     }
                 }
-                XmlWriterSettings xws = new() { OmitXmlDeclaration = true, Indent = true };
-                using XmlWriter xw = XmlWriter.Create(BonusFile, xws);
-                Bonuses.Save(xw);
-                return true;
+                try
+                {
+                    XmlWriterSettings xws = new() { OmitXmlDeclaration = true, Indent = true };
+                    using XmlWriter xw = XmlWriter.Create(BonusFile, xws);
+                    Bonuses.Save(xw);
+                    return true;
+                }
+                catch { return false; }
             }
             return false;
         }
@@ -370,36 +385,32 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Create an <see cref="XmlElement"/> from an <paramref name="XmlString"/>.
         /// </summary>
-        /// <returns>The <see cref="XmlElement"/> or <see langword="null" /> if parsing was unsuccessful</returns>
+        /// <returns>The <see cref="XmlElement"/> or <see langword="null" /> if parsing was unsuccessful.</returns>
         public static XmlElement? ElementFromString(string XmlString)
         {
             XmlDocument doc = new();
-            doc.LoadXml(XmlString);
-            if (doc.DocumentElement is XmlElement Root)
-            {
-                return Root;
-            }
-            return null;
+            try { doc.LoadXml(XmlString); } catch { return null; }
+            return doc.DocumentElement;
         }
         /// <summary>
         /// Get the root <see cref="XmlElement"/> by providing the <paramref name="Path"/> to an XML file.
         /// </summary>
-        /// <returns>The root <see cref="XmlElement"/> containing the complete XML structure. Returns <see langword="null"/> if file <paramref name="Path"/> doesn't exist or no <see cref="XmlElement"/> could be retreived.</returns>
+        /// <returns>The root <see cref="XmlElement"/> containing the complete XML structure. Returns <see langword="null"/> if loading file <paramref name="Path"/> failed or no <see cref="XmlElement"/> could be retreived.</returns>
         public static XmlElement? GetXmlElement(string Path)
         {
-            if (File.Exists(Path))
+            try
             {
-                XmlDocument XmlDocument = new();
+                XmlDocument doc = new();
                 using XmlReader reader = XmlReader.Create(Path, new XmlReaderSettings() { IgnoreComments = true });
-                XmlDocument.Load(reader);
-                return XmlDocument.DocumentElement;
+                doc.Load(reader);
+                return doc.DocumentElement;
             }
-            return null;
+            catch { return null; }
         }
         /// <summary>
         /// Get the value of a root <paramref name="Attribute" /> from an <paramref name="XmlData" /> <see langword="string[]" />. Instead of using System.XML.
         /// </summary>
-        /// <returns>The attribute value or <see cref="string.Empty" /></returns>
+        /// <returns>The attribute value or <see cref="string.Empty"/></returns>
         public static string GetRootAttribute(string[] XmlData, string Attribute)
         {
             return ElementFromString(string.Join(Environment.NewLine, XmlData)) is XmlElement Root ? Root.GetAttribute(Attribute) : string.Empty;
@@ -407,19 +418,22 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Parse the XML stage details (<paramref name="M"/>) to stage info with image and details (add riser <see cref="bool"/> from <paramref name="CM"/>).
         /// </summary>
-        /// <returns>Stage info</returns>
+        /// <returns><see cref="StageModel"/> info or <see langword="null"/> if M info doesn't point to a valid folder or folder access failed.</returns>
         public static StageModel? GetStageInfo(XmlElement M, XmlElement CM)
         {
-            if (Path.Combine(OHSpath.Model, M["Path"]!.InnerText) is string MP && Directory.Exists(MP))
+            if (Path.Combine(OHSpath.Model, M["Path"]!.InnerText) is string MP)
             {
                 DirectoryInfo ModelFolder = new(MP);
-                if (ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").Any())
+                int count;
+                try { count = ModelFolder.GetFiles("*.igb").Length; } catch { count = 0; }
+                if (count > 0)
                 {
                     IEnumerable<FileInfo> ModelImages = ModelFolder
                         .EnumerateFiles("*.png")
                         .Union(ModelFolder.EnumerateFiles("*.jpg"))
                         .Union(ModelFolder.EnumerateFiles("*.bmp"))
                         .Union(new DirectoryInfo(OHSpath.Model).EnumerateFiles(".NoPreview.png"));
+                    // Note: Performs a crash, if stage files integrity is broken
                     StageModel StageItem = new()
                     {
                         Name = M["Name"]!.InnerText,
@@ -454,26 +468,30 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Split an XML file (<paramref name="XMLFilePath"/>) to the root's child elements and saves them to <paramref name="OutputFolder"/> as .xml files if they have the charactername attribute.
         /// </summary>
-        /// <returns><see langword="True" />, if the file could be parsed as XML, otherwise <see langword="false" /></returns>
+        /// <returns><see langword="True" />, if the file could be parsed as XML and writing files succeeds, otherwise <see langword="false" /></returns>
         public static bool SplitXMLStats(string XMLFilePath, string OutputFolder)
         {
             if (GetXmlElement(XMLFilePath) is XmlElement Characters)
             {
-                List<string> MlL = [], CnL = [];
-                for (int i = 0; i < Characters.ChildNodes.Count; i++)
+                try
                 {
-                    if (Characters.ChildNodes[i] is XmlElement XE
-                        && XE.GetAttribute("charactername") is string CN
-                        && CN is not "" and not "defaultman")
+                    List<string> MlL = [], CnL = [];
+                    for (int i = 0; i < Characters.ChildNodes.Count; i++)
                     {
-                        XmlDocument Xdoc = new();
-                        Xdoc.LoadXml(XE.OuterXml);
-                        Xdoc.Save(Path.Combine(Directory.CreateDirectory(OHSpath.GetRooted(OutputFolder)).FullName, $"{CN}.xml"));
-                        CnL.Add(CN); MlL.Add(XE.GetAttribute("menulocation"));
+                        if (Characters.ChildNodes[i] is XmlElement XE
+                            && XE.GetAttribute("charactername") is string CN
+                            && CN is not "" and not "defaultman")
+                        {
+                            XmlDocument Xdoc = new();
+                            Xdoc.LoadXml(XE.OuterXml);
+                            Xdoc.Save(Path.Combine(Directory.CreateDirectory(OHSpath.GetRooted(OutputFolder)).FullName, $"{CN}.xml"));
+                            CnL.Add(CN); MlL.Add(XE.GetAttribute("menulocation"));
+                        }
                     }
+                    Herostat.WriteCfgFiles(MlL, CnL);
+                    return true;
                 }
-                Herostat.WriteCfgFiles(MlL, CnL);
-                return true;
+                catch { return false; }
             }
             return false;
         }

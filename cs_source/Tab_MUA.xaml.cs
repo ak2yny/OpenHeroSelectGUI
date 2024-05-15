@@ -135,9 +135,7 @@ namespace OpenHeroSelectGUI
             {
                 string GamePath = Path.GetDirectoryName(Cfg.GUI.ActualGameExe) is string ActualGamePath && ActualGamePath != ""
                     ? ActualGamePath
-                    : string.IsNullOrEmpty(Cfg.GUI.GameInstallPath)
-                    ? Cfg.OHS.GameInstallPath
-                    : Cfg.GUI.GameInstallPath;
+                    : OHSpath.GameInstallPath();
                 string dinput = Path.Combine(GamePath, "dinput8.dll");
                 if (File.Exists(dinput)) { try { dinput = File.ReadAllText(dinput); } catch { dinput = ""; } }
                 RHInfo.Message = $"Roster hack (RH) not detected in '{GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. MO2 users can browse for the actual game .exe, to keep this message from opening in the future. The RH fixes a crash when using more than 27 characters.";

@@ -31,8 +31,8 @@
                         <Grid VerticalAlignment="Center">
                             <StackPanel x:Name="SkinDetails" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                                 <TextBlock x:Name="CharacterNumber" Text="{x:Bind CharNum}" Margin="0 5"/>
-                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging" LosingFocus="SkinNumber_LosingFocus"/>
-                                <TextBox x:Name="SkinName" Text="{x:Bind Name, Mode=TwoWay}" MinWidth="150"/>
+                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging" GotFocus="FocusToSelect" LosingFocus="SkinNumber_LosingFocus"/>
+                                <TextBox x:Name="SkinName" Text="{x:Bind Name, Mode=TwoWay}" MinWidth="150" GotFocus="FocusToSelect"/>
                                 <Canvas x:Name="SpaceForButton" Background="{ThemeResource AppBarItemBackgroundThemeBrush}" MinWidth="70"/>
                             </StackPanel>
                             <AppBarButton x:Name="HoverButton" Command="{x:Bind Command}" CommandParameter="{x:Bind Number}" IsTabStop="False" HorizontalAlignment="Right" Visibility="Collapsed"/>
@@ -63,7 +63,7 @@
                         <Grid VerticalAlignment="Center">
                             <StackPanel x:Name="SkinDetails" Orientation="Horizontal" Spacing="5" VerticalAlignment="Center">
                                 <TextBlock x:Name="CharacterNumber" Text="{x:Bind CharNum}" Margin="0 5"/>
-                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging" LosingFocus="SkinNumber_LosingFocus"/>
+                                <TextBox x:Name="SkinNumber" Text="{x:Bind Number, Mode=TwoWay}" MinWidth="36" BeforeTextChanging="SkinNumber_BeforeTextChanging" GotFocus="FocusToSelect" LosingFocus="SkinNumber_LosingFocus"/>
                                 <TextBlock x:Name="SkinNameXML2" Text="{x:Bind Name}" Margin="5" MinWidth="150"/>
                                 <Canvas x:Name="SpaceForButton" Background="{ThemeResource AppBarItemBackgroundThemeBrush}" MinWidth="70"/>
                             </StackPanel>
@@ -97,13 +97,13 @@
                 </TextBlock>
                 <TextBlock x:Name="CharacterPath" Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}"/>
                 <ListView x:Name="Skins"
-                      ItemContainerStyle="{StaticResource SkinItems}"
-                      ItemsSource="{x:Bind Cfg.Roster.SkinsList}"
-                      ItemTemplateSelector="{StaticResource SkinTemplateSelector}"
-                      AllowDrop="True"
-                      CanReorderItems="True"
-                      SelectionChanged="Skins_SelectionChanged"
-                      SelectionMode="Single">
+                          ItemContainerStyle="{StaticResource SkinItems}"
+                          ItemsSource="{x:Bind Cfg.Roster.SkinsList}"
+                          ItemTemplateSelector="{StaticResource SkinTemplateSelector}"
+                          AllowDrop="True"
+                          CanReorderItems="True"
+                          SelectionChanged="Skins_SelectionChanged"
+                          SelectionMode="Single">
                     <ListView.KeyboardAccelerators>
                         <KeyboardAccelerator Key="Delete" Invoked="Skins_Delete"/>
                     </ListView.KeyboardAccelerators>

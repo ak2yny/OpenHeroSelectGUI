@@ -28,7 +28,7 @@ namespace OpenHeroSelectGUI
         }
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            PopulateAvailable();
+            AvailChange(Cfg.GUI.AvailChars);
         }
         /// <summary>
         /// Load characters from the herostat folder
@@ -36,16 +36,19 @@ namespace OpenHeroSelectGUI
         private void PopulateAvailable(bool KeepFilter = false)
         {
             DirectoryInfo folder = new(OHSpath.HsFolder);
-            string[] NewAvailable = CharRosterSwitch.IsOn
-                ? Directory.EnumerateFiles(Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters"), "*.cfg")
-                    .Select(f => Path.GetFileNameWithoutExtension(f))
-                    .ToArray()
-                : folder.EnumerateFiles("*", SearchOption.AllDirectories)
+            string rosters = Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters");
+            string[] NewAvailable = Cfg.GUI.AvailChars && folder.Exists
+                ? folder.EnumerateFiles("*", SearchOption.AllDirectories)
                     .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
                     .Replace(Path.DirectorySeparatorChar, '/'))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToImmutableSortedSet()
-                    .ToArray();
+                    .ToArray()
+                : !Cfg.GUI.AvailChars && Directory.Exists(rosters)
+                ? Directory.EnumerateFiles(rosters, "*.cfg")
+                    .Select(f => Path.GetFileNameWithoutExtension(f))
+                    .ToArray()
+                : [];
             if (NewAvailable != Cfg.Roster.Available)
             {
                 Cfg.Roster.Available = NewAvailable;
@@ -88,9 +91,9 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Generate the <see cref="TreeView"/> structure from a file <paramref name="PathInfo"/>. Add <paramref name="RemainingPath"/> to <paramref name="Parent"/> recursively.
         /// </summary>
-        public void PopulateAvailable(TreeViewNode Parent, string RemainingPath, string PathInfo)
+        private void PopulateAvailable(TreeViewNode Parent, string RemainingPath, string PathInfo)
         {
-            if (CharRosterSwitch.IsOn)
+            if (!Cfg.GUI.AvailChars)
             {
                 Parent.Children.Add(new TreeViewNode() { Content = PathInfo });
                 return;
@@ -108,6 +111,16 @@ namespace OpenHeroSelectGUI
                 Parent.Children.Add(child);
             }
             if (Node.Length > 1) { PopulateAvailable(child, Node[1], PathInfo); }
+        }
+        /// <summary>
+        /// Switch between available characters and rosters. <see langword="True"/> enables characters, <see langword="false"/> rosters.
+        /// </summary>
+        private void AvailChange(bool IsChar)
+        {
+            AvailRstrs.IsChecked = !(AvailChars.IsChecked = IsChar);
+            BrowseButton.Visibility = IsChar ? Visibility.Visible : Visibility.Collapsed;
+            Cfg.GUI.AvailChars = IsChar;
+            PopulateAvailable();
         }
         /// <summary>
         /// Search typing
@@ -258,7 +271,7 @@ namespace OpenHeroSelectGUI
             }
             else if (trvAvailableChars.SelectedItem is TreeViewNode Node)
             {
-                if (CharRosterSwitch.IsOn && Node.Content is string Roster)
+                if (Cfg.GUI.AvailChars && Node.Content is string Roster)
                 {
                     LoadRosterVal(Roster);
                 }
@@ -336,12 +349,6 @@ namespace OpenHeroSelectGUI
             PopulateAvailable(true);
         }
 
-        private void CharRosterSwitch_Toggled(object sender, RoutedEventArgs e)
-        {
-            BrowseButton.Visibility = CharRosterSwitch.IsOn
-                ? Visibility.Collapsed
-                : Visibility.Visible;
-            PopulateAvailable();
-        }
+        private void Avail_Click(object sender, RoutedEventArgs e) => AvailChange(!Cfg.GUI.AvailChars);
     }
 }

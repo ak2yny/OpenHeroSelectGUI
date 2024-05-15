@@ -33,6 +33,9 @@ namespace OpenHeroSelectGUI
             InitializeComponent();
             ReadSaveBackups();
             GIPcheck();
+            GIPBox.Text = OHSpath.GameInstallPath();
+            ExeArgsBox.Text = Cfg.GUI.Game == "xml2" ? Cfg.GUI.Xml2Arguments : Cfg.GUI.ExeArguments;
+            TeamBonusName.Text = Cfg.GUI.Game == "xml2" ? Cfg.GUI.Xml2BonusName : Cfg.GUI.TeamBonusName;
         }
         /// <summary>
         /// Load the GUI configurations and set-up the controls.
@@ -107,13 +110,19 @@ namespace OpenHeroSelectGUI
             {
                 FileInfo? ExeFile = new(Exe);
                 Cfg.OHS.ExeName = ExeFile.Name;
-                Cfg.GUI.GameInstallPath = ExeFile.FullName[..^(ExeFile.Name.Length + 1)];
+                string GIP = GIPBox.Text = ExeFile.FullName[..^(ExeFile.Name.Length + 1)];
+                if (Cfg.GUI.Game == "xml2") { Cfg.GUI.Xml2InstallPath = GIP; } else { Cfg.GUI.GameInstallPath = GIP; }
                 if (string.IsNullOrEmpty(Cfg.OHS.GameInstallPath))
                 {
-                    Cfg.OHS.GameInstallPath = Cfg.GUI.GameInstallPath;
+                    Cfg.OHS.GameInstallPath = GIP;
                     GIPcheck();
                 }
             }
+        }
+
+        private void ExeArgsBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (Cfg.GUI.Game == "xml2") { Cfg.GUI.Xml2Arguments = ExeArgsBox.Text; } else { Cfg.GUI.ExeArguments = ExeArgsBox.Text; }
         }
 
         private void Warning_CloseButtonClick(InfoBar sender, object args)
@@ -199,6 +208,7 @@ namespace OpenHeroSelectGUI
         private void TeamBonus_TextChanged(UIElement sender, LosingFocusEventArgs args)
         {
             TeamBonusName.Text = FixedLength(TeamBonusName.Text, "team_bonus");
+            if (Cfg.GUI.Game == "xml2") { Cfg.GUI.Xml2BonusName = TeamBonusName.Text; } else { Cfg.GUI.TeamBonusName = TeamBonusName.Text; }
         }
 
         private void SettingsCard_Loaded(object sender, RoutedEventArgs e)

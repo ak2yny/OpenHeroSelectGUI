@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace OpenHeroSelectGUI
 {
     /// <summary>
-    /// The Skin details tab that uses the <see cref="OpenHeroSelectGUI.SkinDetailsPage"/> pane to show <see cref="SkinDetails"/>.
+    /// The Skin details tab that uses the <see cref="SkinDetailsPage"/> pane to show <see cref="SkinDetails"/>.
     /// </summary>
     public sealed partial class Tab_SkinEditor : Page
     {

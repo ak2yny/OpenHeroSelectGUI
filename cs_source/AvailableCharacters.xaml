@@ -24,7 +24,11 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Canvas x:Name="AvailableCharactersDropArea" Grid.RowSpan="2" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" Visibility="Collapsed"/>
-        <StackPanel Orientation="Horizontal" Margin="40 0 0 0" Spacing="3">
+        <StackPanel Margin="40 5 0 0" Orientation="Horizontal">
+            <ToggleButton x:Name="AvailChars" Content="Characters" Click="Avail_Click"/>
+            <ToggleButton x:Name="AvailRstrs" Content="Rosters" Click="Avail_Click"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Margin="40 0 0 0" Orientation="Horizontal" Spacing="3">
             <AutoSuggestBox x:Name="TVsearch" MinWidth="100" MaxWidth="280" PlaceholderText="Search" QueryIcon="Find" TextChanged="TVsearch_QuerySubmitted"/>
             <!--WIP: If TextChanged doesn't perform well, we should probably change it to QuerySubmitted.-->
             <Button x:Name="BrowseButton" FontWeight="Bold" Click="BrowseButton_Click" Content="..." ToolTipService.ToolTip="Browse for a new herostat to add. Can be a mod archive or a herostat text." Height="35"/>
@@ -35,12 +39,6 @@
                 </Button.KeyboardAccelerators>
             </Button>
         </StackPanel>
-        <ToggleSwitch x:Name="CharRosterSwitch"
-                      Grid.Row="1"
-                      Margin="40 0 0 0"
-                      OffContent="Available Characters"
-                      OnContent="Available Rosters"
-                      Toggled="CharRosterSwitch_Toggled"/>
 
         <TreeView x:Name="trvAvailableChars"
                   Grid.Row="2"

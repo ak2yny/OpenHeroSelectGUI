@@ -230,7 +230,7 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
-        /// Apply Alchemy optimizations to make the <paramref name="SourceIGB"/> compatible if possible and show compatibility information.
+        /// Apply Alchemy optimizations to make the <paramref name="SourceIGB"/> compatible if possible and show compatibility information. Performs a crash if target directory can't be written to.
         /// Copy <paramref name="SourceIGB"/> to [gameInstallPath]/<paramref name="GamePath"/>/<paramref name="Name"/>.igb.
         /// </summary>
         private void FixSkins(string SourceIGB, string GamePath, string Name)
@@ -431,6 +431,17 @@ namespace OpenHeroSelectGUI
                 _ = int.TryParse(Cfg.Roster.SkinsList.OrderBy(s => s.Number).Last().Number, out MaxSkinNum);
             }
             AddSkin(AddCharNum.Text, (MaxSkinNum + 1).ToString().PadLeft(2, '0'), Cfg.GUI.Game == "xml2" ? AvailableXMLNames[0] : "");
+            Skins.SelectedIndex = Cfg.Roster.SkinsList.Count - 1;
+        }
+        /// <summary>
+        /// Enable selection of items when clicking on text boxes
+        /// </summary>
+        private void FocusToSelect(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement Control)
+            {
+                Skins.SelectedItem = Control.DataContext;
+            }
         }
         /// <summary>
         /// Restrict skin number input

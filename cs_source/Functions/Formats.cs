@@ -142,7 +142,7 @@ namespace OpenHeroSelectGUI.Functions
             CfgSt.Var.FloatingCharacter = Path.GetRelativePath(OHSpath.HsFolder, New)[..^HF.Extension.Length].Replace("\\", "/");
         }
         /// <summary>
-        /// Splits <paramref name="Herostat"/> <see langword="string[]"/>, based on depth count by curly brackets. Saves them in <paramref name="HsFormat"/> to the <paramref name="OutputFolder"/>, if they have the charactername line.
+        /// Splits <paramref name="Herostat"/> <see langword="string[]"/>, based on depth count by curly brackets. Saves them in <paramref name="HsFormat"/> to the <paramref name="OutputFolder"/>, if they have the charactername line. Crashes on errors.
         /// </summary>
         public static void Split(string[] Herostat, char HsFormat, string OutputFolder)
         {
@@ -162,10 +162,8 @@ namespace OpenHeroSelectGUI.Functions
                     if (Line[0] == '{' || Line[^1] == '{') Depth++;
                     if (Line[0] == '}' || Line.TrimEnd(',')[^1] == '}') Depth--;
                 }
-                if (CharNameRX().Match(Line) is Match M && M.Success)
-                    CN = M.Value;
-                if (MLRX().IsMatch(Line))
-                    ML = Line.Split(HsFormat == '{' ? ':' : '=', 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"');
+                if (CharNameRX().Match(Line) is Match M && M.Success) { CN = M.Value; }
+                else if (MLRX().IsMatch(Line)) { ML = Line.Split(HsFormat == '{' ? ':' : '=', 2)[1].TrimEnd(';').TrimEnd(',').Trim().Trim('"'); }
                 if (i > 5 && Depth == 1)
                 {
                     if (CN is not "" and not "defaultman")
@@ -180,7 +178,7 @@ namespace OpenHeroSelectGUI.Functions
             WriteCfgFiles(MlL, CnL);
         }
         /// <summary>
-        /// Write roster <see cref="List{string}"/> (<paramref name="CnL"/>) and menulocations <see cref="List{string}"/> (<paramref name="MlL"/>, MUA only) to OHS folders with a generated filename.
+        /// Write roster <see cref="List{string}"/> (<paramref name="CnL"/>) and menulocations <see cref="List{string}"/> (<paramref name="MlL"/>, MUA only) to OHS folders with a generated filename. Throws WriteAllLines exceptions.
         /// </summary>
         public static void WriteCfgFiles(List<string> MlL, List<string> CnL)
         {

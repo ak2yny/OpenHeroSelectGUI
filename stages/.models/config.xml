@@ -765,6 +765,31 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
         	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
+        	<Name>Stage 10 from Pack 3</Name>
+        	<Path>Super Team Stage Marvel Mods/3/10</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 11 from Pack 3</Name>
+        	<Path>Super Team Stage Marvel Mods/3/11</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 12 from Pack 3</Name>
+        	<Path>Super Team Stage Marvel Mods/3/12</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 13 from Pack 3</Name>
+        	<Path>Super Team Stage Marvel Mods/3/13</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 14 from Pack 3</Name>
+        	<Path>Super Team Stage Marvel Mods/3/14</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
             <Name>Cherry World</Name>
             <Path>Custom MUA Stages by Nuhverah/cherryworld</Path>
             <Creator>Nuhverah</Creator>

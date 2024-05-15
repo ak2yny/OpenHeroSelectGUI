@@ -54,15 +54,26 @@ namespace OpenHeroSelectGUI.Functions
         /// Get the saves folder for the current tab (game). Must be checked for existence.
         /// </summary>
         public static string SaveFolder => Path.Combine(Activision, Game == "xml2" ? "X-Men Legends 2" : "Marvel Ultimate Alliance");
+        /// <summary>
+        /// Get the installation folder for the current game, using the GUI path. Falls back to the OHS path (mod path), if the GUI path is empty or null.
+        /// </summary>
+        /// <returns>The game installation path.</returns>
+        public static string GameInstallPath()
+        {
+            string GIP = Game == "xml2" ? CfgSt.GUI.Xml2InstallPath : CfgSt.GUI.GameInstallPath;
+            return string.IsNullOrEmpty(GIP)
+                ? CfgSt.OHS.GameInstallPath
+                : GIP;
+        }
         public static string Team_bonus => Path.Combine(CD, Game, "team_bonus.engb.xml");
         /// <summary>
-        /// Get the OHS temp folder path as a <see cref="string"/>.
+        /// Get the OHS temp folder path as a <see cref="string"/>. Performs a crash if no permission.
         /// </summary>
         public static string Temp => Directory.CreateDirectory(Path.Combine(CD, "Temp")).FullName;
         /// <summary>
         /// Tries to construct the path to MUA's Game.exe. Doesn't check for a valid path or existence.
         /// </summary>
-        public static string GameExe => string.IsNullOrEmpty(CfgSt.GUI.ActualGameExe) ? Path.Combine(CfgSt.GUI.GameInstallPath, CfgSt.OHS.ExeName) : CfgSt.GUI.ActualGameExe;
+        public static string GameExe => string.IsNullOrEmpty(CfgSt.GUI.ActualGameExe) ? Path.Combine(GameInstallPath(), CfgSt.OHS.ExeName) : CfgSt.GUI.ActualGameExe;
         /// <summary>
         /// Construct a file name of a <paramref name="PathWithoutExt"/> file that doesn't exist. (Extension is optional.)
         /// </summary>
@@ -76,7 +87,7 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns>Full path to the existing herostat folder</returns>
         public static string HsFolder => GetHsFolder(CfgSt.OHS.HerostatFolder);
         /// <summary>
-        /// Get the full path to an OHS <see cref="Game"/> sub <paramref name="FolderString"/>.
+        /// Get the full path to an OHS <see cref="Game"/> sub <paramref name="FolderString"/>. Performs a crash if no permission.
         /// </summary>
         /// <returns>Full path to an OHS <see cref="Game"/> sub folder or the folder path (if path). Defaults to "xml", if the folder doesn't exist.</returns>
         public static string GetHsFolder(string FolderString)
@@ -117,14 +128,14 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns>Array with matching folder paths as strings or empty array</returns>
         public static string[] GetFoldersWpkg()
         {
-            string[] PkgSourceFolders = [CfgSt.OHS.GameInstallPath, CfgSt.GUI.GameInstallPath];
+            string[] PkgSourceFolders = [CfgSt.OHS.GameInstallPath, GameInstallPath()];
             if (Directory.Exists(CfgSt.OHS.GameInstallPath)
                 && Directory.GetParent(CfgSt.OHS.GameInstallPath) is DirectoryInfo MO2
                 && MO2.Name == "mods")
             {
                 PkgSourceFolders = [.. PkgSourceFolders, .. MO2.EnumerateDirectories().Select(d => d.FullName)];
             }
-            return PkgSourceFolders.Where(f => Directory.Exists(Packages(f))).Distinct().ToArray();
+            return PkgSourceFolders.Where(f => Directory.Exists(Packages(f))).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         }
         /// <summary>
         /// Copy from <paramref name="SourceFolder" /> (full path) to game folder (from setting) using a <paramref name="RelativePath"/> and <paramref name="Source" /> and <paramref name="Target" /> filenames to rename simultaneously.
@@ -162,7 +173,7 @@ namespace OpenHeroSelectGUI.Functions
                 && SourceFile.Exists)
             {
                 try { File.Copy(SourceFile.FullName, Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, RelativePath)).FullName, Target), true); }
-                catch { };
+                catch { }
             }
         }
         /// <summary>
