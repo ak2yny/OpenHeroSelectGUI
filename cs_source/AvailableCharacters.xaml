@@ -23,7 +23,7 @@
             <RowDefinition Height="35"/>
             <RowDefinition/>
         </Grid.RowDefinitions>
-        <Canvas x:Name="AvailableCharactersDropArea" Grid.RowSpan="2" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" Visibility="Collapsed"/>
+        <Canvas x:Name="AvailableCharactersDropArea" Grid.RowSpan="3" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" Visibility="Collapsed"/>
         <StackPanel Margin="40 5 0 0" Orientation="Horizontal">
             <ToggleButton x:Name="AvailChars" Content="Characters" Click="Avail_Click"/>
             <ToggleButton x:Name="AvailRstrs" Content="Rosters" Click="Avail_Click"/>

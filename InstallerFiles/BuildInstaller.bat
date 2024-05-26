@@ -13,6 +13,13 @@ for /f "delims=" %%d in ('dir /ad /b /s mua\*, xml2\* 2^>nul') do rd %%d
 mkdir OHSGUI_new
 
 REM Add required files and make build
+(
+ echo rmdir /q /s OHSGUI
+ echo ren OHSGUI_new OHSGUI
+ echo mklink OpenHeroSelectGUI .\OHSGUI\OpenHeroSelectGUI.exe
+ echo del MkLink.bat
+) >MkLink.bat
+
 for %%a in (
  OpenHeroSelectGUI.exe
  7z.exe
@@ -23,12 +30,6 @@ for %%a in (
  en-us
  Microsoft.UI.Xaml
 ) do move %%a OHSGUI_new\
-(
- echo rmdir /q /s OHSGUI
- echo ren OHSGUI_new OHSGUI
- echo mklink OpenHeroSelectGUI .\OHSGUI\OpenHeroSelectGUI.exe
- echo del MkLink.bat
-) >MkLink.bat
 call :WriteCfg %1 "Please enter the OHS installation path:" >InstallerFiles\config.txt
 
 call :BuildInstaller %z%
