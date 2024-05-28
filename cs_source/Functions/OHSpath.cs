@@ -55,25 +55,31 @@ namespace OpenHeroSelectGUI.Functions
         /// </summary>
         public static string SaveFolder => Path.Combine(Activision, Game == "xml2" ? "X-Men Legends 2" : "Marvel Ultimate Alliance");
         /// <summary>
-        /// Get the installation folder for the current game, using the GUI path. Falls back to the OHS path (mod path), if the GUI path is empty or null.
+        /// Tries to construct the path to the Game Install Path .exe. Falls back to OHS.GameInstallPath + OHS.ExeName. Doesn't check the latter.
         /// </summary>
-        /// <returns>The game installation path.</returns>
-        public static string GameInstallPath()
+        /// <returns>The full path to the .exe or an invalid path/string if settings are wrong.</returns>
+        public static string StartExe()
         {
+            // Doesn't check for path content, but if not tampered with in config files, paths are either good or "".
+            // Since the variables can't be null, we could check with Path.IsPathFullyQualified().
             string GIP = Game == "xml2" ? CfgSt.GUI.Xml2InstallPath : CfgSt.GUI.GameInstallPath;
-            return string.IsNullOrEmpty(GIP)
-                ? CfgSt.OHS.GameInstallPath
-                : GIP;
+            return Path.Combine(GIP != "" ? GIP : CfgSt.OHS.GameInstallPath, CfgSt.OHS.ExeName);
         }
+        /// <summary>
+        /// Tries to construct the path to MUA's Game.exe. Falls back to Game Install Path .exe. Doesn't check for a valid path or existence.
+        /// </summary>
+        /// <returns>The full path to the .exe or an invalid path/string if settings are wrong.</returns>
+        public static string MUAexe => Game == "mua" && CfgSt.GUI.ActualGameExe != "" ? CfgSt.GUI.ActualGameExe : StartExe();
+        /// <summary>
+        /// Tries to get the directory of the actual game. Falls back to OHS.GameInstallPath.
+        /// </summary>
+        /// <returns>The full path to the game's installation directory or an invalid path/string if settings are wrong.</returns>
+        public static string GamePath => Path.GetDirectoryName(MUAexe) ?? CfgSt.OHS.GameInstallPath;
         public static string Team_bonus => Path.Combine(CD, Game, "team_bonus.engb.xml");
         /// <summary>
         /// Get the OHS temp folder path as a <see cref="string"/>. Performs a crash if no permission.
         /// </summary>
         public static string Temp => Directory.CreateDirectory(Path.Combine(CD, "Temp")).FullName;
-        /// <summary>
-        /// Tries to construct the path to MUA's Game.exe. Doesn't check for a valid path or existence.
-        /// </summary>
-        public static string GameExe => string.IsNullOrEmpty(CfgSt.GUI.ActualGameExe) ? Path.Combine(GameInstallPath(), CfgSt.OHS.ExeName) : CfgSt.GUI.ActualGameExe;
         /// <summary>
         /// Construct a file name of a <paramref name="PathWithoutExt"/> file that doesn't exist. (Extension is optional.)
         /// </summary>
@@ -128,7 +134,7 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns>Array with matching folder paths as strings or empty array</returns>
         public static string[] GetFoldersWpkg()
         {
-            string[] PkgSourceFolders = [CfgSt.OHS.GameInstallPath, GameInstallPath()];
+            string[] PkgSourceFolders = [CfgSt.OHS.GameInstallPath, GamePath];
             if (Directory.Exists(CfgSt.OHS.GameInstallPath)
                 && Directory.GetParent(CfgSt.OHS.GameInstallPath) is DirectoryInfo MO2
                 && MO2.Name == "mods")

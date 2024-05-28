@@ -33,7 +33,7 @@ namespace OpenHeroSelectGUI
             InitializeComponent();
             ReadSaveBackups();
             GIPcheck();
-            GIPBox.Text = OHSpath.GameInstallPath();
+            GIPBox.Text = Path.GetDirectoryName(OHSpath.StartExe());
             ExeArgsBox.Text = Cfg.GUI.Game == "xml2" ? Cfg.GUI.Xml2Arguments : Cfg.GUI.ExeArguments;
             TeamBonusName.Text = Cfg.GUI.Game == "xml2" ? Cfg.GUI.Xml2BonusName : Cfg.GUI.TeamBonusName;
         }

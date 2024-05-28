@@ -79,11 +79,7 @@ namespace OpenHeroSelectGUI.Functions
             if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
             try
             {
-                ProcessStartInfo Game = new(Path.Combine(OHSpath.GameInstallPath(), CfgSt.OHS.ExeName),
-                                            CfgSt.GUI.Game == "xml2" ? CfgSt.GUI.Xml2Arguments : CfgSt.GUI.ExeArguments)
-                {
-                    WorkingDirectory = OHSpath.GameInstallPath(),
-                };
+                ProcessStartInfo Game = new(OHSpath.StartExe(), CfgSt.GUI.Game == "xml2" ? CfgSt.GUI.Xml2Arguments : CfgSt.GUI.ExeArguments);
                 _ = Process.Start(Game);
             }
             catch { } // Fail silently

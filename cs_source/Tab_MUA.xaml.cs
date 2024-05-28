@@ -34,7 +34,7 @@ namespace OpenHeroSelectGUI
                 LocationsBox.StretchDirection = StretchDirection.Both;
                 LocationsBox.MaxWidth = Cfg.GUI.LayoutMaxWidth;
             }
-            if (Util.GameExe(OHSpath.GameExe) is FileStream fs)
+            if (Util.GameExe(OHSpath.MUAexe) is FileStream fs)
             {
                 byte[] bytes = new byte[2];
                 fs.Position = 0x3cc28f;
@@ -133,13 +133,10 @@ namespace OpenHeroSelectGUI
         {
             if (RosterHackToggle.IsOn)
             {
-                string GamePath = Path.GetDirectoryName(Cfg.GUI.ActualGameExe) is string ActualGamePath && ActualGamePath != ""
-                    ? ActualGamePath
-                    : OHSpath.GameInstallPath();
-                string dinput = Path.Combine(GamePath, "dinput8.dll");
+                string dinput = Path.Combine(OHSpath.GamePath, "dinput8.dll");
                 if (File.Exists(dinput)) { try { dinput = File.ReadAllText(dinput); } catch { dinput = ""; } }
-                RHInfo.Message = $"Roster hack (RH) not detected in '{GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. MO2 users can browse for the actual game .exe, to keep this message from opening in the future. The RH fixes a crash when using more than 27 characters.";
-                RHInfo.IsOpen = !Directory.Exists(Path.Combine(GamePath, "plugins")) || !dinput.Contains("asi-loader");
+                RHInfo.Message = $"Roster hack (RH) not detected in '{OHSpath.GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. MO2 users can browse for the actual game .exe, to keep this message from opening in the future. The RH fixes a crash when using more than 27 characters.";
+                RHInfo.IsOpen = !Directory.Exists(Path.Combine(OHSpath.GamePath, "plugins")) || !dinput.Contains("asi-loader");
             }
             else
             {
@@ -188,7 +185,7 @@ namespace OpenHeroSelectGUI
             {
                 if (Cfg.Var.FloatingCharacter == "<"
                     && LocBox.Content.ToString() is string Loc
-                    && Util.HexEdit(0x3cc28f, Loc, OHSpath.GameExe))
+                    && Util.HexEdit(0x3cc28f, Loc, OHSpath.MUAexe))
                 {
                     USDnum.Text = Loc;
                     Cfg.Var.FloatingCharacter = "";
@@ -317,7 +314,7 @@ namespace OpenHeroSelectGUI
 
         private void USD_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (Util.HexEdit(0x3cc28f, "00", OHSpath.GameExe))
+            if (Util.HexEdit(0x3cc28f, "00", OHSpath.MUAexe))
             {
                 USDnum.Text = "00";
             }
