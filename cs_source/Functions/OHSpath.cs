@@ -51,7 +51,7 @@ namespace OpenHeroSelectGUI.Functions
         /// </summary>
         public static string DefaultExe => Game == "xml2" ? "XMen2.exe" : "Game.exe";
         /// <summary>
-        /// Get the saves folder for the current tab (game). Must be checked for existence.
+        /// Get the saves folder for the current tab/game (folder with 'Save' in it). Must be checked for existence.
         /// </summary>
         public static string SaveFolder => Path.Combine(Activision, Game == "xml2" ? "X-Men Legends 2" : "Marvel Ultimate Alliance");
         /// <summary>
@@ -251,7 +251,7 @@ namespace OpenHeroSelectGUI.Functions
             return IsGIP || Target != CfgSt.OHS.GameInstallPath ? Target : null;
         }
         /// <summary>
-        /// Backup the "Save" folder in the game's save location.
+        /// Backup the "Save" folder in the game's save location. Performs a crash if Save folder can't be created.
         /// </summary>
         public static void BackupSaves()
         {
@@ -259,10 +259,11 @@ namespace OpenHeroSelectGUI.Functions
             DateTime Date = Herostat.Exists
                 ? Herostat.LastWriteTime
                 : DateTime.Now;
-            if (Herostat.Exists && MoveSaves("Save", $"{Date:yyMMdd-HHmmss}"))
+            if (MoveSaves("Save", $"{Date:yyMMdd-HHmmss}") && Herostat.Exists)
             {
                 _ = Herostat.CopyTo(Path.Combine(SaveFolder, $"{Date:yyMMdd-HHmmss}", Herostat.Name), true);
             }
+            _ = Directory.CreateDirectory(Path.Combine(SaveFolder, "Save"));
         }
 
         /// <summary>

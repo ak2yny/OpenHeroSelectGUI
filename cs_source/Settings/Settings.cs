@@ -153,7 +153,7 @@ namespace OpenHeroSelectGUI.Settings
             home = 0;
             game = "mua";
             // Note: XML2 seems to have an issue when the settings.dat is removed.
-            freeSaves = false;
+            freeSaves = true;
             gameInstallPath = xml2InstallPath = actualGameExe = exeArguments = xml2Arguments = "";
             teamBonusName = xml2BonusName = "team_bonus";
             layout = "25 Default PC 2006";
@@ -170,8 +170,9 @@ namespace OpenHeroSelectGUI.Settings
         private static string GetVersionDescription()
         {
             Version version = Assembly.GetExecutingAssembly().GetName().Version!;
-            string? PreRelease = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion;
-            PreRelease = PreRelease is string PR && PR.LastIndexOf('-') is int i && i > 0 ? PR[i..] : "";
+            string PreRelease = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion is string PR
+                                && PR.LastIndexOf('-') is int i
+                                && i > 0 ? PR[i..] : "";
             return $"{version.Major}.{version.Minor}.{version.Build}{PreRelease}";
             // Don't use .{version.Revision}
         }

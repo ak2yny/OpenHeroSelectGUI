@@ -138,9 +138,9 @@ namespace OpenHeroSelectGUI
             {
                 OHSWarning.IsOpen = !(OHSRunning.IsOpen = true);
                 int EC = 0;
+                await Task.Run(SaveSettingsMP);
                 await Task.Run(() =>
                 {
-                    SaveSettingsMP();
                     InstallStage();
                     MarvelModsXML.TeamBonusCopy();
                     if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }

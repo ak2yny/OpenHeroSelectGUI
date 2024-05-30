@@ -176,13 +176,13 @@ namespace OpenHeroSelectGUI
         private void Herostat_TextChanged(UIElement sender, LosingFocusEventArgs args)
         {
             HerostatName.Text = FixedLength(HerostatName.Text, "herostat");
-            Cfg.OHS.HerostatName = HerostatName.Text + DataExt[LanguageCode.SelectedIndex][^5..^1];
+            Cfg.OHS.HerostatName = $"{HerostatName.Text}.{DataExt[LanguageCode.SelectedIndex][^5..^1]}";
         }
 
         private void Language_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             //if (LanguageCode.SelectedIndex > -1) { return; }
-            Cfg.OHS.HerostatName = HerostatName.Text + DataExt[LanguageCode.SelectedIndex][^5..^1];
+            Cfg.OHS.HerostatName = $"{HerostatName.Text}.{DataExt[LanguageCode.SelectedIndex][^5..^1]}";
         }
 
         private void NewGamePy_TextChanged(UIElement sender, LosingFocusEventArgs args)

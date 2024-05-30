@@ -112,7 +112,7 @@
                 </Grid>
                 <Expander>
                     <Expander.Header>
-                        <controls:SettingsCardContent x:Name="FreeSaves" Description="Enable saves backup and clearing at runtime. Expand for more options." Header="Free Saves" Margin="0 10">
+                        <controls:SettingsCardContent x:Name="FreeSaves" Description="Backup saves and give the herostat a new set of saves, when runnin OHS. Recommended. Expand for more options." Header="Free Saves" Margin="0 10">
                             <controls:SettingsCardContent.Icon>
                                 <FontIcon Glyph="&#xE78C;" />
                             </controls:SettingsCardContent.Icon>
