@@ -134,28 +134,40 @@ namespace OpenHeroSelectGUI
                 NavView.SelectedItem = NavView.SettingsItem;
             }
             else if (string.IsNullOrEmpty(CfgSt.GUI.Game)) { ShowWarning("MUA or XML2 not defined."); }
-            else if (File.Exists(Path.Combine(OHSpath.CD, "OpenHeroSelect.exe")))
+            else if (CfgSt.Roster.Selected.Count < 1) { ShowWarning("No characters selected."); }
+            else if (!File.Exists(Path.Combine(OHSpath.CD, "OpenHeroSelect.exe"))) { ShowWarning($"OpenHeroSelect.exe not found. Please re-install OHS into '{OHSpath.CD}'."); }
+            else
             {
                 OHSWarning.IsOpen = !(OHSRunning.IsOpen = true);
                 int EC = 0;
-                await Task.Run(SaveSettingsMP);
-                await Task.Run(() =>
+                try
                 {
-                    InstallStage();
-                    MarvelModsXML.TeamBonusCopy();
-                    if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
+                    await Task.Run(SaveSettingsMP).WaitAsync(TimeSpan.FromSeconds(10));
+                    await Task.Run(() =>
+                    {
+                        InstallStage();
+                        MarvelModsXML.TeamBonusCopy();
+                        if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
 
-                    EC = Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2")
-                        ? "-a -q -x"
-                        : "-a -q");
-                });
+                        EC = Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2")
+                            ? "-a -q -x"
+                            : "-a -q");
+                    }).WaitAsync(TimeSpan.FromMinutes(3));
+                }
+                catch
+                {
+                    EC = 6;
+                }
                 switch (EC)
                 {
+                    case 6:
+                        ShowWarning($"Timout reached. Try again, check the error.log, if it exists, check permissions for OHS and game/mod folders, and read the instructions.");
+                        break;
                     case 5:
-                        ShowWarning($"OHS could not start. Please stop it if it's running or re-install OHS into '{OHSpath.CD}'.");
+                        ShowWarning($"OHS could not start. Try again or ask for help.");
                         break;
                     case > 0:
-                        ShowWarning("OHS hit an error. Check the error.log.");
+                        ShowWarning($"OHS hit an error. Check the error.log. Ask for help, if error.log doesn't exist in '{OHSpath.CD}'.");
                         _ = Process.Start("explorer.exe", $"/select, \"{Path.Combine(OHSpath.CD, "error.log")}\"");
                         break;
                     default:
@@ -164,10 +176,6 @@ namespace OpenHeroSelectGUI
                         OHSSuccess.IsOpen = false;
                         break;
                 }
-            }
-            else
-            {
-                ShowWarning("OpenHeroSelect.exe not found!");
             }
         }
         /// <summary>

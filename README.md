@@ -122,6 +122,16 @@
 
 ## Changelog
 
+ |30.05.2024|1.0.7: Definitive infinite running loop fix
+
+ |26.05.2024|1.0.6: Bugs fixed
+
+ |06.05.2024|1.0.5: Only distributed to testers
+ - New feature: Roster selection
+ - New feature: Stage favourites
+
+ |11.04.2024|1.0.4: Only distributed to testers
+
  |22.03.2024|1.0.3: Added clash resolver, fixed bugs
 
  |12.03.2024|1.0.2: Fixed bugs
