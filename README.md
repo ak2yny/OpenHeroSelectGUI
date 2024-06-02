@@ -122,9 +122,11 @@
 
 ## Changelog
 
+ |02.06.2024|1.0.8: Fixed bugs
+
  |30.05.2024|1.0.7: Definitive infinite running loop fix
 
- |26.05.2024|1.0.6: Bugs fixed
+ |26.05.2024|1.0.6: Fixed bugs
 
  |06.05.2024|1.0.5: Only distributed to testers
  - New feature: Roster selection
