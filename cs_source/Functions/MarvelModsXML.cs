@@ -482,9 +482,13 @@ namespace OpenHeroSelectGUI.Functions
                             && XE.GetAttribute("charactername") is string CN
                             && CN is not "" and not "defaultman")
                         {
+                            if (File.Exists(Path.Combine(OutputFolder, $"{CN}.xml")))
+                            {
+                                CN = Path.GetFileNameWithoutExtension(OHSpath.GetVacant(Path.Combine(OutputFolder, $"{CN} ({XE.GetAttribute("name")})"), ".xml"));
+                            }
                             XmlDocument Xdoc = new();
                             Xdoc.LoadXml(XE.OuterXml);
-                            Xdoc.Save(Path.Combine(Directory.CreateDirectory(OHSpath.GetRooted(OutputFolder)).FullName, $"{CN}.xml"));
+                            Xdoc.Save(Path.Combine(OutputFolder, $"{CN}.xml"));
                             CnL.Add(CN); MlL.Add(XE.GetAttribute("menulocation"));
                         }
                     }

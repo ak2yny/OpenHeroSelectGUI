@@ -74,8 +74,8 @@ namespace OpenHeroSelectGUI.Functions
         public static IEnumerable<FileInfo> GetFile(DirectoryInfo ModFolder)
         {
             return ModFolder.EnumerateFiles("*.*")
-                .Where(h => HSexts.Contains(h.Extension)
-                    && (h.Name.Contains("herostat")
+                .Where(h => HSexts.Contains(h.Extension.ToLower())
+                    && (h.Name.Contains("herostat", StringComparison.OrdinalIgnoreCase)
                     || File.ReadAllText(h.FullName).Contains("stats", StringComparison.OrdinalIgnoreCase)));
         }
         /// <summary>
@@ -168,7 +168,11 @@ namespace OpenHeroSelectGUI.Functions
                 {
                     if (CN is not "" and not "defaultman")
                     {
-                        File.WriteAllLines(Path.Combine(Directory.CreateDirectory(OHSpath.GetRooted(OutputFolder)).FullName, CN + Ext), SplitStat);
+                        if (File.Exists(Path.Combine(OutputFolder, CN + Ext)))
+                        {
+                            CN = Path.GetFileNameWithoutExtension(OHSpath.GetVacant(Path.Combine(OutputFolder, $"{CN} ({Formats.GetAttr([.. SplitStat], "name")})"), Ext));
+                        }
+                        File.WriteAllLines(Path.Combine(OutputFolder, CN + Ext), SplitStat);
                         CnL.Add(CN); MlL.Add(ML);
                     }
                     SplitStat.Clear();

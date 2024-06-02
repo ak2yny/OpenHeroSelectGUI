@@ -271,8 +271,9 @@ namespace OpenHeroSelectGUI
             }
             else if (trvAvailableChars.SelectedItem is TreeViewNode Node)
             {
-                if (Cfg.GUI.AvailChars && Node.Content is string Roster)
+                if (!Cfg.GUI.AvailChars && Node.Content is string Roster)
                 {
+                    Cfg.MUA.MenulocationsValue = Cfg.OHS.RosterValue = CfgCmd.FilterDefaultRV(Roster);
                     LoadRosterVal(Roster);
                 }
                 else

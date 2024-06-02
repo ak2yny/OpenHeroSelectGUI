@@ -3,6 +3,7 @@ using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Input;
 using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
@@ -136,7 +137,7 @@ namespace OpenHeroSelectGUI
                 && ST.Members is not null
                 && ST.Members.Count < TeamMembersLimit
                 && Herostat.GetInternalName() is string Hero
-                && !ST.Members.Select(m => m.Name).Contains(Hero))
+                && !ST.Members.Select(m => m.Name).Contains(Hero, StringComparer.OrdinalIgnoreCase))
             {
                 ST.Members.Add(new TeamMember { Name = Hero, Skin = "" });
                 TeamMembersCount.Text = ST.Members.Count.ToString();

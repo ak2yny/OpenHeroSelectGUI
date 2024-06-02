@@ -84,8 +84,10 @@ namespace OpenHeroSelectGUI.Functions
         /// Construct a file name of a <paramref name="PathWithoutExt"/> file that doesn't exist. (Extension is optional.)
         /// </summary>
         /// <returns><paramref name="PathWithoutExt"/>(+<paramref name="Ext"/>) if it doesn't exist, otherwise <paramref name="PathWithoutExt"/>+<see cref="DateTime.Now"/>(+<paramref name="Ext"/>). (The latter is not verified for existence.)</returns>
-        public static string GetVacant(string PathWithoutExt, string Ext = "") => File.Exists($"{PathWithoutExt}{Ext}")
-                ? $"{PathWithoutExt}-{DateTime.Now:-yyMMdd-HHmmss}{Ext}"
+        public static string GetVacant(string PathWithoutExt, string Ext = "", int i = 0) => File.Exists($"{PathWithoutExt}{Ext}")
+                ? i > 0
+                ? GetVacant($"{PathWithoutExt[..^2]}-{i}", Ext, i + 1)
+                : GetVacant($"{PathWithoutExt}-{DateTime.Now:yyMMdd-HHmmss}", Ext, i + 1)
                 : $"{PathWithoutExt}{Ext}";
         /// <summary>
         /// Get the full path to the herostat folder.
@@ -209,10 +211,10 @@ namespace OpenHeroSelectGUI.Functions
         public static System.Collections.Generic.IEnumerable<DirectoryInfo> GetModSource(string ModPath)
         {
             return new DirectoryInfo(ModPath).EnumerateDirectories("*", SearchOption.AllDirectories)
-                .FirstOrDefault(g => GameFolders.Contains(g.Name)) is DirectoryInfo FGF
+                .FirstOrDefault(g => GameFolders.Contains(g.Name.ToLower())) is DirectoryInfo FGF
                 ? Path.GetRelativePath(FGF.Parent!.FullName, ModPath) == "."
                     ? [FGF.Parent!]
-                    : FGF.Parent!.Parent!.EnumerateDirectories("*").Where(f => f.EnumerateDirectories("*").Any(g => GameFolders.Contains(g.Name)))
+                    : FGF.Parent!.Parent!.EnumerateDirectories("*").Where(f => f.EnumerateDirectories("*").Any(g => GameFolders.Contains(g.Name.ToLower())))
                 : [];
         }
         /// <summary>

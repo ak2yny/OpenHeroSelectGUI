@@ -39,8 +39,10 @@ namespace OpenHeroSelectGUI
         {
             if (await CfgCmd.LoadDialogue("*") is string HS)
             {
-                string Out = string.IsNullOrWhiteSpace(OutputFolder.Text) ? CfgSt.OHS.HerostatFolder : OutputFolder.Text;
-                if (InternalSettings.RavenFormats.Contains(Path.GetExtension(HS)))
+                string Out = Directory.CreateDirectory(OHSpath.GetRooted(string.IsNullOrWhiteSpace(OutputFolder.Text)
+                    ? CfgSt.OHS.HerostatFolder
+                    : OutputFolder.Text)).FullName;
+                if (InternalSettings.RavenFormats.Contains(Path.GetExtension(HS), StringComparer.OrdinalIgnoreCase))
                 {
                     string DHS = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
                     if (Util.RunExeInCmd("json2xmlb", $"-d \"{HS}\" \"{DHS}\"")
@@ -72,7 +74,7 @@ namespace OpenHeroSelectGUI
         {
             Cfg.Var.SE_Msg_Success = new MessageItem
             {
-                Message = $"Split herostats to '{OHSpath.GetRooted(Out)}'",
+                Message = $"Split herostats to '{Out}'",
                 IsOpen = true
             };
             await Task.Delay(5000);

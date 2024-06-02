@@ -431,18 +431,14 @@ namespace OpenHeroSelectGUI.Settings
             "36 (for 36RH v2.0 or later Stage)",
             "50 (for 50RH Stage)" ];
 
-        private static string FilterDefaultRV(string RV)
+        public static string FilterDefaultRV(string RV)
         {
-            return DefaultRV.Any(r => r.Equals(RV, StringComparison.OrdinalIgnoreCase))
-                ? "temp.OHSGUI"
-                : RV;
+            return DefaultRV.Contains(RV, StringComparer.OrdinalIgnoreCase) ? "temp.OHSGUI" : RV;
         }
 
         private static string FilterDefaultMV(string MV)
         {
-            return DefaultMV.Any(m => m.Equals(MV, StringComparison.OrdinalIgnoreCase))
-                ? "temp.OHSGUI"
-                : MV;
+            return DefaultMV.Contains(MV, StringComparer.OrdinalIgnoreCase) ? "temp.OHSGUI" : MV;
         }
     }
 }
