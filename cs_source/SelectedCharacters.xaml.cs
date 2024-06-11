@@ -20,7 +20,7 @@ namespace OpenHeroSelectGUI
         public SelectedCharacters()
         {
             InitializeComponent();
-            LocColumn.Visibility = StarterHeader.Visibility = EffectHeader.Visibility = Cfg.GUI.Game == "xml2" ? Visibility.Collapsed : Visibility.Visible;
+            LocColumn.Visibility = StarterHeader.Visibility = EffectHeader.Visibility = Cfg.GUI.Game == "XML2" ? Visibility.Collapsed : Visibility.Visible;
         }
         /// <summary>
         /// List sorting function
@@ -102,6 +102,7 @@ namespace OpenHeroSelectGUI
             if (e.Items[0] is SelectedCharacter SC)
             {
                 Cfg.Var.FloatingCharacter = SC.Path;
+                e.Data.Properties.Add("SelectedCharacter", SC);
             }
         }
 

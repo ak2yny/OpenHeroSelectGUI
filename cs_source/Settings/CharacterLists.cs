@@ -64,7 +64,7 @@ namespace OpenHeroSelectGUI.Settings
 
         protected override DataTemplate? SelectTemplateCore(object item)
         {
-            return CfgSt.GUI.Game == "xml2" ? XML2 : MUA;
+            return CfgSt.GUI.Game == "XML2" ? XML2 : MUA;
         }
     }
     /// <summary>
@@ -80,16 +80,16 @@ namespace OpenHeroSelectGUI.Settings
         public static async void LoadRosterBrowse()
         {
             string Roster = await CfgCmd.LoadDialogue(".cfg") ?? string.Empty;
-            LoadRoster(Roster, Path.Combine(OHSpath.CD, Cfg.GUI.Game, "menulocations", Path.GetFileName(Roster)));
+            LoadRoster(Roster, Path.Combine(OHSpath.CD, "mua", "menulocations", Path.GetFileName(Roster)));
         }
         /// <summary>
         /// Load OHS JSON data from the default OHS config.ini & load the roster according to its settings.
         /// </summary>
-        public static void LoadRoster() => CfgCmd.LoadOHSsettings(Path.Combine(OHSpath.CD, Cfg.GUI.Game, "config.ini"));
+        public static void LoadRoster() => CfgCmd.LoadOHSsettings(Path.Combine(OHSpath.CD, OHSpath.Game, "config.ini"));
         /// <summary>
         /// Load the roster from the saved settings.
         /// </summary>
-        public static void LoadRosterVal() => LoadRosterVal(CfgSt.OHS.RosterValue, Cfg.GUI.Game == "xml2" ? CfgSt.XML2.RosterValue : CfgSt.MUA.MenulocationsValue);
+        public static void LoadRosterVal() => LoadRosterVal(CfgSt.OHS.RosterValue, Cfg.GUI.Game == "XML2" ? CfgSt.XML2.RosterValue : CfgSt.MUA.MenulocationsValue);
         /// <summary>
         /// Load a roster by providing the <paramref name="Roster"/> value (filename without extension).
         /// </summary>
@@ -99,7 +99,7 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void LoadRosterVal(string Roster, string Mlv)
         {
-            LoadRoster(Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters", $"{Roster}.cfg"), Path.Combine(OHSpath.CD, Cfg.GUI.Game, "menulocations", $"{Mlv}.cfg"));
+            LoadRoster(Path.Combine(OHSpath.CD, OHSpath.Game, "rosters", $"{Roster}.cfg"), Path.Combine(OHSpath.CD, "mua", "menulocations", $"{Mlv}.cfg"));
         }
         /// <summary>
         /// Load a roster by providing the <paramref name="r"/>oster and <paramref name="m"/>enulocation paths.
@@ -123,7 +123,7 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void LoadRoster(string[] Roster)
         {
-            IEnumerable<int>? LL = Cfg.GUI.Game == "xml2"
+            IEnumerable<int>? LL = Cfg.GUI.Game == "XML2"
                 ? Cfg.Var.RosterRange
                 : Cfg.Var.LayoutLocs;
             LoadRoster(LL is null ? [] : LL.ToArray(), LL, Roster);
@@ -167,7 +167,7 @@ namespace OpenHeroSelectGUI.Settings
         public static bool AddToSelected(string? PathInfo, bool Unl) => AddToSelected(PathInfo, Unl, false);
         public static bool AddToSelected(string? PathInfo, bool Unl, bool Start)
         {
-            IEnumerable<int> AvailableLocs = (Cfg.GUI.Game == "xml2")
+            IEnumerable<int> AvailableLocs = (Cfg.GUI.Game == "XML2")
                 ? Enumerable.Range(1, CfgSt.XML2.RosterSize)
                 : Cfg.Var.LayoutLocs is null
                 ? []
@@ -214,15 +214,14 @@ namespace OpenHeroSelectGUI.Settings
             // This invokes the text changed event in MUA through binding, which then starts the update locations function
             Cfg.Roster.UpdateCount += UpdLocs ? 1 : 0;
             Cfg.Roster.NumClash = false;
-            if ((Cfg.GUI.Game == "xml2" && Cfg.GUI.ShowClashes != 1) || Cfg.GUI.ShowClashes == 2) { return; }
+            if (!Cfg.GUI.ShowClashes) { return; }
             string[] Check = new string[Cfg.Roster.Selected.Count];
             for (int i = 0; i < Check.Length; i++)
             {
                 if (Cfg.Roster.Selected[i] is SelectedCharacter SC && SC.Character_Number is string N)
                 {
                     SC.NumClash = Array.IndexOf(Check, N) is int d && d > -1;
-                    if (d > -1) { Cfg.Roster.Selected[d].NumClash = d > -1; }
-                    Cfg.Roster.NumClash = SC.NumClash || Cfg.Roster.NumClash;
+                    if (d > -1) { Cfg.Roster.Selected[d].NumClash = Cfg.Roster.NumClash = true; }
                     Check[i] = N;
                 }
             }

@@ -63,6 +63,12 @@ namespace OpenHeroSelectGUI.Settings
         private MessageItem? sE_Msg_Warning;
         [ObservableProperty]
         private bool sE_Msg_WarnPkg;
+        [ObservableProperty]
+        private bool isMua;
+        [ObservableProperty]
+        private bool isXml2;
+        [ObservableProperty]
+        private bool isMo2;
 
         public VariableSettings()
         {
@@ -90,7 +96,7 @@ namespace OpenHeroSelectGUI.Settings
         ];
         public static readonly string[] XML2Skins = XML2SkinNames[1..].Select(s => s[5..]).ToArray();
         private static readonly string[] MUASkinNames = ["skin", .. Enumerable.Range(2, 5).Select(x => $"skin_0{x}")];
-        public static string[] SkinIdentifiers => CfgSt.GUI.Game == "xml2"
+        public static string[] SkinIdentifiers => CfgSt.GUI.Game == "XML2"
             ? XML2SkinNames
             : MUASkinNames;
         public static readonly string[] RavenFormatsXML =
@@ -98,6 +104,10 @@ namespace OpenHeroSelectGUI.Settings
             "xml", "eng", "fre", "ger", "ita", "pol", "rus", "spa", "pkg", "boy", "chr", "nav"
         ];
         public static readonly string[] RavenFormats = RavenFormatsXML.Select(x => $".{x}b").ToArray();
+        public static readonly string[] KnownModOrganizerExes =
+        [
+            "Vortex.exe", "ModOrganizer.exe"
+        ];
         /// <summary>
         /// Team bonus powerups with description for use in MUA team_bonus files
         /// </summary>

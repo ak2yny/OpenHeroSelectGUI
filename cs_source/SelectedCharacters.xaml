@@ -116,11 +116,13 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition MaxHeight="48"/>
+            <RowDefinition x:Name="Title" Height="36"/>
+            <RowDefinition x:Name="Header" MaxHeight="36"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <Grid Background="{ThemeResource SolidBackgroundFillColorSecondary}">
+        <TextBlock Margin="10 10 10 0" Style="{ThemeResource SubtitleTextBlockStyle}" Text="Selected Characters"/>
+        <Grid Background="{ThemeResource SolidBackgroundFillColorSecondary}" Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
@@ -128,7 +130,7 @@
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <AppBarButton x:Name="LocColumn" Icon="Sort" ToolTipService.ToolTip="Sort By Location" AutomationProperties.Name="Sort" Width="54">
+            <AppBarButton x:Name="LocColumn" Icon="Sort" Margin="0 -5" ToolTipService.ToolTip="Sort By Location" AutomationProperties.Name="Sort" Width="54">
                 <AppBarButton.Flyout>
                     <MenuFlyout Placement="BottomEdgeAlignedRight">
                         <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="loc.asc"/>
@@ -136,7 +138,7 @@
                     </MenuFlyout>
                 </AppBarButton.Flyout>
             </AppBarButton>
-            <AppBarButton Grid.Column="1" Icon="Sort" ToolTipService.ToolTip="Sort By Character" AutomationProperties.Name="Sort">
+            <AppBarButton Grid.Column="1" Icon="Sort" Margin="0 -5" ToolTipService.ToolTip="Sort By Character" AutomationProperties.Name="Sort">
                 <AppBarButton.Flyout>
                     <MenuFlyout Placement="BottomEdgeAlignedLeft">
                         <MenuFlyoutSubItem Text="By Name">
@@ -159,8 +161,8 @@
             <TextBlock x:Name="EffectHeader" Grid.Column="4" Text="Effects" HorizontalAlignment="Center" VerticalAlignment="Center" Width="72"/>
         </Grid>
 
-        <Canvas Grid.Row="1" Grid.RowSpan="2" Background="Red" Opacity="0.1" Visibility="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}"/>
-        <ListView x:Name="SelectedCharactersList" Grid.Row="1"
+        <Canvas Grid.Row="2" Grid.RowSpan="2" Background="Red" Opacity="0.1" Visibility="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}"/>
+        <ListView x:Name="SelectedCharactersList" Grid.Row="2"
                   ItemsSource="{x:Bind Cfg.Roster.Selected, Mode=TwoWay}"
                   ItemTemplateSelector="{StaticResource LVcolumnSelector}"
                   AllowDrop="True"
@@ -179,7 +181,7 @@
                   BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
         </ListView>
 
-        <StackPanel Grid.Row="2">
+        <StackPanel Grid.Row="3">
             <InfoBar x:Name="ClsRes"
                      Severity="Success"
                      Title="Success"

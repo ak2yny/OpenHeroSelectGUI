@@ -5,7 +5,6 @@ using Microsoft.UI.Xaml.Navigation;
 using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System;
-using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
@@ -28,6 +27,7 @@ namespace OpenHeroSelectGUI
         }
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
+            if (Cfg.GUI.Home.StartsWith("NavItem_SkinEditor")) { AvailRstrs.Visibility = Visibility.Collapsed; }
             AvailChange(Cfg.GUI.AvailChars);
         }
         /// <summary>
@@ -36,13 +36,12 @@ namespace OpenHeroSelectGUI
         private void PopulateAvailable(bool KeepFilter = false)
         {
             DirectoryInfo folder = new(OHSpath.HsFolder);
-            string rosters = Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters");
+            string rosters = Path.Combine(OHSpath.CD, OHSpath.Game, "rosters");
             string[] NewAvailable = Cfg.GUI.AvailChars && folder.Exists
                 ? folder.EnumerateFiles("*", SearchOption.AllDirectories)
                     .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
                     .Replace(Path.DirectorySeparatorChar, '/'))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToImmutableSortedSet()
                     .ToArray()
                 : !Cfg.GUI.AvailChars && Directory.Exists(rosters)
                 ? Directory.EnumerateFiles(rosters, "*.cfg")
@@ -108,7 +107,16 @@ namespace OpenHeroSelectGUI
                     Path = (Node.Length > 1) ? "" : PathInfo
                 };
                 child = new TreeViewNode() { Content = CharInfo };
-                Parent.Children.Add(child);
+                switch (Node.Length)
+                {
+                    case > 1:
+                        Parent.Children.Insert(
+                            Math.Max(Parent.Children.IndexOf(Parent.Children.First(n => !n.HasChildren)), 0), child);
+                        break;
+                    default:
+                        Parent.Children.Add(child);
+                        break;
+                }
             }
             if (Node.Length > 1) { PopulateAvailable(child, Node[1], PathInfo); }
         }
@@ -117,9 +125,10 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void AvailChange(bool IsChar)
         {
+            IsChar = Cfg.GUI.Home.StartsWith("NavItem_SkinEditor") || IsChar;
             AvailRstrs.IsChecked = !(AvailChars.IsChecked = IsChar);
             BrowseButton.Visibility = IsChar ? Visibility.Visible : Visibility.Collapsed;
-            Cfg.GUI.AvailChars = IsChar;
+            if (!Cfg.GUI.Home.StartsWith("NavItem_SkinEditor")) { Cfg.GUI.AvailChars = IsChar; }
             PopulateAvailable();
         }
         /// <summary>
@@ -235,6 +244,7 @@ namespace OpenHeroSelectGUI
             {
                 args.Cancel = Selected.Children.Count > 0;
                 Cfg.Var.FloatingCharacter = SC.Path;
+                args.Data.Properties.Add("Character", SC);
             }
             else
             {
@@ -301,7 +311,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Remove the <paramref name="Node"/> and all its child nodes, including the herostat files.
         /// </summary>
-        private void RemoveCharacters(TreeViewNode Node)
+        private static void RemoveCharacters(TreeViewNode Node)
         {
             for (int i = 0; i < Node.Children.Count;)
             {
@@ -312,7 +322,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Remove the <paramref name="Node"/> and the corresponding herostat file according to the node's path property.
         /// </summary>
-        private void RemoveCharacter(TreeViewNode Node)
+        private static void RemoveCharacter(TreeViewNode Node)
         {
             try
             {
@@ -322,7 +332,7 @@ namespace OpenHeroSelectGUI
                 {
                     HS.Delete();
                 }
-                else if (Path.Combine(OHSpath.CD, Cfg.GUI.Game, "rosters", $"{Node.Content}.cfg") is string r
+                else if (Path.Combine(OHSpath.CD, OHSpath.Game, "rosters", $"{Node.Content}.cfg") is string r
                     && File.Exists(r))
                 {
                     File.Delete(r);

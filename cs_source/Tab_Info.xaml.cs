@@ -12,6 +12,7 @@ namespace OpenHeroSelectGUI
         public Tab_Info()
         {
             InitializeComponent();
+            Info_Version.Text = CfgCmd.GetVersionDescription();
         }
     }
 }

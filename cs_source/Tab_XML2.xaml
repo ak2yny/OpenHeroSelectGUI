@@ -39,23 +39,23 @@
             </StackPanel>
         </Grid>
         <Frame x:Name="SkinDetailsPage" Grid.Column="2" Visibility="{x:Bind Cfg.GUI.SkinDetailsVisible, Mode=OneWay}"/>
-        <Grid x:Name="XML2controls" Grid.Column="3" Margin="10" HorizontalAlignment="Left" VerticalAlignment="Top">
+        <Grid x:Name="XML2controls" Grid.Column="3" Margin="10" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <StackPanel Spacing="15">
+            <StackPanel Grid.Column="1" Spacing="15">
                 <Button x:Name="BtnRunGame" Click="BtnRunGame_Click" Padding="20 10" ToolTipService.ToolTip="Run X - Men Legends II only, without running OHS">
                     <TextBlock TextAlignment="Center">Run<LineBreak/>X - Men<LineBreak/>Legends II</TextBlock>
                 </Button>
                 <Button x:Name="BtnUnlockAll" Content="Unlock All" Click="BtnUnlockAll_Click" Padding="20 5" ToolTipService.ToolTip="Check all selected characters to be unlocked"/>
             </StackPanel>
-            <StackPanel Grid.Column="1" Margin="0 3">
+            <StackPanel Margin="0 3">
                 <ToggleSwitch x:Name="UnlockSkinsToggle" Header="Skin Unlocks" IsOn="{x:Bind Cfg.XML2.UnlockSkins, Mode=TwoWay}" OffContent="Off" OnContent="Unlock" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
                 <ToggleSwitch x:Name="UnlockToggle" Header="Char. Unlocks" IsOn="{x:Bind Cfg.XML2.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" ToolTipService.ToolTip="If off, any previously saved unlock scripts will be used"/>
             </StackPanel>

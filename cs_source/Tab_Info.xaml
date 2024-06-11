@@ -16,8 +16,13 @@
         <StackPanel Margin="0 0 20 0" Spacing="10">
             <TextBlock x:Uid="Info_About" Style="{ThemeResource SubtitleTextBlockStyle}"/>
             <TextBlock Text=" "/>
+            <!--Total height in other pages: 72-->
             <TextBlock Style="{ThemeResource BodyTextBlockStyle}">
                 <Run x:Uid="AppName"/>
+                <Run x:Name="Info_Version"/>
+            </TextBlock>
+            <TextBlock Style="{ThemeResource BodyTextBlockStyle}" FontSize="11">
+                <Run x:Uid="Info_CfgVersion"/>
                 <Run Text="{x:Bind Cfg.GUI.VersionDescription, Mode=OneWay}"/>
             </TextBlock>
             <TextBlock Text="GNU General Public License 3.0"/>
@@ -47,9 +52,9 @@
                 <TextBlock Grid.Row="1" x:Uid="Info_Credits_Stages" FontWeight="Bold" Margin="0 5"/>
                 <TextBlock Grid.Row="1" Grid.Column="1" Margin="10 5" Text="UltraMegaMagnus (models &amp; layouts), Outsider (layouts &amp; skins), Emanuel(MUAXP) (skins), Nuhverah (skins), Tony Stark aka Hyperman360 (skins), Overload (skin), nikita488 (layouts), harpua1982 (33RH model), Raven Software (originals)" TextWrapping="Wrap"/>
                 <TextBlock Grid.Row="2" x:Uid="Info_Credits_Other" FontWeight="Bold" Margin="0 5"/>
-                <TextBlock Grid.Row="2" Grid.Column="1" Margin="10 5" Text="Norrin Radd (effects &amp; original HeroSelect), Bobooooo (effects), Outsider (logo), Raven Software (artwork)" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="2" Grid.Column="1" Margin="10 5" Text="BaconWizard17 (Alchemy/platform research, suggestions), Norrin Radd (effects &amp; original HeroSelect), Bobooooo (effects), Outsider (logo), Raven Software (artwork)" TextWrapping="Wrap"/>
                 <TextBlock Grid.Row="3" x:Uid="Info_Credits_Testers" FontWeight="Bold" Margin="0 5"/>
-                <TextBlock Grid.Row="3" Grid.Column="1" Margin="10 5" Text="Nuhverah, butsukdanila, HappyMSI, BloodyMares" TextWrapping="Wrap"/>
+                <TextBlock Grid.Row="3" Grid.Column="1" Margin="10 5" Text="Nuhverah, butsukdanila, HappyMSI, BaconWizard17, BloodyMares" TextWrapping="Wrap"/>
             </Grid>
         </StackPanel>
     </Grid>

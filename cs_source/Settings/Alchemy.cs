@@ -28,7 +28,7 @@ namespace OpenHeroSelectGUI.Settings
             if (Optimizer is null || !File.Exists(SourceIGB)) { return null; }
             File.WriteAllLines(INI, Opt.GetSkinInfo);
             string? Stats = Util.RunDosCommnand(Optimizer, $"\"{SourceIGB}\" \"{Path.Combine(OHSpath.Temp, "temp.igb")}\" \"{INI}\"");
-            return string.IsNullOrEmpty(Stats) ? null : Stats;
+            return string.IsNullOrWhiteSpace(Stats) ? null : Stats;
         }
         /// <summary>
         /// Optimizes the <paramref name="SourceIGB"/> file to a temporary folder, using statistic optimizations, and gets igSkin from the sgOptimizer output.

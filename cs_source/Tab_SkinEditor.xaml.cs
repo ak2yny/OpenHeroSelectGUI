@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.DataTransfer;
+using Windows.Storage;
 
 namespace OpenHeroSelectGUI
 {
@@ -39,32 +41,36 @@ namespace OpenHeroSelectGUI
         {
             if (await CfgCmd.LoadDialogue("*") is string HS)
             {
-                string Out = Directory.CreateDirectory(OHSpath.GetRooted(string.IsNullOrWhiteSpace(OutputFolder.Text)
-                    ? CfgSt.OHS.HerostatFolder
-                    : OutputFolder.Text)).FullName;
-                if (InternalSettings.RavenFormats.Contains(Path.GetExtension(HS), StringComparer.OrdinalIgnoreCase))
+                SplitHS(HS);
+            }
+        }
+        private void SplitHS(string HS)
+        {
+            string Out = Directory.CreateDirectory(OHSpath.GetRooted(string.IsNullOrWhiteSpace(OutputFolder.Text)
+                ? CfgSt.OHS.HerostatFolder
+                : OutputFolder.Text)).FullName;
+            if (InternalSettings.RavenFormats.Contains(Path.GetExtension(HS), StringComparer.OrdinalIgnoreCase))
+            {
+                string DHS = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
+                if (Util.RunExeInCmd("json2xmlb", $"-d \"{HS}\" \"{DHS}\"")
+                    && GUIXML.SplitXMLStats(DHS, Out))
                 {
-                    string DHS = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
-                    if (Util.RunExeInCmd("json2xmlb", $"-d \"{HS}\" \"{DHS}\"")
-                        && GUIXML.SplitXMLStats(DHS, Out))
-                    {
-                        SplitFinished(Out);
-                    }
+                    SplitFinished(Out);
+                }
+            }
+            else
+            {
+                string[] LoadedHerostat = File.ReadLines(HS).ToArray();
+                char HsFormat = LoadedHerostat.First(s => !string.IsNullOrEmpty(s.Trim())).Trim()[0];
+                if (HsFormat == '<')
+                {
+                    if (!GUIXML.SplitXMLStats(HS, Out)) { return; }
                 }
                 else
                 {
-                    string[] LoadedHerostat = File.ReadLines(HS).ToArray();
-                    char HsFormat = LoadedHerostat.First(s => !string.IsNullOrEmpty(s.Trim())).Trim()[0];
-                    if (HsFormat == '<')
-                    {
-                        if (!GUIXML.SplitXMLStats(HS, Out)) { return; }
-                    }
-                    else
-                    {
-                        Herostat.Split(LoadedHerostat, HsFormat, Out);
-                    }
-                    SplitFinished(Out);
+                    Herostat.Split(LoadedHerostat, HsFormat, Out);
                 }
+                SplitFinished(Out);
             }
         }
         /// <summary>
@@ -83,7 +89,36 @@ namespace OpenHeroSelectGUI
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)
         {
-            _ = Process.Start("explorer.exe", $"/select, \"{OHSpath.GetRooted(OutputFolder.Text)}\"");
+            _ = Process.Start("explorer.exe", new Uri(OHSpath.GetRooted(OutputFolder.Text)).LocalPath);
+        }
+
+        private void SplitterDropArea_DragEnter(object sender, DragEventArgs e)
+        {
+            if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                SplitterDropArea.Visibility = Visibility.Visible;
+            }
+        }
+
+        private void SplitterDropAreaBG_DragOver(object sender, DragEventArgs e)
+        {
+            e.AcceptedOperation = DataPackageOperation.Copy;
+            e.DragUIOverride.Caption = "Split herostat";
+        }
+
+        private void SplitterDropAreaBG_DragLeave(object sender, DragEventArgs e)
+        {
+            SplitterDropArea.Visibility = Visibility.Collapsed;
+        }
+
+        private async void SplitterDropAreaBG_Drop(object sender, DragEventArgs e)
+        {
+            if (e.DataView.Contains(StandardDataFormats.StorageItems)
+                && (await e.DataView.GetStorageItemsAsync()).FirstOrDefault() is StorageFile HS)
+            {
+                SplitHS(HS.Path);
+            }
+            SplitterDropArea.Visibility = Visibility.Collapsed;
         }
     }
 }

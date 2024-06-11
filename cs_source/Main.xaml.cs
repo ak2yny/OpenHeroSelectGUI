@@ -27,7 +27,7 @@ namespace OpenHeroSelectGUI
     /// </summary>
     public sealed partial class Main : Window
     {
-        private int ShowClashes;
+        private bool ShowClashes;
 
         public Main()
         {
@@ -69,57 +69,74 @@ namespace OpenHeroSelectGUI
         {
             if (args.IsSettingsSelected)
             {
-                NavView_Navigate(typeof(Tab_Settings), args.RecommendedNavigationTransitionInfo);
+                NavView_Navigate(typeof(Tab_Settings), args.RecommendedNavigationTransitionInfo, false);
             }
             else if (args.SelectedItemContainer != null && args.SelectedItemContainer.Tag.ToString() is string TagName && Type.GetType(TagName) is Type navPageType)
             {
-                if (!NavView.FooterMenuItems.Contains(NavView.SelectedItem))  // prevent footer pages from becoming home
+                bool forceNav = false;
+                if (!sender.FooterMenuItems.Contains(args.SelectedItem) && args.SelectedItem is NavigationViewItem SI)  // prevent footer pages from becoming home
                 {
-                    if (navPageType == typeof(Tab_XML2)) { NavView_PrepGameTab("xml2"); }
-                    else if (navPageType == typeof(Tab_MUA)) { NavView_PrepGameTab("mua"); }
-                    CfgSt.GUI.Home = sender.MenuItems.IndexOf(args.SelectedItem);
+                    forceNav = NavView_PrepGame(SI.Name[(SI.Name.LastIndexOf('_') + 1)..]);
+                    CfgSt.GUI.Home = SI.Name;
                 }
-                NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo);
+                NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo, forceNav);
             }
         }
         /// <summary>
         /// When loading a game tab, if the <paramref name="Game"/> changed, save and load settings and roster, otherwise update clashes, if clash option changed.
         /// </summary>
-        private void NavView_PrepGameTab(string Game)
+        /// <returns><see langword="True"/> if game changed, otherwise <see langword="false"/>.</returns>
+        private bool NavView_PrepGame(string Game)
         {
+            if (Game is not "MUA" and not "XML2") { return false; }
             if (CfgSt.GUI.Game != Game)
             {
                 SaveSettings();
                 CfgSt.GUI.Game = Game;
                 LoadRoster();
+                return true;
             }
-            else if (ShowClashes != CfgSt.GUI.ShowClashes)
+            if (ShowClashes != CfgSt.GUI.ShowClashes)
             {
                 ShowClashes = CfgSt.GUI.ShowClashes;
-                if ((Game == "xml2" && ShowClashes != 1) || ShowClashes == 2)
+                if (!ShowClashes)
                 {
                     for (int i = 0; i < CfgSt.Roster.Selected.Count; i++) { CfgSt.Roster.Selected[i].NumClash = false; }
                 }
                 UpdateClashes(false);
             }
+            return false;
         }
         /// <summary>
         /// Navigation View: Initial commands. Load home page.
         /// </summary>
         private void NavView_Loaded(object sender, RoutedEventArgs e)
         {
-            NavView.SelectedItem = Directory.Exists(Path.Combine(CfgSt.OHS.GameInstallPath, "data")) ? NavView.MenuItems[CfgSt.GUI.Home] : NavView.SettingsItem;
+            NavView.SelectedItem = Directory.Exists(Path.Combine(CfgSt.OHS.GameInstallPath, "data"))
+                ? NavView.MenuItems.Cast<NavigationViewItem>().Select(GetHome).FirstOrDefault(i => i is not null) is NavigationViewItem Home
+                ? Home
+                : NavView.MenuItems[0]
+                : NavView.SettingsItem;
+        }
+        /// <summary>
+        /// Recursively search <paramref name="ParentItem"/>'s MenuItems for an item that matches <see cref="GUIsettings.Home"/>.
+        /// </summary>
+        /// <returns>The first <see cref="NavigationViewItem"/> found, or <see langword="null"/> if not found.</returns>
+        private static NavigationViewItem? GetHome(NavigationViewItem Item)
+        {
+            if (Item.Name == CfgSt.GUI.Home) { return Item; }
+            return Item.MenuItems.Cast<NavigationViewItem>().FirstOrDefault(i => GetHome(i) is not null);
         }
         /// <summary>
         /// Navigation View: Change the page/tab according to the selected <paramref name="navPageType"/>.
         /// </summary>
-        private void NavView_Navigate(Type navPageType, NavigationTransitionInfo transitionInfo)
+        private void NavView_Navigate(Type navPageType, NavigationTransitionInfo transitionInfo, bool forceNav)
         {
             // Get the page type before navigation so you can prevent duplicate entries in the backstack.
             Type preNavPageType = ContentFrame.CurrentSourcePageType;
 
             // Only navigate if the selected page isn't currently loaded.
-            if (navPageType is not null && !Equals(preNavPageType, navPageType))
+            if (navPageType is not null && (!Equals(preNavPageType, navPageType) || forceNav))
             {
                 _ = ContentFrame.Navigate(navPageType, null, transitionInfo);
             }
@@ -149,7 +166,7 @@ namespace OpenHeroSelectGUI
                         MarvelModsXML.TeamBonusCopy();
                         if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
 
-                        EC = Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "xml2")
+                        EC = Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "XML2")
                             ? "-a -q -x"
                             : "-a -q");
                     }).WaitAsync(TimeSpan.FromMinutes(3));
@@ -191,13 +208,13 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private static void InstallStage()
         {
-            if (CfgSt.GUI.Game == "mua" && CfgSt.GUI.CopyStage && CfgSt.Var.SelectedStage is StageModel Stage)
+            if (OHSpath.Game == "mua" && CfgSt.GUI.CopyStage && CfgSt.Var.SelectedStage is StageModel Stage)
             {
                 string RiserPath = Path.Combine(OHSpath.CD, "stages", ".riser");
                 string SelectedLayoutPath = Path.Combine(OHSpath.CD, "stages", CfgSt.GUI.Layout);
                 if (Stage.Path is DirectoryInfo ModelFolder && ModelFolder.Exists && ModelFolder.EnumerateFiles("*.igb").FirstOrDefault() is FileInfo M)
                 {
-                    OHSpath.CopyToGame(ModelFolder.FullName, Path.Combine("ui", "models"), M.Name, "m_team_stage.igb");
+                    OHSpath.CopyToGame(M, Path.Combine("ui", "models"), "m_team_stage.igb");
                 }
 
                 OHSpath.CopyToGame(SelectedLayoutPath, Path.Combine("ui", "menus"), "mlm_team_back.igb");

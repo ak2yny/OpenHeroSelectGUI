@@ -28,18 +28,11 @@ namespace OpenHeroSelectGUI
         private void LoadXML2Limit()
         {
             int Size = Cfg.Roster.Total = Cfg.XML2.RosterSize;
-            //ReplDefaultmanToggle.IsOn = false;
-            //if (Cfg.XML2.RosterSize % 2 == 0)
-            //{
-            //    Size -= 1;
-            //    ReplDefaultmanToggle.IsOn = true;
-            //}
             SetXML2DefaultRoster(Size);
             Cfg.Var.RosterRange = Enumerable.Range(1, Size);
             RosterSizeToggle.SelectedIndex = (Size - 19) / 2;
 
             // Initialize other XML2 settings;
-            if (Cfg.XML2.ExeName == "") { Cfg.XML2.ExeName = OHSpath.DefaultExe; }
             SkinDetailsBtn.Content = Cfg.GUI.SkinDetailsVisible
                 ? "Hide Skin Details"
                 : "Show Skin Details";
@@ -49,9 +42,11 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SetXML2Limit()
         {
-            if (RosterSizeToggle.SelectedItem is object RT && RT.ToString() is string RS && int.TryParse(RS[..2], out int Limit))
+            if (RosterSizeToggle.SelectedItem is object RT
+                && RT.ToString() is string RS
+                && RS.Length > 1
+                && int.TryParse(RS[..2], out int Limit))
             {
-                //Limit = ReplDefaultmanToggle.IsOn ? Limit + 1 : Limit;
                 Cfg.Roster.Total = Cfg.XML2.RosterSize = Limit;
                 Cfg.Var.RosterRange = Enumerable.Range(1, Limit);
                 SetXML2DefaultRoster(Limit);
@@ -81,15 +76,14 @@ namespace OpenHeroSelectGUI
 
         private void RosterSize_SelectionChanged(object sender, SelectionChangedEventArgs e) => SetXML2Limit();
         /// <summary>
-        /// Currently unused: Toggle to replace defaultman, to free up an extra slot. OHS doesn't support this currently, XML2 mightn't support it either.
-        /// </summary>
-        //private void ReplDefaultman_Toggled(object sender, RoutedEventArgs e) => SetXML2Limit();
-        /// <summary>
         /// Show the drop area when the pointer is on it
         /// </summary>
         private void SelectedCharacters_DragEnter(object sender, DragEventArgs e)
         {
-            SelectedCharactersDropArea.Visibility = Visibility.Visible;
+            if (e.DataView.Properties["Character"] is not null)
+            {
+                SelectedCharactersDropArea.Visibility = Visibility.Visible;
+            }
         }
         /// <summary>
         /// Hide the drop area when pointer is not on it
@@ -152,10 +146,10 @@ namespace OpenHeroSelectGUI
 
         private void SkinDetailsBtn_Click(object sender, RoutedEventArgs e)
         {
+            Cfg.GUI.SkinDetailsVisible = !Cfg.GUI.SkinDetailsVisible;
             SkinDetailsBtn.Content = Cfg.GUI.SkinDetailsVisible
                 ? "Hide Skin Details"
                 : "Show Skin Details";
-            Cfg.GUI.SkinDetailsVisible = !Cfg.GUI.SkinDetailsVisible;
         }
     }
 }

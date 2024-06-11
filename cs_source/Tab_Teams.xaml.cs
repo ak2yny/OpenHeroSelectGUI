@@ -16,8 +16,8 @@ namespace OpenHeroSelectGUI
     public sealed partial class Tab_Teams : Page
     {
         public Cfg Cfg { get; set; } = new();
-        public int TeamsLimit = CfgSt.GUI.Game == "xml2" ? 17 : 32;
-        public int TeamMembersLimit = CfgSt.GUI.Game == "xml2" ? 6 : 8;
+        public int TeamsLimit = CfgSt.GUI.Game == "XML2" ? 17 : 32;
+        public int TeamMembersLimit = CfgSt.GUI.Game == "XML2" ? 6 : 8;
         private readonly StandardUICommand DeleteCommand = new(StandardUICommandKind.Delete);
 
         public Tab_Teams()
@@ -171,7 +171,9 @@ namespace OpenHeroSelectGUI
 
         private void TeamMembers_DragEnter(object sender, DragEventArgs e)
         {
-            if (AvailableTeams.SelectedItem is TeamBonus ST && string.IsNullOrEmpty(ST.Skinset))
+            if (e.DataView.Properties["SelectedCharacter"] is not null
+                && AvailableTeams.SelectedItem is TeamBonus ST
+                && string.IsNullOrEmpty(ST.Skinset))
             {
                 TeamMembersDropArea.Visibility = Visibility.Visible;
             }

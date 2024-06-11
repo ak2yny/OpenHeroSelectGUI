@@ -44,16 +44,11 @@ namespace OpenHeroSelectGUI.Settings
         public OHSsettings()
         {
             rosterValue = "temp.OHSGUI";
-            gameInstallPath = "";
-            exeName = "";
+            gameInstallPath = exeName = "";
             herostatName = "herostat.engb";
             newGamePyName = "new_game.py";
             charactersHeadsPackageName = "characters_heads.pkgb";
-            unlocker = false;
-            launchGame = false;
-            saveTempFiles = false;
-            showProgress = false;
-            debugMode = false;
+            unlocker = launchGame = saveTempFiles = showProgress = debugMode = false;
             herostatFolder = "xml";
         }
     }
@@ -97,27 +92,38 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private string versionDescription;
         [ObservableProperty]
-        private int home;
+        private string home;
         [ObservableProperty]
         private string game;
         [ObservableProperty]
-        private bool freeSaves;
-        [ObservableProperty]
-        private int showClashes;
-        [ObservableProperty]
-        private bool modPack;
-        [ObservableProperty]
         private bool availChars;
-        public List<string> StageFavourites = [];
-        // MUA specific settings
         [ObservableProperty]
+        [property: XmlIgnore]
         private string gameInstallPath;
         [ObservableProperty]
-        private string actualGameExe;
-        [ObservableProperty]
+        [property: XmlIgnore]
         private string exeArguments;
         [ObservableProperty]
+        [property: XmlIgnore]
+        private bool freeSaves;
+        [ObservableProperty]
+        [property: XmlIgnore]
+        private bool showClashes;
+        [ObservableProperty]
+        [property: XmlIgnore]
+        private bool modPack;
+        [ObservableProperty]
+        [property: XmlIgnore]
         private string teamBonusName;
+        // MUA specific settings
+        public string MuaInstallPath;
+        public string MuaArguments;
+        public bool MuaFreeSaves;
+        public bool MuaShowClashes;
+        public bool MuaModPack;
+        public string MuaTeamBonusName;
+        [ObservableProperty]
+        private string actualGameExe;
         [ObservableProperty]
         private string layout;
         [ObservableProperty]
@@ -125,7 +131,10 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private int thumbnailWidth;
         [ObservableProperty]
+        private bool stageInfoTransparency;
+        [ObservableProperty]
         private bool stageFavouritesOn;
+        public List<string> StageFavourites = [];
         [ObservableProperty]
         private bool rowLayout;
         [ObservableProperty]
@@ -136,45 +145,55 @@ namespace OpenHeroSelectGUI.Settings
         private bool hidableEffectsOnly;
         [ObservableProperty]
         private bool copyStage;
+        [ObservableProperty]
+        private bool isNotConsole;
         // XML2 specific settings
-        [ObservableProperty]
-        private string xml2InstallPath;
-        [ObservableProperty]
-        private string xml2Arguments;
-        [ObservableProperty]
-        private string xml2BonusName;
+        public string Xml2InstallPath;
+        public string Xml2Arguments;
+        public bool Xml2FreeSaves;
+        public bool Xml2ShowClashes;
+        public bool Xml2ModPack;
+        public string Xml2TeamBonusName;
         [ObservableProperty]
         private bool skinDetailsVisible;
+        [ObservableProperty]
+        private bool skinsDragEnabled;
 
         public GUIsettings()
         {
-            versionDescription = GetVersionDescription();
+            versionDescription = CfgCmd.GetVersionDescription();
             gitHub = "https://github.com/ak2yny/OpenHeroSelectGUI";
-            home = 0;
-            game = "mua";
             // Note: XML2 seems to have an issue when the settings.dat is removed.
-            freeSaves = true;
-            gameInstallPath = xml2InstallPath = actualGameExe = exeArguments = xml2Arguments = "";
-            teamBonusName = xml2BonusName = "team_bonus";
+            MuaFreeSaves = hidableEffectsOnly = copyStage = availChars = isNotConsole = true;
+            game = home = gameInstallPath = actualGameExe = exeArguments = teamBonusName = MuaInstallPath = MuaArguments = MuaTeamBonusName = Xml2InstallPath = Xml2Arguments = Xml2TeamBonusName = "";
             layout = "25 Default PC 2006";
             model = "Default";
             thumbnailWidth = 224;
-            rowLayout = false;
-            layoutWidthUpscale = false;
+            //rowLayout = layoutWidthUpscale = skinDetailsVisible = false;
             layoutMaxWidth = 1000;
-            hidableEffectsOnly = true;
-            copyStage = true;
-            skinDetailsVisible = false;
         }
 
-        private static string GetVersionDescription()
+        partial void OnGameChanged(string value)
         {
-            Version version = Assembly.GetExecutingAssembly().GetName().Version!;
-            string PreRelease = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion is string PR
-                                && PR.LastIndexOf('-') is int i
-                                && i > 0 ? PR[i..] : "";
-            return $"{version.Major}.{version.Minor}.{version.Build}{PreRelease}";
-            // Don't use .{version.Revision}
+            GameInstallPath = (value == "XML2" ? Xml2InstallPath : MuaInstallPath) ?? "";
+            ExeArguments = (value == "XML2" ? Xml2Arguments : MuaArguments) ?? "";
+            FreeSaves = value == "XML2" ? Xml2FreeSaves : MuaFreeSaves;
+            ShowClashes = value == "XML2" ? Xml2ShowClashes : MuaShowClashes;
+            ModPack = value == "XML2" ? Xml2ModPack : MuaModPack;
+            TeamBonusName = (value == "XML2" ? Xml2TeamBonusName : MuaTeamBonusName) is string TB && TB.Length > 0 ? TB : "team_bonus";
+            CfgSt.Var.IsMua = !(CfgSt.Var.IsXml2 = value == "XML2");
+        }
+
+        partial void OnTeamBonusNameChanged(string value) => SetGameSpecific(value, "TeamBonusName");
+        partial void OnGameInstallPathChanged(string value) => SetGameSpecific(value, "InstallPath");
+        partial void OnExeArgumentsChanged(string value) => SetGameSpecific(value, "Arguments");
+        partial void OnFreeSavesChanged(bool value) => SetGameSpecific(value, "FreeSaves");
+        partial void OnShowClashesChanged(bool value) => SetGameSpecific(value, "ShowClashes");
+        partial void OnModPackChanged(bool value) => SetGameSpecific(value, "ModPack");
+
+        protected void SetGameSpecific(object value, string name)
+        {
+            GetType().GetField($"{(Game == "XML2" ? "Xml2" : "Mua")}{name}")?.SetValue(this, value);
         }
     }
     /// <summary>
@@ -211,6 +230,19 @@ namespace OpenHeroSelectGUI.Settings
         private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
         private static readonly JsonSerializerOptions JsonOptionsD = new() { PropertyNameCaseInsensitive = true };
 
+        /// <summary>
+        /// Get version information from assembly
+        /// </summary>
+        /// <returns>Version number</returns>
+        public static string GetVersionDescription()
+        {
+            Version version = Assembly.GetExecutingAssembly().GetName().Version!;
+            string PreRelease = FileVersionInfo.GetVersionInfo(Assembly.GetExecutingAssembly().Location).ProductVersion is string PR
+                                && PR.LastIndexOf('-') is int i
+                                && i > 0 ? PR[i..] : "";
+            return $"{version.Major}.{version.Minor}.{version.Build}{PreRelease}";
+            // Don't use .{version.Revision}
+        }
         /// <summary>
         /// Open file dialogue.
         /// </summary>
@@ -264,6 +296,7 @@ namespace OpenHeroSelectGUI.Settings
                 XmlSerializer XS = new(typeof(GUIsettings));
                 using FileStream fs = new(Gini, FileMode.Open, FileAccess.Read);
                 if (XS.Deserialize(fs) is GUIsettings CfgGUI) { CfgSt.GUI = CfgGUI; }
+                if (CfgSt.GUI.Game == "") { CfgSt.GUI.Game = "MUA"; }
             }
         }
         /// <summary>
@@ -275,7 +308,7 @@ namespace OpenHeroSelectGUI.Settings
             {
                 try
                 {
-                    CfgSt.OHS = CfgSt.GUI.Game == "xml2"
+                    CfgSt.OHS = CfgSt.GUI.Game == "XML2"
                         ? (CfgSt.XML2 = JsonSerializer.Deserialize<XML2settings>(File.ReadAllText(Oini), JsonOptionsD)!)
                         : (CfgSt.MUA = JsonSerializer.Deserialize<MUAsettings>(File.ReadAllText(Oini), JsonOptionsD)!);
                     CfgSt.OHS.RosterValue = FilterDefaultRV(CfgSt.OHS.RosterValue);
@@ -286,6 +319,7 @@ namespace OpenHeroSelectGUI.Settings
                     CharacterListCommands.LoadRosterVal();
                 }
             }
+            if (CfgSt.OHS.ExeName == "") { CfgSt.OHS.ExeName = OHSpath.DefaultExe; }
         }
         /// <summary>
         /// Save OHS settings in JSON &amp; GUI settings in XML to the default location. Saves CFG files according to these settings. Use default names if mod pack setting is disabled.
@@ -294,8 +328,8 @@ namespace OpenHeroSelectGUI.Settings
         {
             // ExeName not to default, team_bonus handled separately
             SaveIniXml(OHSpath.GetRooted("config.ini"), Path.Combine(OHSpath.CD, "config.xml"), CfgSt.GUI.ModPack
-                ? CfgSt.GUI.Game == "xml2" ? CfgSt.XML2 : CfgSt.MUA
-                : CfgSt.GUI.Game == "xml2"
+                ? CfgSt.GUI.Game == "XML2" ? CfgSt.XML2 : CfgSt.MUA
+                : CfgSt.GUI.Game == "XML2"
                 ?
                 new XML2settings()
                 {
@@ -315,7 +349,7 @@ namespace OpenHeroSelectGUI.Settings
                 new MUAsettings()
                 {
                     MenulocationsValue = CfgSt.MUA.MenulocationsValue,
-                    RosterHack = CfgSt.MUA.RosterHack,
+                    RosterHack = !CfgSt.GUI.IsNotConsole || CfgSt.MUA.RosterHack,
                     RosterValue = CfgSt.OHS.RosterValue,
                     GameInstallPath = CfgSt.OHS.GameInstallPath,
                     ExeName = CfgSt.OHS.ExeName,
@@ -348,7 +382,7 @@ namespace OpenHeroSelectGUI.Settings
         /// <summary>
         /// Save OHS settings in JSON (<paramref name="Oini"/>) &amp; GUI settings in XML (<paramref name="Gini"/>) by providing both paths.
         /// </summary>
-        private static void SaveIniXml(string Oini, string Gini) => SaveIniXml(Oini, Gini, (CfgSt.GUI.Game == "xml2") ? CfgSt.XML2 : CfgSt.MUA);
+        private static void SaveIniXml(string Oini, string Gini) => SaveIniXml(Oini, Gini, (CfgSt.GUI.Game == "XML2") ? CfgSt.XML2 : CfgSt.MUA);
         /// <summary>
         /// Save OHS settings in JSON (<paramref name="Oini"/>) &amp; GUI settings in XML (<paramref name="Gini"/>) by providing both paths and the <paramref name="GameCfg"/> class.
         /// </summary>
@@ -361,7 +395,7 @@ namespace OpenHeroSelectGUI.Settings
             if (string.IsNullOrEmpty(Opath)) return;
             _ = Directory.CreateDirectory(Opath);
             string JsonString = JsonSerializer.Serialize(GameCfg, JsonOptions);
-            // Using the MVVM toolkit generates an IsActive property which gets serialized, unfortunately. I didn't find a solution, yet.
+            // Using the MVVM toolkit generates an IsActive property which gets serialized, unfortunately. I didn't find a solution, yet (can't use [property: JsonIgnore], because it's not in the list).
             string[] JsonSplit = JsonString.Split(Environment.NewLine).Where(l => !l.Contains("\"isActive\":")).ToArray();
             JsonSplit[^2] = JsonSplit[^2].TrimEnd().TrimEnd(',');
             File.WriteAllLines(Oini, JsonSplit);
@@ -378,7 +412,7 @@ namespace OpenHeroSelectGUI.Settings
         {
             if (CfgSt.Roster.Selected.Count > 0)
             {
-                if (CfgSt.GUI.Game == "mua")
+                if (OHSpath.Game == "mua")
                 {
                     WriteCfg(Path.Combine(OHSpath.CD, "mua", "menulocations", $"{mv}.cfg"), 0);
                 }

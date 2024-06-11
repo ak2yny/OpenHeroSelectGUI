@@ -30,7 +30,8 @@ namespace OpenHeroSelectGUI
             DeleteCommand.ExecuteRequested += DeleteCommand_ExecuteRequested;
 
             InitializeComponent();
-            Skins.AllowDrop = Skins.CanReorderItems = Cfg.GUI.Game != "xml2";
+            if (Cfg.GUI.Game == "XML2" && Cfg.GUI.SkinsDragEnabled) { Skins.CanDragItems = true; }
+            Skins.AllowDrop = Skins.CanReorderItems = Cfg.GUI.Game != "XML2" || Cfg.GUI.SkinsDragEnabled;
             LoadSkinList();
             // Note: Skins are always loaded from file when navigated (except if nothing selected) - intended, to read external changes
         }
@@ -39,73 +40,56 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void LoadSkinList()
         {
-            SkinInstaller.Visibility = Visibility.Collapsed;
+            SkinInstaller.Visibility = SkinInstallerH.Visibility = Visibility.Collapsed;
             Cfg.Roster.SkinsList.Clear();
             AddCharNum.Text = "";
             if (Herostat.Load(Cfg.Var.FloatingCharacter) is string[] LoadedHerostat)
             {
                 if (Cfg.Var.HsFormat == '<')
                 {
-                    if (GUIXML.ElementFromString(string.Join(Environment.NewLine, LoadedHerostat)) is XmlElement Stats && Stats.HasAttribute("skin"))
+                    if (GUIXML.ElementFromString(string.Join(Environment.NewLine, LoadedHerostat)) is XmlElement Stats
+                        && Stats.GetAttribute("skin") is string Skin && Skin.Length > 3)
                     {
                         CharacterName.Text = Stats.GetAttribute("charactername");
                         InternalName = Stats.GetAttribute("name");
-                        string CN = Stats.GetAttribute("skin")[..^2];
                         for (int i = 0; i < SkinIdentifiers.Length; i++)
                         {
-                            if (Stats.HasAttribute(SkinIdentifiers[i]))
+                            string Skn = Stats.GetAttribute(SkinIdentifiers[i]);
+                            if (Skn.Length > 1 || Cfg.GUI.Game == "XML2")
                             {
-                                string SkinName = Cfg.GUI.Game == "xml2"
+                                string SkinName = Cfg.GUI.Game == "XML2"
                                     ? i == 0
                                         ? "Main"
-                                        : SkinIdentifiers[i][5..]
+                                        : XML2Skins[i - 1]
                                     : i == 0
                                         ? Stats.GetAttribute("skin_01_name")
                                         : Stats.GetAttribute($"{SkinIdentifiers[i]}_name");
-                                AddSkin(CN, Stats.GetAttribute(SkinIdentifiers[i])[^2..], SkinName);
+                                AddSkin(Skin[..^2], Skn.Length > 1 ? Skn[^2..] : "", SkinName);
                             }
                         }
                     }
                 }
-                else
+                else if (Formats.GetAttr(LoadedHerostat, "skin") is string Skin && Skin.Length > 3)
                 {
                     CharacterName.Text = Formats.GetAttr(LoadedHerostat, "charactername");
                     InternalName = Formats.GetAttr(LoadedHerostat, "name");
-                    string CN = Formats.GetAttr(LoadedHerostat, "skin")[..^2];
                     for (int i = 0; i < SkinIdentifiers.Length; i++)
                     {
                         string Skn = Formats.GetAttr(LoadedHerostat, SkinIdentifiers[i]);
-                        if (!string.IsNullOrEmpty(Skn))
+                        if (Skn.Length > 1 || Cfg.GUI.Game == "XML2")
                         {
-                            string SkinName = Cfg.GUI.Game == "xml2"
+                            string SkinName = Cfg.GUI.Game == "XML2"
                                 ? i == 0
                                     ? "Main"
                                     : XML2Skins[i - 1]
                                 : i == 0
                                     ? Formats.GetAttr(LoadedHerostat, "skin_01_name")
                                     : Formats.GetAttr(LoadedHerostat, $"{SkinIdentifiers[i]}_name");
-                            AddSkin(CN, Skn[^2..], SkinName);
+                            AddSkin(Skin[..^2], Skn.Length > 1 ? Skn[^2..] : "", SkinName);
                         }
                     }
                 }
             }
-        }
-        /// <summary>
-        /// Add Skin "<paramref name="CharacterNumber"/><paramref name="Number"/> - <paramref name="SkinName"/>" to the display list
-        /// </summary>
-        private void AddSkin(string CharacterNumber, string Number, string SkinName)
-        {
-            AddCharNum.Text = CharacterNumber;
-            Cfg.Roster.SkinsList.Add(new SkinDetails
-            {
-                CharNum = CharacterNumber,
-                Number = Number,
-                Name = SkinName,
-                Command = DeleteCommand
-            });
-            AddButton.Visibility = Cfg.Roster.SkinsList.Count < SkinIdentifiers.Length
-                ? Visibility.Visible
-                : Visibility.Collapsed;
         }
         /// <summary>
         /// On save, add the new details to the source herostat.
@@ -117,7 +101,17 @@ namespace OpenHeroSelectGUI
             {
                 string[] LoadedHerostat = File.ReadLines(HP.FullName).ToArray();
 
-                bool IsMUA = Cfg.GUI.Game != "xml2";
+                bool IsMUA = Cfg.GUI.Game != "XML2";
+                if (!IsMUA)
+                {
+                    List<SkinDetails> XML2skins = [.. Cfg.Roster.SkinsList];
+                    Cfg.Roster.SkinsList.Clear();
+                    for (int i = 0; i < XML2skins.Count; i++)
+                    {
+                        if (XML2skins[i].Number == "") { continue; }
+                        AddSkin(XML2skins[i].CharNum, XML2skins[i].Number, Cfg.Roster.SkinsList.Count == 0 ? "Main" : XML2Skins[i - 1]);
+                    }
+                }
                 if (Cfg.Var.HsFormat == '<')
                 {
                     XmlDocument XmlStat = new();
@@ -135,8 +129,6 @@ namespace OpenHeroSelectGUI
                         {
                             string AttrName = IsMUA
                                 ? $"skin_0{i + 1}"
-                                : Cfg.Roster.SkinsList[i].Name == "Main"
-                                ? ""
                                 : $"skin_{Cfg.Roster.SkinsList[i].Name}";
                             XmlAttribute Attr = XmlStat.CreateAttribute(AttrName);
                             Attr.Value = $"{Cfg.Roster.SkinsList[i].Number}";
@@ -202,10 +194,63 @@ namespace OpenHeroSelectGUI
             return false;
         }
         /// <summary>
+        /// Build a skin detail
+        /// </summary>
+        /// <returns>Skin "<paramref name="CharacterNumber"/><paramref name="Number"/> - <paramref name="SkinName"/>".</returns>
+        private SkinDetails Skin(string CharacterNumber, string Number, string SkinName)
+        {
+            return new SkinDetails
+            {
+                CharNum = CharacterNumber,
+                Number = Number,
+                Name = SkinName,
+                Command = DeleteCommand
+            };
+        }
+        /// <summary>
+        /// Add Skin "<paramref name="CharacterNumber"/><paramref name="Number"/> - <paramref name="SkinName"/>" to the display list
+        /// </summary>
+        private void AddSkin(string CharacterNumber, string Number, string SkinName)
+        {
+            AddCharNum.Text = CharacterNumber;
+            Cfg.Roster.SkinsList.Add(Skin(CharacterNumber, Number, SkinName));
+            AddButton.Visibility = Cfg.Roster.SkinsList.Count < SkinIdentifiers.Length
+                ? Visibility.Visible
+                : Visibility.Collapsed;
+        }
+        /// <summary>
+        /// Remove Skin from Cfg.Roster.SkinsList at <paramref name="i"/>ndex. (Count must be more)
+        /// </summary>
+        /// <param name="i"></param>
+        private void RemoveSkin(int i)
+        {
+            if (Cfg.GUI.Game == "XML2" && Cfg.Roster.SkinsList.Count > i && i > 0)
+            {
+                Cfg.Roster.SkinsList[i] = Skin(AddCharNum.Text, "", XML2Skins[i - 1]);
+            }
+            else { Cfg.Roster.SkinsList.RemoveAt(i); }
+        }
+        /// <summary>
+        /// Fix the XML2 Cfg.Roster.SkinsList's skin names to be in the correct order and fill missing skins with empty entries.
+        /// </summary>
+        private void FixXML2names(bool Add = false)
+        {
+            List<SkinDetails> XML2skins = [.. Cfg.Roster.SkinsList];
+            Cfg.Roster.SkinsList.Clear();
+            for (int i = -1; i < XML2Skins.Length; i++)
+            {
+                string Name = i < 0 ? "Main" : XML2Skins[i];
+                Cfg.Roster.SkinsList.Add(Skin(AddCharNum.Text,
+                    !Add ? XML2skins[i + 1].Number : XML2skins.FirstOrDefault(s => s.Name == Name) is SkinDetails S ? S.Number : "",
+                    Name));
+            }
+            AddButton.Visibility = Visibility.Collapsed;
+        }
+        /// <summary>
         /// Calculate the mannequin number, based on the first skin.
         /// </summary>
         /// <returns>Number as <see cref="string"/> of the first skin if XML2 and bigger than 10, otherwise "01".</returns>
-        private string MqNum => Cfg.GUI.Game == "xml2" && int.Parse(Cfg.Roster.SkinsList.First().Number) > 10 ? Cfg.Roster.SkinsList.First().Number : "01";
+        private string MqNum => Cfg.GUI.Game == "XML2" && int.Parse(Cfg.Roster.SkinsList.First().Number) > 10 ? Cfg.Roster.SkinsList.First().Number : "01";
         /// <summary>
         /// Check all skins in the SkinsList for packages and, if not found, clone a package if available. Shows message if not found and not available for cloning.
         /// </summary>
@@ -250,10 +295,10 @@ namespace OpenHeroSelectGUI
             // 12 = XML2 PS2
             // 13 = XML2 PSP
             // 14 = XML2 Xbox
-            int Plat = Cfg.GUI.Game == "xml2"
+            int Plat = Cfg.GUI.Game == "XML2"
                 ? XML2platforms.SelectedIndex + 10
                 : MUAplatforms.SelectedIndex;
-            int PAV = Plat is 0 or 2 or 3 or 7 or 8
+            int PAV = Plat is < 1 or 2 or 3 or 7 or 8
                 ? 9
                 : Plat is 4 or 5 or 13
                 ? 8
@@ -294,7 +339,7 @@ namespace OpenHeroSelectGUI
                 FileSize.Text = $"{fs.Length} bytes";
                 FileSize.Foreground = FileSizeT.Foreground =
                     (Plat == 5 && fs.Length > 600000)
-                    || ((Plat > 10 || Plat is 1 or 4 or 6) && fs.Length > 300000)
+                    || ((Plat is > 10 or 1 or 4 or 6) && fs.Length > 300000)
                     ? Red
                     : Green;
 
@@ -302,14 +347,14 @@ namespace OpenHeroSelectGUI
                 GeometryFormats.Text = string.Join(", ", GeometryLines.Distinct());
                 GeometryFormats.Foreground = GeometryFormatsT.Foreground =
                     (PAV == 6 && GeometryFormats.Text.Contains('2'))
-                    || (PAV > 6 && Plat != 0 && GeometryFormats.Text.Contains("1_5"))
+                    || (PAV > 6 && Plat > 0 && GeometryFormats.Text.Contains("1_5"))
                     ? Red
                     : Green;
                 VertexCount.Text = StatLines.Where(s => s.Contains(" vertex total: ", StringComparison.OrdinalIgnoreCase)).Max(s => s.Split(' ', StringSplitOptions.RemoveEmptyEntries)[3]);
                 GeometryCount.Text = GeometryLines.Count().ToString();
 
                 TextureFormats.Text = string.Join(", ", TextureLines.Select(s => s.Split('|')[3].Trim()).Distinct()).Replace("IG_GFX_TEXTURE_FORMAT_", "");
-                string[] IncompatibleTexs = Plat is 0 or 10
+                string[] IncompatibleTexs = Plat is < 1 or 10 or 9
                     ? ["PSP", "GAMECUBE"]
                     : Plat is 1 or 12
                     ? ["PSP", "GAMECUBE", "DXT"]
@@ -408,11 +453,17 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void DeleteCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
         {
-            if (args.Parameter != null
-                && Cfg.Roster.SkinsList.FirstOrDefault(s => s.Number == (args.Parameter as string)) is SkinDetails STR
-                && !(Cfg.GUI.Game == "xml2" && STR.Name == "Main"))
+            if (args.Parameter is string Number
+                && !(Cfg.GUI.Game == "XML2" && Number == ""))
             {
-                _ = Cfg.Roster.SkinsList.Remove(STR);
+                for (int i = 0; i < Cfg.Roster.SkinsList.Count; i++)
+                {
+                    if (Cfg.Roster.SkinsList[i].Number == Number)
+                    {
+                        RemoveSkin(i);
+                        break;
+                    }
+                }
                 AddButton.Visibility = Cfg.Roster.SkinsList.Count < SkinIdentifiers.Length
                     ? Visibility.Visible
                     : Visibility.Collapsed;
@@ -423,14 +474,16 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void AddSkinSlot_Click(object sender, RoutedEventArgs e)
         {
-            int MaxSkinNum = 0;
-            string[] AvailableXMLNames = SkinIdentifiers.Select(s => s == "skin" ? "Main" : s[5..]).ToArray();
-            if (Cfg.Roster.SkinsList.Any())
+            if (string.IsNullOrEmpty(Cfg.Var.FloatingCharacter) || string.IsNullOrEmpty(AddCharNum.Text)) { return; }
+            if (Cfg.GUI.Game == "XML2") { FixXML2names(true); }
+            else
             {
-                AvailableXMLNames = AvailableXMLNames.Except(Cfg.Roster.SkinsList.Select(s => s.Name)).ToArray();
-                _ = int.TryParse(Cfg.Roster.SkinsList.OrderBy(s => s.Number).Last().Number, out MaxSkinNum);
+                AddSkin(AddCharNum.Text,
+                    Cfg.Roster.SkinsList.Any()
+                    && int.TryParse(Cfg.Roster.SkinsList.OrderBy(s => s.Number).Last().Number, out int MaxSkinNum)
+                    ? (MaxSkinNum + 1).ToString().PadLeft(2, '0')
+                    : "00", "");
             }
-            AddSkin(AddCharNum.Text, (MaxSkinNum + 1).ToString().PadLeft(2, '0'), Cfg.GUI.Game == "xml2" ? AvailableXMLNames[0] : "");
             Skins.SelectedIndex = Cfg.Roster.SkinsList.Count - 1;
         }
         /// <summary>
@@ -480,28 +533,45 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void Skins_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (Skins.SelectedItem is SkinDetails Skin && Path.IsPathFullyQualified(Cfg.OHS.GameInstallPath)) // Again, this is not consistent with the relative path that the settings allow.
+            SkinInstaller.Visibility = SkinInstallerH.Visibility = Visibility.Collapsed;
+            if (Skins.SelectedItem is SkinDetails Skin && Skin.Number != "" && Path.IsPathFullyQualified(Cfg.OHS.GameInstallPath)) // Again, this is not consistent with the relative path that the settings allow.
             {
-                XML2platforms.Visibility = ThreeDHeadBrowse.Visibility = Cfg.GUI.Game != "xml2"
-                    ? Visibility.Collapsed
-                    : Visibility.Visible;
-                MUAplatforms.Visibility = Cfg.GUI.Game == "xml2"
-                    ? Visibility.Collapsed
-                    : Visibility.Visible;
                 SkinInfo.Visibility = Visibility.Collapsed;
-                HudHeadBrowse.Visibility = SkinInstaller.Visibility = Visibility.Visible;
-                InstallSkins.Text = $"Install skin {Skin.CharNum}{Skin.Number}";
-                InstallMannequin.Text = $"Install select item {Skin.CharNum}{MqNum}";
+                HudHeadBrowse.Visibility = SkinInstaller.Visibility = SkinInstallerH.Visibility = Visibility.Visible;
+                SelectedSkinNumber.Text = $"{Skin.CharNum}{Skin.Number}";
+                InstallSkins.Text = $"Install skin {Skin.CharNum}{Skin.Number}:";
+                InstallMannequin.Text = $"Install {(Cfg.GUI.Game == "XML2" ? "character selection portrait" : "mannequin")} {Skin.CharNum}{MqNum}:";
             }
         }
 
         private void Skins_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
-            if (Skins.SelectedItem is SkinDetails Skin)
+            if (Cfg.GUI.Game == "XML2" && Cfg.Roster.SkinsList.Count > Skins.SelectedIndex && Skins.SelectedIndex > -1)
             {
-                _ = Cfg.Roster.SkinsList.Remove(Skin);
+                RemoveSkin(Skins.SelectedIndex);
             }
         }
+
+        private void Skins_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args) => FixXML2names();
+        /*
+        For Skin swapping:
+        1. make a global variable: private int before;
+        2. make a DragItemsStarting event to set the before index:
+            before = args.Items[0] is SkinDetails SD ? Cfg.Roster.SkinsList.IndexOf(SD) : -1;
+        3. change the DragItemsCompleted event:
+        {
+            int after = args.Items[0] is SkinDetails SD ? Cfg.Roster.SkinsList.IndexOf(SD) : -1;
+            if (after == before || after < 0 || before < 0) { return; }
+            List<SkinDetails> Sorted = [.. Cfg.Roster.SkinsList.OrderBy(s => Array.IndexOf(XML2Skins, s.Name))];
+            for (int i = 0; i < Sorted.Count; i++)
+            {
+                Cfg.Roster.SkinsList[i] = Skin(
+                    Sorted[i].CharNum,
+                    i == after ? Sorted[before].Number : i == before ? Sorted[after].Number : Sorted[i].Number,
+                    Sorted[i].Name);
+            }
+        }
+        */
         /// <summary>
         /// Browse for an IGB file and install it to actors in the game/mod files, renaming it to the selected <see cref="Skins"/> name.
         /// This is separate from InstallIGB, because it tries to install the hud heads as well.
@@ -521,10 +591,10 @@ namespace OpenHeroSelectGUI
                     OHSpath.CopyToGame(HUD, "hud", $"hud_head_{Skin.CharNum}{Skin.Number}.igb");
                     HudHeadBrowse.Visibility = Visibility.Collapsed;
                 }
-                if (Cfg.GUI.Game == "xml2" && H3D.Exists)
+                if (Cfg.GUI.Game == "XML2" && H3D.Exists)
                 {
                     OHSpath.CopyToGame(H3D, Path.Combine("ui", "hud", "characters"), $"{Skin.CharNum}{Skin.Number}.igb");
-                    ThreeDHeadBrowse.Visibility = Visibility.Collapsed;
+                    Head3D_Browse.Visibility = Visibility.Collapsed;
                 }
             }
         }
@@ -535,7 +605,7 @@ namespace OpenHeroSelectGUI
 
         private void InstallMannequin_Click(object sender, RoutedEventArgs e)
         {
-            InstallIGB(Path.Combine("ui", "models", Cfg.GUI.Game == "mua" ? Cfg.MUA.MannequinFolder : "characters"), MqNum);
+            InstallIGB(Path.Combine("ui", "models", Cfg.GUI.Game == "XML2" ? "characters" : Cfg.MUA.MannequinFolder), MqNum);
         }
 
         private void DiamondForm_Opened(object sender, RoutedEventArgs e)
@@ -583,7 +653,8 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void ShowError(string message)
         {
-            Cfg.Var.SE_Msg_Error = new MessageItem {
+            Cfg.Var.SE_Msg_Error = new MessageItem
+            {
                 Message = message,
                 IsOpen = true
             };

@@ -7,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 
 namespace OpenHeroSelectGUI
 {
@@ -32,24 +33,21 @@ namespace OpenHeroSelectGUI
         {
             InitializeComponent();
             ReadSaveBackups();
+            PrepareSettings();
             GIPcheck();
-            GIPBox.Text = Path.GetDirectoryName(OHSpath.StartExe());
-            ExeArgsBox.Text = Cfg.GUI.Game == "xml2" ? Cfg.GUI.Xml2Arguments : Cfg.GUI.ExeArguments;
-            TeamBonusName.Text = Cfg.GUI.Game == "xml2" ? Cfg.GUI.Xml2BonusName : Cfg.GUI.TeamBonusName;
         }
         /// <summary>
-        /// Load the GUI configurations and set-up the controls.
+        /// Load the GUI of the current page with information from the settings (conditional settings).
         /// </summary>
-        private void LoadCfg()
+        private void PrepareSettings()
         {
-            if (Cfg.OHS != null)
+            GIPBox.Text = Cfg.GUI.GameInstallPath != "" ? Cfg.GUI.GameInstallPath : Cfg.OHS.GameInstallPath;
+            if (Cfg.GUI.Game == "XML2" && RosterSizeToggle.Children.FirstOrDefault(r => r is RadioButton R
+                && R.Content.ToString()?[..2] == $"{Cfg.XML2.RosterSize}") is RadioButton RB)
             {
-                if (Cfg.OHS.HerostatName is string HS && HS.LastIndexOf('.') is int DH && DH > 0 && DH < (HS.Length - 3))
-                {
-                    HerostatName.Text = HS.Remove(DH);
-                    LanguageCode.SelectedIndex = Array.FindIndex(DataExt, w => w.IndexOf(HS[(DH + 1)..], StringComparison.CurrentCultureIgnoreCase) > -1);
-                }
+                RB.IsChecked = true;
             }
+            RHCard.Visibility = Cfg.Var.IsMua && Cfg.GUI.IsNotConsole ? Visibility.Visible : Visibility.Collapsed;
         }
         /// <summary>
         /// Load a list of all backed up saves.
@@ -64,6 +62,22 @@ namespace OpenHeroSelectGUI
                     if (!(f.Name is "Save" or "Screenshots")) SaveBackups.Add(f.Name);
                 }
             }
+        }
+        /// <summary>
+        /// If RH option is on, checks for the roster hack in the game folder and updates the RH message.
+        /// </summary>
+        private void UpdateRH()
+        {
+            RHInfo.IsOpen = false;
+            if (Cfg.MUA.RosterHack && Cfg.GUI.Game != "XML2")
+            {
+                string GamePath = Path.GetDirectoryName(OHSpath.MUAexe) ?? Cfg.OHS.GameInstallPath;
+                string dinput = Path.Combine(GamePath, "dinput8.dll");
+                if (File.Exists(dinput)) { try { dinput = File.ReadAllText(dinput); } catch { dinput = ""; } }
+                RHInfo.Message = $"Roster hack (RH) not detected in '{GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. MO2 users can browse for the actual game .exe path below, to keep this message from opening in the future. The RH fixes a crash when using more than 27 characters.";
+                RHExpander.IsExpanded = RHInfo.IsOpen = !Directory.Exists(Path.Combine(GamePath, "plugins")) || !dinput.Contains("asi-loader");
+            }
+            Cfg.Var.IsMo2 = Cfg.GUI.ActualGameExe != "" || InternalSettings.KnownModOrganizerExes.Contains(Cfg.OHS.ExeName, StringComparer.OrdinalIgnoreCase);
         }
         /// <summary>
         /// Trim a <see cref="string"/> (<paramref name="Trim"/>) from the end of another <see cref="string"/> (<paramref name="inputText"/>), if found. By Shane Yu @ StackOverflow
@@ -94,35 +108,32 @@ namespace OpenHeroSelectGUI
 
         private async void MO2Browse()
         {
-            Cfg.OHS.GameInstallPath = await CfgCmd.BrowseFolder();
-            GIPcheck();
+            if (await CfgCmd.BrowseFolder() is string GIP && GIP != "")
+            {
+                Cfg.OHS.GameInstallPath = GIP;
+                GIPcheck();
+            }
         }
 
         private void GIPcheck()
         {
             Warning.Message = (Cfg.OHS.GameInstallPath == "" ? "" : $"No 'data' folder in '{Cfg.OHS.GameInstallPath}'. ") + "Please browse for a valid game installation path or mod folder.";
             Warning.IsOpen = !Directory.Exists(Path.Combine(Cfg.OHS.GameInstallPath, "data"));
+            UpdateRH();
         }
         // UI control handlers:
         private async void ExeBrowseButton_Click(object sender, RoutedEventArgs e)
         {
-            if (await CfgCmd.LoadDialogue(".exe") is string Exe)
+            if (await CfgCmd.LoadDialogue(".exe") is string Exe && Exe != "")
             {
-                FileInfo? ExeFile = new(Exe);
-                Cfg.OHS.ExeName = ExeFile.Name;
-                string GIP = GIPBox.Text = ExeFile.FullName[..^(ExeFile.Name.Length + 1)];
-                if (Cfg.GUI.Game == "xml2") { Cfg.GUI.Xml2InstallPath = GIP; } else { Cfg.GUI.GameInstallPath = GIP; }
-                if (string.IsNullOrEmpty(Cfg.OHS.GameInstallPath))
+                Cfg.OHS.ExeName = Path.GetFileName(Exe);
+                GIPBox.Text = Cfg.GUI.GameInstallPath = Path.GetDirectoryName(Exe) ?? "";
+                if (Cfg.OHS.GameInstallPath == "")
                 {
-                    Cfg.OHS.GameInstallPath = GIP;
+                    Cfg.OHS.GameInstallPath = Cfg.GUI.GameInstallPath;
                     GIPcheck();
                 }
             }
-        }
-
-        private void ExeArgsBox_TextChanged(object sender, TextChangedEventArgs e)
-        {
-            if (Cfg.GUI.Game == "xml2") { Cfg.GUI.Xml2Arguments = ExeArgsBox.Text; } else { Cfg.GUI.ExeArguments = ExeArgsBox.Text; }
         }
 
         private void Warning_CloseButtonClick(InfoBar sender, object args)
@@ -134,7 +145,6 @@ namespace OpenHeroSelectGUI
         {
             MO2Browse();
         }
-
 
         private async void HBrowseButton_Click(object sender, RoutedEventArgs e)
         {
@@ -164,13 +174,41 @@ namespace OpenHeroSelectGUI
         {
             if (Directory.Exists(OHSpath.SaveFolder))
             {
-                _ = Process.Start("explorer.exe", @$"{OHSpath.SaveFolder}");
+                _ = Process.Start("explorer.exe", $"{OHSpath.SaveFolder}");
             }
         }
 
         private void RefreshSaves_Click(object sender, RoutedEventArgs e)
         {
             ReadSaveBackups();
+        }
+        /// <summary>
+        /// Roster Hack switch: A message warns us about potentially missing roster hack files.
+        /// </summary>
+        private void RosterHack_Toggled(object sender, RoutedEventArgs e)
+        {
+            UpdateRH();
+        }
+        /// <summary>
+        /// Browse for the game folder with the roster hack, if using MO2.
+        /// </summary>
+        private async void BrowseRH_Click(object sender, RoutedEventArgs e)
+        {
+            Cfg.GUI.ActualGameExe = await CfgCmd.LoadDialogue(".exe") ?? "";
+            UpdateRH();
+        }
+        /// <summary>
+        /// Roster Size toggle: Set the observable settings from code behind.
+        /// </summary>
+        private void RS_Toggled(object sender, RoutedEventArgs e)
+        {
+            if (sender is RadioButton RB
+                && RB.Content.ToString() is string RS
+                && int.TryParse(RS[..2], out int Limit))
+            {
+                Cfg.Roster.Total = Cfg.XML2.RosterSize = Limit;
+                Cfg.Var.RosterRange = Enumerable.Range(1, Limit);
+            }
         }
 
         private void Herostat_TextChanged(UIElement sender, LosingFocusEventArgs args)
@@ -208,12 +246,55 @@ namespace OpenHeroSelectGUI
         private void TeamBonus_TextChanged(UIElement sender, LosingFocusEventArgs args)
         {
             TeamBonusName.Text = FixedLength(TeamBonusName.Text, "team_bonus");
-            if (Cfg.GUI.Game == "xml2") { Cfg.GUI.Xml2BonusName = TeamBonusName.Text; } else { Cfg.GUI.TeamBonusName = TeamBonusName.Text; }
         }
-
+        /// <summary>
+        /// Load the GUI configurations and set-up the controls for this control.
+        /// </summary>
         private void SettingsCard_Loaded(object sender, RoutedEventArgs e)
         {
-            LoadCfg();
+            if (Cfg.OHS.HerostatName is string HS && HS.LastIndexOf('.') is int DH && DH > 0 && DH < (HS.Length - 3))
+            {
+                HerostatName.Text = HS.Remove(DH);
+                LanguageCode.SelectedIndex = Array.FindIndex(DataExt, w => w.IndexOf(HS[(DH + 1)..], StringComparison.CurrentCultureIgnoreCase) > -1);
+            }
+        }
+
+        private void ResetPC_Click(object sender, RoutedEventArgs e)
+        {
+            ResetSettings();
+            ExeBrowseButton_Click(sender, e);
+        }
+
+        private void ResetMO2_Click(object sender, RoutedEventArgs e)
+        {
+            ResetSettings();
+            CfgSt.Var.IsMo2 = Cfg.Var.IsMo2 = true;
+            MO2Browse();
+        }
+
+        private void ResetConsoles_Click(object sender, RoutedEventArgs e)
+        {
+            ResetSettings();
+            Cfg.GUI.CopyStage = Cfg.GUI.FreeSaves = Cfg.GUI.IsNotConsole = false;
+            Cfg.XML2.RosterSize = 19;
+            RHCard.Visibility = Visibility.Collapsed;
+            MO2Browse();
+        }
+        /// <summary>
+        /// Reflect the settings from their default values
+        /// </summary>
+        private void ResetSettings()
+        {
+            bool MUA = Cfg.GUI.Game != "XML2";
+            bool AC = Cfg.GUI.AvailChars;
+            string Home = Cfg.GUI.Home;
+            CfgSt.Var = new VariableSettings();
+            CfgSt.Roster = new CharacterLists();
+            GUIObject.Copy(new GUIsettings() { Game = MUA ? "MUA" : "XML2", Home = Home, AvailChars = AC }, Cfg.GUI);
+            if (MUA) { GUIObject.Copy(new MUAsettings(), Cfg.MUA); }
+            else { GUIObject.Copy(new XML2settings(), Cfg.XML2); }
+            CfgSt.Var.IsMo2 = false;
+            PrepareSettings();
         }
     }
 }

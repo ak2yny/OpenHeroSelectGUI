@@ -43,9 +43,9 @@ namespace OpenHeroSelectGUI.Functions
         ];
         public static string Packages(string path, string Pkg = "") => Path.Combine(path, "packages", "generated", "characters", Pkg);
         /// <summary>
-        /// Get the current tab (game) using "mua" as fallback.
+        /// Get the current tab (game) for the OHS game path, using "mua" as fallback.
         /// </summary>
-        public static string Game => CfgSt.GUI.Game == "" ? "mua" : CfgSt.GUI.Game;
+        public static string Game => CfgSt.GUI.Game == "XML2" ? "xml2" : "mua";
         /// <summary>
         /// Get the default game exe name.
         /// </summary>
@@ -62,8 +62,7 @@ namespace OpenHeroSelectGUI.Functions
         {
             // Doesn't check for path content, but if not tampered with in config files, paths are either good or "".
             // Since the variables can't be null, we could check with Path.IsPathFullyQualified().
-            string GIP = Game == "xml2" ? CfgSt.GUI.Xml2InstallPath : CfgSt.GUI.GameInstallPath;
-            return Path.Combine(GIP != "" ? GIP : CfgSt.OHS.GameInstallPath, CfgSt.OHS.ExeName);
+            return Path.Combine(CfgSt.GUI.GameInstallPath != "" ? CfgSt.GUI.GameInstallPath : CfgSt.OHS.GameInstallPath, CfgSt.OHS.ExeName);
         }
         /// <summary>
         /// Tries to construct the path to MUA's Game.exe. Falls back to Game Install Path .exe. Doesn't check for a valid path or existence.
@@ -238,7 +237,7 @@ namespace OpenHeroSelectGUI.Functions
                     string[] meta =
                     [
                         "[General]",
-                        $"gameName={CfgSt.GUI.Game.PadRight(4, '1')}",
+                        $"gameName={Game.PadRight(4, '1')}",
                         "modid=0",
                         $"version=d{DateTime.Now:yyyy.M.d}",
                         "newestVersion=",

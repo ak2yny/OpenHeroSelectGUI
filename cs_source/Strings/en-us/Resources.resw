@@ -138,6 +138,9 @@
   <data name="Info_AboutDescription.Text" xml:space="preserve">
     <value>Graphical User Interface for Open Hero Select. To create and modify rosters for Marvel Ultimate Alliance and X-Men Legends 2 games.</value>
   </data>
+  <data name="Info_CfgVersion.Text" xml:space="preserve">
+    <value>Settings version:</value>
+  </data>
   <data name="Info_Link.Content" xml:space="preserve">
     <value>GitHub page</value>
   </data>
@@ -167,5 +170,8 @@
   </data>
   <data name="Tab_Teams.Content" xml:space="preserve">
     <value>Teams</value>
+  </data>
+  <data name="Tab_Settings.Content" xml:space="preserve">
+    <value>Settings</value>
   </data>
 </root>

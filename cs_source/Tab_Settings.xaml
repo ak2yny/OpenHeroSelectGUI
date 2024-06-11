@@ -55,8 +55,10 @@
         </VisualStateManager.VisualStateGroups>
         <TextBlock x:Name="SettingsTitle"
                    Margin="36 10 36 0"
-                   Style="{ThemeResource SubtitleTextBlockStyle}"
-                   Text="Settings" />
+                   Style="{ThemeResource SubtitleTextBlockStyle}">
+            <Run Text="Settings for"/>
+            <Run Text="{x:Bind Cfg.GUI.Game}"/>
+        </TextBlock>
         <ScrollViewer x:Name="SettingsList"
                       Grid.Row="1"
                       IsTabStop="False"
@@ -66,8 +68,8 @@
                     <EntranceThemeTransition FromVerticalOffset="50" />
                     <RepositionThemeTransition IsStaggeringEnabled="False" />
                 </StackPanel.ChildrenTransitions>-->
-                <TextBlock Text="Common Settings" Style="{StaticResource SettingsSectionHeaderStyle}"/>
-                <Expander x:Name="GameInstallPath">
+                <TextBlock Text="Path and Save Settings" Style="{StaticResource SettingsSectionHeaderStyle}"/>
+                <Expander x:Name="GameInstallPath" Visibility="{x:Bind Cfg.GUI.IsNotConsole, Mode=OneWay}">
                     <Expander.Header>
                         <controls:SettingsCardContent Description="Path to the folder with the executable" Header="Game Installation Path" Margin="0 10">
                             <controls:SettingsCardContent.Icon>
@@ -81,7 +83,7 @@
                     </Expander.Header>
                     <Grid Style="{StaticResource SettingsCard}" BorderBrush="Transparent" Padding="16 10 60 10">
                         <controls:SettingsCardContent x:Name="ExeArguments" Description="Arguments to pass to the executable" Header="Arguments for MO2">
-                            <TextBox x:Name="ExeArgsBox" TextChanged="ExeArgsBox_TextChanged" ToolTipService.ToolTip="For MO2 users: Select ModOrganizer.exe for installation path and paste the moshortcut argument here.  This can also be used for other .exe arguments."/>
+                            <TextBox x:Name="ExeArgsBox" Text="{x:Bind Cfg.GUI.ExeArguments, Mode=TwoWay}" ToolTipService.ToolTip="For MO2 users: Select ModOrganizer.exe for installation path and paste the moshortcut argument here.  This can also be used for other .exe arguments."/>
                         </controls:SettingsCardContent>
                     </Grid>
                 </Expander>
@@ -110,7 +112,7 @@
                         </Grid>
                     </controls:SettingsCardContent>
                 </Grid>
-                <Expander>
+                <Expander Visibility="{x:Bind Cfg.GUI.IsNotConsole, Mode=OneWay}">
                     <Expander.Header>
                         <controls:SettingsCardContent x:Name="FreeSaves" Description="Backup saves and give the herostat a new set of saves, when running OHS. Recommended. Expand for more options." Header="Free Saves" Margin="0 10">
                             <controls:SettingsCardContent.Icon>
@@ -141,9 +143,47 @@
                         </controls:SettingsCardContent>
                     </Grid>
                 </Expander>
+                <StackPanel x:Name="RHCard" Visibility="{x:Bind Cfg.Var.IsMua}">
+                    <InfoBar x:Name="RHInfo" Title="Information">
+                        <InfoBar.ActionButton>
+                            <HyperlinkButton Content="Download RH now" NavigateUri="https://marvelmods.com/forum/index.php?topic=10774.0"/>
+                        </InfoBar.ActionButton>
+                    </InfoBar>
+                    <Expander x:Name="RHExpander">
+                        <Expander.Header>
+                            <controls:SettingsCardContent Description="Enable or disable the roster hack (RH) limit of 50 characters" Header="Character Limit (Roster Hack)" Margin="0 10">
+                                <controls:SettingsCardContent.Icon>
+                                    <!--Variations: E94D, ECC8, F133, (ED3D, E9E9)-->
+                                    <FontIcon Glyph="&#xE898;" />
+                                </controls:SettingsCardContent.Icon>
+                                <ToggleSwitch x:Name="RosterHackToggle" IsOn="{x:Bind Cfg.MUA.RosterHack, Mode=TwoWay}" OffContent="27" OnContent="50" MinWidth="72" Toggled="RosterHack_Toggled"/>
+                            </controls:SettingsCardContent>
+                        </Expander.Header>
+                        <Grid Style="{StaticResource SettingsCard}" BorderBrush="Transparent" Padding="16 0 60 0">
+                            <controls:SettingsCardContent x:Name="ActualGameExe" Description="Path to the actual game .exe that's used by MO2 to start the game" Header="Game Exe Path" IsEnabled="{x:Bind Cfg.Var.IsMo2, Mode=OneWay}">
+                                <Grid VerticalAlignment="Center">
+                                    <TextBox Text="{x:Bind Cfg.GUI.ActualGameExe, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0" MinWidth="200"/>
+                                    <Button Content="..." FontWeight="Bold" Click="BrowseRH_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse"/>
+                                </Grid>
+                            </controls:SettingsCardContent>
+                        </Grid>
+                    </Expander>
+                </StackPanel>
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.Var.IsXml2}" Padding="16 10 60 10">
+                    <controls:SettingsCardContent Description="The GUI will limit the selected characters to the number selected here" Header="Roster Size">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE898;" />
+                        </controls:SettingsCardContent.Icon>
+                        <StackPanel x:Name="RosterSizeToggle" Orientation="Horizontal">
+                            <RadioButton x:Name="RST1" Checked="RS_Toggled" Content="19 (Consoles)" Margin="2" MinWidth="30"/>
+                            <RadioButton x:Name="RST2" Checked="RS_Toggled" Content="21 (PC)" Margin="2" MinWidth="30"/>
+                            <RadioButton x:Name="RST3" Checked="RS_Toggled" Content="23 (PSP)" Margin="2" MinWidth="30"/>
+                        </StackPanel>
+                    </controls:SettingsCardContent>
+                </Grid>
 
-                <TextBlock Text="UI Settings for MUA" Style="{ThemeResource SettingsSectionHeaderStyle}"/>
-                <Grid Style="{StaticResource SettingsCard}">
+                <TextBlock Text="UI Settings" Style="{ThemeResource SettingsSectionHeaderStyle}"/>
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.Var.IsMua}">
                     <controls:SettingsCardContent Description="Switch between bird view (Classic) and front view (Row)" Header="Location Layout View">
                         <controls:SettingsCardContent.Icon>
                             <Viewbox Margin="3 6 3 3">
@@ -153,7 +193,7 @@
                         <ToggleSwitch x:Name="RowLayoutToggle" IsOn="{x:Bind Cfg.GUI.RowLayout, Mode=TwoWay}" MinWidth="116" OffContent="Classic" OnContent="Row"/>
                     </controls:SettingsCardContent>
                 </Grid>
-                <Grid Style="{StaticResource SettingsCard}">
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.Var.IsMua}">
                     <controls:SettingsCardContent Description="Limit the size of the menulocation boxes. Use the slider for a custom width, if scale is set to 'Both'." Header="Location Layout Width">
                         <controls:SettingsCardContent.Icon>
                             <FontIcon Glyph="&#xECE8;" />
@@ -164,21 +204,33 @@
                         </StackPanel>
                     </controls:SettingsCardContent>
                 </Grid>
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.Var.IsMua}">
+                    <controls:SettingsCardContent Description="Enable semi-transparency for the stage details background." Header="Stage Details Transparency">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xF167;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="InfoTransparency" IsOn="{x:Bind Cfg.GUI.StageInfoTransparency, Mode=TwoWay}" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.Var.IsXml2}">
+                    <controls:SettingsCardContent Description="Allow dragging items in the skin editor, to reorder skins." Header="Skin Editor Drag">
+                        <controls:SettingsCardContent.Icon>
+                            <SymbolIcon Symbol="Sort" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="SEdrag" IsOn="{x:Bind Cfg.GUI.SkinsDragEnabled, Mode=TwoWay}" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
                 <Grid Style="{StaticResource SettingsCard}">
                     <controls:SettingsCardContent Description="Show if there are characters with identical numbers in the selected roster." Header="Notify Clashes">
                         <controls:SettingsCardContent.Icon>
                             <FontIcon Glyph="&#xE783;" />
                         </controls:SettingsCardContent.Icon>
-                        <ComboBox SelectedIndex="{x:Bind Cfg.GUI.ShowClashes, Mode=TwoWay}">
-                            <ComboBoxItem>MUA only</ComboBoxItem>
-                            <ComboBoxItem>Yes</ComboBoxItem>
-                            <ComboBoxItem>No</ComboBoxItem>
-                        </ComboBox>
+                        <ToggleSwitch x:Name="ShowClashes" IsOn="{x:Bind Cfg.GUI.ShowClashes, Mode=TwoWay}" MinWidth="116"/>
                     </controls:SettingsCardContent>
                 </Grid>
 
-                <TextBlock Text="Mod Pack Settings" Style="{ThemeResource SettingsSectionHeaderStyle}"/>
-                <Expander>
+                <TextBlock Text="Mod Pack Settings" Style="{ThemeResource SettingsSectionHeaderStyle}" Visibility="{x:Bind Cfg.GUI.IsNotConsole, Mode=OneWay}"/>
+                <Expander Visibility="{x:Bind Cfg.GUI.IsNotConsole, Mode=OneWay}">
                     <Expander.Header>
                         <controls:SettingsCardContent x:Name="ModPackSettings" Description="Only change when using a mod pack. Expand to show options." Header="Enable Mod Pack Names" Margin="0 10">
                             <controls:SettingsCardContent.Icon>
@@ -219,20 +271,52 @@
                         <controls:SettingsCardContent Description="Name of characters_heads.pkgb with .pkgb extension" Header="Selection Head/Mannequin Package Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="3">
                             <TextBox x:Name="CharactersHeadsPackageName" Text="{x:Bind Cfg.OHS.CharactersHeadsPackageName, Mode=TwoWay}" LosingFocus="CharHead_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 21 characters or less (incl. extension)"/>
                         </controls:SettingsCardContent>
-                        <controls:SettingsCardContent Description="MUA only: Name of the mannequin folder in 'ui/models'" Header="Mannequin Folder Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="4" Margin="0 10">
+                        <controls:SettingsCardContent Description="MUA only: Name of the mannequin folder in 'ui/models'" Header="Mannequin Folder Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="4" Margin="0 10" Visibility="{x:Bind Cfg.Var.IsMua}">
                             <TextBox x:Name="MannequinFolder" Text="{x:Bind Cfg.MUA.MannequinFolder, Mode=TwoWay}" LosingFocus="MannequinFolder_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 9 characters or less"/>
                         </controls:SettingsCardContent>
-                        <controls:SettingsCardContent Description="MUA only: Name of charinfo.xmlb with .xmlb extension" Header="Character Info File Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="5">
+                        <controls:SettingsCardContent Description="MUA only: Name of charinfo.xmlb with .xmlb extension" Header="Character Info File Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="5" Visibility="{x:Bind Cfg.Var.IsMua}">
                             <TextBox x:Name="CharinfoName" Text="{x:Bind Cfg.MUA.CharinfoName, Mode=TwoWay}" LosingFocus="Charinfo_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 13 characters or less (incl. extension)"/>
                         </controls:SettingsCardContent>
                         <controls:SettingsCardContent Description="Name of team_bonus without extension - uses same extension as herostat" Header="Team Bonus File Name" IsEnabled="{x:Bind Cfg.GUI.ModPack, Mode=OneWay}" Grid.Row="6" Margin="0 10">
-                            <TextBox x:Name="TeamBonusName" LosingFocus="TeamBonus_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 10 characters or less (without extension)"/>
+                            <TextBox x:Name="TeamBonusName" Text="{x:Bind Cfg.GUI.TeamBonusName, Mode=TwoWay}" LosingFocus="TeamBonus_TextChanged" MinWidth="160" ToolTipService.ToolTip="Must be 10 characters or less (without extension)"/>
                         </controls:SettingsCardContent>
                     </Grid>
                 </Expander>
 
-                <TextBlock Text="Runtime Settings" Style="{ThemeResource SettingsSectionHeaderStyle}"/>
+                <TextBlock Text="Runtime Settings" Style="{ThemeResource SettingsSectionHeaderStyle}" ToolTipService.ToolTip="These settings are relevant when runing OHS."/>
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.Var.IsMua}">
+                    <controls:SettingsCardContent Description="Copy the selected stage to the game files (mod folder). Leave this on to be save. Disable this to avoid unnecessary copy processes when the stage or effects haven't been changed." Header="Update Stage">
+                        <controls:SettingsCardContent.Icon>
+                            <SymbolIcon Symbol="Copy" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="StageToggle" IsOn="{x:Bind Cfg.GUI.CopyStage, Mode=TwoWay}" OnContent="Update" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.Var.IsMua}">
+                    <controls:SettingsCardContent Description="Use only the first two mannequin effects (if on). Disable this to allow all selected effects, but only two effects are hidden in the F12 menu." Header="Limit Effects">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xF4A5;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="HidableEffects" IsOn="{x:Bind Cfg.GUI.HidableEffectsOnly, Mode=TwoWay}" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
                 <Grid Style="{StaticResource SettingsCard}">
+                    <controls:SettingsCardContent Description="Enable to adjust script unlocks for the current roster. Disable to use previously saved unlocks." Header="Update Unlocks">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE785;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="UnlockToggle" IsOn="{x:Bind Cfg.OHS.Unlocker, Mode=TwoWay}" OffContent="Off" OnContent="Update" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.Var.IsXml2}">
+                    <controls:SettingsCardContent Description="Enable to adjust script unlocks for all skins of the current roster. Disable to use previously saved unlocks." Header="Update Skin Unlocks">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE785;" />
+                        </controls:SettingsCardContent.Icon>
+                        <ToggleSwitch x:Name="UnlockSkinsToggle" IsOn="{x:Bind Cfg.XML2.UnlockSkins, Mode=TwoWay}" OffContent="Off" OnContent="Unlock" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}" Visibility="{x:Bind Cfg.GUI.IsNotConsole, Mode=OneWay}">
                     <controls:SettingsCardContent Description="Launch the game automatically after running OHS (MO2 users disable this)" Header="Launch Game">
                         <controls:SettingsCardContent.Icon>
                             <FontIcon Glyph="&#xE7FC;" />
@@ -262,6 +346,32 @@
                             <FontIcon Glyph="&#xEBE8;" />
                         </controls:SettingsCardContent.Icon>
                         <ToggleSwitch x:Name="DebugToggle" IsOn="{x:Bind Cfg.OHS.DebugMode, Mode=TwoWay}" MinWidth="116"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+
+                <TextBlock Text="Reset to Default Settings" Style="{ThemeResource SettingsSectionHeaderStyle}"/>
+                <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
+                    <controls:SettingsCardContent Description="Reset to recommended default settings for PC modding (direct method), and pick the game's .exe. WARNING: Custom configurations will be lost!" Header="Reset for PC">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE777;" />
+                        </controls:SettingsCardContent.Icon>
+                        <Button Content="Reset now" Click="ResetPC_Click"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
+                    <controls:SettingsCardContent Description="Reset to recommended default settings for PC modding (MO2 method), and pick a mod folder. WARNING: Custom configurations will be lost!" Header="Reset for PC &amp; MO2">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE777;" />
+                        </controls:SettingsCardContent.Icon>
+                        <Button Content="Reset now" Click="ResetMO2_Click"/>
+                    </controls:SettingsCardContent>
+                </Grid>
+                <Grid Style="{StaticResource SettingsCard}" Padding="16 10 60 10">
+                    <controls:SettingsCardContent Description="Reset to recommended default settings for console modding, and pick a folder. WARNING: Custom configurations will be lost!" Header="Reset for Consoles">
+                        <controls:SettingsCardContent.Icon>
+                            <FontIcon Glyph="&#xE777;" />
+                        </controls:SettingsCardContent.Icon>
+                        <Button Content="Reset now" Click="ResetConsoles_Click"/>
                     </controls:SettingsCardContent>
                 </Grid>
             </StackPanel>

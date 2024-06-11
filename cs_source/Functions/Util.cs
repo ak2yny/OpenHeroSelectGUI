@@ -79,7 +79,7 @@ namespace OpenHeroSelectGUI.Functions
             if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
             try
             {
-                ProcessStartInfo Game = new(OHSpath.StartExe(), CfgSt.GUI.Game == "xml2" ? CfgSt.GUI.Xml2Arguments : CfgSt.GUI.ExeArguments);
+                ProcessStartInfo Game = new(OHSpath.StartExe(), CfgSt.GUI.ExeArguments);
                 _ = Process.Start(Game);
             }
             catch { } // Fail silently
@@ -152,19 +152,36 @@ namespace OpenHeroSelectGUI.Functions
                 try
                 {
                     byte[] Bytes = File.ReadAllBytes(FilePath);
-                    // apparently, you should use UTF32, because otherwise some string characters might span over multiple bytes
-                    int Pos = Encoding.UTF8.GetString(Bytes, 0, Bytes.Length).IndexOf(OldValue);
+                    byte[] ByteVal = Encoding.ASCII.GetBytes(OldValue);
+                    long Pos = Bytes.AsSpan().IndexOf(ByteVal);
                     if (Pos > -1)
                     {
-                        Bytes = Encoding.ASCII.GetBytes(OldValue);
                         byte[] New = Encoding.ASCII.GetBytes(NewValue);
-                        for (int i = 0; i < Bytes.Length; i++) { Bytes[i] = i < New.Length ? New[i] : new byte(); }
-                        return HexEdit(Pos, Bytes, FilePath);
+                        for (int i = 0; i < ByteVal.Length; i++) { ByteVal[i] = i < New.Length ? New[i] : new byte(); }
+                        return HexEdit(Pos, ByteVal, FilePath);
                     }
                 }
                 catch { return false; }
             }
             return false;
+        }
+    }
+    /// <summary>
+    /// Object extension class.
+    /// </summary>
+    public static class GUIObject
+    {
+        /// <summary>
+        /// Copy properties from a defined <paramref name="fromObj"/> to another defined <paramref name="toObj"/>. Additionally, type must match. If any rule isn't followed, this will perform a crash.
+        /// </summary>
+        public static void Copy(object fromObj, object toObj)
+        {
+            if (fromObj.Equals(toObj) || fromObj is null) { return; }
+            foreach (System.Reflection.PropertyInfo P in fromObj.GetType().GetProperties())
+            {
+                object? o = P.GetValue(fromObj);
+                P.SetValue(toObj, o);
+            }
         }
     }
 }

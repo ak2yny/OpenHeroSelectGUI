@@ -153,11 +153,16 @@ namespace OpenHeroSelectGUI.Functions
             for (int i = 0; i < Herostat.Length; i++)
             {
                 string Line = Herostat[i].Trim();
-                if (Depth > 1 || (Depth == 1 && Line != ""))
+                if (Depth < 1
+                    && Line.Length > 0
+                    && Line[^1] == '{'
+                    && Line.TrimStart('"').StartsWith("stats", StringComparison.OrdinalIgnoreCase))
+                { Depth++; }
+                if (Depth > 1 || (Depth == 1 && Line.Length > 0 && Line[^1] is '{' or '}'))
                 {
                     SplitStat.Add(Herostat[i]);
                 }
-                if (!string.IsNullOrEmpty(Line))
+                if (Line.Length > 0)
                 {
                     if (Line[0] == '{' || Line[^1] == '{') Depth++;
                     if (Line[0] == '}' || Line.TrimEnd(',')[^1] == '}') Depth--;
@@ -186,9 +191,9 @@ namespace OpenHeroSelectGUI.Functions
         /// </summary>
         public static void WriteCfgFiles(List<string> MlL, List<string> CnL)
         {
-            File.WriteAllLines(Path.Combine(OHSpath.CD, CfgSt.GUI.Game, "rosters", $"Roster-{DateTime.Now:yyMMdd-HHmmss}.cfg"), CnL);
-            if (CfgSt.GUI.Game == "xml2") { return; }
-            File.WriteAllLines(Path.Combine(OHSpath.CD, CfgSt.GUI.Game, "menulocations", $"Menulocations-{DateTime.Now:yyMMdd-HHmmss}.cfg"), MlL);
+            File.WriteAllLines(Path.Combine(OHSpath.CD, OHSpath.Game, "rosters", $"Roster-{DateTime.Now:yyMMdd-HHmmss}.cfg"), CnL);
+            if (CfgSt.GUI.Game == "XML2") { return; }
+            File.WriteAllLines(Path.Combine(OHSpath.CD, OHSpath.Game, "menulocations", $"Menulocations-{DateTime.Now:yyMMdd-HHmmss}.cfg"), MlL);
         }
     }
 }

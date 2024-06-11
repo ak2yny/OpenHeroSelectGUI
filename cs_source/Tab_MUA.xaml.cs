@@ -1,7 +1,9 @@
+using Microsoft.UI;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System;
@@ -9,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Xml;
 using Windows.ApplicationModel.DataTransfer;
+using Windows.UI;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 
 namespace OpenHeroSelectGUI
@@ -24,7 +27,6 @@ namespace OpenHeroSelectGUI
         public Tab_MUA()
         {
             InitializeComponent();
-            if (Cfg.MUA.ExeName == "") { Cfg.MUA.ExeName = OHSpath.DefaultExe; }
 
             LoadLayout();
             _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
@@ -41,6 +43,11 @@ namespace OpenHeroSelectGUI
                 _ = fs.Read(bytes, 0, bytes.Length);
                 fs.Close();
                 USDnum.Text = System.Text.Encoding.Default.GetString(bytes);
+            }
+            if (Cfg.GUI.StageInfoTransparency)
+            {
+                LayoutDetails.Foreground = StageDetails.Foreground = new SolidColorBrush(Colors.WhiteSmoke);
+                StageInfo.Background = new SolidColorBrush(Color.FromArgb(200, 40, 40, 40));
             }
         }
         /// <summary>
@@ -126,23 +133,6 @@ namespace OpenHeroSelectGUI
                 LocBox.IsChecked = Cfg.Roster.Selected.Any(c => c.Loc == LocBox.Content.ToString());
             }
         }
-        /// <summary>
-        /// If RH option is on, checks for the roster hack in the game folder and updates the RH message.
-        /// </summary>
-        private void UpdateRH()
-        {
-            if (RosterHackToggle.IsOn)
-            {
-                string dinput = Path.Combine(OHSpath.GamePath, "dinput8.dll");
-                if (File.Exists(dinput)) { try { dinput = File.ReadAllText(dinput); } catch { dinput = ""; } }
-                RHInfo.Message = $"Roster hack (RH) not detected in '{OHSpath.GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. MO2 users can browse for the actual game .exe, to keep this message from opening in the future. The RH fixes a crash when using more than 27 characters.";
-                RHInfo.IsOpen = !Directory.Exists(Path.Combine(OHSpath.GamePath, "plugins")) || !dinput.Contains("asi-loader");
-            }
-            else
-            {
-                RHInfo.IsOpen = false;
-            }
-        }
         // Control handlers:
         private void BtnRunGame_Click(object sender, RoutedEventArgs e) => Util.RunGame();
 
@@ -152,13 +142,6 @@ namespace OpenHeroSelectGUI
             {
                 c.Unlock = true;
             }
-        }
-        /// <summary>
-        /// Roster Hack switch: A message warns us about potentially missing roster hack files.
-        /// </summary>
-        private void RosterHack_Toggled(object sender, RoutedEventArgs e)
-        {
-            UpdateRH();
         }
         /// <summary>
         /// Re-load stage info from configuration files and images.
@@ -238,7 +221,10 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SelectedCharacters_DragEnter(object sender, DragEventArgs e)
         {
-            SelectedCharactersDropArea.Visibility = Visibility.Visible;
+            if (e.DataView.Properties["Character"] is not null)
+            {
+                SelectedCharactersDropArea.Visibility = Visibility.Visible;
+            }
         }
         /// <summary>
         /// Hide the drop area when pointer is not on it
@@ -303,14 +289,6 @@ namespace OpenHeroSelectGUI
         /// Invoked when the text of a hidden text box changes, which happens on UpdateClash events, due to binding.
         /// </summary>
         private void ClashesUpdated(object sender, TextChangedEventArgs e) => UpdateLocBoxes();
-        /// <summary>
-        /// Browse for the game folder with the roster hack, if using MO2.
-        /// </summary>
-        private async void BrowseRH_Click(object sender, RoutedEventArgs e)
-        {
-            Cfg.GUI.ActualGameExe = await CfgCmd.LoadDialogue(".exe") ?? "";
-            UpdateRH();
-        }
 
         private void USD_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {

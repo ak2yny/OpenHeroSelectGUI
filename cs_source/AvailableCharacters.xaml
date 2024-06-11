@@ -25,8 +25,8 @@
         </Grid.RowDefinitions>
         <Canvas x:Name="AvailableCharactersDropArea" Grid.RowSpan="3" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" Visibility="Collapsed"/>
         <StackPanel Margin="40 5 0 0" Orientation="Horizontal">
-            <ToggleButton x:Name="AvailChars" Content="Characters" Click="Avail_Click"/>
-            <ToggleButton x:Name="AvailRstrs" Content="Rosters" Click="Avail_Click"/>
+            <ToggleButton x:Name="AvailChars" Content="Characters" Click="Avail_Click" FontWeight="Bold"/>
+            <ToggleButton x:Name="AvailRstrs" Content="Rosters" Click="Avail_Click" FontWeight="Bold"/>
         </StackPanel>
         <StackPanel Grid.Row="1" Margin="40 0 0 0" Orientation="Horizontal" Spacing="3">
             <AutoSuggestBox x:Name="TVsearch" MinWidth="100" MaxWidth="280" PlaceholderText="Search" QueryIcon="Find" TextChanged="TVsearch_QuerySubmitted"/>

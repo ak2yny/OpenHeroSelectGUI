@@ -261,7 +261,7 @@ namespace OpenHeroSelectGUI.Functions
         /// </summary>
         private static void UpdateTeams()
         {
-            CfgSt.Roster.Teams = CfgSt.GUI.Game == "xml2" ? CfgSt.Roster.TeamsXML2 : CfgSt.Roster.TeamsMUA;
+            CfgSt.Roster.Teams = CfgSt.GUI.Game == "XML2" ? CfgSt.Roster.TeamsXML2 : CfgSt.Roster.TeamsMUA;
         }
         /// <summary>
         /// Load the team_bonus file as XML and deserialize it to the Teams <see cref="ObservableCollection{T}"/> for binding (adds <paramref name="DeleteCommand"/> to entries)
@@ -289,7 +289,7 @@ namespace OpenHeroSelectGUI.Functions
                             : XAC.GetNamedItem("descname1")!.Value;
                         Team.Sound = XAC.GetNamedItem("sound")!.Value;
                         Team.Descbonus = XAC.GetNamedItem("descbonus")!.Value!.Replace("%%", "%");
-                        Team.Skinset = CfgSt.GUI.Game == "xml2" && XAC.GetNamedItem("skinset") is XmlAttribute SS ? SS.Value : "";
+                        Team.Skinset = CfgSt.GUI.Game == "XML2" && XAC.GetNamedItem("skinset") is XmlAttribute SS ? SS.Value : "";
                         for (int m = 0; m < XM.Count; m++)
                         {
                             if (XM[m]!.Attributes is XmlAttributeCollection XMA && XMA.GetNamedItem("name") is XmlAttribute M)
@@ -311,7 +311,7 @@ namespace OpenHeroSelectGUI.Functions
             {
                 XmlDocument Bonuses = new();
                 Bonuses.LoadXml("<bonuses></bonuses>");
-                Dictionary<string, string> PU = CfgSt.GUI.Game == "xml2" ? InternalSettings.TeamPowerupsXML2 : InternalSettings.TeamPowerups;
+                Dictionary<string, string> PU = CfgSt.GUI.Game == "XML2" ? InternalSettings.TeamPowerupsXML2 : InternalSettings.TeamPowerups;
                 for (int i = 0; i < CfgSt.Roster.Teams.Count; i++)
                 {
                     if (CfgSt.Roster.Teams[i] is TeamBonus TB
