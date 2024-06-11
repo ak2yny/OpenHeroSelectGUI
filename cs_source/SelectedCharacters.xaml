@@ -50,7 +50,7 @@
                                Style="{ThemeResource BodyTextBlockStyle}"
                                TextWrapping="Wrap"
                                Margin="12 0 8 6"
-                               MaxWidth="250">
+                               MaxWidth="240">
                           <Run Text="{x:Bind Path, Mode=OneWay}"/>
                           <Run Text="&#1632;"/>
                           <Run Text="{x:Bind Character_Number, Mode=OneWay}"/>
