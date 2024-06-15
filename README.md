@@ -122,6 +122,8 @@
 
 ## Changelog
 
+ |15.06.2024|1.1.1: Fixed minor bugs
+
  |10.06.2024|1.1.0: Improved UI Thanks to BaconWizard17
 
  |02.06.2024|1.0.8: Fixed bugs

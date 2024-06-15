@@ -69,7 +69,7 @@ namespace OpenHeroSelectGUI
         private void UpdateRH()
         {
             RHInfo.IsOpen = false;
-            if (Cfg.MUA.RosterHack && Cfg.GUI.Game != "XML2")
+            if (RosterHackToggle.IsOn && Cfg.GUI.Game != "XML2")
             {
                 string GamePath = Path.GetDirectoryName(OHSpath.MUAexe) ?? Cfg.OHS.GameInstallPath;
                 string dinput = Path.Combine(GamePath, "dinput8.dll");

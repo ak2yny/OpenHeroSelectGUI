@@ -17,7 +17,7 @@
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
     <Description>Graphical User Interface for Open Hero Select</Description>
-    <VersionPrefix>1.1.0</VersionPrefix>
+    <VersionPrefix>1.1.1</VersionPrefix>
     <Version>$(VersionPrefix)</Version>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>

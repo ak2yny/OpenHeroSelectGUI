@@ -296,8 +296,8 @@ namespace OpenHeroSelectGUI.Settings
                 XmlSerializer XS = new(typeof(GUIsettings));
                 using FileStream fs = new(Gini, FileMode.Open, FileAccess.Read);
                 if (XS.Deserialize(fs) is GUIsettings CfgGUI) { CfgSt.GUI = CfgGUI; }
-                if (CfgSt.GUI.Game == "") { CfgSt.GUI.Game = "MUA"; }
             }
+            if (CfgSt.GUI.Game == "") { CfgSt.GUI.Game = "MUA"; }
         }
         /// <summary>
         /// Load OHS JSON data by providing a path (<paramref name="Oini"/>) &amp; load the roster according to its settings. This assumes that the file is for the currently active game tab.
