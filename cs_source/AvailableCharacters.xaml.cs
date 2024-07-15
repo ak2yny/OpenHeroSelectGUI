@@ -111,7 +111,7 @@ namespace OpenHeroSelectGUI
                 {
                     case > 1:
                         Parent.Children.Insert(
-                            Math.Max(Parent.Children.IndexOf(Parent.Children.First(n => !n.HasChildren)), 0), child);
+                            Math.Max(Parent.Children.IndexOf(Parent.Children.FirstOrDefault(n => !n.HasChildren)), 0), child);
                         break;
                     default:
                         Parent.Children.Add(child);

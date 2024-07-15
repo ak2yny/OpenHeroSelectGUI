@@ -130,20 +130,20 @@ namespace OpenHeroSelectGUI.Functions
                 OldPath;
         }
         /// <summary>
+        /// Get mod folders.
+        /// </summary>
+        /// <returns>Array with matching folders as <see cref="DirectoryInfo"/> or empty array.</returns>
+        public static DirectoryInfo[] ModFolders => Directory.Exists(CfgSt.OHS.GameInstallPath)
+                && Directory.GetParent(CfgSt.OHS.GameInstallPath) is DirectoryInfo MO2
+                && (MO2.Name == "mods" || CfgSt.GUI.IsMo2)
+                ? MO2.EnumerateDirectories().ToArray()
+                : (DirectoryInfo[])([]);
+        /// <summary>
         /// Get folders with a package folder from the game folder and MO2 mod folders, according to the settings.
         /// </summary>
         /// <returns>Array with matching folder paths as strings or empty array</returns>
-        public static string[] GetFoldersWpkg()
-        {
-            string[] PkgSourceFolders = [CfgSt.OHS.GameInstallPath, GamePath];
-            if (Directory.Exists(CfgSt.OHS.GameInstallPath)
-                && Directory.GetParent(CfgSt.OHS.GameInstallPath) is DirectoryInfo MO2
-                && MO2.Name == "mods")
-            {
-                PkgSourceFolders = [.. PkgSourceFolders, .. MO2.EnumerateDirectories().Select(d => d.FullName)];
-            }
-            return PkgSourceFolders.Where(f => Directory.Exists(Packages(f))).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
-        }
+        public static string[] FoldersWpkg => ((string[])([CfgSt.OHS.GameInstallPath, GamePath, .. ModFolders.Select(d => d.FullName)]))
+            .Where(f => Directory.Exists(Packages(f))).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
         /// <summary>
         /// Copy from <paramref name="SourceFolder" /> (full path) to game folder (from setting) using a <paramref name="RelativePath"/> and <paramref name="Source" /> and <paramref name="Target" /> filenames to rename simultaneously.
         /// </summary>
@@ -179,7 +179,7 @@ namespace OpenHeroSelectGUI.Functions
             if (Path.IsPathFullyQualified(CfgSt.OHS.GameInstallPath) // The settings currently allow relative paths containing a "data" folder. This is not consistent
                 && SourceFile.Exists)
             {
-                try { File.Copy(SourceFile.FullName, Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, RelativePath)).FullName, Target), true); }
+                try { _ = SourceFile.CopyTo(Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, RelativePath)).FullName, Target), true); }
                 catch { }
             }
         }

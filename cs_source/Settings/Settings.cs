@@ -96,6 +96,8 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         private string game;
         [ObservableProperty]
+        private bool isMo2;
+        [ObservableProperty]
         private bool availChars;
         [ObservableProperty]
         [property: XmlIgnore]
@@ -115,6 +117,9 @@ namespace OpenHeroSelectGUI.Settings
         [ObservableProperty]
         [property: XmlIgnore]
         private string teamBonusName;
+        [ObservableProperty]
+        [property: XmlIgnore]
+        private string skinModName;
         // MUA specific settings
         public string MuaInstallPath;
         public string MuaArguments;
@@ -122,6 +127,7 @@ namespace OpenHeroSelectGUI.Settings
         public bool MuaShowClashes;
         public bool MuaModPack;
         public string MuaTeamBonusName;
+        public string MuaSkinModName;
         [ObservableProperty]
         private string actualGameExe;
         [ObservableProperty]
@@ -154,6 +160,7 @@ namespace OpenHeroSelectGUI.Settings
         public bool Xml2ShowClashes;
         public bool Xml2ModPack;
         public string Xml2TeamBonusName;
+        public string Xml2SkinModName;
         [ObservableProperty]
         private bool skinDetailsVisible;
         [ObservableProperty]
@@ -165,7 +172,7 @@ namespace OpenHeroSelectGUI.Settings
             gitHub = "https://github.com/ak2yny/OpenHeroSelectGUI";
             // Note: XML2 seems to have an issue when the settings.dat is removed.
             MuaFreeSaves = hidableEffectsOnly = copyStage = availChars = isNotConsole = true;
-            game = home = gameInstallPath = actualGameExe = exeArguments = teamBonusName = MuaInstallPath = MuaArguments = MuaTeamBonusName = Xml2InstallPath = Xml2Arguments = Xml2TeamBonusName = "";
+            game = home = gameInstallPath = actualGameExe = exeArguments = teamBonusName = skinModName = MuaInstallPath = MuaArguments = MuaTeamBonusName = Xml2InstallPath = Xml2Arguments = Xml2TeamBonusName = Xml2SkinModName = MuaSkinModName = "";
             layout = "25 Default PC 2006";
             model = "Default";
             thumbnailWidth = 224;
@@ -181,12 +188,14 @@ namespace OpenHeroSelectGUI.Settings
             ShowClashes = value == "XML2" ? Xml2ShowClashes : MuaShowClashes;
             ModPack = value == "XML2" ? Xml2ModPack : MuaModPack;
             TeamBonusName = (value == "XML2" ? Xml2TeamBonusName : MuaTeamBonusName) is string TB && TB.Length > 0 ? TB : "team_bonus";
+            SkinModName = (value == "XML2" ? Xml2SkinModName : MuaSkinModName) ?? "";
             CfgSt.Var.IsMua = !(CfgSt.Var.IsXml2 = value == "XML2");
         }
 
         partial void OnTeamBonusNameChanged(string value) => SetGameSpecific(value, "TeamBonusName");
         partial void OnGameInstallPathChanged(string value) => SetGameSpecific(value, "InstallPath");
         partial void OnExeArgumentsChanged(string value) => SetGameSpecific(value, "Arguments");
+        partial void OnSkinModNameChanged(string value) => SetGameSpecific(value, "SkinModName");
         partial void OnFreeSavesChanged(bool value) => SetGameSpecific(value, "FreeSaves");
         partial void OnShowClashesChanged(bool value) => SetGameSpecific(value, "ShowClashes");
         partial void OnModPackChanged(bool value) => SetGameSpecific(value, "ModPack");

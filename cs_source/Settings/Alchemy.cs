@@ -62,8 +62,6 @@ namespace OpenHeroSelectGUI.Settings
             return AlchemyCompat >= 8
                 && Optimizer is not null
                 && SourceIGB.Exists
-                && Path.GetDirectoryName(TargetIGB) is string TD
-                && TD != string.Empty
                 && Opt.Skins(Name, AlchemyCompat, ConvGeo, HexEdit, igSkin)
                 && Util.RunExeInCmd(Optimizer, $"\"{SourceIGB}\" \"{TargetIGB}\" \"{INI}\"");
         }

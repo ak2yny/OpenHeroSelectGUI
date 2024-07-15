@@ -10,13 +10,13 @@
 * [Credits](#credits)
 * [Requirements](#requirements)
 * [Features](#features)
+* [Planned Features](#planned-features)
 * [Usage Instructions](#usage-instructions-v-010)
   * [How can I add more characters?](#how-can-i-add-more-characters)
   * [How can I change the path to MUA/XML2/MO2?](#how-can-i-change-the-path-to-muaxml2mo2)
   * [What are Save Slots?](#what-are-save-slots)
 * [Coding Instructions](#coding-instructions)
 * [Build Instructions](#build-instructions)
-* [Planned Features](#planned-features)
 * [Changelog](#changelog)
 <br/><br/>
 
@@ -51,7 +51,8 @@
 <br/><br/>
 
 ## Requirements
-- [OpenHeroSelect](https://github.com/TheRealPSV/OpenHeroSelect) and its requirements (Windows 10+)
+- [OpenHeroSelect](https://github.com/TheRealPSV/OpenHeroSelect)
+- Windows 10+
 <br/><br/>
 
 ## Features
@@ -76,6 +77,16 @@
 - Notifies character number clashes and provides a button to fix
 - Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours
 - Information bars with success and fail messages
+<br/><br/>
+
+## Planned Features
+
+#### Original Plans by adamatti
+- Change items based on the roster (by modifying `data/items.engb`)
+- (Make a tutorial and/or presentation video)
+
+#### Updated Plans by ak2yny
+- [Planned Features #14](https://github.com/user/repo/issues/14)
 <br/><br/>
 
 ## Usage Instructions
@@ -110,17 +121,9 @@
 - Theoretically, the project can be made cross platform through [.Net MAUI](https://dotnet.microsoft.com/en-us/apps/maui) or other platforms, like [UNO](https://platform.uno/), but OHS is currently Windows 10+ exclusive.
 <br/><br/>
 
-## Planned Features
-
-#### Original Plans by adamatti
-- Change items based on the roster (by modifying `data/items.engb`)
-- (Make a tutorial and/or presentation video)
-
-#### Updated Plans by ak2yny
-- [Planned Features #14](https://github.com/user/repo/issues/14)
-<br/><br/>
-
 ## Changelog
+
+ |15.07.2024|1.1.2: Skin Installation Target Selector (+ bug fix)
 
  |15.06.2024|1.1.1: Fixed minor bugs
 

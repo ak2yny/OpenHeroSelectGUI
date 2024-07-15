@@ -77,7 +77,7 @@ namespace OpenHeroSelectGUI
                 RHInfo.Message = $"Roster hack (RH) not detected in '{GamePath}'. This message can be ignored, if the RH's installed in the actual game folder or if detection failed for another reason. MO2 users can browse for the actual game .exe path below, to keep this message from opening in the future. The RH fixes a crash when using more than 27 characters.";
                 RHExpander.IsExpanded = RHInfo.IsOpen = !Directory.Exists(Path.Combine(GamePath, "plugins")) || !dinput.Contains("asi-loader");
             }
-            Cfg.Var.IsMo2 = Cfg.GUI.ActualGameExe != "" || InternalSettings.KnownModOrganizerExes.Contains(Cfg.OHS.ExeName, StringComparer.OrdinalIgnoreCase);
+            Cfg.GUI.IsMo2 = Cfg.GUI.ActualGameExe != "" || InternalSettings.KnownModOrganizerExes.Contains(Cfg.OHS.ExeName, StringComparer.OrdinalIgnoreCase);
         }
         /// <summary>
         /// Trim a <see cref="string"/> (<paramref name="Trim"/>) from the end of another <see cref="string"/> (<paramref name="inputText"/>), if found. By Shane Yu @ StackOverflow
@@ -268,7 +268,7 @@ namespace OpenHeroSelectGUI
         private void ResetMO2_Click(object sender, RoutedEventArgs e)
         {
             ResetSettings();
-            CfgSt.Var.IsMo2 = Cfg.Var.IsMo2 = true;
+            CfgSt.GUI.IsMo2 = Cfg.GUI.IsMo2 = true;
             MO2Browse();
         }
 
@@ -293,7 +293,7 @@ namespace OpenHeroSelectGUI
             GUIObject.Copy(new GUIsettings() { Game = MUA ? "MUA" : "XML2", Home = Home, AvailChars = AC }, Cfg.GUI);
             if (MUA) { GUIObject.Copy(new MUAsettings(), Cfg.MUA); }
             else { GUIObject.Copy(new XML2settings(), Cfg.XML2); }
-            CfgSt.Var.IsMo2 = false;
+            CfgSt.GUI.IsMo2 = Cfg.GUI.IsMo2 = false;
             PrepareSettings();
         }
     }

@@ -99,7 +99,7 @@
                 <Run Text="Skin Details"/>
             </TextBlock>
             <TextBlock x:Name="CharacterPath" Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}"/>
-            <!--I added this invisible box to run the command when the FloatingCharacter changes. Didn't find another way-->
+            <!--I added this invisible box to run the command when the FloatingCharacter changes. Didn't find another way. This could all be moved to Functions and settings instead, using property changed, but how would we handle the DeleteCommand?-->
             <TextBox Height="0" MinHeight="0" IsReadOnly="True" Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}" TextChanged="FloatingCharacter_Changed"/>
         </StackPanel>
         <ScrollViewer Grid.Row="1" Margin="10 0">
@@ -135,8 +135,8 @@
             <TextBlock x:Name="SelectedSkinNumber"/>
         </StackPanel>
         <ScrollViewer x:Name="SkinInstaller" Grid.Column="1" Grid.Row="1" Margin="10 0" VerticalScrollBarVisibility="Auto">
-            <StackPanel>
-                <ComboBox x:Name="MUAplatforms" Header="Select the target platform:" Visibility="{x:Bind Cfg.Var.IsMua}">
+            <StackPanel Spacing="5">
+                <ComboBox x:Name="MUAplatforms" Header="Select the target platform:" MinWidth="200" Visibility="{x:Bind Cfg.Var.IsMua}">
                     <ComboBoxItem Content="PC 2006"/>
                     <ComboBoxItem Content="PS2"/>
                     <ComboBoxItem Content="PS3"/>
@@ -147,22 +147,23 @@
                     <ComboBoxItem Content="Xbox 360"/>
                     <ComboBoxItem Content="Xbox One, Steam"/>
                 </ComboBox>
-                <ComboBox x:Name="XML2platforms" Header="Select the target platform:" Visibility="{x:Bind Cfg.Var.IsXml2}">
+                <ComboBox x:Name="XML2platforms" Header="Select the target platform:" MinWidth="200" Visibility="{x:Bind Cfg.Var.IsXml2}">
                     <ComboBoxItem Content="PC"/>
                     <ComboBoxItem Content="Gamecube"/>
                     <ComboBoxItem Content="PS2"/>
                     <ComboBoxItem Content="PSP"/>
                     <ComboBoxItem Content="Xbox"/>
                 </ComboBox>
-                <TextBlock x:Name="InstallSkins" Margin="0 5 0 0"/>
+                <ComboBox x:Name="TargetPath" Header="Select the target folder or mod:" MinWidth="200"/>
+                <TextBlock x:Name="InstallSkins"/>
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <Button Content="Skin ..." Click="InstallSkins_Click" ToolTipService.ToolTip="Browse for skin"/>
                     <Button x:Name="HudHeadBrowse" Content="HUD ..." Click="InstallHuds_Click" ToolTipService.ToolTip="Browse for HUD head"/>
                     <Button x:Name="Head3D_Browse" Content="3d Head ..." Click="Install3DHead_Click" ToolTipService.ToolTip="Browse for 3D head" Visibility="{x:Bind Cfg.Var.IsXml2}"/>
                 </StackPanel>
-                <TextBlock x:Name="InstallMannequin" Margin="0 5 0 0"/>
+                <TextBlock x:Name="InstallMannequin"/>
                 <Button Content="Browse ..." Click="InstallMannequin_Click" ToolTipService.ToolTip="Browse for mannequin / CSP"/>
-                <TextBlock x:Name="InstallExtraSkin" Text="Install swap skin:" Margin="0 5 0 0"/>
+                <TextBlock x:Name="InstallExtraSkin" Text="Install swap skin:"/>
                 <StackPanel Orientation="Horizontal" Spacing="5">
                     <Button Click="InstallEmmaSkin_Click" Padding="7 5">
                         <ImageIcon Source="/Assets/emmafrost.png"/>

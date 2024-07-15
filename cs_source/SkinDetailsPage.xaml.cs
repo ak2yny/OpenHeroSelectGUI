@@ -32,6 +32,9 @@ namespace OpenHeroSelectGUI
             InitializeComponent();
             if (Cfg.GUI.Game == "XML2" && Cfg.GUI.SkinsDragEnabled) { Skins.CanDragItems = true; }
             Skins.AllowDrop = Skins.CanReorderItems = Cfg.GUI.Game != "XML2" || Cfg.GUI.SkinsDragEnabled;
+            string[] TargetPaths = OHSpath.ModFolders.Select(d => d.Name).ToArray();
+            TargetPath.ItemsSource = TargetPaths.Length == 0 ? [Cfg.OHS.GameInstallPath] : TargetPaths;
+            TargetPath.SelectedIndex = Array.IndexOf(TargetPaths, Cfg.GUI.SkinModName == "" ? new DirectoryInfo(Cfg.OHS.GameInstallPath).Name : Cfg.GUI.SkinModName) is int i && i > 0 ? i : 0;
             LoadSkinList();
             // Note: Skins are always loaded from file when navigated (except if nothing selected) - intended, to read external changes
         }
@@ -247,6 +250,20 @@ namespace OpenHeroSelectGUI
             AddButton.Visibility = Visibility.Collapsed;
         }
         /// <summary>
+        /// Combine <see cref="Cfg.OHS.GameInstallPath"/> + <see cref="TargetPath"/> info with <paramref name="GamePath"/> and <paramref name="Name"/> and create the necessary folders.
+        /// </summary>
+        /// <returns>The combined target path (.igb file) or <see cref="null"/> if no <see cref="TargetPath"/>'s selected.</returns>
+        private string? TargetIgb(string GamePath, string Name)
+        {
+            return TargetPath.SelectedItem.ToString() is string TP
+                ? Path.Combine(
+                    Directory.CreateDirectory(Path.Combine(TP != Cfg.OHS.GameInstallPath
+                        && new DirectoryInfo(Cfg.OHS.GameInstallPath).Parent?.GetDirectories(TP) is DirectoryInfo[] TPF
+                        && TPF.Length > 0 ? TPF[0].FullName : TP, GamePath)).FullName,
+                    $"{Name}.igb")
+                : null;
+        }
+        /// <summary>
         /// Calculate the mannequin number, based on the first skin.
         /// </summary>
         /// <returns>Number as <see cref="string"/> of the first skin if XML2 and bigger than 10, otherwise "01".</returns>
@@ -257,10 +274,9 @@ namespace OpenHeroSelectGUI
         private void CheckPackages()
         {
             bool AllFound = true;
-            string[] PkgSourceFolders = OHSpath.GetFoldersWpkg();
             for (int i = 0; i < Cfg.Roster.SkinsList.Count; i++)
             {
-                AllFound = MarvelModsXML.ClonePackage(PkgSourceFolders, Cfg.Roster.SkinsList[i], InternalName) && AllFound;
+                AllFound = MarvelModsXML.ClonePackage(OHSpath.FoldersWpkg, Cfg.Roster.SkinsList[i], InternalName) && AllFound;
             }
             Cfg.Var.SE_Msg_WarnPkg = !AllFound;
         }
@@ -381,11 +397,10 @@ namespace OpenHeroSelectGUI
                 SkinInfo.Visibility = Visibility.Visible;
             }
             FileInfo SIGB = new(SourceIGB);
-            if (SIGB.Exists)
+            if (SIGB.Exists && TargetIgb(GamePath, Name) is string IGB)
             {
                 bool ConvGeo = Plat is 2 or 3 or 4 or 7 or 8 && GeometryFormats.Text.Contains("1_5");
                 bool HexEdit = !(string.IsNullOrWhiteSpace(igSkin) || igSkin == Name || igSkin.StartsWith("Bip01") || GamePath.StartsWith("hud") || GamePath.StartsWith("ui"));
-                string IGB = Path.Combine(Directory.CreateDirectory(Path.Combine(Cfg.OHS.GameInstallPath, GamePath)).FullName, $"{Name}.igb");
                 Cfg.Var.SE_Msg_Info = new MessageItem { Message = $"Replaced '{IGB}'.", IsOpen = File.Exists(IGB) };
 
                 bool optimized = (ConvGeo || HexEdit || !GamePath.StartsWith("ui"))
@@ -410,6 +425,7 @@ namespace OpenHeroSelectGUI
                     IsOpen = new[] { AlchemyVersion, FileSize, GeometryFormats, TextureFormats, igSkinName }.Any(t => t.Foreground == Red)
                 };
                 ShowSuccess($"Skin installed to '{IGB}'.");
+                Cfg.GUI.SkinModName = TargetPath.SelectedItem.ToString() ?? "";
             }
             else if (!string.IsNullOrWhiteSpace(SourceIGB)) { ShowError($"'{SourceIGB}' not found."); }
         }
@@ -586,14 +602,14 @@ namespace OpenHeroSelectGUI
                 FileInfo HUD = new(Path.Combine(IGBpath, $"hud_head_{IGBbase}.igb"));
                 FileInfo H3D = new(Path.Combine(IGBpath, $"{IGBbase} (3D Head).igb"));
                 // Note: heads are not not optimized. They may not work, if the compatibility is not given. Hex-editing is not necessary.
-                if (HUD.Exists)
+                if (HUD.Exists && TargetIgb("hud", $"hud_head_{Skin.CharNum}{Skin.Number}.igb") is string HUDT)
                 {
-                    OHSpath.CopyToGame(HUD, "hud", $"hud_head_{Skin.CharNum}{Skin.Number}.igb");
+                    _ = HUD.CopyTo(HUDT, true);
                     HudHeadBrowse.Visibility = Visibility.Collapsed;
                 }
-                if (Cfg.GUI.Game == "XML2" && H3D.Exists)
+                if (Cfg.GUI.Game == "XML2" && H3D.Exists && TargetIgb(Path.Combine("ui", "hud", "characters"), $"{Skin.CharNum}{Skin.Number}.igb") is string H3DT)
                 {
-                    OHSpath.CopyToGame(H3D, Path.Combine("ui", "hud", "characters"), $"{Skin.CharNum}{Skin.Number}.igb");
+                    _ = H3D.CopyTo(H3DT, true);
                     Head3D_Browse.Visibility = Visibility.Collapsed;
                 }
             }

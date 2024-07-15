@@ -160,7 +160,7 @@
                             </controls:SettingsCardContent>
                         </Expander.Header>
                         <Grid Style="{StaticResource SettingsCard}" BorderBrush="Transparent" Padding="16 0 60 0">
-                            <controls:SettingsCardContent x:Name="ActualGameExe" Description="Path to the actual game .exe that's used by MO2 to start the game" Header="Game Exe Path" IsEnabled="{x:Bind Cfg.Var.IsMo2, Mode=OneWay}">
+                            <controls:SettingsCardContent x:Name="ActualGameExe" Description="Path to the actual game .exe that's used by MO2 to start the game" Header="Game Exe Path" IsEnabled="{x:Bind Cfg.GUI.IsMo2, Mode=OneWay}">
                                 <Grid VerticalAlignment="Center">
                                     <TextBox Text="{x:Bind Cfg.GUI.ActualGameExe, Mode=OneWay}" IsReadOnly="True" Margin="0 0 40 0" MinWidth="200"/>
                                     <Button Content="..." FontWeight="Bold" Click="BrowseRH_Click" HorizontalAlignment="Right" VerticalAlignment="Bottom" ToolTipService.ToolTip="Browse"/>
