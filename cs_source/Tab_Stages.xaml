@@ -50,6 +50,11 @@
                     Height="35">
                 <SymbolIcon>Accept</SymbolIcon>
             </Button>
+            <Button x:Name="BtnCancel" x:Uid="Stage_Cancel"
+                    Click="Stage_Cancel"
+                    Height="35">
+                <SymbolIcon>Cancel</SymbolIcon>
+            </Button>
         </StackPanel>
         <ListView x:Name="StageLayouts" Grid.Row="1"
                   HorizontalAlignment="Left"

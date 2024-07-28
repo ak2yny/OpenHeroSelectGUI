@@ -92,6 +92,12 @@ namespace OpenHeroSelectGUI
 
         private void Stage_Confirm(object sender, RoutedEventArgs e) => StageConfirmed();
 
+        private void Stage_Cancel(object sender, RoutedEventArgs e)
+        {
+            Cfg.Var.Layout = null;
+            _ = Frame.Navigate(typeof(Tab_MUA));
+        }
+
         private void AddToFavourites(object sender, RoutedEventArgs e)
         {
             if (sender is ToggleButton FB && FB.DataContext is StageModel Stage && Stage.Name is not null)

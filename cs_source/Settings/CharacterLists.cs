@@ -186,11 +186,18 @@ namespace OpenHeroSelectGUI.Settings
             {
                 Number = string.IsNullOrEmpty(Number) || Number.Any(c => !char.IsDigit(c)) ? "00" : Number.PadLeft(2, '0');
                 bool RemOther = false;
-                for (int i = 0; i < Cfg.Roster.Selected.Count; i++)
+                for (int i = 0; i < Cfg.Roster.Selected.Count;)
                 {
                     SelectedCharacter SC = Cfg.Roster.Selected[i];
                     RemOther = SC.Path == PathInfo || RemOther;
-                    if (SC.Loc == Loc || SC.Path == PathInfo) { Cfg.Roster.Selected.RemoveAt(i); }
+                    if (SC.Loc == Loc || String.Equals(SC.Path, PathInfo, StringComparison.OrdinalIgnoreCase))
+                    {
+                        Cfg.Roster.Selected.RemoveAt(i);
+                    }
+                    else
+                    {
+                        i++;
+                    }
                 }
                 Cfg.Roster.Selected.Add(new SelectedCharacter
                 {

@@ -123,6 +123,8 @@
 
 ## Changelog
 
+ |15.07.2024|1.1.3: Fixed & Updated
+
  |15.07.2024|1.1.2: Skin Installation Target Selector (+ bug fix)
 
  |15.06.2024|1.1.1: Fixed minor bugs

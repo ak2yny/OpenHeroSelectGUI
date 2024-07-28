@@ -14,10 +14,20 @@ mkdir OHSGUI_new
 
 REM Add required files and make build
 (
- echo rmdir /q /s OHSGUI
+ echo tasklist /fi "ImageName eq OpenHeroSelectGUI.exe" /fo csv 2^>nul ^| find /i "OpenHeroSelectGUI.exe"^>nul ^&^& call :KillGUI
+ echo if exist OHSGUI_new rmdir /q /s OHSGUI
  echo ren OHSGUI_new OHSGUI
  echo mklink OpenHeroSelectGUI .\OHSGUI\OpenHeroSelectGUI.exe
  echo del MkLink.bat
+ echo EXIT
+ echo.
+ echo :KillGUI
+ echo echo off
+ echo CLS
+ echo echo Waiting for the GUI to close . . .
+ echo taskkill /im OpenHeroSelectGUI.exe /f /t
+ echo timeout /t 2
+ echo EXIT /b
 ) >MkLink.bat
 
 for %%a in (

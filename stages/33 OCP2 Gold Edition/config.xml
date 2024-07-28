@@ -6,7 +6,7 @@ Instructions:
 2) Setup the information in this file.
 
 Each stage must have a menu (team_back.xmlb and mlm_team_back.igb) which is the layout.
-It's required to set-up the layout here, and recommended to define compatible models (set them up in .models/config.ini).
+It's required to set-up the layout here, and recommended to define Compatible_Models (set them up in .models/config.ini).
 You can read coordinates for the location set-up by opening mlm_team_back.igb in Finalizer. Search all igTransfroms for each location (padXX_model) and read the 4th row.
 
 *To avoid replacing any existing stages, the folder must have an unique name.
@@ -18,8 +18,8 @@ You can read coordinates for the location set-up by opening mlm_team_back.igb in
     </Information>
     <Location_Setup spacious="false">
         <Location Number="44">
-            <X>-147</X>
-            <Y>101</Y>
+            <X>-144</X>
+            <Y>98</Y>
             <Z>47</Z>
         </Location>
         <Location Number="47">
@@ -28,13 +28,13 @@ You can read coordinates for the location set-up by opening mlm_team_back.igb in
             <Z>47</Z>
         </Location>
         <Location Number="45">
-            <X>-137</X>
-            <Y>159</Y>
+            <X>-135</X>
+            <Y>158</Y>
             <Z>47</Z>
         </Location>
         <Location Number="46">
-            <X>-100</X>
-            <Y>180</Y>
+            <X>-110</X>
+            <Y>190</Y>
             <Z>47</Z>
         </Location>
         <Location Number="25">
@@ -68,8 +68,8 @@ You can read coordinates for the location set-up by opening mlm_team_back.igb in
             <Z>24</Z>
         </Location>
         <Location Number="21">
-            <X>-60</X>
-            <Y>160</Y>
+            <X>-72</X>
+            <Y>172</Y>
             <Z>24</Z>
         </Location>
         <Location Number="05">
@@ -78,8 +78,8 @@ You can read coordinates for the location set-up by opening mlm_team_back.igb in
             <Z>24</Z>
         </Location>
         <Location Number="14">
-            <X>-50</X>
-            <Y>172</Y>
+            <X>-46</X>
+            <Y>160</Y>
             <Z>24</Z>
         </Location>
         <Location Number="15">
@@ -113,8 +113,8 @@ You can read coordinates for the location set-up by opening mlm_team_back.igb in
             <Z>24</Z>
         </Location>
         <Location Number="17">
-            <X>36</X>
-            <Y>150</Y>
+            <X>32</X>
+            <Y>158</Y>
             <Z>24</Z>
         </Location>
         <Location Number="08">
@@ -183,8 +183,8 @@ You can read coordinates for the location set-up by opening mlm_team_back.igb in
             <Y>105</Y>
             <Z>47</Z>
         </Location>
-        <!--Locations that are different from the Official non-GE stage: 01, 03, 04, 21, 05, 18, 23, 17, 08, 22, 09, 19-->
-        <!--Locations that are different from the GE stage: 47, 46, 40, 42, 43-->
+        <!--Locations that are different from the Official non-GE stage: 01, 03, 04, 21, 05, 14, 18, 23, 08, 22, 09, 19-->
+        <!--Locations that are different from the GE stage: 47, 46, 45, 44, 21, 14, 17, 40, 42, 43-->
     </Location_Setup>
     <Compatible_Models>
         <Model Riser="true">Official</Model>
