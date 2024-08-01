@@ -273,10 +273,11 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void CheckPackages()
         {
+            string TargetPath = TargetIgb("", "") is string TP ? TP[..^5] : Cfg.OHS.GameInstallPath;
             bool AllFound = true;
             for (int i = 0; i < Cfg.Roster.SkinsList.Count; i++)
             {
-                AllFound = MarvelModsXML.ClonePackage(OHSpath.FoldersWpkg, Cfg.Roster.SkinsList[i], InternalName) && AllFound;
+                AllFound = MarvelModsXML.ClonePackage(OHSpath.FoldersWpkg, Cfg.Roster.SkinsList[i], InternalName, TargetPath) && AllFound;
             }
             Cfg.Var.SE_Msg_WarnPkg = !AllFound;
         }
@@ -428,6 +429,7 @@ namespace OpenHeroSelectGUI
                 Cfg.GUI.SkinModName = TargetPath.SelectedItem.ToString() ?? "";
             }
             else if (!string.IsNullOrWhiteSpace(SourceIGB)) { ShowError($"'{SourceIGB}' not found."); }
+            CheckPackages();
         }
         /// <summary>
         /// Calculate Emma Frosts Diamond Form number for <paramref name="SkinNumber"/>.

@@ -139,11 +139,11 @@ namespace OpenHeroSelectGUI.Functions
                 ? MO2.EnumerateDirectories().ToArray()
                 : (DirectoryInfo[])([]);
         /// <summary>
-        /// Get folders with a package folder from the game folder and MO2 mod folders, according to the settings.
+        /// Get folders with a package folder from the game folder and MO2 mod folders, according to the settings. Note: Distinct DirectoryInfos are case sensitive, even on Windows.
         /// </summary>
         /// <returns>Array with matching folder paths as strings or empty array</returns>
-        public static string[] FoldersWpkg => ((string[])([CfgSt.OHS.GameInstallPath, GamePath, .. ModFolders.Select(d => d.FullName)]))
-            .Where(f => Directory.Exists(Packages(f))).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        public static string[] FoldersWpkg => ((DirectoryInfo[])([new DirectoryInfo(CfgSt.OHS.GameInstallPath), new DirectoryInfo(GamePath), .. ModFolders]))
+            .Select(d => d.FullName).Distinct(StringComparer.OrdinalIgnoreCase).Where(f => Directory.Exists(Packages(f))).ToArray();
         /// <summary>
         /// Copy from <paramref name="SourceFolder" /> (full path) to game folder (from setting) using a <paramref name="RelativePath"/> and <paramref name="Source" /> and <paramref name="Target" /> filenames to rename simultaneously.
         /// </summary>

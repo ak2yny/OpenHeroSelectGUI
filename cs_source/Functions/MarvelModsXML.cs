@@ -118,13 +118,14 @@ namespace OpenHeroSelectGUI.Functions
             return null;
         }
         /// <summary>
-        /// Look for package in <paramref name="PkgSourceFolders" /> and, if none found that match <paramref name="Skin" /> and <paramref name="IntName" />, try to clone another package if one exists.
+        /// Look for package in <paramref name="PkgSourceFolders" /> and, if none found that match <paramref name="Skin" /> and <paramref name="IntName" />, try to clone another package to <paramref name="TargetPath"/> if one exists.
         /// </summary>
         /// <param name="PkgSourceFolders">Array of folders, each with a package folder to look in</param>
         /// <param name="Skin">SkinDetail</param>
         /// <param name="IntName">Internal name</param>
+        /// <param name="TargetPath">Target folder to clone package to</param>
         /// <returns><see langword="True" />, if both packages were cloned successfully or the package exists, otherwise <see langword="false" />.</returns>
-        public static bool ClonePackage(string[] PkgSourceFolders, SkinDetails Skin, string? IntName)
+        public static bool ClonePackage(string[] PkgSourceFolders, SkinDetails Skin, string? IntName, string TargetPath)
         {
             try
             {
@@ -136,7 +137,7 @@ namespace OpenHeroSelectGUI.Functions
                                .FirstOrDefault() is FileInfo PkgSrc)
                     {
                         return ClonePackage(PkgSrc.FullName,
-                        OHSpath.Packages(CfgSt.OHS.GameInstallPath, $"{IntName}_{Skin.CharNum}{Skin.Number}"),
+                        OHSpath.Packages(TargetPath, $"{IntName}_{Skin.CharNum}{Skin.Number}"),
                         Skin.CharNum, Skin.CharNum, Skin.Number);
                     }
                 }
