@@ -41,8 +41,12 @@ name: .NET Core Desktop
 on:
   push:
     branches: [ "master" ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ "master" ]
+    tags:
+      - 'v*'
 
 jobs:
 
@@ -113,21 +117,16 @@ jobs:
     # Make Release
     - name: Get latest release
       id: get_latest_release
-      run: |
-        $LATEST_RELEASE = gh release list --limit 1 --json tag_name,name,body --jq '.[0]'
-        $TAG = $LATEST_RELEASE | ConvertFrom-Json | Select-Object -ExpandProperty tag_name
-        $BODY = $LATEST_RELEASE | ConvertFrom-Json | Select-Object -ExpandProperty tag_name
-        echo "LATEST_RELEASE_TAG=$TAG" >> $GITHUB_OUTPUT
-        echo "LATEST_RELEASE_BODY=$BODY" >> $GITHUB_OUTPUT
-      env:
-        GH_TOKEN: ${{ github.token }}
+      uses: pozetroninc/github-action-get-latest-release@master
+      with:
+        repository: ${{ github.repository }}
 
-    - name: Create new release
+    - name: Creat release ${{  github.ref_name }}
       uses: softprops/action-gh-release@v2.0.4
       with: 
         token: "${{ secrets.GITHUB_TOKEN }}"
-        tag_name: ${{ steps.get_latest_release.outputs.LATEST_RELEASE_TAG }}-beta
-        body: ${{ steps.get_latest_release.outputs.LATEST_RELEASE_BODY }}
+        tag_name: ${{  github.ref_name }} # ${{ steps.get_latest_release.outputs.LATEST_RELEASE_TAG }}-beta
+        body: ${{ steps.get_latest_release.outputs.description }}
         draft: true
         files: cs_source\${{ env.Publish_Directory }}\OHSGUI.exe
 
