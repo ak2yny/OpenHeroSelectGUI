@@ -79,7 +79,11 @@ namespace OpenHeroSelectGUI.Functions
             if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
             try
             {
-                ProcessStartInfo Game = new(OHSpath.StartExe(), CfgSt.GUI.ExeArguments);
+                string Exe = OHSpath.StartExe();
+                ProcessStartInfo Game = new(Exe, CfgSt.GUI.ExeArguments)
+                {
+                    WorkingDirectory = Path.GetDirectoryName(Exe)
+                };
                 _ = Process.Start(Game);
             }
             catch { } // Fail silently

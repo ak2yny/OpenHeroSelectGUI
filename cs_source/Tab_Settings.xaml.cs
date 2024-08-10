@@ -289,11 +289,11 @@ namespace OpenHeroSelectGUI
             bool AC = Cfg.GUI.AvailChars;
             string Home = Cfg.GUI.Home;
             CfgSt.Var = new VariableSettings();
-            CfgSt.Roster = new CharacterLists();
+            CfgSt.Roster.Selected.Clear();
             GUIObject.Copy(new GUIsettings() { Game = MUA ? "MUA" : "XML2", Home = Home, AvailChars = AC }, Cfg.GUI);
             if (MUA) { GUIObject.Copy(new MUAsettings(), Cfg.MUA); }
             else { GUIObject.Copy(new XML2settings(), Cfg.XML2); }
-            CfgSt.GUI.IsMo2 = Cfg.GUI.IsMo2 = false;
+            CfgSt.Roster.NumClash = CfgSt.GUI.IsMo2 = Cfg.GUI.IsMo2 = false;
             PrepareSettings();
         }
     }

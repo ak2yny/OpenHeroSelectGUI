@@ -126,7 +126,7 @@
                             <SymbolIcon>Add</SymbolIcon>
                         </Button>
                     </StackPanel>
-                    <Button x:Name="SaveSkinDetails" Content="Save" Click="SaveSkinDetails_Click" HorizontalAlignment="Right" Margin="88 0"/>
+                    <Button x:Name="SaveSkinDetails" Content="Save" Click="SaveSkinDetails_Click" HorizontalAlignment="Right" IsEnabled="False" Margin="88 0"/>
                 </Grid>
             </StackPanel>
         </ScrollViewer>

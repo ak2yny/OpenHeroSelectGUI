@@ -220,6 +220,7 @@ namespace OpenHeroSelectGUI
             AddButton.Visibility = Cfg.Roster.SkinsList.Count < SkinIdentifiers.Length
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+            SaveSkinDetails.IsEnabled = true;
         }
         /// <summary>
         /// Remove Skin from Cfg.Roster.SkinsList at <paramref name="i"/>ndex. (Count must be more)
@@ -248,6 +249,7 @@ namespace OpenHeroSelectGUI
                     Name));
             }
             AddButton.Visibility = Visibility.Collapsed;
+            SaveSkinDetails.IsEnabled = true;
         }
         /// <summary>
         /// Combine <see cref="Cfg.OHS.GameInstallPath"/> + <see cref="TargetPath"/> info with <paramref name="GamePath"/> and <paramref name="Name"/> and create the necessary folders.
@@ -326,6 +328,7 @@ namespace OpenHeroSelectGUI
 
             GeometryFormats.Text = "";
             string? igSkin = null;
+            bool IsSkin = GamePath.StartsWith("actors");
             if (Alchemy.GetSkinStats(SourceIGB) is string Stats)
             {
                 string[] StatLines = Stats.Split(Environment.NewLine);
@@ -392,8 +395,8 @@ namespace OpenHeroSelectGUI
                 TextureCount.Text = TextureLines.Count().ToString();
                 MipMaps.Text = TextureLines.Any(s => s.Split('|')[4].Contains("Mip", StringComparison.OrdinalIgnoreCase)).ToString();
 
-                igSkinName.Text = igSkin = Alchemy.IntName(StatLines);
-                igSkinName.Foreground = igSkinNameT.Foreground = igSkin == Name ? Green : Red;
+                igSkinName.Text = igSkin = IsSkin ? Alchemy.IntName(StatLines) : "";
+                igSkinName.Foreground = igSkinNameT.Foreground = IsSkin && igSkin != Name ? Red : Green;
 
                 SkinInfo.Visibility = Visibility.Visible;
             }
@@ -401,7 +404,7 @@ namespace OpenHeroSelectGUI
             if (SIGB.Exists && TargetIgb(GamePath, Name) is string IGB)
             {
                 bool ConvGeo = Plat is 2 or 3 or 4 or 7 or 8 && GeometryFormats.Text.Contains("1_5");
-                bool HexEdit = !(string.IsNullOrWhiteSpace(igSkin) || igSkin == Name || igSkin.StartsWith("Bip01") || GamePath.StartsWith("hud") || GamePath.StartsWith("ui"));
+                bool HexEdit = IsSkin && !(string.IsNullOrWhiteSpace(igSkin) || igSkin == Name || igSkin.StartsWith("Bip01"));
                 Cfg.Var.SE_Msg_Info = new MessageItem { Message = $"Replaced '{IGB}'.", IsOpen = File.Exists(IGB) };
 
                 bool optimized = (ConvGeo || HexEdit || !GamePath.StartsWith("ui"))
