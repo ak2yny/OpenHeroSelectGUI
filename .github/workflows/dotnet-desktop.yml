@@ -119,6 +119,8 @@ jobs:
         $BODY = $LATEST_RELEASE | ConvertFrom-Json | Select-Object -ExpandProperty tag_name
         echo "LATEST_RELEASE_TAG=$TAG" >> $GITHUB_OUTPUT
         echo "LATEST_RELEASE_BODY=$BODY" >> $GITHUB_OUTPUT
+      env:
+        GH_TOKEN: ${{ github.token }}
 
     - name: Create new release
       uses: softprops/action-gh-release@v2.0.4
