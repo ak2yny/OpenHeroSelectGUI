@@ -127,6 +127,6 @@ jobs:
         tag_name: ${{ steps.get_latest_release.outputs.LATEST_RELEASE_TAG }}-beta
         body: ${{ steps.get_latest_release.outputs.LATEST_RELEASE_BODY }}
         draft: true
-        files: ${{ env. }}\OHSGUI.exe
+        files: cs_source\${{ env.Publish_Directory }}\OHSGUI.exe
 
     # Alternatively, Upload the built files: https://github.com/marketplace/actions/upload-a-build-artifac
