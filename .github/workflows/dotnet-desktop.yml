@@ -99,14 +99,12 @@ jobs:
 
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package ${{ matrix.architecture }} ${{ matrix.configuration }}
-      run: dotnet publish $env:Project_Name -r $env:Profile -p:Platform=$env:Platform --self-contained true -p:PublishSingleFile=false -p:PublishReadyToRun=true -p:PublishTrimmed=false -p:PublishDir=$env:Publish_Directory  # /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+      run: |
+        dotnet publish $env:Project_Name -r $env:Profile -p:Platform=$env:Platform --self-contained true -p:PublishSingleFile=false -p:PublishReadyToRun=true -p:PublishTrimmed=false -p:PublishDir=$env:Publish_Directory  # /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+        Rename-Item -Path "$env:Publish_Directory\*-full.exe" -NewName "OHSGUI.exe"
       env:
         Platform: ${{ matrix.architecture }}
         Profile: win-${{ matrix.architecture }}
-
-    # Rename the exe to publish
-    - name: Rename exe
-      run: ren "$env:Publish_Directory\*-full.exe" "OHSGUI.exe"
 
     # Remove the pfx
     # - name: Remove the pfx
