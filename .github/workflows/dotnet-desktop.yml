@@ -114,7 +114,7 @@ jobs:
     - name: Get latest release
       id: get_latest_release
       run: |
-        LATEST_RELEASE=$(gh release list --limit 1 --json tag_name,body --jq '.[0]')
+        $LATEST_RELEASE = gh release list --limit 1 --json tag_name,name,body --jq '.[0]'
         $TAG = $LATEST_RELEASE | ConvertFrom-Json | Select-Object -ExpandProperty tag_name
         $BODY = $LATEST_RELEASE | ConvertFrom-Json | Select-Object -ExpandProperty tag_name
         echo "LATEST_RELEASE_TAG=$TAG" >> $GITHUB_OUTPUT
