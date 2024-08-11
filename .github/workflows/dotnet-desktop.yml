@@ -59,9 +59,11 @@ jobs:
     env:
       Solution_Name: cs_source\OpenHeroSelectGUI.sln
       Project_Name: cs_source\OpenHeroSelectGUI.csproj
-      Publish_Directory: bin\Publish\
       # Wap_Project_Directory: your-wap-project-directory-name    # Replace with the Wap project directory relative to the solution, i.e. MyWpfApp.Package.
       # Wap_Project_Path: your-wap-project-path                   # Replace with the path to your Wap project, i.e. MyWpf.App.Package\MyWpfApp.Package.wapproj.
+
+    permissions:
+      contents: write
 
     steps:
     - name: Checkout
@@ -100,8 +102,8 @@ jobs:
     # Create the app package by building and packaging the Windows Application Packaging project
     - name: Create the app package ${{ matrix.architecture }} ${{ matrix.configuration }}
       run: |
-        dotnet publish $env:Project_Name -r $env:Profile -p:Platform=$env:Platform --self-contained true -p:PublishSingleFile=false -p:PublishReadyToRun=true -p:PublishTrimmed=false -p:PublishDir=$env:Publish_Directory  # /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
-        ren "cs_source\$env:Publish_Directory\*-full.exe" "OHSGUI.exe"
+        dotnet publish $env:Project_Name -r $env:Profile -p:Platform=$env:Platform --self-contained true -p:PublishSingleFile=false -p:PublishReadyToRun=true -p:PublishTrimmed=false -p:PublishDir=bin\Publish\  # /p:UapAppxPackageBuildMode=$env:Appx_Package_Build_Mode /p:AppxBundle=$env:Appx_Bundle /p:PackageCertificateKeyFile=GitHubActionsWorkflow.pfx /p:PackageCertificatePassword=${{ secrets.Pfx_Key }}
+        ren "cs_source\bin\Publish\*-full.exe" "OHSGUI.exe"
       env:
         Platform: ${{ matrix.architecture }}
         Profile: win-${{ matrix.architecture }}
@@ -120,6 +122,7 @@ jobs:
     - name: Create new release
       uses: softprops/action-gh-release@v2
       with:
+        token: "${{ secrets.GITHUB_TOKEN }}"
         tag_name: ${{ steps.get_latest_release.outputs.release }}-beta
         body: ${{ steps.get_latest_release.outputs.description }}
         draft: true
