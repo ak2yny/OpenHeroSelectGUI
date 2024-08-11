@@ -117,10 +117,9 @@ jobs:
       with:
         repository: ${{ github.repository }}
 
-    - name: Creat new release
-      uses: softprops/action-gh-release@v2.0.4
-      with: 
-        token: "${{ secrets.GITHUB_TOKEN }}"
+    - name: Create new release
+      uses: softprops/action-gh-release@v2
+      with:
         tag_name: ${{ steps.get_latest_release.outputs.release }}-beta
         body: ${{ steps.get_latest_release.outputs.description }}
         draft: true
