@@ -121,13 +121,13 @@ jobs:
       with:
         repository: ${{ github.repository }}
 
-    - name: Creat release ${{  github.ref_name }}
+    - name: Creat new release
       uses: softprops/action-gh-release@v2.0.4
       with: 
         token: "${{ secrets.GITHUB_TOKEN }}"
-        tag_name: ${{  github.ref_name }} # ${{ steps.get_latest_release.outputs.LATEST_RELEASE_TAG }}-beta
+        tag_name: ${{ steps.get_latest_release.outputs.release }}-beta
         body: ${{ steps.get_latest_release.outputs.description }}
         draft: true
-        files: cs_source\${{ env.Publish_Directory }}\OHSGUI.exe
+        files: cs_source\${{ env.Publish_Directory }}OHSGUI.exe
 
     # Alternatively, Upload the built files: https://github.com/marketplace/actions/upload-a-build-artifac
