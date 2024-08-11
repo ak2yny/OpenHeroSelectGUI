@@ -36,17 +36,13 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: .NET Core Desktop
+name: .NET Core Win 10+ Desktop
 
 on:
   push:
     branches: [ "master" ]
-    tags:
-      - 'v*'
   pull_request:
     branches: [ "master" ]
-    tags:
-      - 'v*'
 
 jobs:
 
