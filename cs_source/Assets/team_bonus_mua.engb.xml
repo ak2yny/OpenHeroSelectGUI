@@ -1,9 +1,16 @@
-<bonuses>
+﻿<bonuses>
+    <bonus descbonus="+15%% Maximum Energy" descname1="Classic" descname2="Avengers" powerup="shared_team_max_energy" sound="common/team_bonus_cav">
+        <hero name="blackpanther"/>
+        <hero name="captainamerica"/>
+        <hero name="hulk"/>
+        <hero name="ironman"/>
+        <hero name="thor"/>
+    </bonus>
     <bonus descbonus="+5%% Damage" descname1="Avengers" powerup="shared_team_increase_damage" sound="common/team_bonus_av">
         <hero name="captainamerica"/>
         <hero name="ironman"/>
         <hero name="warbird" skin="1401"/>
-        <hero name="spiderwoman"/>
+        <hero name="spiderwoman" skin="3801"/>
         <hero name="thor"/>
         <hero name="hawkeye"/>
         <hero name="blackpanther"/>
@@ -22,13 +29,6 @@
         <hero name="spiderman"/>
         <hero name="wolverine"/>
     </bonus>
-    <bonus descbonus="+15%% Maximum Energy" descname1="Classic" descname2="Avengers" powerup="shared_team_max_energy" sound="common/team_bonus_cav">
-        <hero name="blackpanther"/>
-        <hero name="captainamerica"/>
-        <hero name="hulk"/>
-        <hero name="ironman"/>
-        <hero name="thor"/>
-    </bonus>
     <bonus descbonus="5%% Damage Inflicted as Health Gain" descname1="Defenders" powerup="shared_team_damage_to_health" sound="common/team_bonus_def">
         <hero name="drstrange"/>
         <hero name="hulk"/>
@@ -44,9 +44,8 @@
         <hero name="ironman"/>
         <hero name="lukecage"/>
         <hero name="spiderman"/>
-        <hero name="spiderwoman"/>
+        <hero name="spiderwoman" skin="3801"/>
         <hero name="wolverine"/>
-        <hero name="hawkeye"/>
         <hero name="ronin"/>
     </bonus>
     <bonus descbonus="+6 Body, Strike, Focus" descname1="Marvel" descname2="Knights" powerup="shared_team_increase_traits" sound="common/team_bonus_mk">

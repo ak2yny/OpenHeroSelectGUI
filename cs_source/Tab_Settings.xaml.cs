@@ -153,7 +153,7 @@ namespace OpenHeroSelectGUI
 
         private void FreeSavesButton_Click(object sender, RoutedEventArgs e)
         {
-            OHSpath.BackupSaves();
+            SaveBkpFailed.IsOpen = !OHSpath.BackupSaves();
         }
 
         private void RestoreSaves_SelectionChanged(object sender, SelectionChangedEventArgs e)

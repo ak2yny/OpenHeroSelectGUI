@@ -110,13 +110,24 @@
             <Frame x:Name="ContentFrame" />
         </NavigationView>
         <StackPanel Grid.Row="1" Margin="68 0 20 20" Spacing="2" VerticalAlignment="Bottom">
+            <InfoBar x:Name="SaveError"
+                     Severity="Error"
+                     Title="Error"
+                     Message="Failed to save all settings."/>
             <InfoBar x:Name="OHSWarning"
                      Severity="Warning"
                      Title="Warning"/>
+            <InfoBar x:Name="FileWarning"
+                     Severity="Warning"
+                     Title="Warning"
+                     Message="Failed to copy team bonus. Team bonuses were not updated."/>
             <InfoBar x:Name="OHSSuccess"
                      Severity="Success"
                      Title="Success"
                      Message="Herostat and associated files have been successfully updated."/>
+            <InfoBar x:Name="SaveBackup"
+                     Title="Note"
+                     Message="Failed to backup the saves."/>
             <InfoBar x:Name="OHSRunning"
                      Title="OHS is Running"
                      Message="Wait for the files to be updated."

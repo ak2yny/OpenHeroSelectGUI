@@ -76,7 +76,7 @@ namespace OpenHeroSelectGUI.Functions
         /// </summary>
         public static void RunGame()
         {
-            if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
+            if (CfgSt.GUI.FreeSaves) { _ = OHSpath.BackupSaves(); }
             try
             {
                 string Exe = OHSpath.StartExe();

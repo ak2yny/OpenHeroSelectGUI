@@ -91,7 +91,7 @@ namespace OpenHeroSelectGUI
             if (Game is not "MUA" and not "XML2") { return false; }
             if (CfgSt.GUI.Game != Game)
             {
-                SaveSettings();
+                SaveError.IsOpen = !SaveSettings();
                 CfgSt.GUI.Game = Game;
                 LoadRoster();
                 return true;
@@ -159,16 +159,14 @@ namespace OpenHeroSelectGUI
                 int EC = 0;
                 try
                 {
-                    await Task.Run(SaveSettingsMP).WaitAsync(TimeSpan.FromSeconds(10));
                     await Task.Run(() =>
                     {
-                        InstallStage();
-                        MarvelModsXML.TeamBonusCopy();
-                        if (CfgSt.GUI.FreeSaves) { OHSpath.BackupSaves(); }
-
-                        EC = Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "XML2")
-                            ? "-a -q -x"
-                            : "-a -q");
+                        InstallStage(); // may fail silently
+                        SaveBackup.IsOpen = CfgSt.GUI.FreeSaves && !OHSpath.BackupSaves();
+                        FileWarning.IsOpen = MarvelModsXML.TeamBonusCopy();
+                        EC = SaveSettingsMP()
+                            ? Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "XML2") ? "-a -q -x" : "-a -q")
+                            : 7;
                     }).WaitAsync(TimeSpan.FromMinutes(3));
                 }
                 catch
@@ -177,11 +175,14 @@ namespace OpenHeroSelectGUI
                 }
                 switch (EC)
                 {
+                    case 7:
+                        ShowWarning($"OHS didn't run, because saving the settings failed. Make sure that the GUI has permission to write/overwrite '{OHSpath.CD}{OHSpath.Game}/config.ini'.");
+                        break;
                     case 6:
-                        ShowWarning($"Timout reached. Try again, check the error.log, if it exists, check permissions for OHS and game/mod folders, and read the instructions.");
+                        ShowWarning("Timout reached. Try again, check the error.log, if it exists, check permissions for OHS and game/mod folders, and read the instructions.");
                         break;
                     case 5:
-                        ShowWarning($"OHS could not start. Try again or ask for help.");
+                        ShowWarning("OHS could not start. Try again or ask for help.");
                         break;
                     case > 0:
                         ShowWarning($"OHS hit an error. Check the error.log. Ask for help, if error.log doesn't exist in '{OHSpath.CD}'.");
@@ -189,7 +190,7 @@ namespace OpenHeroSelectGUI
                         break;
                     default:
                         OHSSuccess.IsOpen = !(OHSWarning.IsOpen = OHSRunning.IsOpen = false);
-                        await Task.Delay(3000);
+                        await Task.Delay(TimeSpan.FromSeconds(3));
                         OHSSuccess.IsOpen = false;
                         break;
                 }
@@ -234,7 +235,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Save dialogue.
         /// </summary>
-        private static async void SaveDialogue()
+        private static async Task<bool> SaveDialogue()
         {
             FileSavePicker savePicker = new();
             savePicker.FileTypeChoices.Add("Configuration File", [".ini"]);
@@ -243,8 +244,9 @@ namespace OpenHeroSelectGUI
             if (file != null)
             {
                 CfgSt.MUA.MenulocationsValue = CfgSt.OHS.RosterValue = file.DisplayName;
-                SaveSettings(file.Path, file.DisplayName);
+                return SaveSettings(file.Path, file.DisplayName);
             }
+            return true;
         }
         /// <summary>
         /// Run OpenHeroSelect with the specified settings and backup saves if enabled.
@@ -255,14 +257,18 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
-            SaveSettings();
-            _ = MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
+            SaveError.IsOpen = !SaveSettings();
+            FileWarning.IsOpen = !MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
         }
 
         /// <summary>
         /// Save settings by defining an INI file.
         /// </summary>
-        private void BtnSaveAs_Click(object sender, RoutedEventArgs e) => SaveDialogue();
+        private async void BtnSaveAs_Click(object sender, RoutedEventArgs e)
+        {
+            SaveError.IsOpen = !await SaveDialogue();
+        }
+
         /// <summary>
         /// Load settings by picking an INI file.
         /// </summary>
@@ -282,11 +288,10 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void Window_Closed(object sender, WindowEventArgs args)
         {
-            SaveSettings();
-            _ = MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
+            _ = SaveSettings() && MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
             if (!CfgSt.OHS.SaveTempFiles && Path.Combine(OHSpath.CD, "Temp") is string Temp && Directory.Exists(Temp))
             {
-                Directory.Delete(Temp, true);
+                try { Directory.Delete(Temp, true); } catch { } // prevents leftover process
             }
         }
     }

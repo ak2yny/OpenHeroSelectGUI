@@ -162,7 +162,7 @@ namespace OpenHeroSelectGUI.Settings
                 LoadRoster([.. Cfg.Roster.Available.OrderBy(a => rng.Next())]);
             }
         }
-        // Add Characters functions.
+        // Add Characters functions:
         public static bool AddToSelected(string? PathInfo) => AddToSelected(PathInfo, false);
         public static bool AddToSelected(string? PathInfo, bool Unl) => AddToSelected(PathInfo, Unl, false);
         public static bool AddToSelected(string? PathInfo, bool Unl, bool Start)

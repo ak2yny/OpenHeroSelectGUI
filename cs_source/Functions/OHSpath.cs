@@ -254,17 +254,23 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Backup the "Save" folder in the game's save location. Performs a crash if Save folder can't be created.
         /// </summary>
-        public static void BackupSaves()
+        /// <returns><see langword="True"/>, if saves could be backed up, otherwise <see langword="false"/>.</returns>
+        public static bool BackupSaves()
         {
             FileInfo Herostat = new(Path.Combine(CfgSt.OHS.GameInstallPath, "data", CfgSt.OHS.HerostatName));
             DateTime Date = Herostat.Exists
                 ? Herostat.LastWriteTime
                 : DateTime.Now;
-            if (MoveSaves("Save", $"{Date:yyMMdd-HHmmss}") && Herostat.Exists)
+            try
             {
-                _ = Herostat.CopyTo(Path.Combine(SaveFolder, $"{Date:yyMMdd-HHmmss}", Herostat.Name), true);
+                if (MoveSaves("Save", $"{Date:yyMMdd-HHmmss}") && Herostat.Exists)
+                {
+                    _ = Herostat.CopyTo(Path.Combine(SaveFolder, $"{Date:yyMMdd-HHmmss}", Herostat.Name), true);
+                }
+                _ = Directory.CreateDirectory(Path.Combine(SaveFolder, "Save"));
+                return true;
             }
-            _ = Directory.CreateDirectory(Path.Combine(SaveFolder, "Save"));
+            catch { return false; }
         }
 
         /// <summary>

@@ -296,7 +296,7 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public static void LoadGuiSettings() => LoadGuiSettings(Path.Combine(OHSpath.CD, "config.xml"));
         /// <summary>
-        /// Load GUI settings from an XML file (<paramref name="Gini"/>).
+        /// Load GUI settings from an XML file (<paramref name="Gini"/>). Note: Performs a crash if there's a major problem with the file.
         /// </summary>
         private static void LoadGuiSettings(string Gini)
         {
@@ -333,10 +333,11 @@ namespace OpenHeroSelectGUI.Settings
         /// <summary>
         /// Save OHS settings in JSON &amp; GUI settings in XML to the default location. Saves CFG files according to these settings. Use default names if mod pack setting is disabled.
         /// </summary>
-        public static void SaveSettingsMP()
+        /// <returns><see langword="True"/>, if saved successfully, otherwise <see langword="false"/>.</returns>
+        public static bool SaveSettingsMP()
         {
             // ExeName not to default, team_bonus handled separately
-            SaveIniXml(OHSpath.GetRooted("config.ini"), Path.Combine(OHSpath.CD, "config.xml"), CfgSt.GUI.ModPack
+            return SaveIniXml(OHSpath.GetRooted("config.ini"), Path.Combine(OHSpath.CD, "config.xml"), CfgSt.GUI.ModPack
                 ? CfgSt.GUI.Game == "XML2" ? CfgSt.XML2 : CfgSt.MUA
                 : CfgSt.GUI.Game == "XML2"
                 ?
@@ -368,58 +369,69 @@ namespace OpenHeroSelectGUI.Settings
                     SaveTempFiles = CfgSt.OHS.SaveTempFiles,
                     ShowProgress = CfgSt.OHS.ShowProgress,
                     DebugMode = CfgSt.OHS.DebugMode
-                });
-            GenerateCfgFiles(CfgSt.OHS.RosterValue, CfgSt.MUA.MenulocationsValue);
+                })
+                && GenerateCfgFiles(CfgSt.OHS.RosterValue, CfgSt.MUA.MenulocationsValue);
         }
         /// <summary>
         /// Save OHS settings in JSON &amp; GUI settings in XML to the default location. Saves CFG files according to these settings.
         /// </summary>
-        public static void SaveSettings()
+        /// <returns><see langword="True"/>, if saved successfully, otherwise <see langword="false"/>.</returns>
+        public static bool SaveSettings()
         {
-            SaveIniXml(OHSpath.GetRooted("config.ini"), Path.Combine(OHSpath.CD, "config.xml"));
-            GenerateCfgFiles(CfgSt.OHS.RosterValue, CfgSt.MUA.MenulocationsValue);
+            return SaveIniXml(OHSpath.GetRooted("config.ini"), Path.Combine(OHSpath.CD, "config.xml"))
+                && GenerateCfgFiles(CfgSt.OHS.RosterValue, CfgSt.MUA.MenulocationsValue);
         }
         /// <summary>
         /// Save OHS settings in JSON &amp; GUI settings in XML by providing a path (<paramref name="Oini"/>). Saves roster and menulocations to <paramref name="rv"/>.cfg files.
         /// </summary>
-        public static void SaveSettings(string Oini, string rv)
+        /// <returns><see langword="True"/>, if saved successfully, otherwise <see langword="false"/>.</returns>
+        public static bool SaveSettings(string Oini, string rv)
         {
-            SaveIniXml(Oini, $"{Oini.Remove(Oini.LastIndexOf('.'))}_GUI.xml");
-            GenerateCfgFiles(rv, rv);
-            _ = MarvelModsXML.TeamBonusSerializer($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml");
+            return SaveIniXml(Oini, $"{Oini.Remove(Oini.LastIndexOf('.'))}_GUI.xml")
+                && GenerateCfgFiles(rv, rv)
+                && MarvelModsXML.TeamBonusSerializer($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml");
         }
         /// <summary>
         /// Save OHS settings in JSON (<paramref name="Oini"/>) &amp; GUI settings in XML (<paramref name="Gini"/>) by providing both paths.
         /// </summary>
-        private static void SaveIniXml(string Oini, string Gini) => SaveIniXml(Oini, Gini, (CfgSt.GUI.Game == "XML2") ? CfgSt.XML2 : CfgSt.MUA);
+        /// <returns><see langword="True"/>, if saved successfully, otherwise <see langword="false"/>.</returns>
+        private static bool SaveIniXml(string Oini, string Gini) => SaveIniXml(Oini, Gini, (CfgSt.GUI.Game == "XML2") ? CfgSt.XML2 : CfgSt.MUA);
         /// <summary>
         /// Save OHS settings in JSON (<paramref name="Oini"/>) &amp; GUI settings in XML (<paramref name="Gini"/>) by providing both paths and the <paramref name="GameCfg"/> class.
         /// </summary>
-        private static void SaveIniXml(string Oini, string Gini, object GameCfg)
+        /// <returns><see langword="True"/>, if saved successfully, otherwise <see langword="false"/>.</returns>
+        private static bool SaveIniXml(string Oini, string Gini, object GameCfg)
         {
-            // IMPORTANT: This makes the app crash, if the files can't be written. That's intentional to let the user know that something is wrong.
-
-            // JSON
-            string? Opath = Path.GetDirectoryName(Oini);
-            if (string.IsNullOrEmpty(Opath)) return;
-            _ = Directory.CreateDirectory(Opath);
-            string JsonString = JsonSerializer.Serialize(GameCfg, JsonOptions);
+            string? Parent = Path.GetDirectoryName(Oini);
+            if (string.IsNullOrEmpty(Parent)) { return false; }
             // Using the MVVM toolkit generates an IsActive property which gets serialized, unfortunately. I didn't find a solution, yet (can't use [property: JsonIgnore], because it's not in the list).
-            string[] JsonSplit = JsonString.Split(Environment.NewLine).Where(l => !l.Contains("\"isActive\":")).ToArray();
+            string[] JsonSplit = JsonSerializer.Serialize(GameCfg, JsonOptions).Split(Environment.NewLine).Where(l => !l.Contains("\"isActive\":")).ToArray();
             JsonSplit[^2] = JsonSplit[^2].TrimEnd().TrimEnd(',');
-            File.WriteAllLines(Oini, JsonSplit);
+            try
+            {
+                // JSON
+                _ = Directory.CreateDirectory(Parent);
+                File.WriteAllLines(Oini, JsonSplit);
 
-            // XML
-            XmlSerializer XS = new(typeof(GUIsettings));
-            using FileStream fs = File.Open(Gini, FileMode.Create);
-            XS.Serialize(fs, CfgSt.GUI);
+                // XML
+                XmlSerializer XS = new(typeof(GUIsettings));
+                using FileStream fs = File.Open(Gini, FileMode.Create);
+                XS.Serialize(fs, CfgSt.GUI);
+            }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
         /// <summary>
         /// Generate the roster <paramref name="rv"/>.cfg and menulocation <paramref name="mv"/>.cfg files in the OHS game folders.
         /// </summary>
-        private static void GenerateCfgFiles(string rv, string mv)
+        /// <returns><see langword="True"/>, if generated successfully, otherwise <see langword="false"/>.</returns>
+        private static bool GenerateCfgFiles(string rv, string mv)
         {
-            if (CfgSt.Roster.Selected.Count > 0)
+            if (CfgSt.Roster.Selected.Count == 0) { return false; }
+            try
             {
                 if (OHSpath.Game == "mua")
                 {
@@ -427,9 +439,14 @@ namespace OpenHeroSelectGUI.Settings
                 }
                 WriteCfg(OHSpath.GetRooted("rosters", $"{rv}.cfg"), 2);
             }
+            catch
+            {
+                return false;
+            }
+            return true;
         }
         /// <summary>
-        /// Write a OHS CFG file to <paramref name="path"/> from the <see cref="CfgSt.Roster.Selected"/> list. Performs a crash on write exceptions.
+        /// Write a OHS CFG file to <paramref name="path"/> from the <see cref="CfgSt.Roster.Selected"/> list. Write exceptions.
         /// </summary>
         private static void WriteCfg(string path, int p)
         {

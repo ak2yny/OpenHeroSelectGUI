@@ -126,8 +126,10 @@
                             <RowDefinition/>
                             <RowDefinition/>
                             <RowDefinition/>
+                            <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <controls:SettingsCardContent x:Name="Restore" Description="Pick a previously backed up save folder to restore" Header="Restore Saves" Margin="0 10">
+                        <InfoBar x:Name="SaveBkpFailed" Title="Note" Message="Failed to backup the saves."/>
+                        <controls:SettingsCardContent x:Name="Restore" Description="Pick a previously backed up save folder to restore" Header="Restore Saves" Grid.Row="1" Margin="0 10">
                             <StackPanel Orientation="Horizontal" Spacing="3" VerticalAlignment="Center">
                                 <ComboBox x:Name="RestoreSaves" ItemsSource="{x:Bind SaveBackups, Mode=OneWay}" SelectionChanged="RestoreSaves_SelectionChanged"/>
                                 <Button x:Name="RefreshSaves" Click="RefreshSaves_Click" Padding="10 5" ToolTipService.ToolTip="Refresh">
@@ -135,10 +137,10 @@
                                 </Button>
                             </StackPanel>
                         </controls:SettingsCardContent>
-                        <controls:SettingsCardContent x:Name="FreeSavesButton" Header="Free Saves Now" Grid.Row="1">
+                        <controls:SettingsCardContent x:Name="FreeSavesButton" Header="Free Saves Now" Grid.Row="2">
                             <Button Content="Free now" Click="FreeSavesButton_Click"/>
                         </controls:SettingsCardContent>
-                        <controls:SettingsCardContent x:Name="OpenSaves" Header="Open Save Folder" Grid.Row="2" Margin="0 10">
+                        <controls:SettingsCardContent x:Name="OpenSaves" Header="Open Save Folder" Grid.Row="3" Margin="0 10">
                             <Button Content="Open folder" Click="OpenSaves_Click"/>
                         </controls:SettingsCardContent>
                     </Grid>

@@ -358,23 +358,24 @@ namespace OpenHeroSelectGUI.Functions
                     XmlWriterSettings xws = new() { OmitXmlDeclaration = true, Indent = true };
                     using XmlWriter xw = XmlWriter.Create(BonusFile, xws);
                     Bonuses.Save(xw);
-                    return true;
                 }
                 catch { return false; }
             }
-            return false;
+            return true;
         }
         /// <summary>
         /// Serializes the Team <see cref="ObservableCollection{T}"/> to XML and saves it to the compiled team_bonus file in the game folder. May fail.
         /// </summary>
-        public static void TeamBonusCopy()
+        /// <returns><see langword="True" />, if json2xmlb could convert the teaam bonus successfully or if copy is disabled, otherwise <see langword="false" />.</returns>
+        public static bool TeamBonusCopy()
         {
             if (TeamBonusSerializer(OHSpath.Team_bonus))
             {
                 string team_bonus = CfgSt.GUI.ModPack ? CfgSt.GUI.TeamBonusName : "team_bonus";
                 string CompiledName = Path.Combine(CfgSt.OHS.GameInstallPath, "data", $"{team_bonus}{Path.GetExtension(CfgSt.OHS.HerostatName)}");
-                _ = Util.RunExeInCmd("json2xmlb", $"\"{OHSpath.Team_bonus}\" \"{CompiledName}\"");
+                return Util.RunExeInCmd("json2xmlb", $"\"{OHSpath.Team_bonus}\" \"{CompiledName}\"");
             }
+            return true;
         }
     }
 
