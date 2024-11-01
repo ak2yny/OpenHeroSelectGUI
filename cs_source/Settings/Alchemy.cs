@@ -25,9 +25,8 @@ namespace OpenHeroSelectGUI.Settings
         /// <returns>A <see cref="string"/> with the stats or <see langword="null"/> if no stats were found or other errors occurred.</returns>
         public static string? GetSkinStats(string? SourceIGB)
         {
-            if (Optimizer is null || !File.Exists(SourceIGB)) { return null; }
-            File.WriteAllLines(INI, Opt.GetSkinInfo);
-            string? Stats = Util.RunDosCommnand(Optimizer, $"\"{SourceIGB}\" \"{Path.Combine(OHSpath.Temp, "temp.igb")}\" \"{INI}\"");
+            if (!Opt.Write(Opt.GetSkinInfo, SourceIGB)) { return null; }
+            string? Stats = Util.RunDosCommnand(Optimizer!, $"\"{SourceIGB}\" \"{Path.Combine(OHSpath.Temp, "temp.igb")}\" \"{INI}\"");
             return string.IsNullOrWhiteSpace(Stats) ? null : Stats;
         }
         /// <summary>
@@ -78,7 +77,7 @@ namespace OpenHeroSelectGUI.Settings
                 $"optimizationCount = {N}",
                 "hierarchyCheck = true"
             ];
-        private static string[] StatTex(int N) =>
+        public static string[] StatTex(int N) =>
             [
                 $"[OPTIMIZATION{N}]",
                 "name = igStatisticsTexture",
@@ -153,6 +152,16 @@ namespace OpenHeroSelectGUI.Settings
                 return true;
             }
             return false;
+        }
+        /// <summary>
+        /// Tries to write the <paramref name="Opts"/> to <see cref="Alchemy.INI"/>, if <paramref name="SourceIGB"/> exists.
+        /// </summary>
+        /// <returns><see langword="True"/>, if written successfully and <paramref name="SourceIGB"/> exists, otherwise <see langword="false"/>.</returns>
+        public static bool Write(string[] Opts, string? SourceIGB)
+        {
+            if (Alchemy.Optimizer is null || !File.Exists(SourceIGB)) { return false; }
+            try { File.WriteAllLines(Alchemy.INI, Opts); } catch { return false; }
+            return true;
         }
     }
 }

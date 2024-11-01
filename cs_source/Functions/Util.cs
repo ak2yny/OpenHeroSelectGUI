@@ -2,6 +2,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace OpenHeroSelectGUI.Functions
@@ -129,41 +130,36 @@ namespace OpenHeroSelectGUI.Functions
             }
             return false;
         }
-        //public static void HexEdit(long Position, string NewValue, string FilePath) => HexEdit(Position, Encoding.ASCII.GetBytes(NewValue), FilePath);
         /// <summary>
-        /// Hex edit the file in <paramref name="FilePath"/> at <paramref name="Position"/> to <paramref name="NewValue"/>.
-        /// </summary>
-        /// <returns><see langword="True"/>, if no exceptions occur, otherwise <see langword="False"/>.</returns>
-        public static bool HexEdit(long Position, byte[] NewValue, string FilePath)
-        {
-            try
-            {
-                using FileStream fs = new(FilePath, FileMode.Open);
-                fs.Position = Position;
-                fs.Write(NewValue, 0, NewValue.Length);
-                return true;
-            }
-            catch { return false; }
-        }
-        /// <summary>
-        /// Hex edit the file in <paramref name="FilePath"/> at its first occurrence of <paramref name="OldValue"/> to <paramref name="NewValue"/>, if any.
+        /// Hex edit the file in <paramref name="FilePath"/> and replace all occurrences of <paramref name="OldValues"/> with <paramref name="NewValue"/>, if any.
+        /// If only one string is in <paramref name="OldValues"/>, only the first occurrence is replaced, unless specified with <paramref name="AllOccurrences"/>.
         /// </summary>
         /// <returns><see langword="True"/>, if hex-edited, otherwise <see langword="False"/>.</returns>
-        public static bool HexEdit(string OldValue, string NewValue, string FilePath)
+        public static bool HexEdit(string[] OldValues, string NewValue, string FilePath, bool AllOccurrences = false)
         {
-            if (NewValue.Length <= OldValue.Length)
+            if (0 < NewValue.Length && NewValue.Length <= OldValues.Min(v => v.Length))
             {
+                if (OldValues.Length > 1) { AllOccurrences = true; }
                 try
                 {
-                    byte[] Bytes = File.ReadAllBytes(FilePath);
-                    byte[] ByteVal = Encoding.ASCII.GetBytes(OldValue);
-                    long Pos = Bytes.AsSpan().IndexOf(ByteVal);
-                    if (Pos > -1)
+                    byte[] New = Encoding.ASCII.GetBytes(NewValue);
+                    Span<byte> Bytes = File.ReadAllBytes(FilePath).AsSpan();
+                    using FileStream fs = new(FilePath, FileMode.Open);
+                    for (int i = 0; i < OldValues.Length; i++)
                     {
-                        byte[] New = Encoding.ASCII.GetBytes(NewValue);
-                        for (int i = 0; i < ByteVal.Length; i++) { ByteVal[i] = i < New.Length ? New[i] : new byte(); }
-                        return HexEdit(Pos, ByteVal, FilePath);
+                        Span<byte> ByteVal = Encoding.ASCII.GetBytes(OldValues[i]).AsSpan();
+                        for (long p = 0; p <= Bytes.Length - ByteVal.Length; p++)
+                        {
+
+                            if (Bytes.Slice((int)p, ByteVal.Length).SequenceEqual(ByteVal))
+                            {
+                                fs.Position = p;
+                                fs.Write([.. New, .. (new byte[ByteVal.Length])[New.Length..]], 0, ByteVal.Length);
+                                if (!AllOccurrences) { return true; }
+                            }
+                        }
                     }
+                    return true;
                 }
                 catch { return false; }
             }

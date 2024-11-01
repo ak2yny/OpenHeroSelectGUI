@@ -294,6 +294,34 @@ namespace OpenHeroSelectGUI
             }
         }
         /// <summary>
+        /// Hex edit hud head <paramref name="IGB"/> files, using the number from <paramref name="Name"/>, to make them compatible with NPC.
+        /// </summary>
+        /// <returns><see langword="True"/>, if edited successfully, otherwise <see langword="false"/>.</returns>
+        private bool FixHUDs(string IGB, string Name)
+        {
+            return Opt.Write([.. Opt.Head(1), .. Opt.StatTex(1)], IGB)
+                && Util.RunDosCommnand(Alchemy.Optimizer!, $"\"{IGB}\" \"{Path.Combine(OHSpath.Temp, "temp.igb")}\" \"{Alchemy.INI}\"") is string Stats
+                && FixHUDs(IGB, Name, Stats.Split(Environment.NewLine).Where(s => s.Contains("IG_GFX_TEXTURE_FORMAT_")));
+        }
+        /// <summary>
+        /// Hex edit hud head <paramref name="IGB"/> files, using the number from <paramref name="Name"/> and information from <paramref name="TextureLines"/>, to make them compatible with NPC.
+        /// </summary>
+        /// <returns><see langword="True"/>, if edited successfully, otherwise <see langword="false"/>.</returns>
+        private bool FixHUDs(string IGB, string Name, IEnumerable<string> TextureLines)
+        {
+            if (TextureLines.Any())
+            {
+                string[] all = [.. TextureLines.Select(l => l.Split('|')[0].Trim())];
+                int maxLen = all.Min(t => t.Length) - 4;
+                string main = (TextureLines.FirstOrDefault(l => !char.IsAsciiDigit(l.Trim()[^1]) || l.Trim()[^1] == '0')
+                    ?? TextureLines.First()).Split('|')[0].Trim();
+                return Util.HexEdit([.. all.Select(l => l[..maxLen])],
+                    (Name.Split('_')[^1] + "_" + main.Split('_', 2)[1])[..maxLen],
+                    IGB);
+            }
+            return false;
+        }
+        /// <summary>
         /// Apply Alchemy optimizations to make the <paramref name="SourceIGB"/> compatible if possible and show compatibility information. Performs a crash if target directory can't be written to.
         /// Copy <paramref name="SourceIGB"/> to [gameInstallPath]/<paramref name="GamePath"/>/<paramref name="Name"/>.igb.
         /// </summary>
@@ -393,7 +421,7 @@ namespace OpenHeroSelectGUI
                     : Green;
                 BiggestTexture.Text = $"{BiggestTex[1].Trim()} x {BiggestTex[2].Trim()}";
                 TextureCount.Text = TextureLines.Count().ToString();
-                MipMaps.Text = TextureLines.Any(s => s.Split('|')[4].Contains("Mip", StringComparison.OrdinalIgnoreCase)).ToString();
+                MipMaps.Text = TextureLines.Select(s => s.Split('|')[4]).Count(s => s.Contains("Mip", StringComparison.OrdinalIgnoreCase) && s.Trim()[^1] != '0').ToString();
 
                 igSkinName.Text = igSkin = IsSkin ? Alchemy.IntName(StatLines) : "";
                 igSkinName.Foreground = igSkinNameT.Foreground = IsSkin && igSkin != Name ? Red : Green;
@@ -414,7 +442,8 @@ namespace OpenHeroSelectGUI
                 try
                 {
                     optimized = optimized || (SIGB.CopyTo(IGB, true) is not null
-                        && HexEdit && Util.HexEdit(igSkin ?? "igActor01Appearance", Name, IGB));
+                        && HexEdit && Util.HexEdit([igSkin ?? "igActor01Appearance"], Name, IGB));
+                    if (GamePath == "hud") { _ = FixHUDs(IGB, Name); }
                 }
                 catch { optimized = false; }
 
@@ -610,6 +639,7 @@ namespace OpenHeroSelectGUI
                 if (HUD.Exists && TargetIgb("hud", $"hud_head_{Skin.CharNum}{Skin.Number}.igb") is string HUDT)
                 {
                     _ = HUD.CopyTo(HUDT, true);
+                    _ = FixHUDs(HUDT, $"{Skin.CharNum}{Skin.Number}");
                     HudHeadBrowse.Visibility = Visibility.Collapsed;
                 }
                 if (Cfg.GUI.Game == "XML2" && H3D.Exists && TargetIgb(Path.Combine("ui", "hud", "characters"), $"{Skin.CharNum}{Skin.Number}.igb") is string H3DT)

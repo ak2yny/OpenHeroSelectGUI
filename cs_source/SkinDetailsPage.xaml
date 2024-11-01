@@ -199,7 +199,7 @@
                         <TextBlock x:Name="TextureFormatsT" Text="Texture formats:"/>
                         <TextBlock x:Name="BiggestTextureT" Text="Biggest texture:" Foreground="Black"/>
                         <TextBlock x:Name="TextureCountT" Text="Texture count:" Foreground="Green"/>
-                        <TextBlock x:Name="MipMapsT" Text="Has mip-maps:" Foreground="Green"/>
+                        <TextBlock x:Name="MipMapsT" Text="Mip-maps count:" Foreground="Green"/>
                         <TextBlock x:Name="igSkinNameT" Text="igSkin name:"/>
                     </StackPanel>
                     <StackPanel Grid.Column="1" Margin="5">
