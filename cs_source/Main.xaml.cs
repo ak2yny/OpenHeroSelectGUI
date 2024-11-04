@@ -162,8 +162,6 @@ namespace OpenHeroSelectGUI
                     await Task.Run(() =>
                     {
                         InstallStage(); // may fail silently
-                        SaveBackup.IsOpen = CfgSt.GUI.FreeSaves && !OHSpath.BackupSaves();
-                        FileWarning.IsOpen = MarvelModsXML.TeamBonusCopy();
                         EC = SaveSettingsMP()
                             ? Util.RunElevated("OpenHeroSelect.exe", (CfgSt.GUI.Game == "XML2") ? "-a -q -x" : "-a -q")
                             : 7;
@@ -189,6 +187,8 @@ namespace OpenHeroSelectGUI
                         _ = Process.Start("explorer.exe", $"/select, \"{Path.Combine(OHSpath.CD, "error.log")}\"");
                         break;
                     default:
+                        SaveBackup.IsOpen = CfgSt.GUI.FreeSaves && !OHSpath.BackupSaves();
+                        FileWarning.IsOpen = !MarvelModsXML.TeamBonusCopy();
                         OHSSuccess.IsOpen = !(OHSWarning.IsOpen = OHSRunning.IsOpen = false);
                         await Task.Delay(TimeSpan.FromSeconds(3));
                         OHSSuccess.IsOpen = false;
@@ -258,7 +258,7 @@ namespace OpenHeroSelectGUI
         private void BtnSave_Click(object sender, RoutedEventArgs e)
         {
             SaveError.IsOpen = !SaveSettings();
-            FileWarning.IsOpen = !MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
+            FileWarning.IsOpen = CfgSt.Roster.Teams.Count > 0 && !MarvelModsXML.TeamBonusSerializer(OHSpath.Team_bonus);
         }
 
         /// <summary>

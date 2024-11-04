@@ -130,12 +130,22 @@ namespace OpenHeroSelectGUI.Functions
                 OldPath;
         }
         /// <summary>
+        /// Get MO2 "mods" folder.
+        /// </summary>
+        /// <returns>MO2 "mods" folder as <see cref="DirectoryInfo"/> or <see langword="null"/>.</returns>
+        public static DirectoryInfo? ModsFolder => File.Exists(Path.Combine(CfgSt.OHS.GameInstallPath, DefaultExe))
+                ? null
+                : Directory.Exists(CfgSt.OHS.GameInstallPath)
+                    && Directory.GetParent(CfgSt.OHS.GameInstallPath) is DirectoryInfo Mods
+                    && (InternalSettings.KnownModOrganizerExes.Contains(CfgSt.OHS.ExeName, StringComparer.OrdinalIgnoreCase)
+                    || Mods.Name == "mods" || CfgSt.GUI.IsMo2)
+                ? Mods
+                : null;
+        /// <summary>
         /// Get mod folders.
         /// </summary>
         /// <returns>Array with matching folders as <see cref="DirectoryInfo"/> or empty array.</returns>
-        public static DirectoryInfo[] ModFolders => Directory.Exists(CfgSt.OHS.GameInstallPath)
-                && Directory.GetParent(CfgSt.OHS.GameInstallPath) is DirectoryInfo MO2
-                && (MO2.Name == "mods" || CfgSt.GUI.IsMo2)
+        public static DirectoryInfo[] ModFolders => ModsFolder is DirectoryInfo MO2
                 ? MO2.EnumerateDirectories().ToArray()
                 : (DirectoryInfo[])([]);
         /// <summary>
@@ -224,11 +234,7 @@ namespace OpenHeroSelectGUI.Functions
         {
             string Target = CfgSt.OHS.GameInstallPath;
             bool IsGIP = Path.IsPathFullyQualified(Target) && File.Exists(Path.Combine(Target, DefaultExe));
-            if (!IsGIP
-                && !string.IsNullOrWhiteSpace(Target)
-                && new DirectoryInfo(Target) is DirectoryInfo GIP
-                && GIP.Exists
-                && GIP.Parent is DirectoryInfo Mods) // assuming it's an MO2 mod folder
+            if (!IsGIP && ModsFolder is DirectoryInfo Mods)
             {
                 Target = GetVacant(Path.Combine(Mods.FullName, TargetName));
                 string MetaP = Path.Combine(Source.FullName, "meta.ini");

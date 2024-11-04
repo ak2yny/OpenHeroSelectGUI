@@ -246,10 +246,10 @@ namespace OpenHeroSelectGUI.Functions
                     if (!Path.GetFileName(SourceFile).StartsWith("ents_")
                         && RootE.SelectNodes($"//*[contains(@filename, 'ents_')]") is XmlNodeList Ents)
                     {
+                        string SD = Directory.GetParent(SourceFile)!.Parent!.FullName;
                         for (int i = 0; i < Ents.Count; i++)
                         {
-                            FileInfo SF = new(SourceFile);
-                            _ = ReplaceRef(Path.Combine(SF.Directory!.Parent!.FullName, "entities", $"{Ents[i]!.Attributes!["filename"]!.Value}.xmlb"), OldSkinNums, NewCharNum);
+                            _ = ReplaceRef(Path.Combine(SD, "entities", $"{Ents[i]!.Attributes!["filename"]!.Value}.xmlb"), OldSkinNums, NewCharNum);
                         }
                     }
                     return c > 0 && CompileToTarget(XML, SourceFile);
@@ -358,15 +358,16 @@ namespace OpenHeroSelectGUI.Functions
                     XmlWriterSettings xws = new() { OmitXmlDeclaration = true, Indent = true };
                     using XmlWriter xw = XmlWriter.Create(BonusFile, xws);
                     Bonuses.Save(xw);
+                    return true;
                 }
                 catch { return false; }
             }
-            return true;
+            return false;
         }
         /// <summary>
-        /// Serializes the Team <see cref="ObservableCollection{T}"/> to XML and saves it to the compiled team_bonus file in the game folder. May fail.
+        /// Serializes the Team <see cref="ObservableCollection{T}"/> to XML (if it has any team bonuses) and saves it to the compiled team_bonus file in the game folder. (May fail?)
         /// </summary>
-        /// <returns><see langword="True" />, if json2xmlb could convert the teaam bonus successfully or if copy is disabled, otherwise <see langword="false" />.</returns>
+        /// <returns><see langword="True" />, if a new team bonus was created and json2xmlb could convert it successfully, otherwise <see langword="false" />.</returns>
         public static bool TeamBonusCopy()
         {
             if (TeamBonusSerializer(OHSpath.Team_bonus))

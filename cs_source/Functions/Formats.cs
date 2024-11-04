@@ -84,13 +84,13 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns><see cref="IEnumerable{FileInfo}"/> of all <see cref="FileInfo"/> that match a herostat name or content.</returns>
         public static IEnumerable<FileInfo> GetFiles(DirectoryInfo ModFolder)
         {
-            return Herostat.GetFile(ModFolder) is IEnumerable<FileInfo> Hs && Hs.Any()
+            return GetFile(ModFolder) is IEnumerable<FileInfo> Hs && Hs.Any()
                 ? Hs
                 : ModFolder.EnumerateDirectories("data").FirstOrDefault() is DirectoryInfo D
-                && Herostat.GetFile(D) is IEnumerable<FileInfo> HsD && HsD.Any()
+                && GetFile(D) is IEnumerable<FileInfo> HsD && HsD.Any()
                 ? HsD
                 : ModFolder.Parent is DirectoryInfo P
-                ? Herostat.GetFile(P)
+                ? GetFile(P)
                 : [];
         }
         /// <summary>

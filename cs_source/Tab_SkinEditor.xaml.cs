@@ -46,32 +46,36 @@ namespace OpenHeroSelectGUI
         }
         private void SplitHS(string HS)
         {
-            string Out = Directory.CreateDirectory(OHSpath.GetRooted(string.IsNullOrWhiteSpace(OutputFolder.Text)
-                ? CfgSt.OHS.HerostatFolder
-                : OutputFolder.Text)).FullName;
-            if (InternalSettings.RavenFormats.Contains(Path.GetExtension(HS), StringComparer.OrdinalIgnoreCase))
+            try
             {
-                string DHS = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
-                if (Util.RunExeInCmd("json2xmlb", $"-d \"{HS}\" \"{DHS}\"")
-                    && GUIXML.SplitXMLStats(DHS, Out))
+                string Out = Directory.CreateDirectory(OHSpath.GetRooted(string.IsNullOrWhiteSpace(OutputFolder.Text)
+                    ? CfgSt.OHS.HerostatFolder
+                    : OutputFolder.Text)).FullName;
+                if (InternalSettings.RavenFormats.Contains(Path.GetExtension(HS), StringComparer.OrdinalIgnoreCase))
                 {
-                    SplitFinished(Out);
-                }
-            }
-            else
-            {
-                string[] LoadedHerostat = File.ReadLines(HS).ToArray();
-                char HsFormat = LoadedHerostat.First(s => !string.IsNullOrEmpty(s.Trim())).Trim()[0];
-                if (HsFormat == '<')
-                {
-                    if (!GUIXML.SplitXMLStats(HS, Out)) { return; }
+                    string DHS = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
+                    if (Util.RunExeInCmd("json2xmlb", $"-d \"{HS}\" \"{DHS}\"")
+                        && GUIXML.SplitXMLStats(DHS, Out))
+                    {
+                        SplitFinished(Out);
+                    }
                 }
                 else
                 {
-                    Herostat.Split(LoadedHerostat, HsFormat, Out);
+                    string[] LoadedHerostat = File.ReadLines(HS).ToArray();
+                    char HsFormat = LoadedHerostat.First(s => !string.IsNullOrEmpty(s.Trim())).Trim()[0];
+                    if (HsFormat == '<')
+                    {
+                        if (!GUIXML.SplitXMLStats(HS, Out)) { return; }
+                    }
+                    else
+                    {
+                        Herostat.Split(LoadedHerostat, HsFormat, Out);
+                    }
+                    SplitFinished(Out);
                 }
-                SplitFinished(Out);
             }
+            catch { } // Just don't split/continue
         }
         /// <summary>
         /// Display success message in <see cref="InfoBar"/> for 5 seconds

@@ -17,13 +17,13 @@ namespace OpenHeroSelectGUI.Functions
             // Optionally, check if it's a mod or folder (continue with variable Original instead of Mod):
             //if (!string.IsNullOrEmpty(Mod)
             //    && (File.GetAttributes(Mod).HasFlag(FileAttributes.Directory) ? Mod : Util.Run7z(Mod, ON)) is string Original)
-            List<string?> Messges = [];
+            List<string?> Messages = [];
             foreach (DirectoryInfo Source in OHSpath.GetModSource(Mod))
             {
                 List<FileInfo> Chars = Herostat.GetFiles(Source).ToList();
                 //if (Chars.Count > 1) { show selection; }
                 //else
-                if (Chars.Count == 1) { Messges.Add(Renumber(Source.FullName, Source.Name, "", NN, Chars[0])); } // Installs mods, but should prly not
+                if (Chars.Count == 1) { Messages.Add(Renumber(Source.FullName, Source.Name, "", NN, Chars[0])); } // Installs mods, but should prly not
                 else if (Chars.Count == 0
                     && Source.GetDirectories("actors") is DirectoryInfo[] actors
                     && actors.Length > 0
@@ -32,7 +32,7 @@ namespace OpenHeroSelectGUI.Functions
                 {
                     string FS = Path.GetFileNameWithoutExtension(Skin.Name);
                     // This method currently doesn't install the renumbered mod.
-                    Messges.Add(Renumber(Source, FS[..^2], NN,
+                    Messages.Add(Renumber(Source, FS[..^2], NN,
                         Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(OHSpath.Packages(Source.FullName), $"*{FS}.pkgb").FirstOrDefault()) is string PN ? PN[..PN.LastIndexOf('_')] : "",
                         Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(Path.Combine(Source.FullName, "data", "powerstyles"), $"*.*").FirstOrDefault("")),
                         Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(Path.Combine(Source.FullName, "actors"), $"{FS[..^2]}_*").FirstOrDefault("")).Replace("_4_combat", ""),
@@ -40,11 +40,11 @@ namespace OpenHeroSelectGUI.Functions
                         ? null
                         : "Associated files not found.");
                 }
-                else { Messges.Add("Mod Renumbering failed."); }
+                else { Messages.Add("Mod Renumbering failed."); }
             }
             // Number not detected, failed
             // WIP: Not ready to handle error messages.
-            return Messges;
+            return Messages;
         }
         /// <summary>
         /// Renumber a <paramref name="Mod"/>, based on herostat (<paramref name="HF"/>) information from <paramref name="ON"/> (can be "") to <paramref name="NN"/>. Installs to <paramref name="NewName"/>.

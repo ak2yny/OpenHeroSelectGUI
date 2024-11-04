@@ -389,7 +389,8 @@ namespace OpenHeroSelectGUI.Settings
         {
             return SaveIniXml(Oini, $"{Oini.Remove(Oini.LastIndexOf('.'))}_GUI.xml")
                 && GenerateCfgFiles(rv, rv)
-                && MarvelModsXML.TeamBonusSerializer($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml");
+                && (MarvelModsXML.TeamBonusSerializer($"{Oini.Remove(Oini.LastIndexOf('.'))}_team_bonus.xml")
+                || CfgSt.Roster.Teams.Count == 0);
         }
         /// <summary>
         /// Save OHS settings in JSON (<paramref name="Oini"/>) &amp; GUI settings in XML (<paramref name="Gini"/>) by providing both paths.

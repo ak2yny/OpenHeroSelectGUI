@@ -123,6 +123,12 @@
 
 ## Changelog
 
+ |04.11.2024|1.1.8: Fixed bugs
+
+ |01.11.2024|1.1.7: Added HUD hex-editor
+
+ |23.10.2024|1.1.6: Improved Exceptions
+
  |10.08.2024|1.1.5: Fixed bugs
 
  |01.08.2024|1.1.4: Packages Update
