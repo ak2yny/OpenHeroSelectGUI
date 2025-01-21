@@ -191,9 +191,10 @@ namespace OpenHeroSelectGUI.Functions
         /// </summary>
         public static void WriteCfgFiles(List<string> MlL, List<string> CnL)
         {
-            File.WriteAllLines(Path.Combine(OHSpath.CD, OHSpath.Game, "rosters", $"Roster-{DateTime.Now:yyMMdd-HHmmss}.cfg"), CnL);
+            string Name = $"SplitStats-{DateTime.Now:yyMMdd-HHmmss}.cfg";
+            File.WriteAllLines(Path.Combine(OHSpath.CD, OHSpath.Game, "rosters", Name), CnL);
             if (CfgSt.GUI.Game == "XML2") { return; }
-            File.WriteAllLines(Path.Combine(OHSpath.CD, OHSpath.Game, "menulocations", $"Menulocations-{DateTime.Now:yyMMdd-HHmmss}.cfg"), MlL);
+            File.WriteAllLines(Path.Combine(OHSpath.CD, OHSpath.Game, "menulocations", Name), MlL);
         }
     }
 }

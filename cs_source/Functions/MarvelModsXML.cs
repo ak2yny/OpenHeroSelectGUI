@@ -43,12 +43,6 @@ namespace OpenHeroSelectGUI.Functions
         public static string UpdateLayout(string LayoutDataFile, bool HasRiser)
         {
             List<SelectedCharacter> EL = [.. CfgSt.Roster.Selected.Where(c => !string.IsNullOrEmpty(c.Effect))];
-            SelectedCharacter[] GRHT = [.. EL.Where(c => c.Loc is "03" or "24")];
-            foreach (SelectedCharacter C in GRHT)
-            {
-                EL.Remove(C);
-                EL.Insert(0, C);
-            }
             if ((HasRiser || EL.Count > 0) && DecompileToTemp(LayoutDataFile) is string DLDF)
             {
                 XmlDocument LayoutData = new();
@@ -56,10 +50,19 @@ namespace OpenHeroSelectGUI.Functions
                 if (LayoutData.DocumentElement is XmlElement menu_items)
                 {
                     if (HasRiser) { _ = menu_items.AppendChild(LayoutData.ImportNode(Riser, true)); }
+                    string[] GRHTlocs = ["03", "24"];
+                    SelectedCharacter[] GRHT = [.. EL.Where(c => GRHTlocs.Contains(c.Loc))];
+                    GRHTlocs = [.. GRHT.Select(c => c.Loc).Union(GRHTlocs)];
+                    foreach (SelectedCharacter C in GRHT)
+                    {
+                        EL.Remove(C);
+                        EL.Insert(0, C);
+                    }
                     for (int i = 0; i < (CfgSt.GUI.HidableEffectsOnly && EL.Count > 1 ? 2 : EL.Count); i++)
                     {
                         // Alternatively, we could hex-edit to hide effects on different slots: Util.HexEdit(0x3cc67b, SC.Loc!, CfgSt.GUI.ActualGamePath + "/Game.exe")
-                        if (AddEffect(EL[i].Loc, EL[i].Effect!, EL[i].Loc == "24" || i > 1 ? EL[i].Loc! : i > 0 ? "24" : "03") is XmlNode EffectLine)
+                        if (EL[i].Loc is string Loc && Loc.Length > 1
+                            && AddEffect(Loc, EL[i].Effect!, i > 1 || i < GRHT.Length ? Loc : GRHTlocs[i]) is XmlNode EffectLine)
                         {
                             _ = menu_items.AppendChild(LayoutData.ImportNode(EffectLine, true));
                         }
@@ -73,7 +76,7 @@ namespace OpenHeroSelectGUI.Functions
         /// Modify the referenced effect file of <paramref name="EffectName"/> with the <paramref name="Loc"/> coordinates and copy it to the game files with the _<paramref name="FXslot"/> suffix.
         /// </summary>
         /// <returns>An <see cref="XmlElement"/> with the same values for team_back.xmlb</returns>
-        private static XmlElement? AddEffect(string? Loc, string EffectName, string FXslot)
+        private static XmlElement? AddEffect(string Loc, string EffectName, string FXslot)
         {
             // Note: Any config.xml can theoretically not contain the required entries at the correct location. If this is the case, the app will throw an unhandled exception. This can be avoided by verifying the XML with a scheme definition.
             if (Loc is not null
@@ -105,7 +108,7 @@ namespace OpenHeroSelectGUI.Functions
                             if (EffectType.HasAttribute("origin2"))
                                 _ = EffectType.SetAttributeNode(O2);
                         }
-                        EFN = $"{EFN}_{FXslot}";
+                        EFN = $"{EFN}_{Loc}";
                         if (CompileToTarget(EffectFile, Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, "effects", "menu")).FullName, $"{EFN}.xmlb")))
                         {
                             // WIP: This seems to work, but is still in beta phase

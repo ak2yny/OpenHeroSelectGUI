@@ -69,7 +69,7 @@
                     <RepositionThemeTransition IsStaggeringEnabled="False" />
                 </StackPanel.ChildrenTransitions>-->
                 <TextBlock Text="Path and Save Settings" Style="{StaticResource SettingsSectionHeaderStyle}"/>
-                <Expander x:Name="GameInstallPath" Visibility="{x:Bind Cfg.GUI.IsNotConsole, Mode=OneWay}">
+                <Expander x:Name="GameInstallPath" Visibility="{x:Bind Cfg.GUI.IsMo2, Mode=OneWay}">
                     <Expander.Header>
                         <controls:SettingsCardContent Description="Path to the folder with the executable" Header="Game Installation Path" Margin="0 10">
                             <controls:SettingsCardContent.Icon>

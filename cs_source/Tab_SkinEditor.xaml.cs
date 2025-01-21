@@ -118,7 +118,7 @@ namespace OpenHeroSelectGUI
         private async void SplitterDropAreaBG_Drop(object sender, DragEventArgs e)
         {
             if (e.DataView.Contains(StandardDataFormats.StorageItems)
-                && (await e.DataView.GetStorageItemsAsync()).FirstOrDefault() is StorageFile HS)
+                && (await e.DataView.GetStorageItemsAsync())[0] is StorageFile HS)
             {
                 SplitHS(HS.Path);
             }

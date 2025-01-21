@@ -11,7 +11,7 @@
 * [Requirements](#requirements)
 * [Features](#features)
 * [Planned Features](#planned-features)
-* [Usage Instructions](#usage-instructions-v-010)
+* [Usage Instructions](#usage-instructions)
   * [How can I add more characters?](#how-can-i-add-more-characters)
   * [How can I change the path to MUA/XML2/MO2?](#how-can-i-change-the-path-to-muaxml2mo2)
   * [What are Save Slots?](#what-are-save-slots)
@@ -122,6 +122,8 @@
 <br/><br/>
 
 ## Changelog
+
+ |21.01.2024|1.1.9: Improved HS Splitter & Effects
 
  |04.11.2024|1.1.8: Fixed bugs
 

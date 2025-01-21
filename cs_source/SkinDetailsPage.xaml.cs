@@ -32,9 +32,9 @@ namespace OpenHeroSelectGUI
             InitializeComponent();
             if (Cfg.GUI.Game == "XML2" && Cfg.GUI.SkinsDragEnabled) { Skins.CanDragItems = true; }
             Skins.AllowDrop = Skins.CanReorderItems = Cfg.GUI.Game != "XML2" || Cfg.GUI.SkinsDragEnabled;
-            string[] TargetPaths = OHSpath.ModFolders.Select(d => d.Name).ToArray();
-            TargetPath.ItemsSource = TargetPaths.Length == 0 ? [Cfg.OHS.GameInstallPath] : TargetPaths;
-            TargetPath.SelectedIndex = Array.IndexOf(TargetPaths, Cfg.GUI.SkinModName == "" ? new DirectoryInfo(Cfg.OHS.GameInstallPath).Name : Cfg.GUI.SkinModName) is int i && i > 0 ? i : 0;
+            IEnumerable<string> TargetPaths = OHSpath.ModFolders.Select(d => d.Name);
+            TargetPath.ItemsSource = !TargetPaths.Any() ? [Cfg.OHS.GameInstallPath] : TargetPaths;
+            TargetPath.SelectedIndex = Array.IndexOf(TargetPaths.ToArray(), Cfg.GUI.SkinModName == "" ? new DirectoryInfo(Cfg.OHS.GameInstallPath).Name : Cfg.GUI.SkinModName) is int i && i > 0 ? i : 0;
             LoadSkinList();
             // Note: Skins are always loaded from file when navigated (except if nothing selected) - intended, to read external changes
         }
@@ -297,7 +297,7 @@ namespace OpenHeroSelectGUI
         /// Hex edit hud head <paramref name="IGB"/> files, using the number from <paramref name="Name"/>, to make them compatible with NPC.
         /// </summary>
         /// <returns><see langword="True"/>, if edited successfully, otherwise <see langword="false"/>.</returns>
-        private bool FixHUDs(string IGB, string Name)
+        private static bool FixHUDs(string IGB, string Name)
         {
             return Opt.Write([.. Opt.Head(1), .. Opt.StatTex(1)], IGB)
                 && Util.RunDosCommnand(Alchemy.Optimizer!, $"\"{IGB}\" \"{Path.Combine(OHSpath.Temp, "temp.igb")}\" \"{Alchemy.INI}\"") is string Stats
@@ -307,7 +307,7 @@ namespace OpenHeroSelectGUI
         /// Hex edit hud head <paramref name="IGB"/> files, using the number from <paramref name="Name"/> and information from <paramref name="TextureLines"/>, to make them compatible with NPC.
         /// </summary>
         /// <returns><see langword="True"/>, if edited successfully, otherwise <see langword="false"/>.</returns>
-        private bool FixHUDs(string IGB, string Name, IEnumerable<string> TextureLines)
+        private static bool FixHUDs(string IGB, string Name, IEnumerable<string> TextureLines)
         {
             if (TextureLines.Any())
             {
@@ -360,7 +360,7 @@ namespace OpenHeroSelectGUI
             if (Alchemy.GetSkinStats(SourceIGB) is string Stats)
             {
                 string[] StatLines = Stats.Split(Environment.NewLine);
-                IEnumerable<string> GeometryLines = StatLines.Where(s => s.Contains("igGeometryAttr")).Select(s => s.Split('|')[2].Trim()).ToArray();
+                IEnumerable<string> GeometryLines = StatLines.Where(s => s.Contains("igGeometryAttr")).Select(s => s.Split('|')[2].Trim());
                 IEnumerable<string> TextureLines = StatLines.Where(s => s.Contains("IG_GFX_TEXTURE_FORMAT_"));
                 int[] TexSizeProds = TextureLines.Select(s => int.Parse(s.Split('|')[1]) * int.Parse(s.Split('|')[2])).ToArray();
                 string[] BiggestTex = TextureLines.ToArray()[Array.IndexOf(TexSizeProds, TexSizeProds.Max())].Split('|');
@@ -546,21 +546,19 @@ namespace OpenHeroSelectGUI
                 Skins.SelectedItem = Control.DataContext;
             }
         }
+
         /// <summary>
         /// Restrict skin number input
         /// </summary>
-#pragma warning disable CA1822 // Mark members as static
         private void SkinNumber_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
-#pragma warning restore CA1822 // Mark members as static
         {
             args.Cancel = args.NewText.Any(c => !char.IsDigit(c)) || args.NewText.Length > 2;
         }
+
         /// <summary>
         /// Ensure two digit number
         /// </summary>
-#pragma warning disable CA1822 // Mark members as static
         private void SkinNumber_LosingFocus(UIElement sender, LosingFocusEventArgs args)
-#pragma warning restore CA1822 // Mark members as static
         {
             if (sender is TextBox SN)
             {
