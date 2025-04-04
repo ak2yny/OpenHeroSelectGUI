@@ -60,8 +60,6 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns>The full path to the .exe or an invalid path/string if settings are wrong.</returns>
         public static string StartExe()
         {
-            // Doesn't check for path content, but if not tampered with in config files, paths are either good or "".
-            // Since the variables can't be null, we could check with Path.IsPathFullyQualified().
             return Path.Combine(CfgSt.GUI.GameInstallPath != "" ? CfgSt.GUI.GameInstallPath : CfgSt.OHS.GameInstallPath, CfgSt.OHS.ExeName);
         }
         /// <summary>

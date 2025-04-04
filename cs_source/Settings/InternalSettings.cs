@@ -67,6 +67,8 @@ namespace OpenHeroSelectGUI.Settings
         private bool isMua;
         [ObservableProperty]
         private bool isXml2;
+        [ObservableProperty]
+        private string? charNum;
 
         public VariableSettings()
         {

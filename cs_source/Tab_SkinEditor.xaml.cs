@@ -62,7 +62,7 @@ namespace OpenHeroSelectGUI
                 }
                 else
                 {
-                    string[] LoadedHerostat = File.ReadLines(HS).ToArray();
+                    string[] LoadedHerostat = [.. File.ReadLines(HS)];
                     char HsFormat = LoadedHerostat.First(s => !string.IsNullOrEmpty(s.Trim())).Trim()[0];
                     if (HsFormat == '<')
                     {

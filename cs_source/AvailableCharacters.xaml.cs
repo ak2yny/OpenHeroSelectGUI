@@ -37,16 +37,14 @@ namespace OpenHeroSelectGUI
         {
             DirectoryInfo folder = new(OHSpath.HsFolder);
             string rosters = Path.Combine(OHSpath.CD, OHSpath.Game, "rosters");
-            string[] NewAvailable = Cfg.GUI.AvailChars && folder.Exists
-                ? folder.EnumerateFiles("*", SearchOption.AllDirectories)
-                    .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
-                    .Replace(Path.DirectorySeparatorChar, '/'))
-                    .Distinct(StringComparer.OrdinalIgnoreCase)
-                    .ToArray()
-                : !Cfg.GUI.AvailChars && Directory.Exists(rosters)
-                ? Directory.EnumerateFiles(rosters, "*.cfg")
-                    .Select(f => Path.GetFileNameWithoutExtension(f))
-                    .ToArray()
+            bool LoadChars = Cfg.GUI.AvailChars || Cfg.GUI.Home.StartsWith("NavItem_SkinEditor");
+            string[] NewAvailable = LoadChars && folder.Exists
+                ? [.. folder.EnumerateFiles("*", SearchOption.AllDirectories)
+                            .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
+                            .Replace(Path.DirectorySeparatorChar, '/'))
+                            .Distinct(StringComparer.OrdinalIgnoreCase)]
+                : !LoadChars && Directory.Exists(rosters)
+                ? [.. Directory.EnumerateFiles(rosters, "*.cfg").Select(f => Path.GetFileNameWithoutExtension(f))]
                 : [];
             if (NewAvailable != Cfg.Roster.Available)
             {
@@ -60,7 +58,7 @@ namespace OpenHeroSelectGUI
                     else
                     {
                         PopulateAvailable(string.IsNullOrEmpty(TVsearch.Text) || !KeepFilter ? NewAvailable
-                            : NewAvailable.Where(a => a.Contains(TVsearch.Text, StringComparison.CurrentCultureIgnoreCase)).ToArray());
+                            : [.. NewAvailable.Where(a => a.Contains(TVsearch.Text, StringComparison.CurrentCultureIgnoreCase))]);
                     }
                 }
                 else
@@ -92,7 +90,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void PopulateAvailable(TreeViewNode Parent, string RemainingPath, string PathInfo)
         {
-            if (!Cfg.GUI.AvailChars)
+            if (AvailRstrs.IsChecked ?? false)
             {
                 Parent.Children.Add(new TreeViewNode() { Content = PathInfo });
                 return;
@@ -139,7 +137,7 @@ namespace OpenHeroSelectGUI
             if (Cfg.Roster.Available is not null)
             {
                 PopulateAvailable(string.IsNullOrEmpty(sender.Text) ? Cfg.Roster.Available
-                    : Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.CurrentCultureIgnoreCase)).ToArray());
+                    : [.. Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.CurrentCultureIgnoreCase))]);
             }
         }
         /// <summary>
@@ -274,6 +272,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void TreeViewItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
+            if (Cfg.GUI.Home.StartsWith("NavItem_SkinEditor")) { return; }
             if (Cfg.Var.FloatingCharacter is not null)
             {
                 _ = AddToSelected(Cfg.Var.FloatingCharacter);

@@ -121,7 +121,7 @@
                         <RowDefinition/>
                     </Grid.RowDefinitions>
                     <StackPanel x:Name="AddButton" Orientation="Horizontal" Visibility="Collapsed">
-                        <TextBlock x:Name="AddCharNum" Margin="16 0 5 0" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="AddCharNum" Text="{x:Bind Cfg.Var.CharNum, Mode=OneWay}" Margin="16 0 5 0" VerticalAlignment="Center"/>
                         <Button x:Name="AddSkinSlot" Click="AddSkinSlot_Click" Padding="10 5">
                             <SymbolIcon>Add</SymbolIcon>
                         </Button>
@@ -220,7 +220,11 @@
         </ScrollViewer>
         <ContentDialog x:Name="EnterSkinNumber" Title="Install Extra Skin" PrimaryButtonText="OK" MaxWidth="400">
             <StackPanel>
-                <TextBox x:Name="ExtraSkinNumber" Header="Enter the number that the swap skin should be installed to:" BeforeTextChanging="SkinNumber_BeforeTextChanging" LosingFocus="SkinNumber_LosingFocus" Margin="0 5"/>
+                <TextBlock Text="Enter the number that the swap skin should be installed to:" TextWrapping="Wrap"/>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock x:Name="ExtraCharacterNumber" Text="{x:Bind Cfg.Var.CharNum, Mode=OneWay}" Margin="5 10"/>
+                    <TextBox x:Name="ExtraSkinNumber" BeforeTextChanging="SkinNumber_BeforeTextChanging" LosingFocus="SkinNumber_LosingFocus" Margin="0 5"/>
+                </StackPanel>
                 <TextBlock Text="For mods that use skin specific swap out skins in a similar manner as Emma Frost or Human Torch, but with a different numbering system." TextWrapping="Wrap"/>
                 <TextBlock Text="Also for morphing, shape changing or certain powers. This is usually not required (e.g. for Mystique), unless you manually want to change the swapped skins." TextWrapping="Wrap"/>
             </StackPanel>

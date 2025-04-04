@@ -44,6 +44,7 @@ namespace OpenHeroSelectGUI.Settings
         public OHSsettings()
         {
             rosterValue = "temp.OHSGUI";
+            // See GUIsettings for comments about gameInstallPath
             gameInstallPath = exeName = "";
             herostatName = "herostat.engb";
             newGamePyName = "new_game.py";
@@ -172,6 +173,8 @@ namespace OpenHeroSelectGUI.Settings
             gitHub = "https://github.com/ak2yny/OpenHeroSelectGUI";
             // Note: XML2 seems to have an issue when the settings.dat is removed.
             MuaFreeSaves = hidableEffectsOnly = copyStage = availChars = isNotConsole = true;
+            // When checking for gameInstallPath, do != "", because if not tampered with in config files, paths are either good or "".
+            // Alternatives: Path.IsPathFullyQualified() (doesn't check for existence either); File.Exists().
             game = home = gameInstallPath = actualGameExe = exeArguments = teamBonusName = skinModName = MuaInstallPath = MuaArguments = MuaTeamBonusName = Xml2InstallPath = Xml2Arguments = Xml2TeamBonusName = Xml2SkinModName = MuaSkinModName = "";
             layout = "25 Default PC 2006";
             model = "Default";
@@ -431,7 +434,7 @@ namespace OpenHeroSelectGUI.Settings
         /// <returns><see langword="True"/>, if generated successfully, otherwise <see langword="false"/>.</returns>
         private static bool GenerateCfgFiles(string rv, string mv)
         {
-            if (CfgSt.Roster.Selected.Count == 0) { return false; }
+            if (CfgSt.Roster.Selected.Count == 0) { return true; }
             try
             {
                 if (OHSpath.Game == "mua")

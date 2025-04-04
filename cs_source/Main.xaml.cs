@@ -38,20 +38,11 @@ namespace OpenHeroSelectGUI
 
             InitializeComponent();
 
-            AppWindow m_AppWindow = GetAppWindowForCurrentWindow();
+            AppWindow m_AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(WindowNative.GetWindowHandle(this)));
             m_AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
             SetTitleBar(AppTitleBar);
             //AppTitleTextBlock.Text = AppInfo.Current.DisplayInfo.DisplayName;
             //AppWindow.Resize(new SizeInt32(1150, 640));
-        }
-        /// <summary>
-        /// Get the app window (this is not the main window or any other window)
-        /// </summary>
-        private AppWindow GetAppWindowForCurrentWindow()
-        {
-            IntPtr hWnd = WindowNative.GetWindowHandle(this);
-            WindowId wndId = Win32Interop.GetWindowIdFromWindow(hWnd);
-            return AppWindow.GetFromWindowId(wndId);
         }
         /// <summary>
         /// Make the title dim when the app is not in focus
@@ -67,20 +58,18 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
         {
-            if (args.IsSettingsSelected)
+            Type? navPageType = args.IsSettingsSelected
+                ? typeof(Tab_Settings)
+                : args.SelectedItemContainer != null && args.SelectedItemContainer.Tag.ToString() is string TagName
+                ? Type.GetType(TagName)
+                : null;
+            bool forceNav = false;
+            if (!sender.FooterMenuItems.Contains(args.SelectedItem) && args.SelectedItem is NavigationViewItem SI)  // prevent footer pages from becoming home
             {
-                NavView_Navigate(typeof(Tab_Settings), args.RecommendedNavigationTransitionInfo, false);
+                forceNav = NavView_PrepGame(SI.Name[(SI.Name.LastIndexOf('_') + 1)..]);
+                CfgSt.GUI.Home = SI.Name; // if game settings should not become home: Equals(typeof(Tab_Settings), navPageType)
             }
-            else if (args.SelectedItemContainer != null && args.SelectedItemContainer.Tag.ToString() is string TagName && Type.GetType(TagName) is Type navPageType)
-            {
-                bool forceNav = false;
-                if (!sender.FooterMenuItems.Contains(args.SelectedItem) && args.SelectedItem is NavigationViewItem SI)  // prevent footer pages from becoming home
-                {
-                    forceNav = NavView_PrepGame(SI.Name[(SI.Name.LastIndexOf('_') + 1)..]);
-                    CfgSt.GUI.Home = SI.Name;
-                }
-                NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo, forceNav);
-            }
+            NavView_Navigate(navPageType, args.RecommendedNavigationTransitionInfo, forceNav);
         }
         /// <summary>
         /// When loading a game tab, if the <paramref name="Game"/> changed, save and load settings and roster, otherwise update clashes, if clash option changed.
@@ -130,7 +119,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Navigation View: Change the page/tab according to the selected <paramref name="navPageType"/>.
         /// </summary>
-        private void NavView_Navigate(Type navPageType, NavigationTransitionInfo transitionInfo, bool forceNav)
+        private void NavView_Navigate(Type? navPageType, NavigationTransitionInfo transitionInfo, bool forceNav)
         {
             // Get the page type before navigation so you can prevent duplicate entries in the backstack.
             Type preNavPageType = ContentFrame.CurrentSourcePageType;
