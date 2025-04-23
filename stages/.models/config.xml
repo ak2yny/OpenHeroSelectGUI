@@ -911,6 +911,11 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
     </Custom_Riser>
     <Custom_2Risers>
         <Model>
+            <Name>Default Stage with Two Risers</Name>
+            <Path>50 TheTommyboy</Path>
+            <Creator>TheTommyboy</Creator>
+        </Model>
+        <Model>
             <Name>Custom Stage with Two Risers</Name>
             <Path>UMM/D36</Path>
             <Creator>UltraMegaMagnus</Creator>

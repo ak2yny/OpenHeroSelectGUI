@@ -1,0 +1,279 @@
+<!--
+Instructions:
+*************
+
+1) Place the stage files in a folder* and put that in the stages folder.
+2) Setup the information in this file.
+
+Each stage must have a menu (team_back.xmlb and mlm_team_back.igb) which is the layout.
+It's required to set-up the layout here, and recommended to define Compatible_Models (set them up in .models/config.ini).
+You can read coordinates for the location set-up by opening mlm_team_back.igb in Finalizer. Search all igTransfroms for each location (padXX_model) and read the 4th row.
+
+*To avoid replacing any existing stages, the folder must have an unique name.
+-->
+<Layout>
+    <Information>
+        <name>Default Stage for Two Risers</name>
+        <platform>PC2006</platform>
+    </Information>
+    <Location_Setup spacious="false">
+        <Location Number="01">
+            <X>-129</X>
+            <Y>63</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="02">
+            <X>-123</X>
+            <Y>83</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="03">
+            <X>-114</X>
+            <Y>104</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="04">
+            <X>-105</X>
+            <Y>124</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="05">
+            <X>-89</X>
+            <Y>139</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="06">
+            <X>-71</X>
+            <Y>155</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="07">
+            <X>-55</X>
+            <Y>169</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="08">
+            <X>-34</X>
+            <Y>175</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="09">
+            <X>-12</X>
+            <Y>179</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="10">
+            <X>11</X>
+            <Y>178</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="11">
+            <X>31</X>
+            <Y>168</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="12">
+            <X>51</X>
+            <Y>162</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="13">
+            <X>66</X>
+            <Y>150</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="14">
+            <X>82</X>
+            <Y>137</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="15">
+            <X>97</X>
+            <Y>124</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="16">
+            <X>104</X>
+            <Y>106</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="17">
+            <X>113</X>
+            <Y>90</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="18">
+            <X>120</X>
+            <Y>73</Y>
+            <Z>24</Z>
+        </Location>
+        <Location Number="19">
+            <X>143</X>
+            <Y>91</Y>
+            <Z>50</Z>
+        </Location>
+        <Location Number="20">
+            <X>136</X>
+            <Y>115</Y>
+            <Z>49</Z>
+        </Location>
+        <Location Number="21">
+            <X>122</X>
+            <Y>136</Y>
+            <Z>50</Z>
+        </Location>
+        <Location Number="22">
+            <X>110</X>
+            <Y>155</Y>
+            <Z>50</Z>
+        </Location>
+        <Location Number="23">
+            <X>94</X>
+            <Y>169</Y>
+            <Z>50</Z>
+        </Location>
+        <Location Number="24">
+            <X>79</X>
+            <Y>181</Y>
+            <Z>49</Z>
+        </Location>
+        <Location Number="25">
+            <X>58</X>
+            <Y>191</Y>
+            <Z>50</Z>
+        </Location>
+        <Location Number="26">
+            <X>39</X>
+            <Y>199</Y>
+            <Z>50</Z>
+        </Location>
+        <Location Number="27">
+            <X>14</X>
+            <Y>204</Y>
+            <Z>51</Z>
+        </Location>
+        <Location Number="28">
+        	<X>-10</X>
+        	<Y>208</Y>
+        	<Z>50</Z>
+        </Location>
+        <Location Number="29">
+        	<X>-33</X>
+        	<Y>204</Y>
+        	<Z>50</Z>
+        </Location>
+        <Location Number="40">
+            <X>-55</X>
+            <Y>198</Y>
+            <Z>50</Z>
+        </Location>
+        <Location Number="41">
+            <X>-78</X>
+            <Y>191</Y>
+            <Z>49</Z>
+        </Location>
+        <Location Number="42">
+            <X>-98</X>
+            <Y>180</Y>
+            <Z>49</Z>
+        </Location>
+        <Location Number="43">
+            <X>-116</X>
+            <Y>168</Y>
+            <Z>49</Z>
+        </Location>
+        <Location Number="44">
+        	<X>-131</X>
+        	<Y>153</Y>
+        	<Z>49</Z>
+        </Location>
+        <Location Number="45">
+            <X>-144</X>
+            <Y>130</Y>
+            <Z>49</Z>
+        </Location>
+        <Location Number="46">
+            <X>-147</X>
+            <Y>107</Y>
+            <Z>49</Z>
+        </Location>
+        <Location Number="47">
+        	<X>-153</X>
+        	<Y>86</Y>
+        	<Z>50</Z>
+        	</Location>
+        <Location Number="48">
+        	<X>-164</X>
+        	<Y>163</Y>
+        	<Z>61</Z>
+        	</Location>
+        <Location Number="49">
+            <X>-143</X>
+            <Y>182</Y>
+            <Z>61</Z>
+        </Location>
+        <Location Number="50">
+            <X>-119</X>
+            <Y>202</Y>
+            <Z>61</Z>
+        </Location>
+        <Location Number="51">
+        	<X>-91</X>
+        	<Y>211</Y>
+        	<Z>61</Z>
+        </Location>
+        <Location Number="52">
+        	<X>-66</X>
+        	<Y>220</Y>
+        	<Z>61</Z>
+        </Location>
+        <Location Number="53">
+        	<X>-24</X>
+        	<Y>229</Y>
+        	<Z>61</Z>
+        </Location>
+        <Location Number="54">
+        	<X>15</X>
+        	<Y>230</Y>
+        	<Z>61</Z>
+        </Location>
+        <Location Number="55">
+        	<X>54</X>
+        	<Y>222</Y>
+        	<Z>61</Z>
+        </Location>
+        <Location Number="56">
+            <X>84</X>
+            <Y>213</Y>
+            <Z>61</Z>
+        </Location>
+        <Location Number="57">
+        	<X>110</X>
+        	<Y>197</Y>
+        	<Z>61</Z>
+        	</Location>
+        <Location Number="58">
+        	<X>134</X>
+        	<Y>180</Y>
+        	<Z>61</Z>
+        	</Location>
+        <Location Number="59">
+        	<X>159</X>
+        	<Y>157</Y>
+        	<Z>61</Z>
+        	</Location>
+        <Location Number="60">
+        	<X>174</X>
+        	<Y>127</Y>
+        	<Z>61</Z>
+        	</Location>
+    </Location_Setup>
+    <Compatible_Models>
+        <Model>Custom_2Risers</Model>
+        <Model>Custom_NoPlatfrom</Model>
+    </Compatible_Models>
+    <Default_Roster>
+        <menulocations>50 (for 50RH Stage)</menulocations>
+        <roster>50 Roster Hack Base Roster</roster>
+    </Default_Roster>
+</Layout>
