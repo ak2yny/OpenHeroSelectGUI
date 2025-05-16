@@ -126,13 +126,14 @@ namespace OpenHeroSelectGUI
                         string NN = NewModNumber.Text;
                         string NewName = $"{SC.Character_Name} - {NN}";
                         string? ClsErr = null;
+                        bool isArchive = MBrowseSwitch.IsOn;
                         await Task.Run(() =>
                         {
                             if (!string.IsNullOrEmpty(Mod)
-                                && (MBrowseSwitch.IsOn
+                                && (isArchive
                                 ? Util.Run7z(Mod, NewName)
-                                : OHSpath.CopyFilesRecursively(new DirectoryInfo(Mod), Path.Combine(OHSpath.Temp, NewName))
-                                ? Path.Combine(OHSpath.Temp, NewName)
+                                : OHSpath.CopyFilesRecursively(new DirectoryInfo(Mod), Path.Combine(Mod, "..", NewName))
+                                ? Path.Combine(Mod, "..", NewName)
                                 : null) is string Clone)
                             {
                                 ClsErr = ModOps.Renumber(Clone, NewName, SC.Character_Number, NN, HF);

@@ -104,7 +104,10 @@ namespace OpenHeroSelectGUI.Functions
             {
                 try
                 {
-                    List<string> FL = Directory.EnumerateFiles(Path.Combine(Source.FullName, "textures", "loading"), $"{ON}*.igb").ToList();
+                    string loading = Path.Combine(Source.FullName, "textures", "loading");
+                    List<string> FL = Directory.Exists(loading)
+                        ? [.. Directory.EnumerateFiles(loading, $"{ON}*.igb")]
+                        : [];
                     FL.Add(Path.Combine(Source.FullName, "ui", "models", "mannequin", $"{ON}01.igb"));
                     FL.Add(Path.Combine(Source.FullName, "actors", $"{ca}.igb"));
                     FL.Add(Path.Combine(Source.FullName, "actors", $"{ca}_4_combat.igb"));
