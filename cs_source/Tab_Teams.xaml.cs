@@ -45,8 +45,8 @@ namespace OpenHeroSelectGUI
                 TeamBonus[]? Temp = SI == "name.asc"
                     ? [.. Cfg.Roster.Teams.OrderBy(i => i.Name)]
                     : SI == "name.desc"
-                    ? [.. Cfg.Roster.Teams.OrderByDescending(i => i.Name)]
-                    : Cfg.Roster.Teams.ToArray();
+                    ? [.. Cfg.Roster.Teams.OrderByDescending(static i => i.Name)]
+                    : [.. Cfg.Roster.Teams];
                 Cfg.Roster.Teams.Clear();
                 for (int i = 0; i < Temp.Length; i++)
                 {
@@ -150,7 +150,7 @@ namespace OpenHeroSelectGUI
         {
             if (AvailableTeams.SelectedItem is TeamBonus ST && args.Element is ListView Members && ST.Members is ObservableCollection<TeamMember> Ms)
             {
-                TeamMember[]? Temp = Ms.Except(Members.SelectedItems.Cast<TeamMember>()).ToArray();
+                TeamMember[]? Temp = [.. Ms.Except(Members.SelectedItems.Cast<TeamMember>())];
                 ST.Members.Clear();
                 for (int i = 0; i < Temp.Length; i++)
                 {

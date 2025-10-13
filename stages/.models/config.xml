@@ -790,6 +790,71 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
         	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
+        	<Name>Stage 1 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/2</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 2 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/3</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 3 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/4</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 4 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/5</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 5 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/7</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 6 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/9</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 7 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/10</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 8 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/11</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 9 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/12</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 10 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/13</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Stage 11 from Pack 4 (June 2025)</Name>
+        	<Path>Super Team Stage Marvel Mods/June 2025/14</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Blue Animated Stage</Name>
+        	<Path>Super Team Stage Marvel Mods/Animated/0</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Red Animated Stage</Name>
+        	<Path>Super Team Stage Marvel Mods/Animated/1</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
             <Name>Cherry World</Name>
             <Path>Custom MUA Stages by Nuhverah/cherryworld</Path>
             <Creator>Nuhverah</Creator>

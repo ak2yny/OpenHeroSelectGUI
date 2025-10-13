@@ -177,4 +177,7 @@
   <data name="Stage_Cancel.[using:Microsoft.UI.Xaml.Controls]ToolTipService.ToolTip" xml:space="preserve">
     <value>Cancel selection and return to the MUA tab, using the previously selected stage</value>
   </data>
+  <data name="Tab_XVoice.Content" xml:space="preserve">
+    <value>Callouts</value>
+  </data>
 </root>

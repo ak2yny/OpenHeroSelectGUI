@@ -74,6 +74,11 @@ namespace OpenHeroSelectGUI.Functions
         public static string GamePath => Path.GetDirectoryName(MUAexe) ?? CfgSt.OHS.GameInstallPath;
         public static string Team_bonus => Path.Combine(CD, Game, "team_bonus.engb.xml");
         /// <summary>
+        /// Get the x_voice directory for the game.
+        /// </summary>
+        /// <returns>The full path to the game's hardcoded x_voice directory ("x_voicePackage").</returns>
+        public static string XvoiceDir => Path.Combine(CD, Game, "x_voicePackage");
+        /// <summary>
         /// Get the OHS temp folder path as a <see cref="string"/>. Performs a crash if no permission.
         /// </summary>
         public static string Temp => Directory.CreateDirectory(Path.Combine(CD, "Temp")).FullName;
@@ -144,14 +149,14 @@ namespace OpenHeroSelectGUI.Functions
         /// </summary>
         /// <returns>Array with matching folders as <see cref="DirectoryInfo"/> or empty array.</returns>
         public static DirectoryInfo[] ModFolders => ModsFolder is DirectoryInfo MO2
-                ? MO2.EnumerateDirectories().ToArray()
-                : (DirectoryInfo[])([]);
+                ? [.. MO2.EnumerateDirectories()]
+                : Array.Empty<DirectoryInfo>();
         /// <summary>
         /// Get folders with a package folder from the game folder and MO2 mod folders, according to the settings. Note: Distinct DirectoryInfos are case sensitive, even on Windows.
         /// </summary>
         /// <returns>Array with matching folder paths as strings or empty array</returns>
-        public static string[] FoldersWpkg => ((DirectoryInfo[])([new DirectoryInfo(CfgSt.OHS.GameInstallPath), new DirectoryInfo(GamePath), .. ModFolders]))
-            .Select(d => d.FullName).Distinct(StringComparer.OrdinalIgnoreCase).Where(f => Directory.Exists(Packages(f))).ToArray();
+        public static string[] FoldersWpkg => [.. ((DirectoryInfo[])([new DirectoryInfo(CfgSt.OHS.GameInstallPath), new DirectoryInfo(GamePath), .. ModFolders]))
+            .Select(static d => d.FullName).Distinct(StringComparer.OrdinalIgnoreCase).Where(static f => Directory.Exists(Packages(f)))];
         /// <summary>
         /// Copy from <paramref name="SourceFolder" /> (full path) to game folder (from setting) using a <paramref name="RelativePath"/> and <paramref name="Source" /> and <paramref name="Target" /> filenames to rename simultaneously.
         /// </summary>
@@ -218,10 +223,10 @@ namespace OpenHeroSelectGUI.Functions
         public static System.Collections.Generic.IEnumerable<DirectoryInfo> GetModSource(string ModPath)
         {
             return new DirectoryInfo(ModPath).EnumerateDirectories("*", SearchOption.AllDirectories)
-                .FirstOrDefault(g => GameFolders.Contains(g.Name.ToLower())) is DirectoryInfo FGF
+                .FirstOrDefault(static g => GameFolders.Contains(g.Name.ToLower())) is DirectoryInfo FGF
                 ? Path.GetRelativePath(FGF.Parent!.FullName, ModPath) == "."
                     ? [FGF.Parent!]
-                    : FGF.Parent!.Parent!.EnumerateDirectories("*").Where(f => f.EnumerateDirectories("*").Any(g => GameFolders.Contains(g.Name.ToLower())))
+                    : FGF.Parent!.Parent!.EnumerateDirectories("*").Where(static f => f.EnumerateDirectories("*").Any(g => GameFolders.Contains(g.Name.ToLower())))
                 : [];
         }
         /// <summary>

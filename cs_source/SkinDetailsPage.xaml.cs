@@ -322,32 +322,50 @@ namespace OpenHeroSelectGUI
             return false;
         }
         /// <summary>
+        /// Platform enum values to work with the selected platform
+        /// </summary>
+        private enum Platform
+        {
+            MUA_NotSel = -1,
+            MUA_PC_2006 = 0,
+            MUA_PS2     = 1,
+            MUA_PS3     = 2,
+            MUA_PS4     = 3,
+            MUA_PSP     = 4,
+            MUA_Wii     = 5,
+            MUA_XBOX    = 6,
+            MUA_XENO    = 7,
+            MUA_XOne    = 8, // and Steam
+            XML2_NotSel = 9,
+            XML2_PC     = 10,
+            XML2_GCUB   = 11,
+            XML2_PS2    = 12,
+            XML2_PSP    = 13,
+            XML2_XBOX   = 14
+        }
+        /// <summary>
+        /// Alchemy version enum with hex version ID/number and corresponding known actual version
+        /// </summary>
+        private enum AlchemyV
+        {
+            AV_Unknown = 0,
+            AV_2_5 = 4,
+            AV_3_2 = 6,
+            AV_3_5 = 8,
+            AV_5   = 9,
+        }
+        /// <summary>
         /// Apply Alchemy optimizations to make the <paramref name="SourceIGB"/> compatible if possible and show compatibility information. Performs a crash if target directory can't be written to.
         /// Copy <paramref name="SourceIGB"/> to [gameInstallPath]/<paramref name="GamePath"/>/<paramref name="Name"/>.igb.
         /// </summary>
         private void FixSkins(string SourceIGB, string GamePath, string Name)
         {
-            // Platforms:
-            // 0 = MUA PC 2006
-            // 1 = MUA PS2
-            // 2 = MUA PS3
-            // 3 = MUA PS4
-            // 4 = MUA PSP
-            // 5 = MUA Wii
-            // 6 = MUA Xbox
-            // 7 = MUA Xbox 360
-            // 8 = MUA Xbox One, Steam
-            // 10 = XML2 PC
-            // 11 = XML2 Gamecube
-            // 12 = XML2 PS2
-            // 13 = XML2 PSP
-            // 14 = XML2 Xbox
-            int Plat = Cfg.GUI.Game == "XML2"
+            Platform Plat = (Platform)(Cfg.GUI.Game == "XML2"
                 ? XML2platforms.SelectedIndex + 10
-                : MUAplatforms.SelectedIndex;
-            int PAV = Plat is < 1 or 2 or 3 or 7 or 8
+                : MUAplatforms.SelectedIndex);
+            int PAV = (int)Plat < 1 || Plat is Platform.MUA_PS3 or Platform.MUA_PS4 or Platform.MUA_XENO or Platform.MUA_XOne // NextGen
                 ? 9
-                : Plat is 4 or 5 or 13
+                : Plat is Platform.MUA_PSP or Platform.MUA_Wii or Platform.XML2_PSP
                 ? 8
                 : 6;
 
@@ -365,29 +383,22 @@ namespace OpenHeroSelectGUI
                 int[] TexSizeProds = [.. TextureLines.Select(s => int.Parse(s.Split('|')[1]) * int.Parse(s.Split('|')[2]))];
                 string[] BiggestTex = TextureLines.ToArray()[Array.IndexOf(TexSizeProds, TexSizeProds.Max())].Split('|');
 
-                int AV;
+                AlchemyV AV;
                 using FileStream fs = new(SourceIGB, FileMode.Open, FileAccess.Read);
                 fs.Position = 0x2C;
-                try { AV = fs.ReadByte(); } catch { AV = 0; }
+                try { AV = (AlchemyV)fs.ReadByte(); } catch { AV = AlchemyV.AV_Unknown; }
 
-                AlchemyVersion.Text = AV == 4
-                    ? "2.5"
-                    : AV == 6
-                    ? "3.2"
-                    : AV == 8
-                    ? "3.5"
-                    : AV == 9
-                    ? "5"
-                    : "unknown";
-                AlchemyVersion.Foreground = AlchemyVersionT.Foreground =
-                    AV > PAV
+                string v = AV.ToString();
+                AlchemyVersion.Text = v.Length > 3 ? v[3..].Replace('_', '.') : v;
+                AlchemyVersion.Foreground = AlchemyVersionT.Foreground = (int)AV > PAV
                     ? Red
                     : Green;
 
                 FileSize.Text = $"{fs.Length} bytes";
                 FileSize.Foreground = FileSizeT.Foreground =
-                    (Plat == 5 && fs.Length > 600000)
-                    || ((Plat is > 10 or 1 or 4 or 6) && fs.Length > 300000)
+                    (Plat is Platform.MUA_Wii && fs.Length > 600000)
+                    || ((Plat is Platform.MUA_PSP or Platform.XML2_PSP) && fs.Length > 150000)
+                    || (((int)Plat > 10 || Plat is Platform.MUA_PS2 or Platform.MUA_XBOX) && fs.Length > 300000)
                     ? Red
                     : Green;
 
@@ -402,19 +413,19 @@ namespace OpenHeroSelectGUI
                 GeometryCount.Text = GeometryLines.Count().ToString();
 
                 TextureFormats.Text = string.Join(", ", TextureLines.Select(s => s.Split('|')[3].Trim()).Distinct()).Replace("IG_GFX_TEXTURE_FORMAT_", "");
-                string[] IncompatibleTexs = Plat is < 1 or 10 or 9
+                string[] IncompatibleTexs = Plat is Platform.MUA_PC_2006 or Platform.MUA_NotSel or Platform.XML2_PC or Platform.XML2_NotSel
                     ? ["PSP", "GAMECUBE"]
-                    : Plat is 1 or 12
+                    : Plat is Platform.MUA_PS2 or Platform.XML2_PS2
                     ? ["PSP", "GAMECUBE", "DXT"]
-                    : Plat is 4 or 13
+                    : Plat is Platform.MUA_PSP or Platform.XML2_PSP
                     ? ["GAMECUBE", "DXT"]
-                    : Plat is 5
+                    : Plat is Platform.MUA_Wii
                     ? ["PSP", "_X_"]
-                    : Plat is 11
+                    : Plat is Platform.XML2_GCUB
                     ? ["PSP"]
-                    : Plat is 8
+                    : Plat is Platform.MUA_XOne
                     ? ["PSP", "GAMECUBE", "888", "_X_"]
-                    : ["PSP", "GAMECUBE", "_X_"];
+                    : ["PSP", "GAMECUBE", "_X_"]; // PS3, PS4, Xbox, X360/XENO
                 TextureFormats.Foreground = TextureFormatsT.Foreground =
                     IncompatibleTexs.Any(i => TextureFormats.Text.Contains(i))
                     ? Red
@@ -431,7 +442,7 @@ namespace OpenHeroSelectGUI
             FileInfo SIGB = new(SourceIGB);
             if (SIGB.Exists && TargetIgb(GamePath, Name) is string IGB)
             {
-                bool ConvGeo = Plat is 2 or 3 or 4 or 7 or 8 && GeometryFormats.Text.Contains("1_5");
+                bool ConvGeo = Plat is Platform.MUA_PS3 or Platform.MUA_PS4 or Platform.MUA_PSP or Platform.MUA_XENO or Platform.MUA_XOne && GeometryFormats.Text.Contains("1_5"); // Wii, too, but not compatible with A5? (What about XML2 PSP?)
                 bool HexEdit = IsSkin && !(string.IsNullOrWhiteSpace(igSkin) || igSkin == Name || igSkin.StartsWith("Bip01"));
                 Cfg.Var.SE_Msg_Info = new MessageItem { Message = $"Replaced '{IGB}'.", IsOpen = File.Exists(IGB) };
 

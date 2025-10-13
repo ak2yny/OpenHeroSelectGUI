@@ -17,6 +17,8 @@ REM Add required files and make build
  echo tasklist /fi "ImageName eq OpenHeroSelectGUI.exe" /fo csv 2^>nul ^| find /i "OpenHeroSelectGUI.exe"^>nul ^&^& call :KillGUI
  echo if exist OHSGUI_new rmdir /q /s OHSGUI
  echo ren OHSGUI_new OHSGUI
+ echo robocopy stages_new stages /s /nfl /ndl /njh /njs /nc /ns /np
+ echo rmdir /q /s stages_new
  echo mklink OpenHeroSelectGUI .\OHSGUI\OpenHeroSelectGUI.exe
  echo del MkLink.bat
  echo EXIT
@@ -65,7 +67,7 @@ del MkLink.bat
 EXIT
 
 :BuildInstaller
-InstallerFiles\7z.exe a -t7z %1.7z OHSGUI_new/ stages/ mua/ xml2/ MkLink.bat %~2 -xr!"stages/.models/Super Team Stage Marvel Mods" -xr!"stages/.models/TeamStageCollection"
+InstallerFiles\7z.exe a -t7z %1.7z OHSGUI_new/ stages_new/ mua/ xml2/ MkLink.bat %~2 -xr!"stages_new/.models/Super Team Stage Marvel Mods" -xr!"stages_new/.models/TeamStageCollection"
 copy /b InstallerFiles\7zSD.sfx + InstallerFiles\config.txt + %1.7z %1.exe
 EXIT /b
 

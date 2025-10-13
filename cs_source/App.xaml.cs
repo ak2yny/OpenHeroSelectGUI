@@ -1,4 +1,5 @@
 ﻿using Microsoft.UI.Xaml;
+using System.IO;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -18,7 +19,7 @@ namespace OpenHeroSelectGUI
         {
             InitializeComponent();
 
-            // Possibly add error handling with a function: UnhandledException += App_UnhandledException;
+            UnhandledException += App_UnhandledException;
         }
 
         /// <summary>
@@ -29,6 +30,17 @@ namespace OpenHeroSelectGUI
         {
             MainWindow = new Main();
             MainWindow.Activate();
+        }
+
+        private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            // Handle the exception here, e.Exception provides the exception details
+            using StreamWriter sw = File.AppendText(Path.Combine(Directory.GetCurrentDirectory(), "error.log"));
+            sw.WriteLine("");
+            sw.Write(e.Exception);
+            sw.Write(e.Message);
+            e.Handled = true; // Set to true to indicate that the exception has been handled
+            MainWindow?.Close();
         }
 
         public static Window? MainWindow { get; set; }

@@ -102,7 +102,7 @@ namespace OpenHeroSelectGUI
         private void NavView_Loaded(object sender, RoutedEventArgs e)
         {
             NavView.SelectedItem = Directory.Exists(Path.Combine(CfgSt.OHS.GameInstallPath, "data"))
-                ? NavView.MenuItems.Cast<NavigationViewItem>().Select(GetHome).FirstOrDefault(i => i is not null) is NavigationViewItem Home
+                ? NavView.MenuItems.Cast<NavigationViewItem>().Select(GetHome).FirstOrDefault(static i => i is not null) is NavigationViewItem Home
                 ? Home
                 : NavView.MenuItems[0]
                 : NavView.SettingsItem;
@@ -114,7 +114,7 @@ namespace OpenHeroSelectGUI
         private static NavigationViewItem? GetHome(NavigationViewItem Item)
         {
             if (Item.Name == CfgSt.GUI.Home) { return Item; }
-            return Item.MenuItems.Cast<NavigationViewItem>().FirstOrDefault(i => GetHome(i) is not null);
+            return Item.MenuItems.Cast<NavigationViewItem>().FirstOrDefault(static i => GetHome(i) is not null);
         }
         /// <summary>
         /// Navigation View: Change the page/tab according to the selected <paramref name="navPageType"/>.

@@ -6,7 +6,7 @@ Instructions:
 2) Setup the information in this file.
 
 Each stage must have a menu (team_back.xmlb and mlm_team_back.igb) which is the layout.
-It's required to set-up the layout here, and recommended to define Compatible_Models (set them up in .models/config.ini).
+It's required to set-up the layout here, and recommended to define Compatible_Models (set them up in .models/config.xml).
 You can read coordinates for the location set-up by opening mlm_team_back.igb in Finalizer. Search all igTransfroms for each location (padXX_model) and read the 4th row.
 
 *To avoid replacing any existing stages, the folder must have an unique name.

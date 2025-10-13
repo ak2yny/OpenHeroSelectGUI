@@ -86,7 +86,7 @@
 - (Make a tutorial and/or presentation video)
 
 #### Updated Plans by ak2yny
-- [Planned Features #14](https://github.com/user/repo/issues/14)
+- [Planned Features #14](https://github.com/ak2yny/OpenHeroSelectGUI/issues/14)
 <br/><br/>
 
 ## Usage Instructions
@@ -110,7 +110,7 @@
 
 ## Coding Instructions
 - [WinUI3 projects with Windows App SDK (non-UWP)](https://learn.microsoft.com/en-us/windows/apps/winui/winui3/create-your-first-winui3-app)
-- The language is C# and Xaml/XML.
+- The language is [C#](https://www.w3schools.com/cs/index.php) and Xaml/XML (C# [rescources](https://www.reddit.com/r/csharp/comments/2umooh/what_are_your_favorite_c_online_resources/) and [tutorials](https://learn.microsoft.com/en-us/dotnet/csharp/tour-of-csharp/) ).
 <br/><br/>
 
 ## Build Instructions
@@ -118,12 +118,17 @@
 - Make sure to add the dependencies before building, as always.
 - I recommend to leave the project as self contained (no dependencies), since WinUI is contained anyway.
 - A Windows App SDK can be built [unpackaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-unpackaged) or [packaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-packaged) (MSIX). As a WinUI3 project, it can be easily re-targeted to a UWP project, but it lacks permission (file access, running OHS) and signature details.
-- Theoretically, the project can be made cross platform through [.Net MAUI](https://dotnet.microsoft.com/en-us/apps/maui) or other platforms, like [UNO](https://platform.uno/), but OHS is currently Windows 10+ exclusive.
+- The project can be made cross platform through [.Net MAUI](https://dotnet.microsoft.com/en-us/apps/maui) or other platforms, like [UNO](https://platform.uno/). Let me know, if you're interested in that.
 <br/><br/>
 
 ## Changelog
 
- |21.01.2024|1.1.9: Improved HS Splitter & Effects
+ |16.05.2025|1.1.11: Fixed Bugs
+ - Added 50 stage by TheTommyBoy
+
+ |04.04.2025|1.1.10: Fixed bugs
+
+ |21.01.2025|1.1.9: Improved HS Splitter & Effects
 
  |04.11.2024|1.1.8: Fixed bugs
 

@@ -52,7 +52,7 @@ namespace OpenHeroSelectGUI.Functions
                     if (HasRiser) { _ = menu_items.AppendChild(LayoutData.ImportNode(Riser, true)); }
                     string[] GRHTlocs = ["03", "24"];
                     SelectedCharacter[] GRHT = [.. EL.Where(c => GRHTlocs.Contains(c.Loc))];
-                    GRHTlocs = [.. GRHT.Select(c => c.Loc).Union(GRHTlocs)];
+                    GRHTlocs = [.. GRHT.Select(c => c.Loc!).Union(GRHTlocs)];
                     foreach (SelectedCharacter C in GRHT)
                     {
                         EL.Remove(C);
@@ -111,7 +111,7 @@ namespace OpenHeroSelectGUI.Functions
                         EFN = $"{EFN}_{Loc}";
                         if (CompileToTarget(EffectFile, Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, "effects", "menu")).FullName, $"{EFN}.xmlb")))
                         {
-                            // WIP: This seems to work, but is still in beta phase
+                            // WIP: This seems to work, but is still in post-beta phase
                             return GUIXML.ElementFromString($"<item effect=\"menu/{EFN}\" enabled=\"false\" name=\"pad{FXslot}_fx\" neverfocus=\"true\" type=\"MENU_ITEM_EFFECT\" />");
                         }
                     }

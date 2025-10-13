@@ -11,41 +11,41 @@ namespace OpenHeroSelectGUI.Functions
         /// <summary>
         /// Renumber a <paramref name="Mod"/> to new number <paramref name="NN"/>. If mulitple mods (herostats) found, will currently do nothing and return empty message.
         /// </summary>
-        /// <returns>A <see cref="List{T}"/> containing error messages as returned from herostat renumber, files msg., or <see langword="null"/> if no error.</returns>
-        public static List<string?> Renumber(string Mod, string NN)
-        {
-            // Optionally, check if it's a mod or folder (continue with variable Original instead of Mod):
-            //if (!string.IsNullOrEmpty(Mod)
-            //    && (File.GetAttributes(Mod).HasFlag(FileAttributes.Directory) ? Mod : Util.Run7z(Mod, ON)) is string Original)
-            List<string?> Messages = [];
-            foreach (DirectoryInfo Source in OHSpath.GetModSource(Mod))
-            {
-                List<FileInfo> Chars = Herostat.GetFiles(Source).ToList();
-                //if (Chars.Count > 1) { show selection; }
-                //else
-                if (Chars.Count == 1) { Messages.Add(Renumber(Source.FullName, Source.Name, "", NN, Chars[0])); } // Installs mods, but should prly not
-                else if (Chars.Count == 0
-                    && Source.GetDirectories("actors") is DirectoryInfo[] actors
-                    && actors.Length > 0
-                    && actors[0].EnumerateFiles("*.igb").Where(n => Path.GetFileNameWithoutExtension(n.Name).All(c => c is >= '0' and <= '9')) is IEnumerable<FileInfo> Skins
-                    && Skins.FirstOrDefault() is FileInfo Skin) // Taking the first skin found, which might not be using the actual mod number
-                {
-                    string FS = Path.GetFileNameWithoutExtension(Skin.Name);
-                    // This method currently doesn't install the renumbered mod.
-                    Messages.Add(Renumber(Source, FS[..^2], NN,
-                        Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(OHSpath.Packages(Source.FullName), $"*{FS}.pkgb").FirstOrDefault()) is string PN ? PN[..PN.LastIndexOf('_')] : "",
-                        Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(Path.Combine(Source.FullName, "data", "powerstyles"), $"*.*").FirstOrDefault("")),
-                        Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(Path.Combine(Source.FullName, "actors"), $"{FS[..^2]}_*").FirstOrDefault("")).Replace("_4_combat", ""),
-                        Skins.Select(s => Path.GetFileNameWithoutExtension(s.Name)).Where(s => s[..^2] == FS[..^2]).ToArray())
-                        ? null
-                        : "Associated files not found.");
-                }
-                else { Messages.Add("Mod Renumbering failed."); }
-            }
-            // Number not detected, failed
-            // WIP: Not ready to handle error messages.
-            return Messages;
-        }
+        /// <returns>A <see cref="List{T}"/> containing error messages as returned from herostat renumber, files msg., or an empty list if no error.</returns>
+        //public static List<string?> Renumber(string Mod, string NN)
+        //{
+        //    // Optionally, check if it's a mod or folder (continue with variable Original instead of Mod):
+        //    //if (!string.IsNullOrEmpty(Mod)
+        //    //    && (File.GetAttributes(Mod).HasFlag(FileAttributes.Directory) ? Mod : Util.Run7z(Mod, ON)) is string Original)
+        //    List<string?> Messages = [];
+        //    foreach (DirectoryInfo Source in OHSpath.GetModSource(Mod))
+        //    {
+        //        List<FileInfo> Chars = [.. Herostat.GetFiles(Source)];
+        //        //if (Chars.Count > 1) { show selection; }
+        //        //else
+        //        if (Chars.Count == 1) { Messages.Add(Renumber(Source.FullName, Source.Name, "", NN, Chars[0])); } // Installs mods, but should prly not
+        //        else if (Chars.Count == 0
+        //            && Source.GetDirectories("actors") is DirectoryInfo[] actors
+        //            && actors.Length > 0
+        //            && actors[0].EnumerateFiles("*.igb").Where(n => Path.GetFileNameWithoutExtension(n.Name).All(c => c is >= '0' and <= '9')) is IEnumerable<FileInfo> Skins
+        //            && Skins.FirstOrDefault() is FileInfo Skin) // Taking the first skin found, which might not be using the actual mod number
+        //        {
+        //            string FS = Path.GetFileNameWithoutExtension(Skin.Name);
+        //            // This method currently doesn't install the renumbered mod.
+        //            Messages.Add(Renumber(Source, FS[..^2], NN,
+        //                Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(OHSpath.Packages(Source.FullName), $"*{FS}.pkgb").FirstOrDefault()) is string PN ? PN[..PN.LastIndexOf('_')] : "",
+        //                Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(Path.Combine(Source.FullName, "data", "powerstyles"), $"*.*").FirstOrDefault("")),
+        //                Path.GetFileNameWithoutExtension(Directory.EnumerateFiles(Path.Combine(Source.FullName, "actors"), $"{FS[..^2]}_*").FirstOrDefault("")).Replace("_4_combat", ""),
+        //                [.. Skins.Select(s => Path.GetFileNameWithoutExtension(s.Name)).Where(s => s[..^2] == FS[..^2])])
+        //                ? null
+        //                : "Associated files not found.");
+        //        }
+        //        else { Messages.Add("Mod Renumbering failed."); }
+        //    }
+        //    // Number not detected, failed
+        //    // WIP: Not ready to handle error messages.
+        //    return Messages;
+        //}
         /// <summary>
         /// Renumber a <paramref name="Mod"/>, based on herostat (<paramref name="HF"/>) information from <paramref name="ON"/> (can be "") to <paramref name="NN"/>. Installs to <paramref name="NewName"/>.
         /// </summary>

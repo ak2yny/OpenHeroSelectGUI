@@ -97,9 +97,14 @@ namespace OpenHeroSelectGUI.Functions
         /// Gets the internal name from the currently selected character
         /// </summary>
         /// <returns>The internal name or <see cref="string.Empty"/></returns>
-        public static string GetInternalName()
+        public static string GetInternalName() => GetInternalName(CfgSt.Var.FloatingCharacter);
+        /// <summary>
+        /// Gets the internal name from an available character (path as in roster file)
+        /// </summary>
+        /// <returns>The internal name of <paramref name="AvailableChar"/> or <see cref="string.Empty"/></returns>
+        public static string GetInternalName(string? AvailableChar)
         {
-            return Load(CfgSt.Var.FloatingCharacter) is string[] HS ? RootAttribute(HS, "name") : string.Empty;
+            return Load(AvailableChar) is string[] HS ? RootAttribute(HS, "name") : string.Empty;
         }
         /// <summary>
         /// Get a herostat root attribute by providing a herostat <see langword="string[]"/>, regardless of the format.

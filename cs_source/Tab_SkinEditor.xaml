@@ -42,13 +42,10 @@
         <Grid Grid.Column="2" Margin="10 200 10 10" CornerRadius="3">
             <Grid AllowDrop="True" DragEnter="SplitterDropArea_DragEnter">
                 <Canvas Background="Transparent"/>
-                <TextBlock Text="Drop herostat files here" TextAlignment="Center" TextWrapping="Wrap" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-            </Grid>
-            <Grid x:Name="SplitterDropArea" AllowDrop="True" DragOver="SplitterDropAreaBG_DragOver" DragLeave="SplitterDropAreaBG_DragLeave" Drop="SplitterDropAreaBG_Drop" Visibility="Collapsed">
-                <Canvas Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
                 <Rectangle Margin="10" RadiusX="3" RadiusY="3" Stroke="{ThemeResource SystemAccentColor}" StrokeDashArray="6 3" StrokeThickness="3"/>
-                <TextBlock Text="Drop herostat files here" TextAlignment="Center" TextWrapping="Wrap" Foreground="Gray" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Text="Drop herostat files here" TextAlignment="Center" TextWrapping="Wrap" Foreground="Gray" HorizontalAlignment="Center" Margin="15" VerticalAlignment="Center"/>
             </Grid>
+            <Canvas x:Name="SplitterDropArea" AllowDrop="True" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" DragOver="SplitterDropAreaBG_DragOver" DragLeave="SplitterDropAreaBG_DragLeave" Drop="SplitterDropAreaBG_Drop" Visibility="Collapsed"/>
         </Grid>
         <StackPanel Grid.ColumnSpan="3" Margin="20" Spacing="2" VerticalAlignment="Bottom">
             <InfoBar x:Name="PkgWarning"

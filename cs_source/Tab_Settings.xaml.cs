@@ -254,7 +254,7 @@ namespace OpenHeroSelectGUI
         {
             if (Cfg.OHS.HerostatName is string HS && HS.LastIndexOf('.') is int DH && DH > 0 && DH < (HS.Length - 3))
             {
-                HerostatName.Text = HS.Remove(DH);
+                HerostatName.Text = HS[..DH];
                 LanguageCode.SelectedIndex = Array.FindIndex(DataExt, w => w.IndexOf(HS[(DH + 1)..], StringComparison.CurrentCultureIgnoreCase) > -1);
             }
         }

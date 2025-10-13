@@ -14,50 +14,59 @@ namespace OpenHeroSelectGUI.Settings
     /// <summary>
     /// <see cref="ObservableCollection{T}"/>s for <see cref="Selected"/> characters, <see cref="Teams"/>, <see cref="SkinsList"/> of the currently selected character, plus some observable properties
     /// </summary>
-    public partial class CharacterLists : ObservableRecipient
+    public partial class CharacterLists : ObservableObject
     {
         public ObservableCollection<SelectedCharacter> Selected { get; set; } = [];
         public ObservableCollection<TeamBonus> Teams { get; set; } = [];
         public ObservableCollection<TeamBonus> TeamsMUA { get; set; } = [];
         public ObservableCollection<TeamBonus> TeamsXML2 { get; set; } = [];
         public ObservableCollection<SkinDetails> SkinsList { get; set; } = [];
+
         [ObservableProperty]
-        private string[]? available;
+        public partial string[]? Available { get; set; }
+
         [ObservableProperty]
-        private int total;
+        public partial int Total { get; set; }
+
         [ObservableProperty]
-        private bool numClash;
+        public partial bool NumClash { get; set; }
+
         [ObservableProperty]
-        private int updateCount;
+        public partial int UpdateCount { get; set; }
     }
     /// <summary>
     /// Selected Character Class
     /// </summary>
-    public partial class SelectedCharacter : ObservableRecipient
+    public partial class SelectedCharacter : ObservableObject
     {
         [ObservableProperty]
-        private string? loc;
-        [ObservableProperty]
-        private string? character_Name;
-        [ObservableProperty]
-        private string? path;
-        [ObservableProperty]
-        private string? character_Number;
-        [ObservableProperty]
-        private bool unlock;
-        [ObservableProperty]
-        private bool starter;
-        [ObservableProperty]
-        private string? effect;
-        [ObservableProperty]
-        private bool numClash;
+        public partial string? Loc { get; set; }
 
-        public List<string> AvailableEffects = GUIXML.GetAvailableEffects();
+        [ObservableProperty]
+        public partial string? Character_Name { get; set; }
+
+        [ObservableProperty]
+        public partial string? Path { get; set; }
+
+        [ObservableProperty]
+        public partial string? Character_Number { get; set; }
+
+        [ObservableProperty]
+        public partial bool Unlock { get; set; }
+
+        [ObservableProperty]
+        public partial bool Starter { get; set; }
+
+        [ObservableProperty]
+        public partial string? Effect { get; set; }
+
+        [ObservableProperty]
+        public partial bool NumClash { get; set; }
     }
     /// <summary>
     /// Template selector helper for <see cref="ListView"/>s and similar, filtering by current game tab
     /// </summary>
-    public class GameTemplateSelector : DataTemplateSelector
+    public partial class GameTemplateSelector : DataTemplateSelector
     {
         public DataTemplate? MUA { get; set; }
         public DataTemplate? XML2 { get; set; }
@@ -109,8 +118,11 @@ namespace OpenHeroSelectGUI.Settings
             if (!File.Exists(r)) { return; }
             if (File.Exists(m))
             {
-                IEnumerable<int> Ml = File.ReadAllLines(m).Select(s => int.TryParse(s, out int n) ? n : 0);
-                LoadRoster(Ml.ToArray(), Cfg.Var.LayoutLocs is null ? Ml : Ml.Intersect(Cfg.Var.LayoutLocs), File.ReadAllLines(r));
+                LoadRoster(File.ReadAllLines(m).Select(static s => int.TryParse(s, out int n) ? n : 0),
+                           Cfg.Var.LayoutLocs is null
+                                ? File.ReadAllLines(m).Select(static s => int.TryParse(s, out int n) ? n : 0)
+                                : File.ReadAllLines(m).Select(static s => int.TryParse(s, out int n) ? n : 0).Intersect(Cfg.Var.LayoutLocs),
+                           File.ReadAllLines(r));
             }
             else
             {
@@ -126,16 +138,17 @@ namespace OpenHeroSelectGUI.Settings
             IEnumerable<int>? LL = Cfg.GUI.Game == "XML2"
                 ? Cfg.Var.RosterRange
                 : Cfg.Var.LayoutLocs;
-            LoadRoster(LL is null ? [] : LL.ToArray(), LL, Roster);
+            LoadRoster(LL, LL, Roster);
         }
         /// <summary>
         /// Load a roster by providing an <see langword="int[]"/> of menulocations, a <see cref="IEnumerable{int}"/> of <paramref name="AvailableLocs"/> and a <paramref name="Roster"/> <see langword="string[]"/> of characters (paths).
         /// </summary>
-        public static void LoadRoster(int[] Locs, IEnumerable<int>? AvailableLocs, string[] Roster)
+        public static void LoadRoster(IEnumerable<int>? ILocs, IEnumerable<int>? AvailableLocs, string[] Roster)
         {
-            if (AvailableLocs is not null)
+            if (ILocs is not null && AvailableLocs is not null)
             {
                 Cfg.Roster.Selected.Clear();
+                int[] Locs = [.. ILocs];
                 for (int i = 0; i < Math.Min(Locs.Length, Roster.Length); i++)
                 {
                     if (AvailableLocs.Contains(Locs[i]))

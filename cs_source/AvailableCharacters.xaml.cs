@@ -10,6 +10,7 @@ using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
 using Windows.Storage.Pickers;
+using Zsnd_UI.lib;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
 
 namespace OpenHeroSelectGUI
@@ -20,6 +21,8 @@ namespace OpenHeroSelectGUI
     public sealed partial class AvailableCharacters : Page
     {
         public Cfg Cfg { get; set; } = new();
+        private bool HideRosters { get; set; }
+        private bool FilterVoice { get; set; }
 
         public AvailableCharacters()
         {
@@ -27,7 +30,9 @@ namespace OpenHeroSelectGUI
         }
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            if (Cfg.GUI.Home.StartsWith("NavItem_SkinEditor")) { AvailRstrs.Visibility = Visibility.Collapsed; }
+            HideRosters = Cfg.GUI.Home.StartsWith("NavItem_SkinEditor") || Cfg.GUI.Home.StartsWith("NavItem_XVoice");
+            if (HideRosters) { AvailRstrs.Visibility = Visibility.Collapsed; }
+            if (!Cfg.GUI.Home.StartsWith("NavItem_XVoice")) { CharsNeedVoice.Visibility = Visibility.Collapsed; }
             AvailChange(Cfg.GUI.AvailChars);
         }
         /// <summary>
@@ -37,7 +42,7 @@ namespace OpenHeroSelectGUI
         {
             DirectoryInfo folder = new(OHSpath.HsFolder);
             string rosters = Path.Combine(OHSpath.CD, OHSpath.Game, "rosters");
-            bool LoadChars = Cfg.GUI.AvailChars || Cfg.GUI.Home.StartsWith("NavItem_SkinEditor");
+            bool LoadChars = Cfg.GUI.AvailChars || HideRosters;
             string[] NewAvailable = LoadChars && folder.Exists
                 ? [.. folder.EnumerateFiles("*", SearchOption.AllDirectories)
                             .Select(f => Path.GetRelativePath(folder.FullName, f.FullName)[..^f.Extension.Length]
@@ -51,13 +56,16 @@ namespace OpenHeroSelectGUI
                 Cfg.Roster.Available = NewAvailable;
                 if (NewAvailable.Length > 0)
                 {
-                    if (!KeepFilter && !string.IsNullOrEmpty(TVsearch.Text))
+                    if (!KeepFilter && TVsearch.Text.Length > 0)
                     {
                         TVsearch.Text = "";
                     }
                     else
                     {
-                        PopulateAvailable(string.IsNullOrEmpty(TVsearch.Text) || !KeepFilter ? NewAvailable
+                        PopulateAvailable(FilterVoice ? [..(!KeepFilter || TVsearch.Text.Length == 0 ? NewAvailable
+                                : NewAvailable.Where(a => a.Contains(TVsearch.Text, StringComparison.CurrentCultureIgnoreCase)))
+                                .Where(n => !ZsndLists.XVInternalNames.Contains(Herostat.GetInternalName(n), StringComparer.OrdinalIgnoreCase))]
+                            : !KeepFilter || TVsearch.Text.Length == 0 ? NewAvailable
                             : [.. NewAvailable.Where(a => a.Contains(TVsearch.Text, StringComparison.CurrentCultureIgnoreCase))]);
                     }
                 }
@@ -123,11 +131,12 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void AvailChange(bool IsChar)
         {
-            IsChar = Cfg.GUI.Home.StartsWith("NavItem_SkinEditor") || IsChar;
-            AvailRstrs.IsChecked = !(AvailChars.IsChecked = IsChar);
+            IsChar = HideRosters || IsChar;
+            FilterVoice = Cfg.GUI.Home.StartsWith("NavItem_XVoice") && !FilterVoice;
+            AvailChars.IsChecked = !(bool)(CharsNeedVoice.IsChecked = !(bool)(AvailRstrs.IsChecked = !IsChar) && FilterVoice) && IsChar;
             BrowseButton.Visibility = IsChar ? Visibility.Visible : Visibility.Collapsed;
-            if (!Cfg.GUI.Home.StartsWith("NavItem_SkinEditor")) { Cfg.GUI.AvailChars = IsChar; }
-            PopulateAvailable();
+            if (!HideRosters) { Cfg.GUI.AvailChars = IsChar; }
+            PopulateAvailable(HideRosters);
         }
         /// <summary>
         /// Search typing
@@ -136,7 +145,10 @@ namespace OpenHeroSelectGUI
         {
             if (Cfg.Roster.Available is not null)
             {
-                PopulateAvailable(string.IsNullOrEmpty(sender.Text) ? Cfg.Roster.Available
+                PopulateAvailable(FilterVoice ? [..(sender.Text.Length == 0 ? Cfg.Roster.Available
+                        : Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.CurrentCultureIgnoreCase)))
+                        .Where(n => !ZsndLists.XVInternalNames.Contains(Herostat.GetInternalName(n), StringComparer.OrdinalIgnoreCase))]
+                    : sender.Text.Length == 0 ? Cfg.Roster.Available
                     : [.. Cfg.Roster.Available.Where(a => a.Contains(sender.Text, StringComparison.CurrentCultureIgnoreCase))]);
             }
         }
@@ -272,7 +284,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void TreeViewItem_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (Cfg.GUI.Home.StartsWith("NavItem_SkinEditor")) { return; }
+            if (HideRosters) { return; }
             if (Cfg.Var.FloatingCharacter is not null)
             {
                 _ = AddToSelected(Cfg.Var.FloatingCharacter);

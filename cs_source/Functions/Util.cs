@@ -15,11 +15,7 @@ namespace OpenHeroSelectGUI.Functions
         /// <returns><see langword="True" />, if the <paramref name="exe" /> exists and if the output was returned (not <see langword="null"/>), otherwise <see langword="false"/>.</returns>
         public static bool RunExeInCmd(string exe, string args)
         {
-            if (File.Exists(exe.EndsWith(".exe") ? exe : $"{exe}.exe"))
-            {
-                return RunDosCommnand(exe, args) is not null;
-            }
-            return false;
+            return File.Exists(exe.EndsWith(".exe") ? exe : $"{exe}.exe") && RunDosCommnand(exe, args) is not null;
         }
         /// <summary>
         /// Run a MS Dos Command <paramref name="cmd" /> <paramref name="vars" />

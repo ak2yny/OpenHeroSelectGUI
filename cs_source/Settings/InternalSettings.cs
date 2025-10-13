@@ -1,5 +1,6 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.UI.Xaml.Media.Imaging;
+using OpenHeroSelectGUI.Functions;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -29,52 +30,69 @@ namespace OpenHeroSelectGUI.Settings
         public bool IsOpen { get; set; }
     }
     /// <summary>
-    /// Variable internal settings, <see cref="ObservableRecipient"/>
+    /// Variable internal settings, <see cref="ObservableObject"/>
     /// </summary>
-    public partial class VariableSettings : ObservableRecipient
+    public partial class VariableSettings : ObservableObject
     {
         [ObservableProperty]
-        private StageModel? selectedStage;
+        public partial StageModel? SelectedStage { get; set; }
+
         [ObservableProperty]
-        private IEnumerable<int>? layoutLocs;
+        public partial IEnumerable<int>? LayoutLocs { get; set; }
+
         [ObservableProperty]
-        private IEnumerable<int>? rosterRange;
+        public partial IEnumerable<int>? RosterRange { get; set; }
+
         [ObservableProperty]
-        private XmlElement? layout;
+        public partial XmlElement? Layout { get; set; }
+
         [ObservableProperty]
-        private string rosterValueDefault;
+        public partial string RosterValueDefault { get; set; }
+
         [ObservableProperty]
-        private string menulocationsValueDefault;
+        public partial string MenulocationsValueDefault { get; set; }
+
         [ObservableProperty]
-        public string? floatingCharacter;
+        public partial string? FloatingCharacter { get; set; }
+
         [ObservableProperty]
-        private char hsFormat;
+        public partial char HsFormat { get; set; }
+
         [ObservableProperty]
-        private FileInfo? hsPath;
+        public partial FileInfo? HsPath { get; set; }
+
         [ObservableProperty]
-        private bool popAvail;
+        public partial bool PopAvail { get; set; }
+
         [ObservableProperty]
-        private MessageItem? sE_Msg_Error;
+        public partial MessageItem? SE_Msg_Error { get; set; }
+
         [ObservableProperty]
-        private MessageItem? sE_Msg_Info;
+        public partial MessageItem? SE_Msg_Info { get; set; }
+
         [ObservableProperty]
-        private MessageItem? sE_Msg_Success;
+        public partial MessageItem? SE_Msg_Success { get; set; }
+
         [ObservableProperty]
-        private MessageItem? sE_Msg_Warning;
+        public partial MessageItem? SE_Msg_Warning { get; set; }
+
         [ObservableProperty]
-        private bool sE_Msg_WarnPkg;
+        public partial bool SE_Msg_WarnPkg { get; set; }
+
         [ObservableProperty]
-        private bool isMua;
+        public partial bool IsMua { get; set; }
+
         [ObservableProperty]
-        private bool isXml2;
+        public partial bool IsXml2 { get; set; }
+
         [ObservableProperty]
-        private string? charNum;
+        public partial string? CharNum { get; set; }
 
         public VariableSettings()
         {
-            rosterValueDefault = "";
-            menulocationsValueDefault = "";
-            hsFormat = ' ';
+            RosterValueDefault = "";
+            MenulocationsValueDefault = "";
+            HsFormat = ' ';
         }
     }
     /// <summary>
@@ -94,19 +112,36 @@ namespace OpenHeroSelectGUI.Settings
             "skin_winter",
             "skin_civilian"
         ];
-        public static readonly string[] XML2Skins = XML2SkinNames[1..].Select(s => s[5..]).ToArray();
+
+        private static readonly string[] XML1SkinNames =
+        [
+            "skin",
+            "skin_60s",
+            "skin_70s",
+            "skin_weaponx",
+            "skin_future",
+            "skin_civilian",
+            "skin_magmacivilian"
+        ];
+
+        public static readonly string[] XML2Skins = [.. XML2SkinNames[1..].Select(static s => s[5..])];
+
         private static readonly string[] MUASkinNames = ["skin", .. Enumerable.Range(2, 5).Select(x => $"skin_0{x}")];
+
         public static string[] SkinIdentifiers => CfgSt.GUI.Game == "XML2"
             ? XML2SkinNames
             : MUASkinNames;
+
         public static readonly string[] RavenFormatsXML =
         [
             "xml", "eng", "fre", "ger", "ita", "pol", "rus", "spa", "pkg", "boy", "chr", "nav"
         ];
-        public static readonly string[] RavenFormats = RavenFormatsXML.Select(x => $".{x}b").ToArray();
+
+        public static readonly string[] RavenFormats = [.. RavenFormatsXML.Select(static x => $".{x}b")];
+
         public static readonly string[] KnownModOrganizerExes =
         [
-            "Vortex.exe", "ModOrganizer.exe"
+            "Vortex.exe", "Modmanager.exe", "ModOrganizer.exe"
         ];
         /// <summary>
         /// Team bonus powerups with description for use in MUA team_bonus files
@@ -147,5 +182,9 @@ namespace OpenHeroSelectGUI.Settings
             ["+15% Max Health"] = "shared_team_new_xmen",
             ["+60% Techbit drops"] = "shared_team_raven_knights"
         };
+        /// <summary>
+        /// Effects that are defined in stages/.effects/config.xml. Since it is static readonly, the page or GUI has to be restarted to read changes in the file.
+        /// </summary>
+        public static readonly List<string> AvailableEffects = GUIXML.GetAvailableEffects();
     }
 }

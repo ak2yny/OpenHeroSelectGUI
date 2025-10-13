@@ -167,9 +167,7 @@ namespace OpenHeroSelectGUI
         /// <summary>
         /// Restrict mod number input
         /// </summary>
-#pragma warning disable CA1822 // Mark members as static
         private void ModNumber_BeforeTextChanging(TextBox sender, TextBoxBeforeTextChangingEventArgs args)
-#pragma warning restore CA1822 // Mark members as static
         {
             args.Cancel = args.NewText.Any(c => !char.IsDigit(c)) || args.NewText.Length > 3;
         }

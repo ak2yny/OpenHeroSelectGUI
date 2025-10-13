@@ -81,7 +81,7 @@
                               ToolTipService.ToolTip="Starter?"/>
                     <ComboBox x:Name="EffectSelection"
                               x:Phase="2"
-                              ItemsSource="{x:Bind AvailableEffects}" 
+                              ItemsSource="{x:Bind settings:InternalSettings.AvailableEffects}" 
                               SelectedValue="{x:Bind Effect, Mode=TwoWay}"
                               Background="{ThemeResource CardBackgroundFillColorSecondary}"
                               BorderBrush="{ThemeResource CheckBoxBorderThemeBrush}"
