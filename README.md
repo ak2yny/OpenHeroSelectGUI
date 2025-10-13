@@ -123,6 +123,11 @@
 
 ## Changelog
 
+ |13.10.2025|1.2.0: Added x_voice editor
+ - Added pack 4 stages by Emanuel
+ - Improved internal code (MVVM)
+ - Other small improvements here and there
+
  |16.05.2025|1.1.11: Fixed Bugs
  - Added 50 stage by TheTommyBoy
 
