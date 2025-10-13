@@ -173,8 +173,8 @@ namespace OpenHeroSelectGUI
             {
                 XVoiceList.SelectedItem = Control.DataContext;
             }
-            ContentDialogResult _ = await ViewSoundFlags.ShowAsync();
-            // if (_ == ContentDialogResult.Primary)
+            _ = await ViewSoundFlags.ShowAsync();
+            // if (ContentDialogResult _ == ContentDialogResult.Primary)
             // {
             //     // do something;
             // }

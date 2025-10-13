@@ -222,10 +222,10 @@ namespace Zsnd_UI.lib
         public string? Hash { get; set; }
 
         [ObservableProperty]
-        public partial int SampleIndex { get; set; }
+        public partial int SampleIndex { get; set; } = -1;
 
         [ObservableProperty]
-        public partial byte Flags { get; set; }
+        public partial byte Flags { get; set; } = 0xFF;
 
         [ObservableProperty]
         public partial string? Sample { get; set; }
@@ -1109,11 +1109,6 @@ namespace Zsnd_UI.lib
                                 Path.GetFileNameWithoutExtension(Names[SIndx[i]]).ToUpperInvariant())
                         };
                         ZsndLists.Sounds.Add(IsXvoice ? (XVSound)sound : (UISound)sound);
-                    }
-                    if (ZsndLists.Sounds.Count > 0) // For some reason, the sample name isn't updated automatically on the first file
-                    {
-                        ZsndLists.Sounds[0].SampleIndex += 1;
-                        ZsndLists.Sounds[0].SampleIndex -= 1;
                     }
                     return true;
                 }
