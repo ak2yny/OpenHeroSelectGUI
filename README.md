@@ -123,6 +123,8 @@
 
 ## Changelog
 
+Changes from v1.3.0 on are only documented in the [Releases](https://github.com/ak2yny/OpenHeroSelectGUI/releases).
+
  |13.10.2025|1.2.0: Added x_voice editor
  - Added pack 4 stages by Emanuel
  - Improved internal code (MVVM)

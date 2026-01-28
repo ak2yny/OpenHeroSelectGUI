@@ -70,7 +70,11 @@
                                 <PathIcon Data="{StaticResource TEIcon}"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
-                        <NavigationViewItem x:Name="NavItem_XVoice_MUA" x:Uid="Tab_XVoice" Icon="MusicInfo" ToolTipService.ToolTip="X_voice Editor for Marvel Ultimate Alliance" Tag="OpenHeroSelectGUI.Tab_XVoice"/>
+                        <NavigationViewItem x:Name="NavItem_XVoice_MUA" x:Uid="Tab_XVoice" ToolTipService.ToolTip="X_voice Editor for Marvel Ultimate Alliance" Tag="OpenHeroSelectGUI.Tab_XVoice">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xED15;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                         <NavigationViewItem x:Name="NavItem_Settings_MUA" x:Uid="Tab_Settings" Icon="Setting" ToolTipService.ToolTip="Settings for Marvel Ultimate Alliance" Tag="OpenHeroSelectGUI.Tab_Settings"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
@@ -89,7 +93,11 @@
                                 <PathIcon Data="{StaticResource TEIcon}"/>
                             </NavigationViewItem.Icon>
                         </NavigationViewItem>
-                        <NavigationViewItem x:Name="NavItem_XVoice_XML2" x:Uid="Tab_XVoice" Icon="MusicInfo" ToolTipService.ToolTip="X_voice Editor for X-Men Legends 2" Tag="OpenHeroSelectGUI.Tab_XVoice"/>
+                        <NavigationViewItem x:Name="NavItem_XVoice_XML2" x:Uid="Tab_XVoice" ToolTipService.ToolTip="X_voice Editor for X-Men Legends 2" Tag="OpenHeroSelectGUI.Tab_XVoice">
+                            <NavigationViewItem.Icon>
+                                <FontIcon Glyph="&#xED15;"/>
+                            </NavigationViewItem.Icon>
+                        </NavigationViewItem>
                         <NavigationViewItem x:Name="NavItem_Settings_XML2" x:Uid="Tab_Settings" Icon="Setting" ToolTipService.ToolTip="Settings for X-Men Legends 2" Tag="OpenHeroSelectGUI.Tab_Settings"/>
                     </NavigationViewItem.MenuItems>
                 </NavigationViewItem>
@@ -121,7 +129,16 @@
                      Message="Herostat and associated files have been successfully updated."/>
             <InfoBar x:Name="SaveBackup"
                      Title="Note"
-                     Message="Failed to backup the saves."/>
+                     Message="Failed to backup the saves."
+                     Background="{ThemeResource SystemFillColorSolidNeutralBackground}"/>
+            <InfoBar x:Name="MissingNewGame"
+                     Severity="Warning"
+                     Title="Unlock Problem"
+                     Message="The Game or Mod Path is missing new_game.py. Unlocks will probably not work. Use the Patch Herostat Mod tool in MO2, to fix the problem.">
+                <InfoBar.ActionButton>
+                    <HyperlinkButton Content="More information" NavigateUri="https://github.com/ak2yny/OpenHeroSelectGUI/wiki/Troubleshooting#some-characters-that-i-unlocked-in-the-gui-are-locked-in-the-game"/>
+                </InfoBar.ActionButton>
+            </InfoBar>
             <InfoBar x:Name="OHSRunning"
                      Title="OHS is Running"
                      Message="Wait for the files to be updated."

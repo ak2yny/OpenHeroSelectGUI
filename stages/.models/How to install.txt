@@ -2,7 +2,7 @@
 How to install a new stage model:
 ---------------------------------
 
-We're using an example with following details:
+We're using an example with the following details:
 
 Name:    "My New Stage"
 Folder:  "MyNewStage"
@@ -12,14 +12,12 @@ Creator: "Me :)"
 How to add the files:
 ---------------------
 
-- Got to the stages/.models folder
-- Create the new folder for your stage ("MyNewStage")
-- Put the stage files (image and IGB) into that folder (no sub-folders)
-- Optionally, put "MyNewStage" in any folder that you like or make your own parent folder
-
+- Got to the stages/.models folder.
+- Create the new folder for your stage ("MyNewStage").
+- Put the stage files (image and IGB) into that folder (no sub-folders).
+- Optionally, put "MyNewStage" in any folder that you like or make your own parent folder.
   For example, if you make your own parent folder with the name "MyStages", the result could look like this:
-
-    [OHSGUI]
+    [OHS]
       > stages
           > .models
               > MyStages
@@ -31,44 +29,44 @@ How to add the files:
 How to add the details:
 -----------------------
 
-- Copy the path of the stage folders, starting at the .models folder ("MyStages/MyNewStage")
-- Open "[OHSGUI]\stages\.models\config.xml"
-  I highly recommend an XML viewer (table viewer)
-  If the format is too complicated, you can request the change and I can add it.
-- Choose a category ("RH", "Official", "Custom_Riser", "Custom_2Risers")
-  A category must be supported by the layouts, so adding new categories requeres expert knowledge
-- On the bottom of the category, add your new stage
+- Copy the path of the stage folders, starting at the .models folder ("MyStages/MyNewStage").
+- Open "[OHS]\stages\.models\config.xml".
+  I highly recommend an XML viewer (table viewer).
+  If the format is too complicated, you can request the change, and I can add it.
+- Choose a category ("RH", "Official", "Custom_Riser", "Custom_2Risers").
+  A category must be supported by the layouts, so adding new categories requires expert knowledge.
+- On the bottom of the category, add your new stage.
 
-  The new stage starts and ends with <Model>, so be sure to add these two lines
+  The new stage starts and ends with <Model>, so be sure to add these two lines:
         <Model>
         </Model>
-  (If you use a table viewer and add a new line, this part is automatically added)
+  (If you use a table viewer and add a new line, this part is automatically added.)
 
-  "Inside" the model, you have to add three details: "Name", "Path" and "Creator". These names must be spelled correctly.
+  "Inside" the model, you have to add three details: "Name", "Path" and "Creator". These tag names must be spelled correctly.
         <Model>
             <Name></Name>
             <Path></Path>
             <Creator></Creator>
         </Model>
-  (If you use a table viewer and add a new line, this is automatically added)
+  (If you use a table viewer and add a new line, this is automatically added.)
 
-  Add the details between the middle ">" "<" characters. The details must not contain these two characters. Make sure to paste the copied path (first step) between <Path></Path>:
+  Add the details between the middle ">" and "<" characters. The details must not contain these two characters. Make sure to paste the copied path (first step) between <Path></Path>:
             <Name>My New Stage</Name>
             <Path>MyStages/MyNewStage</Path>
             <Creator>Me :)</Creator>
-  (If you use a table viewer, you can simply fill the cells)
+  (If you use a table viewer, you can simply fill the cells.)
 
-  If the category is "RH", the result would look like this
+  If the category is "RH", the result would look like this:
 
     [...]
-    <RH>
+    <Category category="RH">
         [...]
         <Model>
             <Name>My New Stage</Name>
             <Path>MyStages/MyNewStage</Path>
             <Creator>Me :)</Creator>
         </Model>
-    </RH>
+    </Category>
     [...]
 
 - Save the file

@@ -11,19 +11,19 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using static Zsnd_UI.lib.ZsndProperties;
+using static Zsnd.Lib.Properties;
 
 // IMPORTANT NOTE:
 // THIS ASSUMES LITTLE ENDIAN MACHINES, WHICH IS RELEVANT FOR ZSM PARSING,
 // BECAUSE THEIR ENDIANNESS DEPENDS ON THE PLATFORM THEY ARE FROM/FOR.
 // WHEN BUILDING THE PROJECT FOR BIG ENDIAN MACHINES, THE LOGIC MUST BE CHANGED HERE.
-namespace Zsnd_UI.lib
+namespace Zsnd.Lib
 {
     // Note: ZsndReader and ZsndWriter could be expanded to support ZsndProperties independent endian check
     /// <summary>
     /// A partial class of <see cref="BinaryReader"/> for <see cref="FileStream"/> <paramref name="input"/>, adding endian aware <see cref="uint"/> and <see cref="ushort"/> read overrides (depending on <see cref="PlatIs7thGen"/>).
     /// </summary>
-    public partial class ZsndReader(Stream input) : BinaryReader(input)
+    public partial class ZReader(Stream input) : BinaryReader(input)
     {
         private readonly byte[] _buffer = new byte[4];
 
@@ -44,7 +44,7 @@ namespace Zsnd_UI.lib
     /// <summary>
     /// A <see cref="FileStream"/> writer for <paramref name="input"/>, adding <see cref="uint"/> and <see cref="ushort"/> writes that depend on <paramref name="BigEndian"/>.
     /// </summary>
-    public partial class ZsndWriter(FileStream input) : IDisposable
+    public partial class ZWriter(FileStream input) : IDisposable
     {
         private readonly FileStream _stream = input;
 
@@ -146,7 +146,7 @@ namespace Zsnd_UI.lib
         public uint KeymapHashesOffset = InfoSize;
         public uint KeymapsOffset = InfoSize;
 
-        public static ZsndHeader? FromZsndStream(ZsndReader reader)
+        public static ZsndHeader? FromZsndStream(ZReader reader)
         {
             int headerSize = Marshal.SizeOf<ZsndHeader>();
             byte[] headerBytes = new byte[headerSize];
@@ -171,9 +171,21 @@ namespace Zsnd_UI.lib
     /// </summary>
     public class JsonSound
     {
-        public string? Hash { get; set; }
+        public string Hash { get; set; } = "";
         public int Sample_index { get; set; }
         public SoundF Flags { get; set; }
+
+        private static JsonSound FromUISound(UISoundBase value)
+        {
+            return new JsonSound
+            {
+                Hash = value.Hash,
+                Sample_index = value.SampleIndex,
+                Flags = (SoundF)value.Flags
+            };
+        }
+        public static implicit operator JsonSound(XVSound value) => FromUISound(value);
+        public static implicit operator JsonSound(UISound value) => FromUISound(value);
     }
     /// <summary>
     /// Zsnd Sample JSON representaion
@@ -201,7 +213,7 @@ namespace Zsnd_UI.lib
     /// </summary>
     public interface IUISound
     {
-        string? Hash { get; set; }
+        string Hash { get; set; }
         int SampleIndex { get; set; }
         byte Flags { get; set; }
         string? Sample { get; set; }
@@ -219,7 +231,7 @@ namespace Zsnd_UI.lib
     /// </summary>
     public partial class UISoundBase : ObservableObject, IUISound
     {
-        public string? Hash { get; set; }
+        public string Hash { get; set; } = "";
 
         [ObservableProperty]
         public partial int SampleIndex { get; set; } = -1;
@@ -228,7 +240,7 @@ namespace Zsnd_UI.lib
         public partial byte Flags { get; set; } = 0xFF;
 
         [ObservableProperty]
-        public partial string? Sample { get; set; }
+        public partial string? Sample { get; set; } = "-- Select a sound file --";
 
         [ObservableProperty]
         public partial bool F1 { get; set; } = true;
@@ -254,7 +266,24 @@ namespace Zsnd_UI.lib
         [ObservableProperty]
         public partial bool F8 { get; set; } = true;
 
-        partial void OnSampleIndexChanged(int value) => Sample = value < ZsndLists.Samples.Count && value > -1 ? Path.GetFileName(ZsndLists.Samples[value].File) : "-- Select a sound file --";
+        public UISoundBase() { }
+
+        public UISoundBase(JsonSound value)
+        {
+            Hash = value.Hash;
+            SampleIndex = value.Sample_index;
+            Flags = (byte)value.Flags;
+            F1 = value.Flags.HasFlag(SoundF.Unk1);
+            F2 = value.Flags.HasFlag(SoundF.Unk2);
+            F3 = value.Flags.HasFlag(SoundF.Unk3);
+            F4 = value.Flags.HasFlag(SoundF.Unk4);
+            F5 = value.Flags.HasFlag(SoundF.Unk5);
+            F6 = value.Flags.HasFlag(SoundF.Unk6);
+            F7 = value.Flags.HasFlag(SoundF.Unk7);
+            F8 = value.Flags.HasFlag(SoundF.Unk8);
+        }
+
+        partial void OnSampleIndexChanged(int value) => Sample = value < Lists.Samples.Count && value > -1 ? Path.GetFileName(Lists.Samples[value].File) : "-- Select a sound file --";
 
         partial void OnF1Changed(bool value) => Flags = (byte)(value ? Flags | 1 : Flags & ~1);
         partial void OnF2Changed(bool value) => Flags = (byte)(value ? Flags | 2 : Flags & ~2);
@@ -277,70 +306,56 @@ namespace Zsnd_UI.lib
     /// <summary>
     /// Zsnd UI Sound Entry <see cref="ObservableObject"/>
     /// </summary>
-    public partial class UISound : UISoundBase
+    public partial class UISound(JsonSound value) : UISoundBase(value)
     {
         [ObservableProperty]
-        public new partial string? Hash { get; set; }
-        // Add a boolean property that disables editing Hash (when binding) on compatible types
+        public new partial string Hash { get; set; } = value.Hash; // no need for Flags?
+
+        public static implicit operator UISound(JsonSound value) => new(value);
+    }
+    /// <summary>
+    /// X_voice info class with the required details for Zsnd files (<see cref="ObservableObject"/>).
+    /// </summary>
+    public partial class XVSound : UISoundBase
+    {
+        [ObservableProperty]
+        public partial Events.XVprefix? Pref { get; set; }
 
         [ObservableProperty]
-        public partial string? Category { get; set; }
-
-        [ObservableProperty]
-        public partial string? ZsmName { get; set; }
-        // Add a boolean property that disables this object (when binding) on incompatible types
-
-        [ObservableProperty]
-        public partial string? ZsndEvent { get; set; }
-        // Add a boolean property that disables this object (when binding) on incompatible types
-
-        //public void UISound()
-        //{
-        //    To31();
-        //}
-
-        partial void OnHashChanged(string? value)
+        public partial string? IntName { get; set; }
+        /// <summary>
+        /// Updates the <see cref="UISoundBase.Hash"/> based on the changed <paramref name="newValue"/> and <see cref="IntName"/> (must always be set first).
+        /// </summary>
+        partial void OnPrefChanged(Events.XVprefix? oldValue, Events.XVprefix? newValue)
         {
-            string[] Hash = ZsndHash.Check(value,
-                    Path.GetFileNameWithoutExtension(ZsndLists.Samples[SampleIndex].File ?? "").ToUpperInvariant()).Split('/');
-            string Event = Hash.Length > 1 ? Hash[^1] : "", ZN = Hash.Length > 1 ? Hash[1] : ZsndHash.Znames.Length > 0 ? ZsndHash.Znames[0] : "";
-            Category = Hash[0];
-            ZsmName = ZN;
-            ZsndEvent = Event;
-        }
-
-        partial void OnCategoryChanged(string? value) => Hash = $"{value}/{Hash?.Split('/', 2)[^1]}";
-        partial void OnZsmNameChanged(string? value)
-        {
-            if (Enum.TryParse(value, out ZsndEvents.Category type))
+            if (newValue is null || IntName is null || oldValue is null) { return; }
+            if (newValue is Events.XVprefix.AN or Events.XVprefix.BREAK)
             {
-                if (type is ZsndEvents.Category.CHARACTER or ZsndEvents.Category.CHAR)
-                {
-                    string[] hash = string.IsNullOrWhiteSpace(Hash) ? ["CHAR", "-- Please Choose --"] : Hash.Split('/');
-                    if (hash[0] == hash[^1]) { hash[^1] = "-- Please Choose --"; }
-                    Hash = $"{hash[0]}/{value}/{hash[^1]}";
-                }
-                // WIP: Can we handle Music here, too? Common might use ZsmName as well, but probably not.
+                Hash = $"COMMON/MENUS/CHARACTER/{newValue}_{IntName}";
+                Events.LastCharPrefix = (Events.XVprefix)newValue;
+            }
+            else if (newValue is Events.XVprefix.TEAM)
+            {
+                // If no internal name, hash stays unchanged. Hash must be managed externally in such cases.
+                Hash = $"COMMON/TEAM_BONUS_{(IntName.StartsWith("TEAM_BONUS_", StringComparison.OrdinalIgnoreCase)
+                    ? IntName[11..]
+                    : IntName.StartsWith("BONUS_", StringComparison.OrdinalIgnoreCase)
+                    ? IntName[6..] : IntName)}";
             }
         }
-        partial void OnZsndEventChanged(string? value) => Hash = $"{(string.IsNullOrWhiteSpace(Hash) ? "" : Hash.LastIndexOf('/') is int i && i > -1 ? Hash[..i] : Hash)}/{value}";
 
-        public static implicit operator UISound(JsonSound value)
+        public XVSound() { }
+
+        public XVSound(JsonSound value) : base(value)
         {
-            return new UISound
-            {
-                Hash = value.Hash,
-                SampleIndex = value.Sample_index,
-                F1 = value.Flags.HasFlag(SoundF.Unk1),
-                F2 = value.Flags.HasFlag(SoundF.Unk2),
-                F3 = value.Flags.HasFlag(SoundF.Unk3),
-                F4 = value.Flags.HasFlag(SoundF.Unk4),
-                F5 = value.Flags.HasFlag(SoundF.Unk5),
-                F6 = value.Flags.HasFlag(SoundF.Unk6),
-                F7 = value.Flags.HasFlag(SoundF.Unk7),
-                F8 = value.Flags.HasFlag(SoundF.Unk8)
-            };
+            string[] HE = Hashing.EnsureHash(value.Hash).Split('/')[^1].Split('_', 2);
+            if (Enum.TryParse(HE[0], out Events.XVprefix HEP)) { Pref = HEP; }
+            if (HE.Length > 1) { IntName = HE[1]; } // After (Important to avoid OnPrefChanged)
+            _ = Pref is Events.XVprefix.AN or Events.XVprefix.BREAK
+                && Lists.XVInternalNames.Add(IntName);
         }
+
+        public static implicit operator XVSound(JsonSound value) => new(value);
     }
     /// <summary>
     /// Zsnd UI Sample Entry <see cref="ObservableObject"/>
@@ -363,70 +378,25 @@ namespace Zsnd_UI.lib
     //    }
     //}
     /// <summary>
-    /// X_voice info class with the required details for Zsnd files (<see cref="ObservableObject"/>).
-    /// </summary>
-    public partial class XVSound : UISoundBase
-    {
-        [ObservableProperty]
-        public partial ZsndEvents.XVprefix? Pref { get; set; }
-
-        [ObservableProperty]
-        public partial string? IntName { get; set; }
-
-        partial void OnPrefChanged(ZsndEvents.XVprefix? value)
-        {
-            if (!string.IsNullOrEmpty(IntName))
-            {
-                if (value is ZsndEvents.XVprefix.AN or ZsndEvents.XVprefix.BREAK)
-                {
-                    Hash = $"COMMON/MENUS/CHARACTER/{value}_{IntName}";
-                }
-                else if (value is ZsndEvents.XVprefix.TEAM)
-                {
-                    // If no internal name, hash stays unchanged. Hash must be managed externally in such cases.
-                    Hash = $"COMMON/TEAM_BONUS_{(IntName.StartsWith("TEAM_BONUS_", StringComparison.OrdinalIgnoreCase)
-                        ? IntName[11..]
-                        : IntName.StartsWith("BONUS_", StringComparison.OrdinalIgnoreCase)
-                        ? IntName[6..] : IntName)}";
-                }
-            }
-        }
-
-        public static implicit operator XVSound(JsonSound value)
-        {
-            string[]? HE = ZsndHash.Check(value.Hash).Split('/')[^1].Split('_', 2);
-            _ = Enum.TryParse(HE is null || HE.Length < 1 ? "" : HE[0], out ZsndEvents.XVprefix HEP);
-            return new XVSound
-            {
-                Pref = HEP,
-                IntName = HE is null || HE.Length < 2 ? "" : HE[1],
-                Hash = value.Hash,
-                SampleIndex = value.Sample_index,
-                Flags = (byte)value.Flags,
-                F1 = value.Flags.HasFlag(SoundF.Unk1),
-                F2 = value.Flags.HasFlag(SoundF.Unk2),
-                F3 = value.Flags.HasFlag(SoundF.Unk3),
-                F4 = value.Flags.HasFlag(SoundF.Unk4),
-                F5 = value.Flags.HasFlag(SoundF.Unk5),
-                F6 = value.Flags.HasFlag(SoundF.Unk6),
-                F7 = value.Flags.HasFlag(SoundF.Unk7),
-                F8 = value.Flags.HasFlag(SoundF.Unk8)
-            };
-        }
-    }
-    /// <summary>
     /// Zsnd UI Lists
     /// </summary>
-    public class ZsndLists
+    public static class Lists
     {
-        public static ObservableCollection<IUISound> Sounds { get; set; } = [];
+        public static List<XVSound> Sounds { get; set; } = [];
         public static ObservableCollection<JsonSample> Samples { get; set; } = [];
         public static HashSet<string?> XVInternalNames { get; set; } = [];
     }
     /// <summary>
+    /// The main bind class, NOTE: Needed when lists are shared among pages.
+    /// </summary>
+    //public class Zsnd
+    //{
+    //    //public Json_Main Json { get; set; } = Sjson.Data; -> removed, would be static class
+    //}
+    /// <summary>
     /// Enum classes for Zsnd values
     /// </summary>
-    public class ZsndProperties
+    public static class Properties
     {
         [Flags]
         public enum SoundF : byte
@@ -531,8 +501,10 @@ namespace Zsnd_UI.lib
     /// <summary>
     /// Zsound hash event definitions
     /// </summary>
-    public static class ZsndEvents
+    public static class Events
     {
+        private static readonly int MPowersMultiplier = 12;
+        private static readonly int RandomMultiiplier = 21;
         private static readonly string[] MPowers =
         [
             "CHARGE",
@@ -541,7 +513,7 @@ namespace Zsnd_UI.lib
             "CHARGE_LOOP",
             "LOOP"
         ];
-        public static readonly string[] M =
+        private static readonly string[] M =
         [
             "DEATH",
             "FLYBEGIN",
@@ -566,7 +538,7 @@ namespace Zsnd_UI.lib
             "TELEPORT",
             "WEB_ZIP"
         ];
-        public static readonly string[] V =
+        private static readonly string[] V =
         [
             "BORED",
             "CANTGO",
@@ -625,6 +597,24 @@ namespace Zsnd_UI.lib
             "SOLO_END",
             "XTREME2"
         ];
+        //public static string[] Master { get; }
+        //public static ReadOnlyMemory<string> Master => MRand.AsMemory(0, M.Length + MPowers.Length * MPowersMultiplier);
+        //public static string[] Voice => V;
+        public static readonly string[] MRand = new string[(M.Length + MPowers.Length * MPowersMultiplier) * RandomMultiiplier];
+        public static readonly string[] VRand = new string[V.Length * RandomMultiiplier];
+        public static readonly string[] XVoice =
+        [
+        "MENUS/CHARACTER/",
+        "MENUS/CHARACTER/AN_",
+        "MENUS/CHARACTER/BREAK_",
+        "TEAM_BONUS_",
+        ""
+        ];
+        public static readonly string[] Music = new string[3];
+        // Additional music events:
+        // "MUSIC/CUES/OUT" covered by JsonHashes
+        // "MUSIC/CUES/IN"  covered by JsonHashes
+        // "MUSIC/MUSIC_CUES/" Unknown, possibly unused
 
         public enum Category
         {
@@ -641,29 +631,43 @@ namespace Zsnd_UI.lib
             AN,
             BREAK,
             TEAM
-        };  // - other Menu?
-        // WIP: To Add:
+        };
+        // WIP: Enums To Add:
         // - Music (Ambient: A, Combat: C, Extra: X)
+        // - other Menu?
         // For binding:
         public static readonly XVprefix[] XVprefixes = Enum.GetValues<XVprefix>();
-        // public static readonly string[] Categories = (string[])Enum.GetValues(typeof(Category));
+        public static XVprefix LastCharPrefix { get; set; } = XVprefix.AN;
 
-        static ZsndEvents()
+        static Events()
         {
-            Array.Resize(ref M, M.Length + MPowers.Length * 12);
-            for (int i = 1; i < 13; i++)
+            // 20 + 5 (ZsndEvents.MPowers.Length) * 12 = 80, * 21 = 1680 | 54 * 21 = 1134
+            M.CopyTo(MRand, 0);
+            V.CopyTo(VRand, 0);
+            int mp = MPowers.Length;
+            int ms = M.Length - mp;
+            int m = MRand.Length / RandomMultiiplier;
+            int v = V.Length;
+            int r = RandomMultiiplier - 1;
+            for (int i = 1; i <= MPowersMultiplier; i++)
             {
-                for (int j = 0; j < 5; j++)
-                {
-                    M[15 + i * 5 + j] = $"P{i}_{MPowers[j]}";
-                }
+                for (int j = 0; j < mp; j++)
+                    MRand[ms + i * mp + j] = $"P{i}_{MPowers[j]}";
+            }
+            // Master = MRand[0..(ms + mp + mp * MPowersMultiplier)];
+            for (int i = 0; i < r; i++)
+            {
+                for (int j = 0; j < m; j++)
+                    MRand[m + m * i + j] = $"{MRand[j]}/***RANDOM***/{i}";
+                for (int j = 0; j < v; j++)
+                    VRand[v + v * i + j] = $"{VRand[j]}/***RANDOM***/{i}";
             }
         }
     }
     /// <summary>
     /// Zsound hash event conversion
     /// </summary>
-    public static partial class ZsndHash
+    public static partial class Hashing
     {
         [GeneratedRegex(@"\/\*\*\*RANDOM\*\*\*\/\d+", RegexOptions.IgnoreCase)]
         private static partial Regex Random();
@@ -674,41 +678,15 @@ namespace Zsnd_UI.lib
         [GeneratedRegex(@"(\d*_?\d*|\d*_\w\d?)$")]
         private static partial Regex DigitSfx();
 
-        private static Dictionary<uint, string>? JsonHashes { get; set; }
-        // 20 + 5 (ZsndEvents.MPowers.Length) * 12 = 80, * 21 = 1680 | 54 * 21 = 1134
-        private static readonly string[] SoundEventsM = new string[ZsndEvents.M.Length * 21];
-        private static readonly string[] SoundEventsV = new string[ZsndEvents.V.Length * 21];
-        private static readonly string[] XVoiceEvents =
-        [
-        "MENUS/CHARACTER/",
-        "MENUS/CHARACTER/AN_",
-        "MENUS/CHARACTER/BREAK_",
-        "TEAM_BONUS_",
-        ""
-        ];
-        private static readonly string[] CharPrefix =
-        [
-        "CHAR",
-        "CHARACTER"
-        ];
-        private static readonly string[] MusicEvents = new string[3];
-        private static string[] CharEvents = [];
-        public static string[] Znames { get; set; } = [];
-
-        static ZsndHash()
-        {
-            for (int i = 0; i < 20; i++)
-            {
-                for (int j = 0; j < 80; j++)
-                    SoundEventsM[80 + 80 * i + j] = $"{SoundEventsM[j]}/***RANDOM***/{i}";
-                for (int j = 0; j < 54; j++)
-                    SoundEventsV[54 + 54 * i + j] = $"{SoundEventsV[j]}/***RANDOM***/{i}";
-            }
-        }
+        private static Dictionary<uint, string>? JsonHashes;
+        private static bool MFirst;
+        private static readonly string[] Znames = new string[2];
+        private static readonly string[] CharPrefix = ["CHAR", "CHARACTER"];
+        private static uint PJWTest;
         /// <summary>
-        /// PJW hash generator from <paramref name="str"/>.
+        /// PJW hash generator from <paramref name="str"/>ing.
         /// </summary>
-        /// <returns>Hash <see cref="uint" generated from <paramref name="str"/>.</returns>
+        /// <returns>Hash <see cref="uint"/> generated from <paramref name="str"/>ing.</returns>
         public static uint PJW(string str)
         {
             //const uint BitsInUnsignedInt = (uint)(4 * 8);                                     //32
@@ -716,59 +694,54 @@ namespace Zsnd_UI.lib
             //const uint OneEighth = (uint)(BitsInUnsignedInt / 8);                             //4
             //const uint HighBits = (uint)(0xFFFFFFFF) << (int)(BitsInUnsignedInt - OneEighth); //0xF0000000
             uint hash = 0;
-            uint test;
             for (int i = 0; i < str.Length; i++)
             {
                 hash = (hash << 4) + ((byte)str[i]);
-                if ((test = hash & 0xF0000000) != 0)
-                {
-                    hash = (hash ^ (test >> 24)) & (~0xF0000000);
-                }
+                if ((PJWTest = hash & 0xF0000000) != 0)
+                    hash = (hash ^ (PJWTest >> 24)) & (~0xF0000000);
             }
             return hash; // & 0x7FFFFFFF
         }
         /// <summary>
-        /// PJW hash generator from upper-case instance of string.
+        /// PJW hash generator from upper-case instance of <paramref name="str"/>ing.
         /// </summary>
         public static uint PJWUPPER(string str)
         {
             return PJW(str.ToUpperInvariant());
         }
         /// <summary>
-        /// Convert a <paramref name="HashNum"/> (number) to a hash string, depending on <paramref name="Fname"/> and saved events.
+        /// Convert a <paramref name="HashNum"/> (number) to a hash string, depending on <paramref name="Fname"/> (must be UPPERCASE) and saved events.
         /// </summary>
-        /// <param name="Fname">The file base name for the reverse generators.</param>
+        /// <param name="Fname">The file base name in UPPERCASE for the reverse generators.</param>
         /// <returns>The hash as a <see cref="string"/>, if identified by <see cref="JsonHashes"/> or events, otherwise <paramref name="HashNum"/> as <see cref="string"/>.</returns>
         public static string ToStr(uint HashNum, string Fname)
         {
             try
             {
+                // For release: OHSpath.CD, "OHSGUI" instead of Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!
                 JsonHashes ??= JsonSerializer.Deserialize<Dictionary<uint, string>>(File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!, "Assets", "zsnd_hashes.json")));
             }
             catch { } // leave JsonHashes null. Does it make sense to report somewhere?
             return Random().Replace(JsonHashes is not null
                 && JsonHashes.TryGetValue(HashNum, out string? Hash)
-                && Hash is not null
                 ? Hash : PJWReverse(HashNum, Fname), "");
         }
         /// <summary>
         /// Check whether the <paramref name="Hash"/> is a <see cref="uint"/> or a <see cref="string"/>.
         /// </summary>
-        /// <param name="Fname">The file base name for the reverse generators.</param>
+        /// <param name="Fname">The file base name in UPPERCASE for the reverse generators.</param>
         /// <returns>The <paramref name="Hash"/> with replaced random suffix, if it's a <see cref="string"/>, otherwise the attempted reverse generated hash as a <see cref="string"/>.</returns>
-        public static string Check(string? Hash, string Fname = "")
+        public static string EnsureHash(string Hash) // , string Fname = ""
         {
             return uint.TryParse(Hash, out uint HashNum)
-                ? ToStr(HashNum, Fname)
-                : string.IsNullOrEmpty(Hash)
-                ? string.Empty
+                ? ToStr(HashNum, "")
                 : Random().Replace(Hash, "");
         }
 
         private static string PJWReverse(uint HashNum, string Fname)
         {
             // if the hash wasn't listed, we try to reverse generate it
-            if (PlatIsMicrosoft)
+            if (PlatIsMicrosoft && Fname != "")
             {
                 string CleanFn = Fname.StartsWith("XTREME2") ? "XTREME2"
                     : AltSfx().Replace(DigitSfx().Replace(Fname, ""), "");
@@ -783,102 +756,79 @@ namespace Zsnd_UI.lib
                     return HFN2;
             }
             // if the file name isn't the hash, try character events
-            if (PJWReverseChar(HashNum, CharEvents) is string HChar)
-                return HChar;
+            if (PJWReverseChar(HashNum, MFirst ? Events.MRand : Events.VRand) is string HChar1)
+                return HChar1;
+            if (PJWReverseChar(HashNum, MFirst ? Events.VRand : Events.MRand) is string HChar2)
+                return HChar2;
             // if not character hash, try music events
-            if (PJWReverse(HashNum, MusicEvents) is string HMus)
-                return HMus;
+            for (int e = 0; e < Events.Music.Length; e++)
+                if (PJW(Events.Music[e]) == HashNum)
+                    return Events.Music[e];
+            if (Fname == "") { return HashNum.ToString(); }
             // if not music hash, try x_voice events
-            string[] XVE = new string[5 * 21];
             for (int i = -1; i < 20; i++)
                 for (int e = 0; e < 5; e++)
-                    XVE[5 + 5 * i + e] = $"COMMON/{XVoiceEvents[e]}{Fname}{(i == -1 ? "" : $"/***RANDOM***/{i}")}";
-            if (PJWReverse(HashNum, XVE) is string HXV)
-                return HXV;
+                {
+                    string Hash = $"COMMON/{Events.XVoice[e]}{Fname}{(i == -1 ? "" : $"/***RANDOM***/{i}")}";
+                    if (PJW(Hash) == HashNum)
+                        return Hash;
+                }
             return HashNum.ToString();
-        }
-
-        private static string? PJWReverse(uint HashNum, string[] Events)
-        {
-            for (int e = 0; e < Events.Length; e++)
-            {
-                if (PJW(Events[e]) == HashNum)
-                    return Events[e];
-            }
-            return null;
         }
 
         private static string? PJWReverseChar(uint HashNum, string[] Events)
         {
-            for (int n = 0; n < Znames.Length; n++)
-            {
+            for (int n = 0; n < 2; n++)
                 for (int c = 0; c < 2; c++)
-                {
                     for (int e = 0; e < Events.Length; e++)
                     {
                         string Hash = $"{CharPrefix[c]}/{Znames[n]}/{Events[e]}";
                         if (PJW(Hash) == HashNum)
                             return Hash;
                     }
-                }
-            }
             return null;
         }
         /// <summary>
-        /// Initialize the <see cref="CharEvents"/> and <see cref="MusicEvents"/> with the <paramref name="Zname"/>.
+        /// Initialize the <see cref="Events.MRand"/>/<see cref="Events.VRand"/> priority, the <see cref="Events.Music"/> and <see cref="Znames"/> events with the <paramref name="Zname"/>.
         /// </summary>
-        /// <param name="Zname">The .zss/.zsm file base name for the reverse generators.</param>
-        /// <remarks>Must be done before using <see cref="ToStr"/> or <see cref="Check"/>.</remarks>
+        /// <param name="Zname">The .zss/.zsm file base name in UPPERCASE for the reverse generators.</param>
+        /// <remarks>Must be done before using <see cref="ToStr"/> or <see cref="EnsureHash"/>. <paramref name="Zname"/> must be UPPERCASE.</remarks>
         public static void PrepareEvents(string Zname)
         {
             char ZsSfx = Zname[^1];
             string BaseZname = Zname[0..^1];
-            Znames = ZsSfx is 'M' or 'V' ? [Zname, $"{BaseZname}{(ZsSfx == 'M' ? "V" : "M")}"] : [];
-            CharEvents = ZsSfx == 'M'
-                ? [.. SoundEventsM, .. SoundEventsV]
-                : [.. SoundEventsV, .. SoundEventsM];
+            MFirst = ZsSfx == 'M';
+            Znames[0] = Zname;
+            Znames[1] = $"{BaseZname}{(MFirst ? "V" : "M")}";
             for (int i = 0; i < 3; i++)
-                MusicEvents[i] = $"MUSIC/{BaseZname}{"ACX"[i]}";
+                Events.Music[i] = $"MUSIC/{BaseZname}{"ACX"[i]}";
         }
         /// <summary>
-        /// Add random suffixes to the duplicate hashes in <see cref="ZsndLists.Sounds"/>.
+        /// Add random suffixes to the duplicate hashes in <see cref="Lists.Sounds"/>, and make them UPPERCASE.
         /// </summary>
-        public static void RandomizeHashes()
+        public static void AddRandomSuffix()
         {
+            // Note: This is slightly faster than any single pass solutions
             Dictionary<string, int> Randoms = new(StringComparer.OrdinalIgnoreCase);
             HashSet<string> Uniques = new(StringComparer.OrdinalIgnoreCase);
-            for (int i = 0; i < ZsndLists.Sounds.Count; i++)
+            for (int i = 0; i < Lists.Sounds.Count; i++)
             {
-                if (ZsndLists.Sounds[i].Hash is string Hash && !Uniques.Add(Hash))
-                {
-                    Randoms[Hash] = 0;
-                }
+                string Hash = Lists.Sounds[i].Hash;
+                if (!Uniques.Add(Hash)) { Randoms[Hash] = 0; }
             }
-            for (int i = 0; i < ZsndLists.Sounds.Count; i++)
+            for (int i = 0; i < Lists.Sounds.Count; i++)
             {
-                if (ZsndLists.Sounds[i].Hash is string Hash && Randoms.TryGetValue(Hash, out int index))
+                string Hash = Lists.Sounds[i].Hash;
+                if (Randoms.TryGetValue(Hash, out int index))
                 {
-                    ZsndLists.Sounds[i].Hash = $"{Hash}/***RANDOM***/{index}";
+                    Lists.Sounds[i].Hash = $"{Hash.ToUpperInvariant()}/***RANDOM***/{index}";
                     Randoms[Hash]++;
                 }
             }
         }
     }
 
-    /// <summary>
-    /// The main bind class, NOTE: Needed when lists are shared among pages.
-    /// </summary>
-    //public class Zsnd
-    //{
-    //    //public Json_Main Json { get; set; } = Sjson.Data; -> removed, would be static class
-    //    public ObservableCollection<UISound> Sounds { get; set; } = ZsndLists.Sounds;
-    //    public ObservableCollection<XVSound> XVSounds { get; set; } = ZsndLists.XVSounds;
-    //    //public ObservableCollection<string> XVInternalNames { get; set; } = ZsndLists.XVInternalNames;
-    //    //public ObservableCollection<UI_Sample> Samples { get; set; } = ZsndLists.Samples;
-    //
-    //}
-
-    public static class ZsndCmd
+    public static class Cmd
     {
         private static readonly JsonSerializerOptions JsonOptionsD = new() { PropertyNameCaseInsensitive = true };
         private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true, PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower };
@@ -899,7 +849,7 @@ namespace Zsnd_UI.lib
             return null;
         }
         /// <summary>
-        /// Save the <see cref="ZsndLists.Sounds"/> and <see cref="ZsndLists.Samples"/> lists as a Raven-Formats <paramref name="JsonFile"/>, using the saved <see cref="Platform"/>.
+        /// Save the <see cref="Lists.Sounds"/> and <see cref="Lists.Samples"/> lists as a Raven-Formats <paramref name="JsonFile"/>, using the saved <see cref="Platform"/>.
         /// </summary>
         /// <returns><see langword="Null"/>, if saved successfully, otherwise an error message as <see cref="string"/>.</returns>
         public static string? SaveJson(string JsonFile)
@@ -911,17 +861,9 @@ namespace Zsnd_UI.lib
             JsonMain? Json = new()
             {
                 Platform = Platform.ToString()!,
-                Samples = [.. ZsndLists.Samples],
+                Samples = [.. Lists.Samples], // ToList(), merely references
+                Sounds = [.. Lists.Sounds]
             };
-            for (int i = 0; i < ZsndLists.Sounds.Count; i++)
-            {
-                Json.Sounds.Add(new JsonSound
-                {
-                    Hash = ZsndLists.Sounds[i].Hash,
-                    Sample_index = ZsndLists.Sounds[i].SampleIndex,
-                    Flags = (SoundF)ZsndLists.Sounds[i].Flags
-                });
-            }
             try
             {
                 _ = Directory.CreateDirectory(Path.GetDirectoryName(JsonFile)!);
@@ -940,27 +882,14 @@ namespace Zsnd_UI.lib
         {
             if (LoadJson(JsonFile) is JsonMain XV)
             {
-                ZsndLists.XVInternalNames.Clear();
-                ZsndLists.Sounds.Clear();
-                ZsndLists.Samples.Clear();
-                SetPlatform(XV.Platform);
-                ZsndHash.PrepareEvents("X_VOICE");
-                // Can't assign directly, because JSON is not observable and observablec. don't support bulk ops.
-                // Bulk ops are planned (basic tests in .Net10 which is scheduled for Nov 2025).
-                // Best solution performance-wise (no reflection):
+                // Observablec. don't have AddRange (yet). Planned in .Net future versions.
+                // Best unofficial extension, performance-wise (no reflection):
                 // https://stackoverflow.com/questions/670577/observablecollection-doesnt-support-addrange-method-so-i-get-notified-for-each/45364074#45364074
-                // Note: The udapte for each item issue is probably the cause of slowing down the UI on 200+ items.
-                for (int i = 0; i < XV.Samples.Count; i++)
-                {
-                    ZsndLists.Samples.Add(XV.Samples[i]);
-                }
-                for (int i = 0; i < XV.Sounds.Count; i++)
-                {
-                    XVSound snd = XV.Sounds[i];
-                    ZsndLists.Sounds.Add(snd);
-                    _ = snd.Pref is ZsndEvents.XVprefix.AN or ZsndEvents.XVprefix.BREAK
-                        && ZsndLists.XVInternalNames.Add(snd.IntName);
-                }
+                Lists.XVInternalNames.Clear();
+                Hashing.PrepareEvents("X_VOICE");
+                SetPlatform(XV.Platform);
+                Lists.Samples = new(XV.Samples);
+                Lists.Sounds = [.. XV.Sounds];
             }
         }
         /// <summary>
@@ -968,33 +897,27 @@ namespace Zsnd_UI.lib
         /// </summary>
         public static void ReadJson(string JsonFile)
         {
-            if (LoadJson(JsonFile) is JsonMain tj)
+            if (LoadJson(JsonFile) is JsonMain ZJ)
             {
                 string Zname = Path.GetFileNameWithoutExtension(JsonFile).ToUpperInvariant();
-                ZsndLists.Sounds.Clear();
-                ZsndLists.Samples.Clear();
-                SetPlatform(tj.Platform);
-                ZsndHash.PrepareEvents(Zname);
-                //for (int i = 0; i < tj.Samples.Count; i++)
-                //{
-                //    ZsndLists.Samples.Add(tj.Samples[i]);
-                //}
-                ZsndLists.Samples = new ObservableCollection<JsonSample>(tj.Samples);
-                for (int i = 0; i < tj.Sounds.Count; i++)
-                {
-                    // Zname starts with X_VOICE ? (XVSound)tj.Sounds[i] : (UISound)tj.Sounds[i]
-                    ZsndLists.Sounds.Add((UISound)tj.Sounds[i]);
-                }
+                Hashing.PrepareEvents(Zname);
+                SetPlatform(ZJ.Platform);
+                Lists.Samples = new(ZJ.Samples);
+                if (Zname.StartsWith("X_VOICE"))
+                    Lists.Sounds = [.. ZJ.Sounds];
+                //else
+                //    Lists.NonXVSounds = [.. ZJ.Sounds];
             }
         }
+        // Load and write Zsnd could have more combined loops
         /// <summary>
         /// Read sound info from a .zss/.zsm file, as defined by <paramref name="Zfile"/>, and write sound files to <paramref name="OutPath"/> (defaults to <paramref name="Zfile"/>'s directory).
         /// </summary>
         /// <returns><see langword="True"/>, if parsed, otherwise <see langword="false"/>.</returns>
-        public static bool LoadZsnd(string Zfile, string OutPath = "", bool IsXvoice = false)
+        public static bool LoadZsnd(string Zfile, string OutPath = "") // , bool IsXvoice = false
         {
             using FileStream fs = new(Zfile, FileMode.Open, FileAccess.Read);
-            using ZsndReader reader = new(fs); // UTF8
+            using ZReader reader = new(fs); // UTF8
             if (new string(reader.ReadChars(4)) == "ZSND")
             {
                 string Platform = new string(reader.ReadChars(4)).TrimEnd();
@@ -1003,7 +926,7 @@ namespace Zsnd_UI.lib
                     && Header.SoundCount > 0 && Header.SampleCount > 0 && Header.SampleFileCount == Header.SampleCount)
                 {
                     string Zname = Path.GetFileNameWithoutExtension(Zfile);
-                    ZsndHash.PrepareEvents(Zname.ToUpperInvariant());
+                    Hashing.PrepareEvents(Zname.ToUpperInvariant());
 
                     reader.BaseStream.Position = Header.SoundHashesOffset; // should be here already
                     uint[] SoundHashes = new uint[Header.SoundCount];
@@ -1073,10 +996,10 @@ namespace Zsnd_UI.lib
                         }
                     }
 
-                    ZsndLists.Sounds.Clear();
-                    ZsndLists.Samples.Clear();
+                    Lists.Sounds.Clear();
+                    Lists.Samples.Clear();
                     if (OutPath == "") { OutPath = Path.GetDirectoryName(Zfile) ?? ""; }
-                    string BaseDir = Directory.CreateDirectory(Path.Combine(OutPath, Zname)).FullName;
+                    string BaseDir = Directory.CreateDirectory($"{OutPath}/{Zname}").FullName;
                     byte[] buffer = new byte[Sizes.Max()];
                     int RealSize = 0;
                     for (int i = 0; i < Header.SampleFileCount; i++)
@@ -1092,7 +1015,7 @@ namespace Zsnd_UI.lib
                         {
                             return false;
                         }
-                        ZsndLists.Samples.Add(new JsonSample
+                        Lists.Samples.Add(new JsonSample
                         {
                             File = $"{Zname}/{Names[i]}",
                             Sample_rate = Rates[i],
@@ -1101,14 +1024,14 @@ namespace Zsnd_UI.lib
                     }
                     for (int i = 0; i < Header.SoundCount; i++)
                     {
-                        JsonSound sound = new()
+                        Lists.Sounds.Add(new JsonSound()
                         {
                             Sample_index = SIndx[i],
                             Flags = (SoundF)SoundFl[i],
-                            Hash = ZsndHash.ToStr(SoundHashes[i],
+                            Hash = Hashing.ToStr(SoundHashes[i],
                                 Path.GetFileNameWithoutExtension(Names[SIndx[i]]).ToUpperInvariant())
-                        };
-                        ZsndLists.Sounds.Add(IsXvoice ? (XVSound)sound : (UISound)sound);
+                        });
+                        //Lists.Sounds.Add(IsXvoice ? (XVSound)sound : (UISound)sound);
                     }
                     return true;
                 }
@@ -1116,17 +1039,18 @@ namespace Zsnd_UI.lib
             return false;
         }
         /// <summary>
-        /// Save the <see cref="ZsndLists.Sounds"/> and <see cref="ZsndLists.Samples"/> lists as a .zss/.zsm file, as defined by <paramref name="Zfile"/>, using the saved <see cref="Platform"/>.
+        /// Save the <see cref="Lists.Sounds"/> and <see cref="Lists.Samples"/> lists as a .zss/.zsm file, as defined by <paramref name="Zfile"/>, using the saved <see cref="Platform"/>.
         /// </summary>
         /// <remarks>Resolves file paths that aren't an absolute path, using <paramref name="RelativePath"/> (defaults to <paramref name="Zfile"/>'s directory).</remarks>
         /// <returns>A message with an error that was encountered, or <see langword="null"/>, if succeeded.</returns>
         public static string? WriteZsnd(string Zfile, string? RelativePath = null)
         {
-            string ZsndName = Path.GetFileNameWithoutExtension(Zfile);
+            // WIP: Possibly combine some loops
+            string ZsndName = Path.GetFileNameWithoutExtension(Zfile).ToUpperInvariant();
             RelativePath ??= Path.GetDirectoryName(Zfile)!;
             byte StepSize = (byte)(Platform == ZPlatform.GCUB ? 0x10 : 0x04);
-            uint SoundCount = (uint)ZsndLists.Sounds.Count;
-            uint SampleCount = Math.Min((uint)ZsndLists.Samples.Count, 0xFFFF + 1);
+            uint SoundCount = (uint)Lists.Sounds.Count;
+            uint SampleCount = Math.Min((uint)Lists.Samples.Count, ushort.MaxValue + 1);
             uint HashesSize = SampleCount * 8; // 2 * uint
             uint HeaderSize = (uint)(8 + Marshal.SizeOf<ZsndHeader>());
             uint soundsOffset = HeaderSize + (SoundCount * 8); // 2 * uint
@@ -1143,7 +1067,7 @@ namespace Zsnd_UI.lib
             for (int i = 0; i < SampleCount; i++)
             {
                 Offsets[i] = InfoSize + (uint)TemporarySampleStream.Position;
-                JsonSample S = ZsndLists.Samples[i];
+                JsonSample S = Lists.Samples[i];
                 if (S.File is not null
                     && (Path.IsPathFullyQualified(S.File) ? S.File : Path.Combine(RelativePath, S.File)) is string Filename
                     && File.Exists(Filename))
@@ -1163,12 +1087,12 @@ namespace Zsnd_UI.lib
                     }
                 }
             }
-            ZsndHash.RandomizeHashes();
-            IOrderedEnumerable<(uint Hash, uint Index)> SortedSoundHashes = ZsndLists.Sounds.Select(
-                    (v, i) => (Hash: v.Hash is null ? 0 : ZsndHash.PJWUPPER(v.Hash), Index: (uint)i)
+            Hashing.AddRandomSuffix();
+            IOrderedEnumerable<(uint Hash, uint Index)> SortedSoundHashes = Lists.Sounds.Select(
+                    (v, i) => (Hash: Hashing.PJW(v.Hash), Index: (uint)i)
                 ).OrderBy(i => i.Hash);
-            IOrderedEnumerable<(string HashPart, uint Index)> SortedSampleHashes = ZsndLists.Samples.Take(0xFFFF + 1).Select(
-                    (v, i) => (HashPart: $"/{ZsndName}/{Path.GetFileNameWithoutExtension(v.File)}", Index: (uint)i)
+            IOrderedEnumerable<(string HashPart, uint Index)> SortedSampleHashes = Lists.Samples.Take((int)SampleCount).Select(
+                    (v, i) => (HashPart: $"/{ZsndName}/{Path.GetFileNameWithoutExtension(v.File)?.ToUpperInvariant()}", Index: (uint)i)
                 ).OrderBy(i => i.HashPart);
 
             ZsndHeader Header = new(InfoSize, SoundCount, SampleCount)
@@ -1182,7 +1106,7 @@ namespace Zsnd_UI.lib
                 SampleFilesOffset = sampleFOffset
             };
             using FileStream fs = new(Zfile, FileMode.Create, FileAccess.Write);
-            using ZsndWriter zs = new(fs);
+            using ZWriter zs = new(fs);
             zs.Write(PlatformMagic);
             byte[] headerBytes = new byte[HeaderSize - 8];
             GCHandle handle = GCHandle.Alloc(Header, GCHandleType.Pinned);
@@ -1207,12 +1131,12 @@ namespace Zsnd_UI.lib
             byte[] SoundTemplate = GetSoundTemplate();
             for (int i = 0; i < SoundCount; i++)
             {
-                int index = ZsndLists.Sounds[i].SampleIndex;
+                int index = Lists.Sounds[i].SampleIndex;
                 if (index <= 0xFFFF)
                 {
                     SoundTemplate[0] = (byte)(PlatIs7thGen ? index >> 8 : index & 0xFF);
                     SoundTemplate[1] = (byte)(PlatIs7thGen ? index & 0xFF : index >> 8);
-                    SoundTemplate[7] = (byte)ZsndLists.Sounds[i].Flags;
+                    SoundTemplate[7] = Lists.Sounds[i].Flags;
                     zs.Write(SoundTemplate);
                 }
                 else
@@ -1224,7 +1148,7 @@ namespace Zsnd_UI.lib
             // Debug.Assert(zs.Position == sampleHOffset);
             foreach ((string HashPart, uint Index) TH in SortedSampleHashes)
             {
-                zs.Write(ZsndHash.PJWUPPER($"CHARS3/7R{TH.HashPart}"));
+                zs.Write(Hashing.PJW($"CHARS3/7R{TH.HashPart}"));
                 zs.Write(TH.Index);
             }
             // Debug.Assert(zs.Position == samplesOffset);
@@ -1234,20 +1158,20 @@ namespace Zsnd_UI.lib
                 zs.Write(i);
                 if (PlatIsPS)
                 {
-                    zs.Write((ushort)Math.Round(ZsndLists.Samples[i].Sample_rate * 0x1000 / 44100.0)); // Rate to pitch
-                    zs.Write((ushort)ZsndLists.Samples[i].Flags);
+                    zs.Write((ushort)Math.Round(Lists.Samples[i].Sample_rate * 0x1000 / 44100.0)); // Rate to pitch
+                    zs.Write((ushort)Lists.Samples[i].Flags);
                 }
                 else
                 {
-                    zs.Write((ushort)ZsndLists.Samples[i].Flags);
-                    zs.Write(ZsndLists.Samples[i].Sample_rate);
+                    zs.Write((ushort)Lists.Samples[i].Flags);
+                    zs.Write(Lists.Samples[i].Sample_rate);
                 }
                 zs.Write(Padding);
             }
             // Debug.Assert(zs.Position == sampleFHOffset);
             foreach ((string HashPart, uint Index) TH in SortedSampleHashes)
             {
-                zs.Write(ZsndHash.PJWUPPER($"FILE{TH.HashPart}"));
+                zs.Write(Hashing.PJW($"FILE{TH.HashPart}"));
                 zs.Write(TH.Index);
             }
             // Debug.Assert(zs.Position == sampleFOffset);
@@ -1259,11 +1183,11 @@ namespace Zsnd_UI.lib
                 // Might need better format info/support
                 if (PlatIsMicrosoft)
                 {
-                    zs.Write((uint)(Platform == ZPlatform.PC && (ZsndLists.Samples[i].Flags & SampleF.FourChannels) == SampleF.None
+                    zs.Write((uint)(Platform == ZPlatform.PC && (Lists.Samples[i].Flags & SampleF.FourChannels) == SampleF.None
                         ? 106 : PlatIsMicrosoft ? 1 : 0));
                     if (Platform != ZPlatform.PC)
                         zs.Write(Padding);
-                    zs.Write(Path.GetFileName(ZsndLists.Samples[i].File) ?? "");
+                    zs.Write(Path.GetFileName(Lists.Samples[i].File) ?? "");
                 }
                 else if (Platform == ZPlatform.GCUB)
                 {

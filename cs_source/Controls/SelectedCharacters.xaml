@@ -1,0 +1,217 @@
+<UserControl
+    x:Class="OpenHeroSelectGUI.Controls.SelectedCharacters"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="using:OpenHeroSelectGUI.Settings"
+    mc:Ignorable="d">
+
+    <UserControl.Resources>
+        <FontIconSource x:Key="DeleteIcon" Glyph="&#xE107;"/>
+        <SwipeItems Mode="Execute" x:Key="DeleteSwipeMember">
+            <SwipeItem IconSource="{StaticResource DeleteIcon}"
+                       Background="Red"
+                       Invoked="DeleteSwipeMember_Invoked"
+                       Text="Delete"/>
+        </SwipeItems>
+        <DataTemplate x:Key="CharacterNameTemplate" x:DataType="settings:SelectedCharacter">
+            <SwipeControl RightItems="{StaticResource DeleteSwipeMember}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.RowSpan="2"
+                               x:Name="LocColumn"
+                               Text="{x:Bind Loc}"
+                               Style="{ThemeResource SubtitleTextBlockStyle}"
+                               MinWidth="28"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1"
+                               x:Phase="1"
+                               Text="{x:Bind Character_Name}"
+                               Style="{ThemeResource BaseTextBlockStyle}"
+                               Margin="12 6 6 0"/>
+                    <Rectangle Grid.Column="1" Grid.Row="1"
+                               Fill="Red"
+                               Margin="6 0 2 4"
+                               Opacity="0.2"
+                               RadiusX="4"
+                               RadiusY="4"
+                               Visibility="{x:Bind NumClash, Mode=OneWay}"/>
+                    <TextBlock Grid.Column="1" Grid.Row="1"
+                               Style="{ThemeResource BodyTextBlockStyle}"
+                               TextWrapping="Wrap"
+                               Margin="12 0 8 6"
+                               MaxWidth="240">
+                          <Run Text="{x:Bind Path}"/>
+                          <Run Text="&#1632;"/>
+                          <Run Text="{x:Bind Character_Number}"/>
+                    </TextBlock>
+                </Grid>
+            </SwipeControl>
+        </DataTemplate>
+        <DataTemplate x:Key="CharacterListTemplate" x:DataType="settings:SelectedCharacter">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <ContentPresenter ContentTemplate="{StaticResource CharacterNameTemplate}"/>
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal" VerticalAlignment="Center">
+                    <CheckBox x:Name="UnlockColumn"
+                              IsChecked="{x:Bind Unlock, Mode=TwoWay}"
+                              x:Phase="2"
+                              Margin="1"
+                              MinWidth="30"
+                              ToolTipService.ToolTip="Unlock?"/>
+                    <CheckBox x:Name="StarterColumn"
+                              Click="Starter_Click"
+                              IsChecked="{x:Bind Starter, Mode=TwoWay}"
+                              x:Phase="2"
+                              Margin="1"
+                              MinWidth="30"
+                              ToolTipService.ToolTip="Starter?"/>
+                    <ComboBox x:Name="EffectSelection"
+                              x:Phase="2"
+                              DisplayMemberPath="Name"
+                              ItemsSource="{x:Bind settings:InternalSettings.Effects.EffectList}" 
+                              SelectedValue="{x:Bind Effect, Mode=TwoWay}"
+                              Background="{ThemeResource CardBackgroundFillColorSecondary}"
+                              BorderBrush="{ThemeResource CheckBoxBorderThemeBrush}"
+                              MinWidth="72"
+                              MaxWidth="72"
+                              ToolTipService.ToolTip="Select a mannequin effect | Effects will activate on that location when running OHS with the option to update the stage. They stay that way until OHS runs again. This selection isn't saved."/>
+                </StackPanel>
+            </Grid>
+        </DataTemplate>
+        <DataTemplate x:Key="CharacterListTemplateXML2" x:DataType="settings:SelectedCharacter">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <ContentPresenter ContentTemplate="{StaticResource CharacterNameTemplate}"/>
+                <CheckBox Grid.Column="1"
+                          x:Name="UnlockColumn"
+                          x:Phase="2"
+                          IsChecked="{x:Bind Unlock, Mode=TwoWay}"
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Center"
+                          Margin="1"
+                          MinWidth="30"
+                          ToolTipService.ToolTip="Unlock?"/>
+            </Grid>
+        </DataTemplate>
+        <settings:GameTemplateSelector x:Key="LVcolumnSelector"
+                                       MUA="{StaticResource CharacterListTemplate}"
+                                       XML2="{StaticResource CharacterListTemplateXML2}"/>
+    </UserControl.Resources>
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition x:Name="Title" Height="36"/>
+            <RowDefinition x:Name="Header" MaxHeight="36"/>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Margin="10 10 10 0" Style="{ThemeResource SubtitleTextBlockStyle}" Text="Selected Characters"/>
+        <Grid Background="{ThemeResource SolidBackgroundFillColorSecondary}" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <AppBarButton x:Name="LocColumn" Icon="Sort" Margin="0 -5" ToolTipService.ToolTip="Sort By Location" AutomationProperties.Name="Sort" Width="54" Visibility="{x:Bind Cfg.GUI.IsMua}">
+                <AppBarButton.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedRight">
+                        <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="loc.asc"/>
+                        <MenuFlyoutItem Click="LV_Sorting" Text="Descending" Tag="loc.desc"/>
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <AppBarButton Grid.Column="1" Icon="Sort" Margin="0 -5" ToolTipService.ToolTip="Sort By Character" AutomationProperties.Name="Sort">
+                <AppBarButton.Flyout>
+                    <MenuFlyout Placement="BottomEdgeAlignedLeft">
+                        <MenuFlyoutSubItem Text="By Name">
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="name.asc"/>
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Descending" Tag="name.desc"/>
+                        </MenuFlyoutSubItem>
+                        <MenuFlyoutSubItem Text="By Group">
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="path.asc"/>
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Descending" Tag="path.desc"/>
+                        </MenuFlyoutSubItem>
+                        <MenuFlyoutSubItem Text="By Char. Number">
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Ascending" Tag="num.asc"/>
+                            <MenuFlyoutItem Click="LV_Sorting" Text="Descending" Tag="num.desc"/>
+                        </MenuFlyoutSubItem>
+                    </MenuFlyout>
+                </AppBarButton.Flyout>
+            </AppBarButton>
+            <TextBlock x:Name="UnlockHeader" Grid.Column="2" Text="U" Margin="3" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTipService.ToolTip="Unlock"/>
+            <TextBlock x:Name="StarterHeader" Grid.Column="3" Text="S" Margin="3" Width="30" HorizontalAlignment="Center" VerticalAlignment="Center" ToolTipService.ToolTip="Starter" Visibility="{x:Bind Cfg.GUI.IsMua}"/>
+            <TextBlock x:Name="EffectHeader" Grid.Column="4" Text="Effects" HorizontalAlignment="Center" VerticalAlignment="Center" Width="72" Visibility="{x:Bind Cfg.GUI.IsMua}"/>
+        </Grid>
+
+        <Canvas Grid.Row="2" Grid.RowSpan="2" Background="Red" Opacity="0.1" Visibility="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}"/>
+        <ListView x:Name="SelectedCharactersList" Grid.Row="2"
+                  ItemsSource="{x:Bind Cfg.Roster.Selected}"
+                  ItemTemplateSelector="{StaticResource LVcolumnSelector}"
+                  AllowDrop="True"
+                  CanDragItems="True"
+                  CanReorderItems="True"
+                  DragItemsStarting="SelectedCharactersList_DragItemsStarting"
+                  DragOver="SelectedCharactersList_DragOver"
+                  Drop="SelectedCharactersList_Drop"
+                  HorizontalAlignment="Stretch"
+                  KeyboardAcceleratorPlacementMode="Hidden"
+                  SelectionChanged="SelectionChanged"
+                  SelectionMode="Extended"
+                  Margin="0 5">
+            <ListView.KeyboardAccelerators>
+                <KeyboardAccelerator Key="Delete" Invoked="Selected_Characters_Delete" ScopeOwner="{x:Bind SelectedCharactersList}"/>
+            </ListView.KeyboardAccelerators>
+            <!--BorderThickness="1"
+                  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
+        </ListView>
+
+        <StackPanel Grid.Row="3">
+            <InfoBar x:Name="ClsRes"
+                     Severity="Success"
+                     Title="Clash resolved"
+                     Message="New character and herostat are available."/>
+            <InfoBar x:Name="ClsResNo"
+                     Title="Clash not (fully) resolved"/>
+            <ProgressBar x:Name="ClsResProg" IsIndeterminate="True" Visibility="Collapsed"/>
+            <InfoBar x:Name="Clashes"
+                     Title="Character number clash found"
+                     Message="Clashing characters will have&#x0a;identical mannequins."
+                     IsOpen="{x:Bind Cfg.Roster.NumClash, Mode=OneWay}">
+                <InfoBar.ActionButton>
+                    <HyperlinkButton Content="More information" NavigateUri="https://marvelmods.com/forum/index.php?msg=203622"/>
+                </InfoBar.ActionButton>
+                <Button Content="Resolve Clashes" Click="ResolveClash_Click" Margin="-12 -10 0 10"/>
+            </InfoBar>
+        </StackPanel>
+        <ContentDialog x:Name="ModRenumber"
+                       Title="Renumber Mod"
+                       PrimaryButtonText="Cancel"
+                       SecondaryButtonText="OK">
+            <StackPanel Spacing="5">
+                <NumberBox x:Name="NewModNumber" Header="Enter the new mod number:" Value="0" Minimum="0" Maximum="255" NumberFormatter="{x:Bind settings:InternalSettings.PaddedNumFormatter}" SpinButtonPlacementMode="Inline" Loaded="ModNumberBox_Loaded" ValueChanged="NewModNumber_ValueChanged"/>
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <Button x:Name="MBrowseButton" Content="Browse for folder" Click="MBrowseButton_Click" ToolTipService.ToolTip="Browse for the mod. A folder may contain files that are not from the mod (e.g. the main game folder), but renumbering might change the wrong files."/>
+                    <ToggleSwitch x:Name="MBrowseSwitch" OffContent="Folder" OnContent="Archive" Toggled="MBrowseSwitch_Toggled" ToolTipService.ToolTip="Choose whether to browse for a mod archive or an installed (or not) mod folder incl. game folder"/>
+                </StackPanel>
+            </StackPanel>
+        </ContentDialog>
+    </Grid>
+</UserControl>

@@ -18,13 +18,11 @@ namespace OpenHeroSelectGUI
     public sealed partial class Tab_SkinEditor : Page
     {
         public Cfg Cfg { get; set; } = new();
+        internal Messages Msg { get; set; } = new();
 
         public Tab_SkinEditor()
         {
             InitializeComponent();
-            _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
-            _ = SkinDetailsPage.Navigate(typeof(SkinDetailsPage));
-            Cfg.Var.SE_Msg_Info = Cfg.Var.SE_Msg_Error = Cfg.Var.SE_Msg_Success = Cfg.Var.SE_Msg_Warning = new MessageItem();
         }
 
         private async void BrowseButton_Click(object sender, RoutedEventArgs e)
@@ -44,6 +42,7 @@ namespace OpenHeroSelectGUI
                 SplitHS(HS);
             }
         }
+
         private void SplitHS(string HS)
         {
             try
@@ -55,40 +54,39 @@ namespace OpenHeroSelectGUI
                 {
                     string DHS = Path.Combine(OHSpath.Temp, $"{Path.GetFileNameWithoutExtension(HS)}.xml");
                     if (Util.RunExeInCmd("json2xmlb", $"-d \"{HS}\" \"{DHS}\"")
-                        && GUIXML.SplitXMLStats(DHS, Out))
+                        && MarvelModsXML.SplitXMLStats(DHS, Out))
                     {
                         SplitFinished(Out);
                     }
                 }
                 else
                 {
-                    string[] LoadedHerostat = [.. File.ReadLines(HS)];
-                    char HsFormat = LoadedHerostat.First(s => !string.IsNullOrEmpty(s.Trim())).Trim()[0];
+                    using FileStream fs = File.OpenRead(HS);
+                    using StreamReader sr = new(fs);
+                    char HsFormat;
+                    while (char.IsWhiteSpace(HsFormat = (char)sr.Read()) && !sr.EndOfStream) { }
+                    fs.Close();
                     if (HsFormat == '<')
                     {
-                        if (!GUIXML.SplitXMLStats(HS, Out)) { return; }
+                        if (!MarvelModsXML.SplitXMLStats(HS, Out)) { return; }
                     }
                     else
                     {
-                        Herostat.Split(LoadedHerostat, HsFormat, Out);
+                        Herostat.Split(File.ReadAllLines(HS), HsFormat == '{', Out);
                     }
                     SplitFinished(Out);
                 }
             }
-            catch { } // Just don't split/continue
+            catch { } // Just don't split/continue (Possibly show error messages in future versions)
         }
         /// <summary>
-        /// Display success message in <see cref="InfoBar"/> for 5 seconds
+        /// Display split finished message in <see cref="InfoBar"/> for 5 seconds
         /// </summary>
         private async void SplitFinished(string Out)
         {
-            Cfg.Var.SE_Msg_Success = new MessageItem
-            {
-                Message = $"Split herostats to '{Out}'",
-                IsOpen = true
-            };
+            Msg.SE_Success.Message = $"Split herostats to '{Out}'";
             await Task.Delay(5000);
-            Cfg.Var.SE_Msg_Success = new MessageItem() { IsOpen = false };
+            Msg.SE_Success.IsOpen = false;
         }
 
         private void OpenFolder_Click(object sender, RoutedEventArgs e)

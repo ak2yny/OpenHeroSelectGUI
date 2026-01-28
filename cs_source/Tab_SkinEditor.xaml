@@ -4,6 +4,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:OpenHeroSelectGUI.Controls"
     mc:Ignorable="d">
 
     <Grid>
@@ -12,8 +13,8 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition MinWidth="100"/>
         </Grid.ColumnDefinitions>
-        <Frame x:Name="AvailableCharacters" MaxWidth="400"/>
-        <Frame x:Name="SkinDetailsPage" Grid.Column="1"/>
+        <controls:AvailableTabs/>
+        <controls:SkinDetailsControl Grid.Column="1"/>
 
         <!--The herostat splitter should probably have its own page or be in a tools page eventually. Header height total in other pages is 72-->
         <StackPanel Grid.Column="2" Margin="10" Spacing="10">
@@ -50,28 +51,29 @@
         <StackPanel Grid.ColumnSpan="3" Margin="20" Spacing="2" VerticalAlignment="Bottom">
             <InfoBar x:Name="PkgWarning"
                      Severity="Warning"
-                     IsOpen="{x:Bind Cfg.Var.SE_Msg_WarnPkg, Mode=TwoWay}"
+                     IsOpen="{x:Bind Msg.SE_WarnPkg.IsOpen, Mode=TwoWay}"
                      Title="Missing packages"
                      Message="HUD head and powers might not show correctly."/>
             <InfoBar x:Name="Warning"
                      Severity="Warning"
-                     IsOpen="{x:Bind Cfg.Var.SE_Msg_Warning.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Msg.SE_Warning.IsOpen, Mode=TwoWay}"
                      Title="Warning"
-                     Message="{x:Bind Cfg.Var.SE_Msg_Warning.Message, Mode=OneWay}"/>
+                     Message="{x:Bind Msg.SE_Warning.Message, Mode=OneWay}"/>
             <InfoBar x:Name="Error"
                      Severity="Error"
-                     IsOpen="{x:Bind Cfg.Var.SE_Msg_Error.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Msg.SE_Error.IsOpen, Mode=TwoWay}"
                      Title="Error"
-                     Message="{x:Bind Cfg.Var.SE_Msg_Error.Message, Mode=OneWay}"/>
+                     Message="{x:Bind Msg.SE_Error.Message, Mode=OneWay}"/>
             <InfoBar x:Name="Success"
                      Severity="Success"
-                     IsOpen="{x:Bind Cfg.Var.SE_Msg_Success.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Msg.SE_Success.IsOpen, Mode=TwoWay}"
                      Title="Success"
-                     Message="{x:Bind Cfg.Var.SE_Msg_Success.Message, Mode=OneWay}"/>
+                     Message="{x:Bind Msg.SE_Success.Message, Mode=OneWay}"/>
             <InfoBar x:Name="Infobar"
-                     IsOpen="{x:Bind Cfg.Var.SE_Msg_Info.IsOpen, Mode=TwoWay}"
+                     IsOpen="{x:Bind Msg.SE_Info.IsOpen, Mode=TwoWay}"
                      Title="Information"
-                     Message="{x:Bind Cfg.Var.SE_Msg_Info.Message, Mode=OneWay}"/>
+                     Message="{x:Bind Msg.SE_Info.Message, Mode=OneWay}"
+                     Background="{ThemeResource SystemFillColorSolidNeutralBackground}"/>
         </StackPanel>
     </Grid>
 </Page>

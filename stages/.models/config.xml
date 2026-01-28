@@ -8,12 +8,12 @@ Instructions:
 Each stage model must have a m_team_back.igb and it's highly recommended to add an image for the preview.
 Supported image formats are PNG, JPG and BMP.
 Path must be what you named the stage folder, including sub-folder if any (sub-folders to the right, divided by "/").
-Do not add new categories ("RH" is a category), as they are not recognized unless added to the compatible layout.
+Do not add new categories, as they are not recognized unless added to the compatible layout.
 
 *To avoid replacing any existing stages, the folder must have an unique name.
 -->
 <Models>
-    <RH>
+    <Category category="RH">
         <Model>
             <Name>Marvel 2099</Name>
             <Path>TeamStageCollection/2099</Path>
@@ -645,6 +645,11 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Creator>The Outsider &amp; UltraMegaMagnus</Creator>
         </Model>
         <Model>
+        	<Name>Castillo de Hades</Name>
+        	<Path>UMM/CastilloDeHades</Path>
+        	<Creator>UltraMegaMagnus</Creator>
+        </Model>
+        <Model>
             <Name>Stage 0 from Pack 1</Name>
             <Path>Super Team Stage Marvel Mods/1/0</Path>
             <Creator>Emanuel(MUAXP)</Creator>
@@ -845,6 +850,21 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
         	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
+        	<Name>Room Futurist</Name>
+        	<Path>Super Team Stage Marvel Mods/December 2025/Room Futurist</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>New York</Name>
+        	<Path>Super Team Stage Marvel Mods/December 2025/New York</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Spaceship Orbit Earth</Name>
+        	<Path>Super Team Stage Marvel Mods/December 2025/Spaceship Orbit Earth</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
         	<Name>Blue Animated Stage</Name>
         	<Path>Super Team Stage Marvel Mods/Animated/0</Path>
         	<Creator>Emanuel(MUAXP)</Creator>
@@ -909,13 +929,18 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Path>Custom MUA Stages by Nuhverah/rosegarde</Path>
             <Creator>Nuhverah</Creator>
         </Model>
-    <Model>
+        <Model>
             <Name>Opulence</Name>
             <Path>Custom MUA Stages by Nuhverah/opulence</Path>
             <Creator>Nuhverah</Creator>
         </Model>
-    </RH>
-    <Official>
+        <Model>
+            <Name>X-Men Legends</Name>
+            <Path>X-Men Legends</Path>
+            <Creator>PandaHaze</Creator>
+        </Model>
+    </Category>
+    <Category category="Official">
         <Model>
             <Name>Default</Name>
             <Path>Official/Default</Path>
@@ -946,8 +971,8 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Path>Custom MUA Stages by Nuhverah/hells mandala</Path>
             <Creator>Nuhverah</Creator>
         </Model>
-    </Official>
-    <Custom_Riser>
+    </Category>
+    <Category category="Custom_Riser">
         <Model>
             <Name>Custom Stage from the 33RH</Name>
             <Path>33RH</Path>
@@ -973,8 +998,8 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Path>UMM/Red</Path>
             <Creator>UltraMegaMagnus</Creator>
         </Model>
-    </Custom_Riser>
-    <Custom_2Risers>
+    </Category>
+    <Category category="Custom_2Risers">
         <Model>
             <Name>Default Stage with Two Risers</Name>
             <Path>50 TheTommyboy</Path>
@@ -985,12 +1010,12 @@ Do not add new categories ("RH" is a category), as they are not recognized unles
             <Path>UMM/D36</Path>
             <Creator>UltraMegaMagnus</Creator>
         </Model>
-    </Custom_2Risers>
-    <Custom_NoPlatfrom>
+    </Category>
+    <Category category="Custom_NoPlatfrom">
         <Model>
             <Name>Cerebro</Name>
             <Path>Cerebro</Path>
             <Creator>Overload &amp; Tony Stark</Creator>
         </Model>
-    </Custom_NoPlatfrom>
+    </Category>
 </Models>

@@ -18,6 +18,7 @@ REM Add required files and make build
  echo if exist OHSGUI_new rmdir /q /s OHSGUI
  echo ren OHSGUI_new OHSGUI
  echo robocopy stages_new stages /s /nfl /ndl /njh /njs /nc /ns /np
+ echo if exist stages_new\.models\config.xml move /y stages_new\.models\config.xml stages\.models\config.xml
  echo rmdir /q /s stages_new
  echo mklink OpenHeroSelectGUI .\OHSGUI\OpenHeroSelectGUI.exe
  echo del MkLink.bat
@@ -46,12 +47,14 @@ call :WriteCfg %1 "Please enter the OHS installation path:" >InstallerFiles\conf
 
 call :BuildInstaller %z%
 
-REM Add remaining GUI files and make full build with OHS
+REM Add remaining GUI files and make full build with OHS (*.xml and WindowsAppRuntime.png might need to be in non-full build)
 for %%a in (
  createdump.exe
  RestartAgent.exe
  OpenHeroSelectGUI.pdb
+ WindowsAppRuntime.png
  *.winmd
+ *.xml
 ) do move %%a OHSGUI_new\
 for /d %%a in (*-*) do move %%a OHSGUI_new\
 

@@ -65,3 +65,4 @@ stages/.models/TeamStageCollection/
 
 # Personal tools for the project
 *.lnk
+*.url

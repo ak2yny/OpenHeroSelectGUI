@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net9.0-windows10.0.26100.0</TargetFramework>
+    <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <RootNamespace>OpenHeroSelectGUI</RootNamespace>
     <ApplicationManifest>app.manifest</ApplicationManifest>
@@ -18,8 +18,8 @@
     <Authors>ak2yny</Authors>
     <Company>MarvelMods</Company>
     <Description>Graphical User Interface for Open Hero Select</Description>
-    <VersionPrefix>1.2.0</VersionPrefix>
-    <Version>$(VersionPrefix)-beta</Version>
+    <VersionPrefix>1.3.0</VersionPrefix>
+    <Version>$(VersionPrefix)</Version>
     <AssemblyTitle>$(Description)</AssemblyTitle>
     <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
     <ApplicationIcon>Assets\SHIELD_Logo_GUI.ico</ApplicationIcon>
@@ -35,11 +35,11 @@
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
   <ItemGroup>
-    <None Remove="AvailableCharacters.xaml" />
-    <None Remove="AvailableTeams.xaml" />
+    <None Remove="Controls\AvailableCharacters.xaml" />
+    <None Remove="Controls\AvailableRosters.xaml" />
+    <None Remove="Controls\AvailableTeams.xaml" />
+    <None Remove="Controls\SelectedCharacters.xaml" />
     <None Remove="Controls\SettingsCardContent.xaml" />
-    <None Remove="SelectedCharacters.xaml" />
-    <None Remove="SkinDetailsPage.xaml" />
     <None Remove="Tab_Info.xaml" />
     <None Remove="Tab_MUA.xaml" />
     <None Remove="Tab_SkinEditor.xaml" />
@@ -61,11 +61,11 @@
 
   <ItemGroup>
     <Content Include="Assets\emmafrost.png">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\humantorch.png">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</Content>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Assets\MM_Banner.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -84,20 +84,17 @@
       <TargetPath>\xml2\team_bonus.engb.xml</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
     <ContentWithTargetPath Include="..\stages\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>stages_new\%(RecursiveDir)%(FileName)%(Extension)</TargetPath>
     </ContentWithTargetPath>
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
     <ContentWithTargetPath Include="..\InstallerFiles\**">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <TargetPath>InstallerFiles\%(RecursiveDir)%(FileName)%(Extension)</TargetPath>
     </ContentWithTargetPath>
-  </ItemGroup>
-  <ItemGroup>
-    <InstallerFiles Include="..\InstallerFiles\**" />
   </ItemGroup>
 
   <ItemGroup>
@@ -121,8 +118,8 @@
 
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.250916003" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.6584" />
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260101001" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7463" />
   </ItemGroup>
 
   <ItemGroup>
@@ -130,7 +127,32 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Page Update="AvailableTeams.xaml">
+    <Page Update="Controls\SelectedCharacters.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\TextInputDialog.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\AvailableTeams.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\AvailableRosters.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\AvailableCharacters.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Page Update="Controls\SettingsCardContent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
@@ -147,21 +169,6 @@
   </ItemGroup>
   <ItemGroup>
     <Page Update="Tab_MUA.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="SelectedCharacters.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="AvailableCharacters.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
-    <Page Update="SkinDetailsPage.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
@@ -185,15 +192,8 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
-
   <ItemGroup>
     <Page Update="Tab_XVoice.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Page Update="Controls\SettingsCardContent.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>

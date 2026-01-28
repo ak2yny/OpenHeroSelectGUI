@@ -1,106 +1,57 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.UI.Xaml.Media.Imaging;
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
 using OpenHeroSelectGUI.Functions;
-using System.Collections.Generic;
-using System.IO;
+using System.ComponentModel;
 using System.Linq;
-using System.Xml;
 
 namespace OpenHeroSelectGUI.Settings
 {
     /// <summary>
-    /// Stage model with a name, creator, path and image data. Path should be checked separately for IGB model.
-    /// </summary>
-    public class StageModel
-    {
-        public string? Name { get; set; }
-        public string? Creator { get; set; }
-        public DirectoryInfo? Path { get; set; }
-        public BitmapImage? Image { get; set; }
-        public bool Riser { get; set; }
-        public bool Favourite { get; set; }
-    }
-    /// <summary>
-    /// Class with <see cref="Message"/> + <see cref="Title"/> (<see cref="string"/>s) and <see cref="IsOpen"/> (<see cref="bool"/>) properties for message binding.
-    /// </summary>
-    public class MessageItem
-    {
-        public string? Title { get; set; }
-        public string? Message { get; set; }
-        public bool IsOpen { get; set; }
-    }
-    /// <summary>
     /// Variable internal settings, <see cref="ObservableObject"/>
     /// </summary>
-    public partial class VariableSettings : ObservableObject
+    internal partial class InternalObservables : ObservableObject
     {
         [ObservableProperty]
-        public partial StageModel? SelectedStage { get; set; }
+        internal partial string? FloatingCharacter { get; set; }
 
         [ObservableProperty]
-        public partial IEnumerable<int>? LayoutLocs { get; set; }
+        internal partial CSSModel? SelectedStage { get; set; } // Not in CSS, because of binding
 
         [ObservableProperty]
-        public partial IEnumerable<int>? RosterRange { get; set; }
+        public partial Zsnd.Lib.XVSound? SelectedSound { get; set; }
 
-        [ObservableProperty]
-        public partial XmlElement? Layout { get; set; }
-
-        [ObservableProperty]
-        public partial string RosterValueDefault { get; set; }
-
-        [ObservableProperty]
-        public partial string MenulocationsValueDefault { get; set; }
-
-        [ObservableProperty]
-        public partial string? FloatingCharacter { get; set; }
-
-        [ObservableProperty]
-        public partial char HsFormat { get; set; }
-
-        [ObservableProperty]
-        public partial FileInfo? HsPath { get; set; }
-
-        [ObservableProperty]
-        public partial bool PopAvail { get; set; }
-
-        [ObservableProperty]
-        public partial MessageItem? SE_Msg_Error { get; set; }
-
-        [ObservableProperty]
-        public partial MessageItem? SE_Msg_Info { get; set; }
-
-        [ObservableProperty]
-        public partial MessageItem? SE_Msg_Success { get; set; }
-
-        [ObservableProperty]
-        public partial MessageItem? SE_Msg_Warning { get; set; }
-
-        [ObservableProperty]
-        public partial bool SE_Msg_WarnPkg { get; set; }
-
-        [ObservableProperty]
-        public partial bool IsMua { get; set; }
-
-        [ObservableProperty]
-        public partial bool IsXml2 { get; set; }
-
-        [ObservableProperty]
-        public partial string? CharNum { get; set; }
-
-        public VariableSettings()
+        public InternalObservables()
         {
-            RosterValueDefault = "";
-            MenulocationsValueDefault = "";
-            HsFormat = ' ';
+            PropertyChanged += OnPropertiesChanged;
+        }
+
+        private void OnPropertiesChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is nameof(FloatingCharacter)) { OnFloatingCharacterChanged(); }
+        }
+
+        public void OnFloatingCharacterChanged() { }
+    }
+    /// <summary>
+    /// Template selector helper for <see cref="ListView"/>s and similar, filtering by current game tab
+    /// </summary>
+    public partial class GameTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate? MUA { get; set; }
+        public DataTemplate? XML2 { get; set; }
+
+        protected override DataTemplate? SelectTemplateCore(object item)
+        {
+            return CfgSt.GUI.IsMua ? MUA : XML2;
         }
     }
     /// <summary>
     /// Static internal settings
     /// </summary>
-    public static class InternalSettings
+    internal static class InternalSettings
     {
-        private static readonly string[] XML2SkinNames =
+        private static readonly string[] XML2SkinAttributes =
         [
             "skin",
             "skin_astonishing",
@@ -113,78 +64,78 @@ namespace OpenHeroSelectGUI.Settings
             "skin_civilian"
         ];
 
-        private static readonly string[] XML1SkinNames =
+        //private static readonly string[] XML1SkinNames =
+        //[
+        //    "skin",
+        //    "skin_60s",
+        //    "skin_70s",
+        //    "skin_weaponx",
+        //    "skin_future",
+        //    "skin_civilian",
+        //    "skin_magmacivilian"
+        //];
+
+        internal static readonly string[] XML2BonusSkinFilters = [.. XML2SkinAttributes[1..].Select(static s => s[5..])];
+
+        internal static readonly string[] XML2SkinNames = ["Main", .. XML2BonusSkinFilters];
+
+        private static readonly string[] MUASkinAttributes = ["skin", .. Enumerable.Range(2, 5).Select(static x => $"skin_0{x}")];
+
+        internal static readonly string[] MUASkinNameAttributes = [.. Enumerable.Range(1, 6).Select(static x => $"skin_0{x}_name")];
+
+        internal static string[] GetSkinAttributes => CfgSt.GUI.IsMua ? MUASkinAttributes : XML2SkinAttributes;
+
+        internal static string[] RFLanguages =
         [
-            "skin",
-            "skin_60s",
-            "skin_70s",
-            "skin_weaponx",
-            "skin_future",
-            "skin_civilian",
-            "skin_magmacivilian"
+            "English (engb)",
+            "Italian (itab)",
+            "French (freb)",
+            "Spanish (spab)",
+            "German (gerb)",
+            "Russian (rusb)",
+            "Polish (polb)",
+            "None (xmlb)"
         ];
 
-        public static readonly string[] XML2Skins = [.. XML2SkinNames[1..].Select(static s => s[5..])];
+        internal static string[] RavenXMLBLang = [.. RFLanguages.Select(static s => s[^5..^1])];
 
-        private static readonly string[] MUASkinNames = ["skin", .. Enumerable.Range(2, 5).Select(x => $"skin_0{x}")];
-
-        public static string[] SkinIdentifiers => CfgSt.GUI.Game == "XML2"
-            ? XML2SkinNames
-            : MUASkinNames;
-
-        public static readonly string[] RavenFormatsXML =
+        internal static readonly string[] RavenFormatsXML =
         [
             "xml", "eng", "fre", "ger", "ita", "pol", "rus", "spa", "pkg", "boy", "chr", "nav"
         ];
 
-        public static readonly string[] RavenFormats = [.. RavenFormatsXML.Select(static x => $".{x}b")];
+        internal static readonly string[] RavenFormats = [.. RavenFormatsXML.Select(static x => $".{x}b")];
 
-        public static readonly string[] KnownModOrganizerExes =
+        internal static readonly string[] KnownModOrganizerExes =
         [
             "Vortex.exe", "Modmanager.exe", "ModOrganizer.exe"
         ];
+
+        internal static Windows.Globalization.NumberFormatting.DecimalFormatter PaddedNumFormatter = new() { IntegerDigits = 2, FractionDigits = 0 };
         /// <summary>
-        /// Team bonus powerups with description for use in MUA team_bonus files
+        /// Representing the stage model config.xml.
         /// </summary>
-        public static readonly Dictionary<string, string> TeamPowerups = new()
+        internal static Models? Models;
+        /// <summary>
+        /// Representing the stage effects config.xml.
+        /// </summary>
+        internal static CSSEffects? Effects;
+        /// <summary>
+        /// Loads the stage model configuration from the stages/.models/config.xml file and initializes the categories dictionary.
+        /// </summary>
+        /// <remarks>Currently, also calls <see cref="LoadEffects"/> to (re)load effects alongside models.</remarks>
+        internal static void LoadModels()
         {
-            ["5% Damage Inflicted as Health Gain"] = "shared_team_damage_to_health",
-            ["20 Energy Per Knockout"] = "shared_team_energy_per_kill",
-            ["+60% S.H.I.E.L.D. Credit Drops"] = "shared_team_extra_money",
-            ["20 Health Per Knockout"] = "shared_team_health_per_kill",
-            ["+5 Health Regeneration"] = "shared_team_health_regen",
-            ["+5% Criticals"] = "shared_team_increase_criticals",
-            ["+5% Damage"] = "shared_team_increase_damage",
-            ["+5 All Resistances"] = "shared_team_increase_resistances",
-            ["+15 Strike"] = "shared_team_increase_striking",
-            ["+6 Body, Strike, Focus"] = "shared_team_increase_traits",
-            ["+5% Experience Points"] = "shared_team_increase_xp",
-            ["+15% Maximum Energy"] = "shared_team_max_energy",
-            ["+15% Maximum Health"] = "shared_team_max_health",
-            ["10% Reduced Energy Cost"] = "shared_team_reduce_energy_cost",
-            ["15% Reduced Energy Cost"] = "shared_team_reduce_energy_cost_dlc"
-        };
+            Models = GUIXML.Deserialize(System.IO.Path.Combine(OHSpath.Model, "config.xml"), typeof(Models)) as Models;
+            _ = (Models?.categories = Models.Categories.ToDictionary(static c => c.Name, static c => c.Models));
+            LoadEffects();
+        }
         /// <summary>
-        /// Team bonus powerups with description for use in XML2 team_bonus files
+        /// Loads the stage effects configuration from the stages/.effects/config.xml file and populates the <see cref="AvailableEffects"/>.
         /// </summary>
-        public static readonly Dictionary<string, string> TeamPowerupsXML2 = new()
+        internal static void LoadEffects()
         {
-            ["+20 Energy per Knockout"] = "shared_team_bruiser_bash",
-            ["5% Dmg inflicted as Health Gain"] = "shared_team_femme_fatale",
-            ["+5% Experience"] = "shared_team_brotherhood_of_evil",
-            ["+10 All Resistances"] = "shared_team_elemental_fusion",
-            ["+100% Attack Rating"] = "shared_team_age_of_apoc",
-            ["+5% Damage"] = "shared_team_special_ops",
-            ["+10 All Traits"] = "shared_team_heavy_metal",
-            ["+5 Health Regeneration"] = "shared_team_family_affair",
-            ["+15% Max Energy"] = "shared_team_old_school",
-            ["20 Health per KO"] = "shared_team_double_date",
-            ["+15% Max Health"] = "shared_team_new_xmen",
-            ["+60% Techbit drops"] = "shared_team_raven_knights"
-        };
-        /// <summary>
-        /// Effects that are defined in stages/.effects/config.xml. Since it is static readonly, the page or GUI has to be restarted to read changes in the file.
-        /// </summary>
-        public static readonly List<string> AvailableEffects = GUIXML.GetAvailableEffects();
+            Effects = (CSSEffects?)GUIXML.Deserialize(System.IO.Path.Combine(OHSpath.StagesDir, ".effects", "config.xml"), typeof(CSSEffects));
+        }
     }
 }

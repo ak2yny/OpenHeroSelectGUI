@@ -4,13 +4,14 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:OpenHeroSelectGUI.Controls"
     xmlns:settings="using:OpenHeroSelectGUI.Settings"
     mc:Ignorable="d">
 
     <Page.Resources>
-        <DataTemplate x:Key="TeamBonusTemplate" x:DataType="settings:TeamBonus">
+        <DataTemplate x:Key="TeamBonusTemplate" x:DataType="settings:Bonus">
             <UserControl PointerEntered="TeamTemplate_PointerEntered" PointerExited="TeamTemplate_PointerExited">
-                <Grid AutomationProperties.Name="TeamBonus">
+                <Grid AutomationProperties.Name="Bonus">
                     <VisualStateManager.VisualStateGroups>
                         <VisualStateGroup x:Name="HoveringStates">
                             <VisualState x:Name="HoverButtonsHidden" />
@@ -27,7 +28,7 @@
                                 <SwipeItem x:Name="DeleteSwipeItemX"
                                            Background="Red"
                                            Command="{x:Bind Command}"
-                                           CommandParameter="{x:Bind Name}"/>
+                                           CommandParameter="{x:Bind}"/>
                             </SwipeItems>
                         </SwipeControl.RightItems>
                         <Grid Padding="5" Margin="20 0" MaxHeight="100" VerticalAlignment="Center">
@@ -44,12 +45,12 @@
                             <ComboBox x:Name="TeamBonusDesc" Grid.Column="1"
                                       GotFocus="FocusToSelect"
                                       HorizontalAlignment="Right"
-                                      ItemsSource="{x:Bind settings:InternalSettings.TeamPowerups.Keys, Mode=OneTime}"
+                                      ItemsSource="{x:Bind settings:BonusSerializer.Powerups.Keys, Mode=OneTime}"
                                       SelectedItem="{x:Bind Descbonus, Mode=TwoWay}"/>
                             <TextBox Text="{x:Bind Sound, Mode=TwoWay}" GotFocus="FocusToSelect" Grid.ColumnSpan="2" Grid.Row="1" ToolTipService.ToolTip="Sound hash for callout"/>
                             <AppBarButton x:Name="HoverButton"
                                           Command="{x:Bind Command}"
-                                          CommandParameter="{x:Bind Name}"
+                                          CommandParameter="{x:Bind}"
                                           Grid.Column="2"
                                           Grid.RowSpan="2"
                                           HorizontalAlignment="Right"
@@ -61,9 +62,9 @@
                 </Grid>
             </UserControl>
         </DataTemplate>
-        <DataTemplate x:Key="TeamBonusTemplateXML2" x:DataType="settings:TeamBonus">
+        <DataTemplate x:Key="TeamBonusTemplateXML2" x:DataType="settings:Bonus">
             <UserControl PointerEntered="TeamTemplate_PointerEntered" PointerExited="TeamTemplate_PointerExited">
-                <Grid AutomationProperties.Name="TeamBonus">
+                <Grid AutomationProperties.Name="Bonus">
                     <VisualStateManager.VisualStateGroups>
                         <VisualStateGroup x:Name="HoveringStates">
                             <VisualState x:Name="HoverButtonsHidden" />
@@ -80,7 +81,7 @@
                                 <SwipeItem x:Name="DeleteSwipeItemX"
                                            Background="Red"
                                            Command="{x:Bind Command}"
-                                           CommandParameter="{x:Bind Name}"/>
+                                           CommandParameter="{x:Bind}"/>
                             </SwipeItems>
                         </SwipeControl.RightItems>
                         <Grid Padding="5" Margin="20 0" MaxHeight="100" VerticalAlignment="Center">
@@ -97,18 +98,18 @@
                             <ComboBox x:Name="TeamBonusDesc" Grid.Column="1"
                                       GotFocus="FocusToSelect"
                                       HorizontalAlignment="Right"
-                                      ItemsSource="{x:Bind settings:InternalSettings.TeamPowerupsXML2.Keys, Mode=OneTime}"
+                                      ItemsSource="{x:Bind settings:BonusSerializer.PowerupsXML2.Keys, Mode=OneTime}"
                                       SelectedItem="{x:Bind Descbonus, Mode=TwoWay}"/>
                             <TextBox Text="{x:Bind Sound, Mode=TwoWay}" GotFocus="FocusToSelect" Grid.Row="1" ToolTipService.ToolTip="Sound hash for callout"/>
                             <ComboBox x:Name="SkinFilter" Grid.Column="1" Grid.Row="1"
                                       GotFocus="FocusToSelect"
                                       HorizontalAlignment="Right"
-                                      ItemsSource="{x:Bind settings:InternalSettings.XML2Skins, Mode=OneTime}"
+                                      ItemsSource="{x:Bind settings:InternalSettings.XML2BonusSkinFilters, Mode=OneTime}"
                                       SelectedItem="{x:Bind Skinset, Mode=TwoWay}"
                                       ToolTipService.ToolTip="Select a skin scope for this team"/>
                             <AppBarButton x:Name="HoverButton"
                                           Command="{x:Bind Command}"
-                                          CommandParameter="{x:Bind Name}"
+                                          CommandParameter="{x:Bind}"
                                           Grid.Column="2"
                                           Grid.RowSpan="2"
                                           HorizontalAlignment="Right"
@@ -127,7 +128,7 @@
                        Invoked="DeleteSwipeMember_Invoked"
                        Text="Delete"/>
         </SwipeItems>
-        <DataTemplate x:Key="TeamMemberTemplate" x:DataType="settings:TeamMember">
+        <DataTemplate x:Key="TeamMemberTemplate" x:DataType="settings:Hero">
             <SwipeControl RightItems="{StaticResource DeleteSwipeMember}">
                 <Grid Padding="0 4 0 6">
                     <Grid.ColumnDefinitions>
@@ -140,14 +141,14 @@
                     </Grid.RowDefinitions>
                     <TextBlock Text="Inernal name:" Margin="0 0 5 0"/>
                     <TextBlock Text="Skin filter:" Grid.Row="1" VerticalAlignment="Center"/>
-                    <TextBlock Text="{Binding Name}" Grid.Column="1" FontWeight="SemiBold"/>
-                    <TextBox Text="{Binding Skin, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" FontSize="12" Height="30" MinHeight="12"/>
+                    <TextBlock Text="{x:Bind Name}" Grid.Column="1" FontWeight="SemiBold"/>
+                    <TextBox Text="{x:Bind Skin, Mode=TwoWay}" Grid.Column="1" Grid.Row="1" FontSize="12" Height="30" MinHeight="12"/>
                 </Grid>
             </SwipeControl>
         </DataTemplate>
-        <DataTemplate x:Key="TeamMemberTemplateXML2" x:DataType="settings:TeamMember">
+        <DataTemplate x:Key="TeamMemberTemplateXML2" x:DataType="settings:Hero">
             <SwipeControl RightItems="{StaticResource DeleteSwipeMember}">
-                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                <TextBlock Text="{x:Bind Name}" VerticalAlignment="Center"/>
             </SwipeControl>
         </DataTemplate>
         <settings:GameTemplateSelector x:Key="TeamTemplateSelector"
@@ -168,8 +169,8 @@
             <RowDefinition x:Name="Title" Height="36"/>
             <RowDefinition x:Name="Header" MaxHeight="36"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <!--<Frame x:Name="AvailableCharacters" MaxWidth="400"/>-->
         <Rectangle Grid.ColumnSpan="2" Fill="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
         <TextBlock x:Name="Title_" Text="Teams" Margin="10 10 10 0" Style="{ThemeResource SubtitleTextBlockStyle}"/>
         <Grid Background="{ThemeResource SolidBackgroundFillColorSecondary}" Grid.ColumnSpan="2" Grid.Row="1">
@@ -201,33 +202,29 @@
                 <Run Text="{x:Bind TeamMembersLimit}"/>
             </TextBlock>
         </Grid>
-        <Rectangle Grid.Row="2" Fill="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
-        <ScrollViewer Grid.Row="2" Margin="10">
-            <StackPanel Spacing="5">
-                <ListView x:Name="AvailableTeams"
-                          AllowDrop="True"
-                          CanReorderItems="True"
-                          ItemsSource="{x:Bind Cfg.Roster.Teams}"
-                          ItemTemplateSelector="{StaticResource TeamTemplateSelector}"
-                          KeyboardAcceleratorPlacementMode="Hidden"
-                          SelectionChanged="AvailableTeams_SelectionChanged">
-                    <ListView.KeyboardAccelerators>
-                        <KeyboardAccelerator Key="Delete" Invoked="AvailableTeams_Delete" ScopeOwner="{x:Bind AvailableTeams}"/>
-                    </ListView.KeyboardAccelerators>
-                </ListView>
-                <Button x:Name="AddTeam" Click="AddTeam_Click" Margin="40 0" Padding="10 5">
-                    <SymbolIcon>Add</SymbolIcon>
-                </Button>
-                <!--BorderThickness="1"
+        <Rectangle Grid.Row="2" Grid.RowSpan="2" Fill="{ThemeResource ApplicationPageBackgroundThemeBrush}"/>
+        <ListView x:Name="AvailableTeams" Grid.Row="2"
+                  AllowDrop="True"
+                  CanReorderItems="True"
+                  ItemsSource="{x:Bind Cfg.Roster.Teams}"
+                  ItemTemplateSelector="{StaticResource TeamTemplateSelector}"
+                  KeyboardAcceleratorPlacementMode="Hidden"
+                  SelectionChanged="AvailableTeams_SelectionChanged">
+            <ListView.KeyboardAccelerators>
+                <KeyboardAccelerator Key="Delete" Invoked="AvailableTeams_Delete" ScopeOwner="{x:Bind AvailableTeams}"/>
+            </ListView.KeyboardAccelerators>
+        </ListView>
+        <Button x:Name="AddTeam" Click="AddTeam_Click" Grid.Row="3" Margin="40 10" Padding="10 5">
+            <SymbolIcon>Add</SymbolIcon>
+        </Button>
+        <!--BorderThickness="1"
                   BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
-            </StackPanel>
-        </ScrollViewer>
         <ContentPresenter x:Name="TeamMembersPresenter"
                           Content="{x:Bind AvailableTeams.SelectedItem, Mode=OneWay}"
                           Grid.Column="1"
                           Grid.Row="2">
             <ContentPresenter.ContentTemplate>
-                <DataTemplate x:DataType="settings:TeamBonus">
+                <DataTemplate x:DataType="settings:Bonus">
                     <ListView x:Name="TeamMembers"
                               ItemsSource="{x:Bind Members, Mode=TwoWay}"
                               ItemTemplateSelector="{StaticResource MemberTemplateSelector}"
@@ -253,12 +250,12 @@
                 Grid.Column="1"
                 Grid.Row="2"
                 Visibility="Collapsed"/>
-
-        <Frame x:Name="SelectedCharacters"
-               DoubleTapped="SelectedCharacters_DoubleTapped"
-               Grid.Column="2"
-               Grid.RowSpan="3"
-               MaxWidth="450"
-               MinWidth="300"/>
+        <!--<controls:AvailableTabs/>-->
+        <controls:SelectedCharacters x:Name="SelectedCharacters"
+                                     DoubleTapped="SelectedCharacters_DoubleTapped"
+                                     Grid.Column="2"
+                                     Grid.RowSpan="4"
+                                     MaxWidth="450"
+                                     MinWidth="300"/>
     </Grid>
 </Page>

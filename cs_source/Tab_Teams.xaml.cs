@@ -1,10 +1,10 @@
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Data;
 using Microsoft.UI.Xaml.Input;
 using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Windows.ApplicationModel.DataTransfer;
 
@@ -16,8 +16,8 @@ namespace OpenHeroSelectGUI
     public sealed partial class Tab_Teams : Page
     {
         public Cfg Cfg { get; set; } = new();
-        public int TeamsLimit = CfgSt.GUI.Game == "XML2" ? 17 : 32;
-        public int TeamMembersLimit = CfgSt.GUI.Game == "XML2" ? 6 : 8;
+        public int TeamsLimit = CfgSt.GUI.IsMua ? 32 : 17;
+        public int TeamMembersLimit = CfgSt.GUI.IsMua ? 8 : 6;
         private readonly StandardUICommand DeleteCommand = new(StandardUICommandKind.Delete);
 
         public Tab_Teams()
@@ -26,12 +26,18 @@ namespace OpenHeroSelectGUI
 
             InitializeComponent();
             LoadTeams();
-            _ = SelectedCharacters.Navigate(typeof(SelectedCharacters));
         }
 
         private void LoadTeams()
         {
-            MarvelModsXML.TeamBonusDeserializer(DeleteCommand);
+            BonusSerializer.Deserialize(DeleteCommand);
+            UpdateAddButton();
+        }
+        /// <summary>
+        /// Update the visibility of the add button, after removing or adding a team <see cref="Bonus"/>.
+        /// </summary>
+        private void UpdateAddButton()
+        {
             AddTeam.Visibility = Cfg.Roster.Teams.Count < TeamsLimit
                 ? Visibility.Visible
                 : Visibility.Collapsed;
@@ -42,22 +48,18 @@ namespace OpenHeroSelectGUI
             if (sender is MenuFlyoutItem SortItem)
             {
                 string? SI = SortItem.Tag.ToString();
-                TeamBonus[]? Temp = SI == "name.asc"
-                    ? [.. Cfg.Roster.Teams.OrderBy(i => i.Name)]
+                Cfg.Roster.Teams.Sort(
+                    SI == "name.asc"
+                    ? c => c.OrderBy(static i => i.Name)
                     : SI == "name.desc"
-                    ? [.. Cfg.Roster.Teams.OrderByDescending(static i => i.Name)]
-                    : [.. Cfg.Roster.Teams];
-                Cfg.Roster.Teams.Clear();
-                for (int i = 0; i < Temp.Length; i++)
-                {
-                    Cfg.Roster.Teams.Add(Temp[i]);
-                }
+                    ? c => c.OrderByDescending(static i => i.Name)
+                    : c => c.OrderBy(static i => i)); // never happens
             }
         }
 
         private void AvailableTeams_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (AvailableTeams.SelectedItem is TeamBonus ST && ST.Members is not null)
+            if (AvailableTeams.SelectedItem is Bonus ST && ST.Members is not null)
             {
                 TeamMembersCount.Text = ST.Members.Count.ToString();
             }
@@ -75,31 +77,18 @@ namespace OpenHeroSelectGUI
         {
             VisualStateManager.GoToState(sender as Control, "HoverButtonsHidden", true);
         }
-        /// <summary>
-        /// Remove the <paramref name="Team"/> from the team bonus list and update the visibility of the add button
-        /// </summary>
-        private void RemoveTeam(TeamBonus Team)
-        {
-            _ = Cfg.Roster.Teams.Remove(Team);
-            AddTeam.Visibility = Cfg.Roster.Teams.Count < TeamsLimit
-                ? Visibility.Visible
-                : Visibility.Collapsed;
-        }
 
         private void DeleteCommand_ExecuteRequested(XamlUICommand sender, ExecuteRequestedEventArgs args)
         {
-            if (args.Parameter != null
-                && Cfg.Roster.Teams.FirstOrDefault(s => s.Name == (args.Parameter as string)) is TeamBonus Team)
-            {
-                RemoveTeam(Team);
-            }
+            if (args.Parameter is Bonus B && Cfg.Roster.Teams.Remove(B)) { UpdateAddButton(); }
         }
 
         private void AvailableTeams_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
-            if (AvailableTeams.SelectedItem is TeamBonus Team)
+            if (AvailableTeams.SelectedIndex > -1) // -1 should not be possible
             {
-                RemoveTeam(Team);
+                Cfg.Roster.Teams.RemoveAt(AvailableTeams.SelectedIndex);
+                UpdateAddButton();
             }
             args.Handled = true;
         }
@@ -114,32 +103,21 @@ namespace OpenHeroSelectGUI
 
         private void AddTeam_Click(object sender, RoutedEventArgs e)
         {
-            Cfg.Roster.Teams.Add(
-                new TeamBonus
-                {
-                    Name = "",
-                    Descbonus = "+5 All Resistances",
-                    Sound = "common/team_bonus_",
-                    Members = [],
-                    Command = DeleteCommand
-                }
-            );
-            AddTeam.Visibility = Cfg.Roster.Teams.Count < TeamsLimit
-                ? Visibility.Visible
-                : Visibility.Collapsed;
+            Cfg.Roster.Teams.Add(new Bonus { Command = DeleteCommand, Members = [] });
+            UpdateAddButton();
         }
         /// <summary>
-        /// Add floating character to selected <see cref="TeamBonus"/> as <see cref="TeamMember"/>
+        /// Add floating character to the selected <see cref="Bonus"/> as <see cref="Hero"/>
         /// </summary>
         private void AddTeamMember()
         {
-            if (AvailableTeams.SelectedItem is TeamBonus ST
+            if (AvailableTeams.SelectedItem is Bonus ST
                 && ST.Members is not null
                 && ST.Members.Count < TeamMembersLimit
                 && Herostat.GetInternalName() is string Hero
-                && !ST.Members.Select(m => m.Name).Contains(Hero, StringComparer.OrdinalIgnoreCase))
+                && (Cfg.GUI.IsMua || !ST.Members.Any(m => m.Name.Equals(Hero, StringComparison.OrdinalIgnoreCase))))
             {
-                ST.Members.Add(new TeamMember { Name = Hero, Skin = "" });
+                ST.Members.Add(new Hero { Name = Hero });
                 TeamMembersCount.Text = ST.Members.Count.ToString();
             }
         }
@@ -148,13 +126,11 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void TeamMembers_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
-            if (AvailableTeams.SelectedItem is TeamBonus ST && args.Element is ListView Members && ST.Members is ObservableCollection<TeamMember> Ms)
+            if (AvailableTeams.SelectedItem is Bonus ST && args.Element is ListView Members && ST.Members is not null)
             {
-                TeamMember[]? Temp = [.. Ms.Except(Members.SelectedItems.Cast<TeamMember>())];
-                ST.Members.Clear();
-                for (int i = 0; i < Temp.Length; i++)
+                foreach (ItemIndexRange IR in Members.SelectedRanges.Reverse())
                 {
-                    ST.Members.Add(Temp[i]);
+                    for (int i = IR.LastIndex; i >= IR.FirstIndex; i--) { ST.Members.RemoveAt(i); }
                 }
                 TeamMembersCount.Text = ST.Members.Count.ToString();
             }
@@ -163,7 +139,7 @@ namespace OpenHeroSelectGUI
 
         private void DeleteSwipeMember_Invoked(SwipeItem sender, SwipeItemInvokedEventArgs args)
         {
-            if (AvailableTeams.SelectedItem is TeamBonus ST && args.SwipeControl.DataContext is TeamMember TM && ST.Members is not null)
+            if (AvailableTeams.SelectedItem is Bonus ST && ST.Members is not null && args.SwipeControl.DataContext is Hero TM)
             {
                 _ = ST.Members.Remove(TM);
             }
@@ -172,7 +148,7 @@ namespace OpenHeroSelectGUI
         private void TeamMembers_DragEnter(object sender, DragEventArgs e)
         {
             if (e.DataView.Properties["SelectedCharacter"] is not null
-                && AvailableTeams.SelectedItem is TeamBonus ST
+                && AvailableTeams.SelectedItem is Bonus ST
                 && string.IsNullOrEmpty(ST.Skinset))
             {
                 TeamMembersDropArea.Visibility = Visibility.Visible;

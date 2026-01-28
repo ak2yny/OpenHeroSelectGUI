@@ -1,6 +1,5 @@
 <Page
     x:Class="OpenHeroSelectGUI.Tab_Stages"
-    x:Name="tab_Stages"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -56,6 +55,15 @@
                 <SymbolIcon>Cancel</SymbolIcon>
             </Button>
         </StackPanel>
+        <InfoBar x:Name="RHNotEnabled" Grid.Column="1"
+                 Title="Attention"
+                 Message="Make sure that a Roster Hack is installed, before using this layout."
+                 Severity="Warning"
+                 Margin="80 0 5 0">
+            <InfoBar.ActionButton>
+                <HyperlinkButton Content="Download RH now" NavigateUri="https://marvelmods.com/forum/index.php?topic=10774.0"/>
+            </InfoBar.ActionButton>
+        </InfoBar>
         <ListView x:Name="StageLayouts" Grid.Row="1"
                   HorizontalAlignment="Left"
                   SelectionChanged="SelectionChanged"
@@ -65,12 +73,12 @@
                   DoubleTapped="StageThumbnails_DoubleTapped"
                   SelectionMode="Single">
             <GridView.ItemTemplate>
-                <DataTemplate x:DataType="settings:StageModel">
+                <DataTemplate x:DataType="settings:CSSModel">
                     <Grid>
                         <Image x:Name="StageThumbnail"
                                Source="{x:Bind Image}"
                                Stretch="UniformToFill"
-                               Width="{Binding Cfg.GUI.ThumbnailWidth, ElementName=tab_Stages}">
+                               Width="{x:Bind settings:CfgSt.GUI.ThumbnailWidth, Mode=OneWay}">
                             <ToolTipService.ToolTip>
                                 <TextBlock MaxLines="3">
                                 <Run Text="{x:Bind Name}"/>
@@ -91,5 +99,10 @@
                 </DataTemplate>
             </GridView.ItemTemplate>
         </GridView>
+        <StackPanel Grid.ColumnSpan="2" Margin="20" VerticalAlignment="Bottom">
+            <InfoBar x:Name="Error"
+                     Severity="Error"
+                     Title="Error"/>
+        </StackPanel>
     </Grid>
 </Page>

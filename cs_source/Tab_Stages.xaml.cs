@@ -4,9 +4,9 @@ using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Input;
 using OpenHeroSelectGUI.Functions;
 using OpenHeroSelectGUI.Settings;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Xml;
 
 namespace OpenHeroSelectGUI
 {
@@ -16,6 +16,9 @@ namespace OpenHeroSelectGUI
     public sealed partial class Tab_Stages : Page
     {
         public Cfg Cfg { get; set; } = new();
+
+        private Settings.Layout? SelectedLayout;
+
         public Tab_Stages()
         {
             InitializeComponent();
@@ -27,45 +30,51 @@ namespace OpenHeroSelectGUI
         private void ReloadLayouts()
         {
             StageLayouts.Items.Clear();
-            if (new DirectoryInfo(Path.Combine(OHSpath.CD, "stages")) is DirectoryInfo SP && SP.Exists)
+            try
             {
-                foreach (DirectoryInfo f in SP.GetDirectories().Where(d => !d.Name.StartsWith('.') && File.Exists(Path.Combine(d.FullName, "config.xml"))))
+                foreach (string LayoutName in Directory.EnumerateDirectories(OHSpath.StagesDir)
+                    .Select(d => Path.GetFileName(d))
+                    .Where(d => !d.StartsWith('.') && !StageLayouts.Items.Contains(d)
+                        && File.Exists($"{OHSpath.StagesDir}/{d}/config.xml")))
                 {
-                    StageLayouts.Items.Add(f.Name);
+                    StageLayouts.Items.Add(LayoutName);
                 }
-                StageLayouts.SelectedIndex = StageLayouts.Items.IndexOf(Cfg.GUI.Layout);
+                StageLayouts.SelectedItem = Cfg.GUI.Layout;
             }
+            catch (System.Exception ex) { Error.Message = ex.Message; Error.IsOpen = true; }
         }
         /// <summary>
-        /// Load the compatible models from the config and populate the thumbnails
+        /// Load the compatible models from the config and populate the thumbnails.
         /// </summary>
+        /// <remarks>Clears thumbnails and reloads all <see cref="CSSModel"/> with images every time to reflect changes on disk.</remarks>
         private void LoadModels()
         {
-            if (StageLayouts.SelectedItem is string Selected
-                && Path.Combine(OHSpath.CD, "stages", Selected, "config.xml") is string Config
-                && File.Exists(Config))
+            if (StageLayouts.SelectedItem is string Selected)
             {
+                CSSModel? SelectedModel = null;
                 StageThumbnails.Items.Clear();
-                Cfg.Var.Layout = GUIXML.GetXmlElement(Config);
-                if (Cfg.Var.Layout is XmlElement Layout && Layout["Compatible_Models"] is XmlNode CMP)
+                if (InternalSettings.Models is not null &&
+                    GUIXML.Deserialize(Path.Combine(OHSpath.StagesDir, Selected, "config.xml"),
+                                       typeof(Settings.Layout)) is Settings.Layout CL)
                 {
-                    foreach (XmlElement CM in CMP.ChildNodes)
+                    SelectedLayout = CL;
+                    RHNotEnabled.IsOpen = !Cfg.MUA.RosterHack && CL.LocationSetup.Locations.Count > 27;
+                    for (int i = 0; i < CL.CompatibleModels.Length; i++)
                     {
-                        if (GUIXML.GetXmlElement(Path.Combine(OHSpath.Model, "config.xml")) is XmlElement MCfg
-                            && MCfg[CM.InnerText] is XmlNode MC)
+                        CompatibleModel CM = CL.CompatibleModels[i];
+                        if (!string.IsNullOrWhiteSpace(CM.Name) && InternalSettings.Models.categories.TryGetValue(CM.Name, out List<Model>? Models))
                         {
-                            foreach (XmlElement M in MC.ChildNodes)
+                            for (int j = 0; j < Models.Count; j++)
                             {
-                                if (GUIXML.GetStageInfo(M, CM) is StageModel StageItem
-                                    && (!Cfg.GUI.StageFavouritesOn || StageItem.Favourite))
+                                if (Models[j].ToCSSModel(!Cfg.GUI.StageFavouritesOn) is CSSModel StageItem)
                                 {
                                     StageThumbnails.Items.Add(StageItem);
+                                    if (StageItem.Name == Cfg.GUI.Model) { SelectedModel = StageItem; }
                                 }
                             }
                         }
                     }
                 }
-                StageModel? SelectedModel = StageThumbnails.Items.Cast<StageModel>().FirstOrDefault(m => m.Name == Cfg.GUI.Model);
                 StageThumbnails.SelectedIndex = StageThumbnails.Items.IndexOf(SelectedModel);
             }
         }
@@ -74,17 +83,27 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void StageConfirmed()
         {
-            if (StageThumbnails.SelectedItem is StageModel SelectedModel && StageLayouts.SelectedItem is string SelectedLayout)
+            if (StageThumbnails.SelectedItem is CSSModel SelectedModel
+                && StageLayouts.SelectedItem is string SL
+                && SelectedLayout is not null)
             {
-                Cfg.GUI.Layout = SelectedLayout;
-                Cfg.GUI.Model = SelectedModel.Name ?? "";
+                Cfg.GUI.Layout = SL;
+                Cfg.GUI.Model = SelectedModel.Name;
+                Cfg.Var.SelectedStage = SelectedModel;
+                SelectedLayout.SetLocationsMUA();
+                Cfg.MUA.RosterHack = SelectedLayout.LocationSetup.Locations.Count > 27;
+                CfgSt.CSS = SelectedLayout;
                 _ = Frame.Navigate(typeof(Tab_MUA));
             }
         }
 
         private void SelectionChanged(object sender, SelectionChangedEventArgs e) => LoadModels();
 
-        private void BtnReload_Click(object sender, RoutedEventArgs e) => ReloadLayouts();
+        private void BtnReload_Click(object sender, RoutedEventArgs e)
+        {
+            InternalSettings.LoadModels();
+            ReloadLayouts();
+        }
 
         private void BtnFilterFavs_Click(object sender, RoutedEventArgs e) => LoadModels();
 
@@ -94,19 +113,16 @@ namespace OpenHeroSelectGUI
 
         private void Stage_Cancel(object sender, RoutedEventArgs e)
         {
-            Cfg.Var.Layout = null;
             _ = Frame.Navigate(typeof(Tab_MUA));
         }
 
         private void AddToFavourites(object sender, RoutedEventArgs e)
         {
-            if (sender is ToggleButton FB && FB.DataContext is StageModel Stage && Stage.Name is not null)
+            if (sender is ToggleButton FB && FB.DataContext is CSSModel Stage && Stage.Name is not null)
             {
-                Cfg.GUI.StageFavourites.RemoveAll(f => f == Stage.Name);
-                if (FB.IsChecked == true)
-                {
-                    Cfg.GUI.StageFavourites.Add(Stage.Name);
-                }
+                _ = FB.IsChecked == true
+                    ? Cfg.GUI.StageFavourites.Add(Stage.Name)
+                    : Cfg.GUI.StageFavourites.Remove(Stage.Name);
             }
         }
     }

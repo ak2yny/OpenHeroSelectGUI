@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:controls="using:OpenHeroSelectGUI.Controls"
     mc:Ignorable="d">
 
     <Grid>
@@ -13,13 +14,13 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition MinWidth="250"/>
         </Grid.ColumnDefinitions>
-        <Frame x:Name="AvailableCharacters"/>
+        <controls:AvailableTabs/>
         <Grid x:Name="SelectedColumn" Grid.Column="1">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" MaxWidth="450"/>
+            <controls:SelectedCharacters x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" MaxWidth="450"/>
             <Canvas x:Name="SelectedCharactersDropArea" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop" DragLeave="SelectedCharacters_DragLeave" Visibility="Collapsed"/>
             <StackPanel x:Name="XML2Buttons" Grid.Row="1" Orientation="Horizontal">
                 <SplitButton x:Name="BtnLoadRoster" Content="Load ..." Click="XML2_LoadRoster" ToolTipService.ToolTip="Load roster from an OHS .cfg file in the rosters folder">
@@ -36,9 +37,10 @@
                     <Run Text="/"/>
                     <Run Text="{x:Bind Cfg.XML2.RosterSize, Mode=OneWay}"/>
                 </TextBlock>
+                <Button x:Name="SkinDetailsBtn" Content="Hide Skin Details" Click="SkinDetailsBtn_Click" FontSize="13" Padding="2 6"/>
             </StackPanel>
         </Grid>
-        <Frame x:Name="SkinDetailsPage" Grid.Column="2" Visibility="{x:Bind Cfg.GUI.SkinDetailsVisible, Mode=OneWay}"/>
+        <controls:SkinDetailsControl Grid.Column="2" Visibility="{x:Bind Cfg.GUI.SkinDetailsVisible, Mode=OneWay}"/>
         <Grid x:Name="XML2controls" Grid.Column="3" Margin="10" HorizontalAlignment="Left">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -64,8 +66,33 @@
                 <x:String>21 (PC)</x:String>
                 <x:String>23 (PSP)</x:String>
             </RadioButtons>
-            <!--<ToggleSwitch x:Name="ReplDefaultmanToggle" Grid.Row="1" Grid.Column="1" Header="Replace Defaultman?" Margin="0 10 0 0" OffContent="No" OnContent="Yes" Toggled="ReplDefaultman_Toggled" VerticalAlignment="Top"/>-->
-            <Button x:Name="SkinDetailsBtn" Grid.Row="2" Content="Hide Skin Details" Click="SkinDetailsBtn_Click" Margin="0 20 0 0" VerticalAlignment="Bottom"/>
         </Grid>
+        <StackPanel Grid.ColumnSpan="4" Margin="20" Spacing="2" VerticalAlignment="Bottom">
+            <InfoBar x:Name="PkgWarning"
+                     Severity="Warning"
+                     IsOpen="{x:Bind Msg.SE_WarnPkg.IsOpen, Mode=TwoWay}"
+                     Title="Missing packages"
+                     Message="HUD head and powers might not show correctly."/>
+            <InfoBar x:Name="Warning"
+                     Severity="Warning"
+                     IsOpen="{x:Bind Msg.SE_Warning.IsOpen, Mode=TwoWay}"
+                     Title="Warning"
+                     Message="{x:Bind Msg.SE_Warning.Message, Mode=OneWay}"/>
+            <InfoBar x:Name="Error"
+                     Severity="Error"
+                     IsOpen="{x:Bind Msg.SE_Error.IsOpen, Mode=TwoWay}"
+                     Title="Error"
+                     Message="{x:Bind Msg.SE_Error.Message, Mode=OneWay}"/>
+            <InfoBar x:Name="Success"
+                     Severity="Success"
+                     IsOpen="{x:Bind Msg.SE_Success.IsOpen, Mode=TwoWay}"
+                     Title="Success"
+                     Message="{x:Bind Msg.SE_Success.Message, Mode=OneWay}"/>
+            <InfoBar x:Name="Infobar"
+                     IsOpen="{x:Bind Msg.SE_Info.IsOpen, Mode=TwoWay}"
+                     Title="Information"
+                     Message="{x:Bind Msg.SE_Info.Message, Mode=OneWay}"
+                     Background="{ThemeResource SystemFillColorSolidNeutralBackground}"/>
+        </StackPanel>
     </Grid>
 </Page>

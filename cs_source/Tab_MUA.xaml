@@ -4,6 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="using:OpenHeroSelectGUI.Settings"
+    xmlns:controls="using:OpenHeroSelectGUI.Controls"
     mc:Ignorable="d">
 
     <Grid>
@@ -12,7 +14,7 @@
             <ColumnDefinition MinWidth="120"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Frame x:Name="AvailableCharacters" MaxWidth="400"/>
+        <controls:AvailableTabs/>
         <Grid Grid.Column="1" Margin="5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -39,7 +41,7 @@
                     </StackPanel>
                 </ScrollViewer>
                 <StackPanel Grid.ColumnSpan="3" Grid.Row="1" HorizontalAlignment="Center" Orientation="Horizontal" Spacing="3">
-                    <Button x:Name="SelectStage" Click="SelectStage_Click" Content="Select Stage" VerticalAlignment="Bottom"/>
+                    <Button x:Name="SelectStage" Click="SelectStage_Click" Content="Select Stage" VerticalAlignment="Bottom" ToolTipService.ToolTip="Select a stage layout and model"/>
                     <Button x:Name="RefreshStages" Click="RefreshStages_Click" VerticalAlignment="Bottom" HorizontalAlignment="Left" ToolTipService.ToolTip="Refresh stage info">
                         <SymbolIcon Symbol="Refresh"/>
                     </Button>
@@ -53,24 +55,44 @@
                     </Button>
                 </StackPanel>
             </Grid>
-            <Grid x:Name="ImagePanel" Grid.Row="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition x:Name="LayoutHeight"/>
-                    <RowDefinition/>
-                </Grid.RowDefinitions>
-                <Image Grid.Row="1" x:Name="StageImage" VerticalAlignment="Bottom"/>
-            </Grid>
+            <Image Grid.Row="1" x:Name="StageImage" Margin="0 5" Source="{x:Bind Cfg.Var.SelectedStage.Image, Mode=OneWay}" VerticalAlignment="Bottom"/>
             <Grid x:Name="LayoutPanel" Grid.Row="1">
                 <Grid.RowDefinitions>
                     <RowDefinition/>
                     <RowDefinition Height="50"/>
                 </Grid.RowDefinitions>
                 <Viewbox x:Name="LocationsBox" Margin="0 5 0 0" HorizontalAlignment="Center" StretchDirection="DownOnly" VerticalAlignment="Top">
-                    <Grid x:Name="Locations"/>
+                    <ItemsControl x:Name="Locations" ItemsSource="{x:Bind settings:CfgSt.CSS.Buttons}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="settings:LocationButton">
+                                <ToggleButton Content="{x:Bind NumberString}"
+                                              AllowDrop="True"
+                                              Click="LocButton_Click"
+                                              DragOver="SelectedCharacters_DragOver"
+                                              Drop="LocButton_Drop"
+                                              HorizontalAlignment ="Left"
+                                              IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                              Margin="{x:Bind Margin}"
+                                              Padding="5 2 5 2"
+                                              PointerEntered="LocButton_PointerEntered"
+                                              Opacity="{x:Bind settings:CfgSt.GUI.ButtonOpacity, Mode=OneTime}"
+                                              VerticalAlignment="Bottom">
+                                    <ToolTipService.ToolTip>
+                                        <ToolTip Opened="LocButton_ToolTip"/>
+                                    </ToolTipService.ToolTip>
+                                </ToggleButton>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <Grid/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
                 </Viewbox>
                 <StackPanel x:Name="StageInfo" Grid.Row="1" Padding="5" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" CornerRadius="3">
                     <TextBlock x:Name="LayoutDetails"/>
-                    <TextBlock x:Name="StageDetails"/>
+                    <TextBlock x:Name="StageDetails" Text="{x:Bind Cfg.Var.SelectedStage, Mode=OneWay}"/>
                 </StackPanel>
             </Grid>
         </Grid>
@@ -79,7 +101,7 @@
                 <RowDefinition/>
                 <RowDefinition Height="30"/>
             </Grid.RowDefinitions>
-            <Frame x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" MaxWidth="450"/>
+            <controls:SelectedCharacters x:Name="SelectedCharacters" AllowDrop="True" DragEnter="SelectedCharacters_DragEnter" KeyboardAcceleratorPlacementMode="Hidden" MaxWidth="450"/>
             <Canvas x:Name="SelectedCharactersDropArea" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" AllowDrop="True" DragOver="SelectedCharacters_DragOver" Drop="SelectedCharacters_Drop" DragLeave="SelectedCharacters_DragLeave" Visibility="Collapsed"/>
             <StackPanel x:Name="MUAButtons" Grid.Row="1" Orientation="Horizontal">
                 <SplitButton x:Name="BtnLoadRoster" Content="Load ..." Click="MUA_LoadRoster" ToolTipService.ToolTip="Load roster from an OHS .cfg file in the rosters folder - Matches characters top-down > left-right, unless the menulocations have been customized">
@@ -98,6 +120,15 @@
                 <Run Text="{x:Bind Cfg.Roster.Total, Mode=OneWay}"/>
             </TextBlock>
         </Grid>
-        <TextBox Text="{x:Bind Cfg.Roster.UpdateCount, Mode=OneWay}" TextChanged="ClashesUpdated" MinWidth="0" Width="0"/>
+        <TeachingTip x:Name="FirstUseSelectStage"
+                     Title="Welcome to Your First Use of OpenHeroSelect GUI for MUA!"
+                     Subtitle="The current stage layout is set-up for 23 to 25 characters (original default). The stage layout determines how many characters can be added to the roster. For a bigger roster, please select another stage layout.">
+            <TeachingTip.Content>
+                <StackPanel Margin="0 10 0 0" Orientation="Horizontal" Spacing="5">
+                    <Button Content="Select a layout" Click="SelectStage_Click"/>
+                    <HyperlinkButton Content="More information" NavigateUri="https://github.com/ak2yny/OpenHeroSelectGUI/wiki/Instructions#managing-stages-for-mua"/>
+                </StackPanel>
+            </TeachingTip.Content>
+        </TeachingTip>
     </Grid>
 </Page>

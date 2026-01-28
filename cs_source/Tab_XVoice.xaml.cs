@@ -9,38 +9,117 @@ using System.IO;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Storage;
-using Zsnd_UI.lib;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Zsnd.Lib;
 
 namespace OpenHeroSelectGUI
 {
     /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
+    /// X_Voice list page
     /// </summary>
     public sealed partial class Tab_XVoice : Page
     {
         public Cfg Cfg { get; set; } = new();
         public ObservableCollection<XVSound> FilteredXVSounds { get; set; } = [];
-        string IntName { get; set; } = "";
+        private readonly DispatcherTimer _searchTimer = new() { Interval = TimeSpan.FromMilliseconds(300) };
 
+        private string _intName = "";
+        // Display and selection sample rates. Other rates are probably fully supported (but not shown).
+        public uint[] SampleRates { get; } =
+        [
+            8000, 11025, 16000, 22050, 32000, 41000, 44100, 48000, 96000, 192000
+        ];
+        /// <summary>
+        /// X_Voice list page
+        /// </summary>
         public Tab_XVoice()
         {
-            if (ZsndLists.Sounds.Count == 0)
+            if (Lists.Sounds.Count == 0)
             {
-                ZsndCmd.ReadXVoice(Path.Combine(OHSpath.XvoiceDir, "x_voice.json"));
+                Cmd.ReadXVoice(Path.Combine(OHSpath.XvoiceDir, "x_voice.json"));
             }
             InitializeComponent();
-            if (Cfg.Roster.Teams.Count == 0)
-            {
-                MarvelModsXML.TeamBonusDeserializer(new StandardUICommand(StandardUICommandKind.Delete));
-            }
-            _ = AvailableCharactersOrTeams.Navigate(typeof(AvailableCharacters));
-            NotLoadedError.IsOpen = ZsndLists.Sounds.Count == 0;
+            NotLoadedError.IsOpen = Lists.Sounds.Count == 0;
+            _searchTimer.Tick += SearchTimer_Tick;
+            Cfg.Var.PropertyChanged += FloatingCharacter_Changed;
         }
+        /// <summary>
+        /// Adds the <paramref name="Sound"/> to the <see cref="FilteredXVSounds"/> collection and the <see cref="Lists.Sounds"/> list.
+        /// </summary>
+        private void AddSound(XVSound Sound)
+        {
+            FilteredXVSounds.Add(Sound);
+            Lists.Sounds.Add(Sound);
+        }
+        /// <summary>
+        /// Adds a new sound to the <see cref="FilteredXVSounds"/> collection and the <see cref="Lists.Sounds"/> list.
+        /// </summary>
+        private void AddSound(int Index = -1, string TeamName = "")
+        {
+            bool IsChar = Available.IsCharacterTab;
+            AddSound(new XVSound
+            {
+                SampleIndex = Index,
+                IntName = IsChar ? _intName : TeamName,
+                Pref = IsChar ? Events.LastCharPrefix : Events.XVprefix.TEAM
+            });
+            if (IsChar) { _ = Lists.XVInternalNames.Add(_intName); }
+        }
+        /// <summary>
+        /// Adds a new audio <paramref name="Sample"/> to the x_voice package, converting and storing the file as needed & adds a new default sound, if the sample was added successfully.
+        /// </summary>
+        private void AddSampleSound(StorageFile Sample)
+        {
+            if (AddSample(Sample) is int Index && Index > -1)
+            {
+                AddSound(Index, Sample.DisplayName);
+            }
+        }
+        /// <summary>
+        /// Adds a new audio <paramref name="Sample"/> to the x_voice package, converting and storing the file as needed.
+        /// </summary>
+        /// <returns>The zero-based index of the newly added sample if successful; otherwise, -1 if the sample could not be added
+        /// due to file incompatibility or if the maximum number of samples has been reached.</returns>
+        private int AddSample(StorageFile Sample)
+        {
+            FileIncompatible.IsOpen = FileMaxReached.IsOpen = false;
+            int NewIndex = Lists.Samples.Count;
+            if (NewIndex > 0xFFFF)
+            {
+                FileMaxReached.IsOpen = true;
+                return -1;
+            }
+            string New = Path.Combine(OHSpath.XvoiceDir, "new");
+            JsonSample SampleInfo = new();
+            try
+            {
+                _ = Directory.CreateDirectory(New);
+                // WAV and VAG are headerless, DSP has special header, XML has original RIFF header, Xbox ADPCM is unhandled at this time
+                if (ZsndConvert.From(Sample.FileType, Sample.Path, SampleInfo) is byte[] ConvertedFileBuffer && ConvertedFileBuffer.Length > 0) // "RIFF"
+                {
+                    File.WriteAllBytes(Path.Combine(New, Sample.Name), ConvertedFileBuffer);
+                }
+                else
+                {
+                    SampleInfo.Format = 106;
+                    SampleInfo.Sample_rate = 22050;
+                    _ = TemporaryPlayer.Play(Sample.Path, SampleInfo); // possibly use different check (with To), not playing the sound
+                    File.Copy(Sample.Path, Path.Combine(New, Sample.Name), true);
+                }
+                SampleInfo.File = Path.Combine("new", Sample.Name);
+                Lists.Samples.Add(SampleInfo);
+                return NewIndex;
+            }
+            catch
+            {
+                FileIncompatible.IsOpen = true;
+                return -1;
+            }
 
-        private void FloatingCharacter_Changed(object sender, TextChangedEventArgs e)
+        }
+        /// <summary>
+        /// Event of the hidden text box that tracks changes to <see cref="InternalObservables.FloatingCharacter"/>.
+        /// </summary>
+        private void FloatingCharacter_Changed(object? s, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (Cfg.Var.FloatingCharacter is null) { return; }
             if (Cfg.Var.FloatingCharacter.StartsWith("common/team_bonus_", StringComparison.OrdinalIgnoreCase))
@@ -49,23 +128,22 @@ namespace OpenHeroSelectGUI
             }
             else
             {
-                IntName = Herostat.GetInternalName().ToUpper();
-                XVsearch.Text = IntName;
+                _intName = Herostat.GetInternalName().ToUpper();
+                XVsearch.Text = _intName;
             }
             // if (XVTabs.SelectedItem == XVTabs.MenuItems[0]) // is Characters
         }
-        /// <summary>
-        /// Navigation View: Determine the selected tab, when not already selected.
-        /// </summary>
-        private void XVTabs_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
+
+        private void Available_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            XVsearch.Text = "";
-            Type? navPageType = args.SelectedItemContainer != null && args.SelectedItemContainer.Tag.ToString() is string TagName
-                ? Type.GetType(TagName)
-                : null;
-            // Only navigate if the selected page isn't currently loaded.
-            _ = navPageType is not null && !Equals(AvailableCharactersOrTeams.CurrentSourcePageType, navPageType)
-                && AvailableCharactersOrTeams.Navigate(navPageType, null, args.RecommendedNavigationTransitionInfo);
+            if (Cfg.Var.FloatingCharacter is null) { return; }
+            if (Available.IsCharacterTab) { AddSound(); }
+            else { AddSound(TeamName: Cfg.Var.FloatingCharacter); }
+        }
+
+        private void AddSound_Click(object sender, RoutedEventArgs e)
+        {
+            AddSound();
         }
 
         private async void LoadX_Click(object sender, RoutedEventArgs e)
@@ -75,22 +153,22 @@ namespace OpenHeroSelectGUI
                 switch (Path.GetExtension(ZFile).ToLowerInvariant())
                 {
                     case ".zsm" or ".zss":
-                        _ = ZsndCmd.LoadZsnd(ZFile, OHSpath.XvoiceDir, IsXvoice: true);
+                        _ = Cmd.LoadZsnd(ZFile, OHSpath.XvoiceDir);
                         break;
                     case ".json":
-                        ZsndCmd.ReadXVoice(ZFile);
+                        Cmd.ReadXVoice(ZFile);
                         break;
                 }
                 NotAnXvoice.IsOpen = !Path.GetFileName(ZFile).StartsWith("x_voice", StringComparison.OrdinalIgnoreCase);
                 // !ZsndLists.Sounds.Any(s => s.Hash is not null && s.Hash.StartsWith("MENUS/CHARACTER/BREAK_", StringComparison.OrdinalIgnoreCase));
             }
-            NotLoadedError.IsOpen = ZsndLists.Sounds.Count == 0;
+            NotLoadedError.IsOpen = Lists.Sounds.Count == 0;
         }
 
         private void Save_Click(object sender, RoutedEventArgs e)
         {
             NotAppliedError.IsOpen = false;
-            if (ZsndCmd.SaveJson(Path.Combine(OHSpath.XvoiceDir, "x_voice.json")) is string ErrorMsg)
+            if (Cmd.SaveJson(Path.Combine(OHSpath.XvoiceDir, "x_voice.json")) is string ErrorMsg)
             {
                 NotAppliedError.Message = ErrorMsg;
                 NotAppliedError.IsOpen = true;
@@ -106,13 +184,13 @@ namespace OpenHeroSelectGUI
             {
                 try
                 {
-                    string XPath = Path.Combine(Directory.CreateDirectory(Path.Combine(CfgSt.OHS.GameInstallPath, "sounds", "eng", "x", "_")).FullName, "x_voice.zss");
-                    ErrorMsg = ZsndCmd.WriteZsnd(XPath, OHSpath.XvoiceDir);
-                    SuccMsg = $"X_voice saved to {XPath}";
+                    string XVPath = Path.Combine(Directory.CreateDirectory($"{CfgSt.OHS.GameInstallPath}/sounds/eng/x/_").FullName, "x_voice.zss");
+                    ErrorMsg = Cmd.WriteZsnd(XVPath, OHSpath.XvoiceDir);
+                    SuccMsg = $"X_voice saved to {XVPath}";
                 }
                 catch
                 {
-                    ErrorMsg = $"Failed to write to create sound directories in {CfgSt.OHS.GameInstallPath}";
+                    ErrorMsg = $"Failed to write or to create sound directories in {CfgSt.OHS.GameInstallPath}";
                 }
             }).WaitAsync(TimeSpan.FromMinutes(1));
             ApplyButton.IsEnabled = !(ApplyRunning.IsOpen = false);
@@ -130,40 +208,61 @@ namespace OpenHeroSelectGUI
             }
         }
 
-        private void XVsearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args) => FilterXVSounds(sender.Text);
-
-        private void FilterXVSounds(string Filter)
+        private void XVsearch_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxTextChangedEventArgs args)
         {
-            SearchTooMany.IsOpen = false;
-            if (ZsndLists.Sounds.Count > 0)
+            _searchTimer.Stop(); // Stop previous searches
+            if (Lists.Sounds.Count == 0 || sender.Text == "") { FilteredXVSounds.Clear(); return; }
+            if (sender.Text == _intName) { FilterXVSounds(S => S.IntName is not null && S.IntName.Equals(sender.Text, StringComparison.OrdinalIgnoreCase)); return; }
+            if (sender.Text.StartsWith("common/team_bonus_", StringComparison.OrdinalIgnoreCase)) { FilterXVSounds(S => S.Hash.Equals(sender.Text, StringComparison.OrdinalIgnoreCase)); return; }
+            SearchInProgress.Visibility = Visibility.Visible;
+            SearchInProgress.IsActive = true;
+            _searchTimer.Start();
+        }
+
+        private async void SearchTimer_Tick(object? sender, object e)
+        {
+            _searchTimer.Stop();
+            await FilterXVSounds(XVsearch.Text);
+            SearchInProgress.IsActive = false;
+            SearchInProgress.Visibility = Visibility.Collapsed;
+        }
+
+        private Task FilterXVSounds(string Filter)
+        {
+            return Task.Run(() =>
             {
-                FilteredXVSounds.Clear();
-                if (Filter != "")
+                _ = DispatcherQueue.TryEnqueue(() =>
                 {
-                    bool IsTeam = Filter.StartsWith("common/team_bonus_", StringComparison.OrdinalIgnoreCase);
-                    for (int i = 0; i < ZsndLists.Sounds.Count; i++)
+                    for (int i = 0; i < Lists.Sounds.Count; i++)
                     {
-                        XVSound S = (XVSound)ZsndLists.Sounds[i];
-                        if (Filter == IntName
-                            ? S.IntName!.Equals(Filter, StringComparison.OrdinalIgnoreCase)
-                            : IsTeam
-                            ? S.Hash!.Equals(Filter, StringComparison.OrdinalIgnoreCase)
-                            : S.Hash!.Contains(Filter, StringComparison.CurrentCultureIgnoreCase))
+                        XVSound S = Lists.Sounds[i];
+                        if (!S.Hash.Contains(Filter, StringComparison.OrdinalIgnoreCase))
+                        {
+                            _ = FilteredXVSounds.Remove(S);
+                        }
+                        else if (!FilteredXVSounds.Contains(S))
                         {
                             FilteredXVSounds.Add(S);
                         }
-                        if (FilteredXVSounds.Count > 200) { break; }
                     }
-                    SearchTooMany.IsOpen = FilteredXVSounds.Count > 198;
-                }
+                });
+            });
+        }
+
+        private void FilterXVSounds(Func<XVSound, bool> FilterMatches)
+        {
+            FilteredXVSounds.Clear();
+            for (int i = 0; i < Lists.Sounds.Count; i++)
+            {
+                if (FilterMatches(Lists.Sounds[i])) { FilteredXVSounds.Add(Lists.Sounds[i]); }
             }
         }
 
         private void XVoiceList_Delete(KeyboardAccelerator sender, KeyboardAcceleratorInvokedEventArgs args)
         {
-            if (XVoiceList.SelectedItem is XVSound Sound && FilteredXVSounds.Remove(Sound))
+            if (Cfg.Var.SelectedSound is XVSound Sound && FilteredXVSounds.Remove(Sound))
             {
-                _ = ZsndLists.Sounds.Remove(Sound);
+                _ = Lists.Sounds.Remove(Sound);
             }
         }
 
@@ -171,7 +270,7 @@ namespace OpenHeroSelectGUI
         {
             if (sender is FrameworkElement Control)
             {
-                XVoiceList.SelectedItem = Control.DataContext;
+                Cfg.Var.SelectedSound = (XVSound)Control.DataContext;
             }
             _ = await ViewSoundFlags.ShowAsync();
             // if (ContentDialogResult _ == ContentDialogResult.Primary)
@@ -182,15 +281,12 @@ namespace OpenHeroSelectGUI
 
         private async void Sample_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is FrameworkElement Control)
+            if (sender is FrameworkElement Control && Control.DataContext is XVSound XS)
             {
-                XVoiceList.SelectedItem = Control.DataContext;
+                Cfg.Var.SelectedSound = XS;
+                if (XS.SampleIndex >= Lists.Samples.Count) { XS.SampleIndex = Lists.Samples.Count - 1; }
             }
-            if (XVoiceList.SelectedItem is XVSound XS && XS.SampleIndex >= ZsndLists.Samples.Count)
-            {
-                XS.SampleIndex = ZsndLists.Samples.Count - 1;
-            }
-            _ = await AddSample.ShowAsync();
+            _ = await AddSampleDialog.ShowAsync();
         }
 
         private void SampleDropArea_DragEnter(object sender, DragEventArgs e)
@@ -221,43 +317,13 @@ namespace OpenHeroSelectGUI
 
         private async void SampleDropAreaBG_Drop(object sender, DragEventArgs e)
         {
-            FileIncompatible.IsOpen = false;
-            int NewIndex = ZsndLists.Samples.Count;
-            if (NewIndex > 0xFFFF)
+            if (e.DataView.Contains(StandardDataFormats.StorageItems)
+                && (await e.DataView.GetStorageItemsAsync())[0] is StorageFile Sample
+                && AddSample(Sample) is int NewIndex && NewIndex > -1
+                && Cfg.Var.SelectedSound is XVSound Sound)
             {
-                FileMaxReached.IsOpen = true;
-            }
-            else
-            {
-                FileMaxReached.IsOpen = false;
-                JsonSample SampleInfo = new();
-                try
-                {
-                    // WAV and VAG are headerless, DSP has special header, XML has original RIFF header, Xbox ADPCM is unhandled at this time
-                    if (e.DataView.Contains(StandardDataFormats.StorageItems)
-                        && (await e.DataView.GetStorageItemsAsync())[0] is StorageFile Sample
-                        && ZsndConvert.From(Sample.FileType, Sample.Path, SampleInfo) is byte[] ConvertedFileBuffer && ConvertedFileBuffer.Length > 0)
-                    {
-                        string New = Path.Combine(OHSpath.XvoiceDir, "new");
-                        _ = Directory.CreateDirectory(New);
-                        File.WriteAllBytes(Path.Combine(New, Sample.Name), ConvertedFileBuffer);
-                        SampleInfo.File = Path.Combine("new", Sample.Name);
-                        ZsndLists.Samples.Add(SampleInfo);
-                        if (XVoiceList.SelectedItem is XVSound Sound)
-                        {
-                            Sound.SampleIndex = NewIndex;
-                            Sound.Sample = Sample.Name;
-                        }
-                    }
-                    else
-                    {
-                        FileIncompatible.IsOpen = true;
-                    }
-                }
-                catch
-                {
-                    FileIncompatible.IsOpen = true;
-                }
+                Sound.SampleIndex = NewIndex;
+                Sound.Sample = Sample.Name;
             }
             SampleDropArea.Visibility = Visibility.Collapsed;
         }
@@ -269,47 +335,83 @@ namespace OpenHeroSelectGUI
                 e.AcceptedOperation = DataPackageOperation.Copy;
                 e.DragUIOverride.Caption = $"Add {SC.Name}";
             }
-            else if (e.DataView.Properties["TeamBonus"] is TeamBonus TB)
+            else if (e.DataView.Properties["TeamBonus"] is Bonus TB)
             {
                 e.AcceptedOperation = DataPackageOperation.Copy;
                 e.DragUIOverride.Caption = $"Add {TB.Sound}";
             }
+            else if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                e.DragUIOverride.Caption = $"Add sound(s)";
+            }
         }
 
-        private void XVoiceList_Drop(object sender, DragEventArgs e)
+        private async void XVoiceList_Drop(object sender, DragEventArgs e)
         {
             if (e.DataView.Properties["Character"] is not null) // is Character SC
             {
                 // IntName = Herostat.GetInternalName(SC.Path);
-                FilteredXVSounds.Add(new XVSound
+                AddSound(new XVSound
                 {
-                    IntName = IntName,
-                    Pref = ZsndEvents.XVprefix.AN,
-                    SampleIndex = ZsndLists.Samples.Count
+                    IntName = _intName,
+                    Pref = Events.LastCharPrefix
                 });
-                ZsndLists.Sounds.Add(FilteredXVSounds[^1]);
-                _ = ZsndLists.XVInternalNames.Add(IntName);
+                _ = Lists.XVInternalNames.Add(_intName);
             }
-            else if (e.DataView.Properties["TeamBonus"] is TeamBonus TB)
+            else if (e.DataView.Properties["TeamBonus"] is Bonus TB)
             {
-                FilteredXVSounds.Add(new XVSound
+                AddSound(new XVSound
                 {
-                    Pref = ZsndEvents.XVprefix.TEAM,
-                    Hash = TB.Sound?.Length > 18 ? TB.Sound : $"COMMON/TEAM_BONUS_{TB.Name}".Replace(' ', '_'),
-                    SampleIndex = ZsndLists.Samples.Count
+                    Pref = Events.XVprefix.TEAM,
+                    Hash = TB.Sound?.Length > 18 ? TB.Sound : $"COMMON/TEAM_BONUS_{TB.Name}".Replace(' ', '_')
                 });
-                ZsndLists.Sounds.Add(FilteredXVSounds[^1]);
+            }
+            else if (e.DataView.Contains(StandardDataFormats.StorageItems))
+            {
+                var Items = await e.DataView.GetStorageItemsAsync();
+                for (int i = 0; i < Items.Count; i++)
+                {
+                    if (Items[i] is StorageFile Sample)
+                    {
+                        AddSampleSound(Sample);
+                    }
+                    else if (Items[i] is StorageFolder Dir)
+                    {
+                        foreach (StorageFile SubFile in (await Dir.GetFilesAsync()))
+                        {
+                            if (SubFile.ContentType == "audio/wav") { AddSampleSound(SubFile); }
+                        }
+                    }
+                }
             }
         }
 
         private void Play_Click(object sender, RoutedEventArgs e)
         {
             SoundNotPlayed.IsOpen = false;
-            if (XVoiceList.SelectedItem is XVSound Sound && ZsndLists.Samples[Sound.SampleIndex] is JsonSample S && S.File is string Filename)
+            if (XVoiceList.SelectedItem is XVSound Sound && Lists.Samples[Sound.SampleIndex] is JsonSample S && S.File is string Filename)
             {
                 SoundNotPlayed.IsOpen = !TemporaryPlayer.Play(Path.IsPathFullyQualified(Filename) ? Filename
                     : Path.Combine(OHSpath.XvoiceDir, Filename), S);
             }
+        }
+
+        private void Sample_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // Lists.Samples[SampleComboBox.SelectedIndex].Sample_rate;
+            // SampleRateComboBox.SelectedIndex = SampleRates.IndexOf(ZsndLists.Samples[SampleComboBox.SelectedIndex].Sample_rate);
+            SampleRateComboBox.SelectedItem = ((JsonSample)SampleComboBox.SelectedItem).Sample_rate;
+        }
+
+        private void SampleRate_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Lists.Samples[SampleComboBox.SelectedIndex].Sample_rate = (uint)SampleRateComboBox.SelectedItem;
+        }
+
+        private void Page_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Cfg.Var.PropertyChanged -= FloatingCharacter_Changed;
         }
     }
 }

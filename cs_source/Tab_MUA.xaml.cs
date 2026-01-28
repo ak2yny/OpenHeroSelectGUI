@@ -9,7 +9,6 @@ using OpenHeroSelectGUI.Settings;
 using System;
 using System.IO;
 using System.Linq;
-using System.Xml;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI;
 using static OpenHeroSelectGUI.Settings.CharacterListCommands;
@@ -22,21 +21,33 @@ namespace OpenHeroSelectGUI
     public sealed partial class Tab_MUA : Page
     {
         public Cfg Cfg { get; set; } = new();
+
         public string? FloatingLoc { get; set; }
+        /// <summary>
+        /// Tries to construct the path to MUA's Game.exe. Falls back to Game Install Path .exe. Doesn't check for a valid path or existence.
+        /// </summary>
+        /// <returns>The full path to the .exe or an invalid path/string if settings are wrong.</returns>
+        private string MUAexe
+        {
+            get
+            {
+                field ??= Cfg.GUI.ActualGameExe != "" ? Cfg.GUI.ActualGameExe : OHSpath.GetStartExe;
+                return field;
+            }
+        }
 
         public Tab_MUA()
         {
             InitializeComponent();
 
             LoadLayout();
-            _ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
-            _ = SelectedCharacters.Navigate(typeof(SelectedCharacters));
+            //_ = AvailableCharacters.Navigate(typeof(AvailableCharacters));
             if (Cfg.GUI.LayoutWidthUpscale)
             {
                 LocationsBox.StretchDirection = StretchDirection.Both;
                 LocationsBox.MaxWidth = Cfg.GUI.LayoutMaxWidth;
             }
-            if (Util.GameExe(OHSpath.MUAexe) is FileStream fs)
+            if (Util.GameExe(MUAexe) is FileStream fs)
             {
                 byte[] bytes = new byte[2];
                 fs.Position = 0x3cc28f;
@@ -55,103 +66,46 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void LoadLayout()
         {
-            string CfgLayout = Path.Combine(OHSpath.CD, "stages", Cfg.GUI.Layout, "config.xml");
-            string CfgModels = Path.Combine(OHSpath.Model, "config.xml");
-            if (File.Exists(CfgLayout) && File.Exists(CfgModels))
+            if (Cfg.GUI.Layout.Length == 0) { Cfg.GUI.Layout = "25 Default PC 2006"; FirstUseSelectStage.IsOpen = true; }
+            if (CfgSt.CSS.CompatibleModels.Length == 0)
             {
-                Cfg.Var.Layout ??= GUIXML.GetXmlElement(CfgLayout);
-                if (Cfg.Var.Layout is XmlElement CL)
+                string CfgLayout = Path.Combine(OHSpath.StagesDir, Cfg.GUI.Layout, "config.xml");
+                if (File.Exists(CfgLayout) && GUIXML.Deserialize(CfgLayout, typeof(Settings.Layout)) is Settings.Layout CL)
                 {
-                    Cfg.Var.RosterValueDefault = CL["Default_Roster"]!["roster"]!.InnerText;
-                    Cfg.Var.MenulocationsValueDefault = CL["Default_Roster"]!["menulocations"]!.InnerText;
-
-                    double Multiplier = (CL["Location_Setup"]!.GetAttribute("spacious") == "true") ? 1 : 1.4;
-                    double XStretch = 1;
-                    int MinX = (from XmlElement x in CL.GetElementsByTagName("X") select int.Parse(x.InnerText)).Min();
-                    var AllY = from XmlElement y in CL.GetElementsByTagName("Y") select int.Parse(y.InnerText);
-                    int MinY = AllY.Min();
-                    LayoutHeight.MaxHeight = Cfg.GUI.RowLayout ? 5 : (AllY.Max() - MinY) * Multiplier + 30;
-                    Locations.Children.Clear();
-                    LocationsBox.VerticalAlignment = Cfg.GUI.RowLayout ?
-                        VerticalAlignment.Center :
-                        VerticalAlignment.Top;
-                    Cfg.Var.LayoutLocs = from XmlElement l in CL["Location_Setup"]!.ChildNodes select int.Parse(l.GetAttribute("Number"));
-                    Cfg.Roster.Total = CL["Location_Setup"]!.ChildNodes.Count;
-                    foreach (XmlElement ML in CL["Location_Setup"]!.ChildNodes)
-                    {
-                        string Loc = ML.GetAttribute("Number").PadLeft(2, '0');
-                        double Y = (int.Parse(ML["Y"]!.InnerText) - MinY) * Multiplier;
-                        double X = int.Parse(ML["X"]!.InnerText);
-                        if (Cfg.GUI.RowLayout)
-                        {
-                            XStretch = Math.Abs(X) / (Math.Abs(MinX) * 1.6) + 1;
-                            Y = int.Parse(ML["Z"]!.InnerText) * 1.7 + Y * (Multiplier - 0.85);
-                        }
-                        X = (X * XStretch - MinX * (Cfg.GUI.RowLayout ? 1 / 1.6 + 1 : 1)) * Multiplier;
-                        ToggleButton LocButton = new()
-                        {
-                            Content = Loc,
-                            Padding = new Thickness(5, 2, 5, 2),
-                            Margin = new Thickness(X, 0, 0, Y),
-                            AllowDrop = true,
-                            HorizontalAlignment = HorizontalAlignment.Left,
-                            VerticalAlignment = VerticalAlignment.Bottom,
-                        };
-                        ToolTip Tt = new();
-                        Tt.Opened += new RoutedEventHandler(LocButton_ToolTip);
-                        ToolTipService.SetToolTip(LocButton, Tt);
-                        LocButton.Click += new RoutedEventHandler(LocButton_Click);
-                        LocButton.Drop += new DragEventHandler(LocButton_Drop);
-                        LocButton.DragOver += new DragEventHandler(SelectedCharacters_DragOver);
-                        LocButton.PointerEntered += LocButton_PointerEntered;
-
-                        Locations.Children.Add(LocButton);
-                    }
-                    LayoutDetails.Text = $"Layout: {CL["Information"]!["name"]!.InnerText} for {CL["Information"]!["platform"]!.InnerText}";
-                    StageDetails.Text = "";
-                    StageImage.Source = null;
-                    if (GUIXML.GetXmlElement(CfgModels) is XmlElement Models
-                        && Models.SelectSingleNode($"descendant::Model[Name=\"{Cfg.GUI.Model}\"]") is XmlElement M
-                        && M.ParentNode is XmlElement P
-                        && CL.SelectSingleNode($"descendant::Model[text()='{P.Name}']") is XmlElement CM
-                        && GUIXML.GetStageInfo(M, CM) is StageModel StageItem)
-                    {
-                        Cfg.Var.SelectedStage = StageItem;
-                        StageDetails.Text = $"Model: {StageItem.Name} by {StageItem.Creator}";
-                        StageImage.Source = StageItem.Image;
-                    }
+                    CfgSt.CSS = CL;
                 }
+                else { return; }
             }
-        }
-        /// <summary>
-        /// Update the state of all location boxes. Required after each add and remove process except when clicked or dragged on unoccupied locations.
-        /// </summary>
-        private void UpdateLocBoxes()
-        {
-            foreach (ToggleButton LocBox in Locations.Children.Cast<ToggleButton>())
+            StageImage.VerticalAlignment = Cfg.GUI.RowLayout ? VerticalAlignment.Top : VerticalAlignment.Bottom;
+            LocationsBox.Margin = new(0, Cfg.GUI.RowLayout ? 20 : 5, 0, 0);
+            LayoutDetails.Text = CfgSt.CSS.Information.ToString(); // Information is not observable
+
+            if (InternalSettings.Models is not null
+                && InternalSettings.Models.Categories.SelectMany(c => c.Models, (c, m) => new { c, m })
+                .FirstOrDefault(p => p.m.Name == Cfg.GUI.Model) is var M && M is not null
+                && CfgSt.CSS.CompatibleModels.FirstOrDefault(m => m.Name == M.c.Name) is CompatibleModel CM)
             {
-                LocBox.IsChecked = Cfg.Roster.Selected.Any(c => c.Loc == LocBox.Content.ToString());
+                if (CfgSt.CSS.Locs.Length == 0 && M.m.ToCSSModel() is CSSModel StageModel)
+                { Cfg.Var.SelectedStage = StageModel; }
+                CfgSt.CSS.SelectedStageRiser = CM.Riser;
             }
+            CfgSt.CSS.SetLocationsMUA();
         }
         // Control handlers:
         private void BtnRunGame_Click(object sender, RoutedEventArgs e) => Util.RunGame();
 
         private void BtnUnlockAll_Click(object sender, RoutedEventArgs e)
         {
-            foreach (SelectedCharacter c in Cfg.Roster.Selected)
-            {
-                c.Unlock = true;
-            }
+            for (int i = 0; i < Cfg.Roster.Selected.Count; i++) { Cfg.Roster.Selected[i].Unlock = true; }
         }
         /// <summary>
         /// Re-load stage info from configuration files and images.
         /// </summary>
         private void RefreshStages_Click(object sender, RoutedEventArgs e)
         {
+            CfgSt.CSS.CompatibleModels = [];
             LoadLayout();
-            UpdateLocBoxes();
         }
-
         /// <summary>
         /// Open the stage selection tab.
         /// </summary>
@@ -160,38 +114,36 @@ namespace OpenHeroSelectGUI
             _ = Frame.Navigate(typeof(Tab_Stages));
         }
         /// <summary>
-        /// Hex edits the upside-down arrow location, if the USD button was pressed, otherwise adds the Cfg.Var.FloatingCharacter to the selected characters list, at the location of the clicked location box.
+        /// Hex edits the upside-down arrow location, if the USD button was pressed; otherwise adds the <see cref="InternalObservables.FloatingCharacter"/> to the selected characters list, at the location of the clicked location box.
         /// </summary>
         private void LocButton_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is ToggleButton LocBox)
+            if (sender is ToggleButton Loc && Loc.DataContext is LocationButton LB)
             {
-                if (Cfg.Var.FloatingCharacter == "<"
-                    && LocBox.Content.ToString() is string Loc
-                    && Util.HexEdit(0x3cc28f, Loc, OHSpath.MUAexe))
+                if (Cfg.Var.FloatingCharacter == "<" && Util.HexEdit(0x3cc28f, LB.NumberString, MUAexe))
                 {
-                    USDnum.Text = Loc;
-                    Cfg.Var.FloatingCharacter = "";
+                    USDnum.Text = LB.NumberString;
+                    Cfg.Var.FloatingCharacter = null;
                 }
-                AddToSelectedMUA(LocBox);
+                else { AddToSelectedMUA(LB); }
             }
         }
-
+        /// <summary>
+        /// Adds the <see cref="InternalObservables.FloatingCharacter"/> to the selected characters list, at the location of the location box the char. was dropped on.
+        /// </summary>
         private void LocButton_Drop(object sender, DragEventArgs e)
         {
-            if (sender is ToggleButton LocBox) { AddToSelectedMUA(LocBox); }
+            if (sender is ToggleButton Loc && Loc.DataContext is LocationButton LB) { AddToSelectedMUA(LB); }
         }
         /// <summary>
-        /// Add the floating character to the selected list on location <paramref name="LocBox"/>
+        /// Add the floating character to the selected list on location <paramref name="Loc"/>
         /// </summary>
-        private void AddToSelectedMUA(ToggleButton LocBox)
+        private void AddToSelectedMUA(LocationButton LB)
         {
             if (!string.IsNullOrEmpty(Cfg.Var.FloatingCharacter) && Cfg.Var.FloatingCharacter != "<")
             {
-                if (AddToSelected(LocBox.Content.ToString(), Cfg.Var.FloatingCharacter)) { UpdateLocBoxes(); }
-                UpdateClashes(false);
+                AddToSelected(LB.Number, Cfg.Var.FloatingCharacter);
             }
-            LocBox.IsChecked = Cfg.Roster.Selected.Any(c => c.Loc == LocBox.Content.ToString());
         }
         /// <summary>
         /// When the pointer enters a location button: Write the location number in the FloatingLoc variable.
@@ -200,7 +152,7 @@ namespace OpenHeroSelectGUI
         {
             if (sender is ToggleButton Loc)
             {
-                FloatingLoc = Loc.Content as string;
+                FloatingLoc = (string)Loc.Content;
             }
         }
         /// <summary>
@@ -221,6 +173,7 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SelectedCharacters_DragEnter(object sender, DragEventArgs e)
         {
+            if (Cfg.GUI.SelectedDnDInsert) { return; }
             if (e.DataView.Properties["Character"] is not null)
             {
                 SelectedCharactersDropArea.Visibility = Visibility.Visible;
@@ -239,7 +192,8 @@ namespace OpenHeroSelectGUI
         private void SelectedCharacters_DragOver(object sender, DragEventArgs e)
         {
             e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = $"{Cfg.Var.FloatingCharacter}";
+            e.DragUIOverride.Caption = e.DataView.Properties["Roster"] is string r
+                ? $"Replace {Cfg.MUA.RosterValue} with {r}" : $"{Cfg.Var.FloatingCharacter}";
         }
         /// <summary>
         /// Define the drop event for dropped characters
@@ -247,18 +201,15 @@ namespace OpenHeroSelectGUI
         private void SelectedCharacters_Drop(object sender, DragEventArgs e)
         {
             SelectedCharactersDropArea.Visibility = Visibility.Collapsed;
-            if (Cfg.Var.FloatingCharacter is string FC)
-            {
-                _ = AddToSelected(FC);
-                UpdateClashes();
-            }
+            if (Cfg.Var.FloatingCharacter is string FC) { AddToSelected(FC); }
+            else if (e.DataView.Properties["Roster"] is string r) { LoadRosterVal(r, CfgCmd.MatchingMV(r)); }
         }
         /// <summary>
         /// Load the default roster for the current layout.
         /// </summary>
         private void MUA_LoadDefault(object sender, RoutedEventArgs e)
         {
-            LoadRosterVal(Cfg.Var.RosterValueDefault, Cfg.Var.MenulocationsValueDefault);
+            LoadRosterVal(CfgSt.CSS.Default.Roster, CfgSt.CSS.Default.Menulocations);
         }
         /// <summary>
         /// Browse for a roster file to load. Populates according to the layout setup, should be left to right. Currently ignores menulocation files.
@@ -281,23 +232,22 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void MUA_Clear(object sender, RoutedEventArgs e)
         {
-            Cfg.Roster.Selected.Clear();
-            Cfg.Roster.NumClash = false;
-            foreach (ToggleButton LocBox in Locations.Children.Cast<ToggleButton>()) { LocBox.IsChecked = false; }
+            Cfg.Roster.ClearSelected();
+            CfgSt.CSS.DeselectLocBoxes();
         }
         /// <summary>
-        /// Invoked when the text of a hidden text box changes, which happens on UpdateClash events, due to binding.
+        /// Upside-down button doulbe-click: Try to reset the location to "00".
         /// </summary>
-        private void ClashesUpdated(object sender, TextChangedEventArgs e) => UpdateLocBoxes();
-
         private void USD_DoubleTapped(object sender, DoubleTappedRoutedEventArgs e)
         {
-            if (Util.HexEdit(0x3cc28f, "00", OHSpath.MUAexe))
+            if (Util.HexEdit(0x3cc28f, "00", MUAexe))
             {
                 USDnum.Text = "00";
             }
         }
-
+        /// <summary>
+        /// Upside-down button click: Use the floating character so that a click on a menulocation box sets the new location.
+        /// </summary>
         private void USD_Click(object sender, RoutedEventArgs e)
         {
             Cfg.Var.FloatingCharacter = "<";

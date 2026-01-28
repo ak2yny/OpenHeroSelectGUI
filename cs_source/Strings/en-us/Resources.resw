@@ -180,4 +180,16 @@
   <data name="Tab_XVoice.Content" xml:space="preserve">
     <value>Callouts</value>
   </data>
+  <data name="Available_Context_Delete_Fail.Title" xml:space="preserve">
+    <value>File not removed</value>
+  </data>
+  <data name="Available_Context_Delete_Fail.Message" xml:space="preserve">
+    <value>Failed to delete associated file.</value>
+  </data>
+  <data name="Available_Context_Rename_Fail.Title" xml:space="preserve">
+    <value>Failed to rename</value>
+  </data>
+  <data name="Available_Context_Rename_Fail.Message" xml:space="preserve">
+    <value>Not renamed. Nothing changed. Try renaming in file explorer instead.</value>
+  </data>
 </root>

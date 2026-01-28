@@ -1,0 +1,62 @@
+<UserControl
+    x:Class="OpenHeroSelectGUI.Controls.AvailableTabs"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    MaxWidth="400">
+    <!--AllowDrop="True"
+    DragOver="AvailableTabs_DragOver"
+    DragLeave="AvailableTabs_DragLeave"
+    Drop="AvailableTabs_Drop"-->
+
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="35"/>
+            <RowDefinition Height="35"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+        <!--<Canvas x:Name="AvailableTabsDropArea" Grid.RowSpan="3" Background="{ThemeResource ListViewItemPointerOverBackgroundThemeBrush}" Visibility="Collapsed"/>-->
+        <!--Need 40 indent to avoid hamburger menu overlap when collapsed fully (narrow window)-->
+        <SelectorBar Margin="40 0 0 0" SelectionChanged="Available_SelectionChanged">
+            <SelectorBarItem x:Name="AvailChars" FontWeight="Bold" Padding="5 1" Text="Characters"/>
+            <SelectorBarItem x:Name="AvailRstrs" FontWeight="Bold" Padding="5 1" Text="Rosters" Visibility="{x:Bind ShowRosters}"/>
+            <SelectorBarItem x:Name="AvailNeedy" FontWeight="Bold" Padding="5 1" Text="Need Callout" Visibility="{x:Bind ShowNeedy}"/>
+            <!--<SelectorBarItem.Icon> Icon="Contact" Icon="ContactInfo"
+                <FontIcon Glyph="&#xEC54;"/>
+            </SelectorBarItem.Icon>-->
+            <SelectorBarItem x:Name="AvailTeams" FontWeight="Bold" Padding="5 1" Text="Teams" Visibility="{x:Bind ShowNeedy}"/>
+            <!--<SelectorBarItem.Icon>
+                <PathIcon Data="{StaticResource TEIcon}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            </SelectorBarItem.Icon>-->
+        </SelectorBar>
+        <StackPanel Grid.Row="1" Margin="40 0 0 0" Orientation="Horizontal" Spacing="3">
+            <AutoSuggestBox x:Name="AvailSearch" MinWidth="100" MaxWidth="280" PlaceholderText="Search" QueryIcon="Find" TextChanged="Search_QuerySubmitted">
+                <AutoSuggestBox.KeyboardAccelerators>
+                    <!--If these are used on other controls as well, might have to use a scope and put in main control (and hide placement)-->
+                    <KeyboardAccelerator Invoked="Search_Shortcut_Invoked" Key="F3"/>
+                    <KeyboardAccelerator Invoked="Search_Shortcut_Invoked" Key="F" Modifiers="Control"/>
+                </AutoSuggestBox.KeyboardAccelerators>
+            </AutoSuggestBox>
+            <!--To change performance, we could (probably) change TextChanged to QuerySubmitted.-->
+            <Button x:Name="BrowseButton" FontWeight="Bold" Click="BrowseButton_Click" Content="..." ToolTipService.ToolTip="Browse for a new herostat to add. Can be a mod archive or a herostat text." Height="35"/>
+            <Button x:Name="BtnReload" Click="BtnReload_Click" ToolTipService.ToolTip="F5 | Reload the available characters" Height="35">
+                <SymbolIcon Symbol="Refresh"/>
+                <Button.KeyboardAccelerators>
+                    <KeyboardAccelerator Key="F5" />
+                </Button.KeyboardAccelerators>
+            </Button>
+        </StackPanel>
+
+        <ContentControl x:Name="AvailCollection" Grid.Row="2" Margin="36 5 0 5"
+                        HorizontalContentAlignment="Stretch"
+                        VerticalContentAlignment="Stretch">
+            <!--<ContentControl.ContentTransitions>
+                <TransitionCollection>
+                    <EntranceThemeTransition FromHorizontalOffset="400" IsStaggeringEnabled="False"/>
+                </TransitionCollection>
+            </ContentControl.ContentTransitions>-->
+        </ContentControl>
+    </Grid>
+</UserControl>

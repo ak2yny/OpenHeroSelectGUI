@@ -1,0 +1,283 @@
+<!--
+Instructions:
+*************
+
+1) Place the stage files in a folder* and put that in the stages folder.
+2) Setup the information in this file.
+
+Each stage must have a menu (team_back.xmlb and mlm_team_back.igb) which is the layout.
+It's required to set-up the layout here, and recommended to define Compatible_Models (set them up in .models/config.xml).
+You can read coordinates for the location set-up by opening mlm_team_back.igb in Finalizer. Search all igTransfroms for each location (padXX_model) and read the 4th row.
+
+*To avoid replacing any existing stages, the folder must have an unique name.
+-->
+<Layout>
+    <Information>
+        <name>50 Roster Hack Stage 3.0+</name>
+        <platform>PC2006</platform>
+    </Information>
+    <Location_Setup spacious="true">
+        <Location Number="54">
+            <X>-232</X>
+            <Y>157</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="51">
+            <X>-214</X>
+            <Y>187</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="48">
+            <X>-194</X>
+            <Y>215</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="01">
+            <X>-171</X>
+            <Y>244</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="45">
+            <X>-144</X>
+            <Y>274</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="46">
+            <X>-109</X>
+            <Y>300</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="05">
+            <X>-65</X>
+            <Y>324</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="16">
+            <X>-22</X>
+            <Y>333</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="17">
+            <X>22</X>
+            <Y>333</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="40">
+            <X>65</X>
+            <Y>324</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="19">
+            <X>109</X>
+            <Y>300</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="42">
+            <X>144</X>
+            <Y>274</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="11">
+            <X>171</X>
+            <Y>244</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="50">
+            <X>194</X>
+            <Y>215</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="58">
+            <X>214</X>
+            <Y>187</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="61">
+            <X>232</X>
+            <Y>157</Y>
+            <Z>91</Z>
+        </Location>
+        <Location Number="53">
+            <X>-193</X>
+            <Y>136</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="37">
+            <X>-174</X>
+            <Y>165</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="25">
+            <X>-157</X>
+            <Y>193</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="47">
+            <X>-137</X>
+            <Y>219</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="03">
+            <X>-113</X>
+            <Y>246</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="04">
+            <X>-87</X>
+            <Y>265</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="14">
+            <X>-54</X>
+            <Y>282</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="06">
+            <X>-18</X>
+            <Y>291</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="07">
+            <X>18</X>
+            <Y>291</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="08">
+            <X>54</X>
+            <Y>282</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="22">
+            <X>87</X>
+            <Y>265</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="10">
+            <X>113</X>
+            <Y>246</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="43">
+            <X>137</X>
+            <Y>219</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="49">
+            <X>157</X>
+            <Y>193</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="57">
+            <X>174</X>
+            <Y>165</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="60">
+            <X>193</X>
+            <Y>136</Y>
+            <Z>55</Z>
+        </Location>
+        <Location Number="55">
+            <X>-164</X>
+            <Y>83</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="52">
+            <X>-150</X>
+            <Y>111</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="35">
+            <X>-137</X>
+            <Y>139</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="44">
+            <X>-124</X>
+            <Y>167</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="02">
+            <X>-109</X>
+            <Y>191</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="13">
+            <X>-90</X>
+            <Y>213</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="21">
+            <X>-65</X>
+            <Y>225</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="15">
+            <X>-40</X>
+            <Y>235</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="18">
+            <X>-15</X>
+            <Y>246</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="23">
+            <X>15</X>
+            <Y>246</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="24">
+            <X>40</X>
+            <Y>235</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="09">
+            <X>65</X>
+            <Y>225</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="41">
+            <X>90</X>
+            <Y>213</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="20">
+            <X>109</X>
+            <Y>191</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="12">
+            <X>124</X>
+            <Y>167</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="56">
+            <X>137</X>
+            <Y>139</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="59">
+            <X>150</X>
+            <Y>111</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="62">
+            <X>164</X>
+            <Y>83</Y>
+            <Z>15</Z>
+        </Location>
+        <Location Number="00">
+            <X>-20</X>
+            <Y>312</Y>
+            <Z>-221</Z>
+        </Location>
+    </Location_Setup>
+    <Compatible_Models>
+        <Model>RH</Model>
+    </Compatible_Models>
+    <Default_Roster>
+        <menulocations>50 (for 50RH v3.0 or later Stage)</menulocations>
+        <roster>50 Roster Hack Base Roster (v3.0 and later)</roster>
+    </Default_Roster>
+</Layout>
