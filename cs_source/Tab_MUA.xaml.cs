@@ -53,7 +53,7 @@ namespace OpenHeroSelectGUI
                 fs.Position = 0x3cc28f;
                 _ = fs.Read(bytes, 0, bytes.Length);
                 fs.Close();
-                USDnum.Text = System.Text.Encoding.Default.GetString(bytes);
+                USDnum.Text = System.Text.Encoding.ASCII.GetString(bytes);
             }
             if (Cfg.GUI.StageInfoTransparency)
             {

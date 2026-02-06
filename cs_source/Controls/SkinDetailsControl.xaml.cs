@@ -91,32 +91,31 @@ namespace OpenHeroSelectGUI.Controls
             }
         }
         /// <summary>
-        /// Hex edit hud head <paramref name="IGB"/> files, using the number from <paramref name="Name"/>, to make them compatible with NPC.
+        /// Hex edit hud head <paramref name="IGB"/> files, using the <paramref name="Number"/>, to make them compatible with NPC.
         /// </summary>
         /// <returns><see langword="True"/>, if edited successfully; otherwise <see langword="false"/>.</returns>
-        private static bool FixHUDs(string IGB, string Name)
+        private static bool FixHUDs(string IGB, string Number)
         {
             return File.Exists(IGB) && Opt.Write(Opt.Combine([Opt.StatTex]))
                 && Util.RunDosCommnand(Alchemy.Optimizer!, $"\"{IGB}\" \"{Path.Combine(OHSpath.Temp, "temp.igb")}\" \"{Alchemy.INI}\"") is string Stats
-                && FixHUDs(IGB, Name, Stats.Split(Environment.NewLine).Where(s => s.Contains("IG_GFX_TEXTURE_FORMAT_")));
+                && FixHUDs(IGB, Number, Stats.Split(Environment.NewLine).Where(s => s.Contains("IG_GFX_TEXTURE_FORMAT_")));
         }
         /// <summary>
-        /// Hex edit hud head <paramref name="IGB"/> files, using the number from <paramref name="Name"/> and information from <paramref name="TextureLines"/>, to make them compatible with NPC.
+        /// Hex edit hud head <paramref name="IGB"/> files, using the <paramref name="Number"/> and information from <paramref name="TextureLines"/>, to make them compatible with NPC.
         /// </summary>
         /// <returns><see langword="True"/>, if edited successfully; otherwise <see langword="false"/>.</returns>
-        private static bool FixHUDs(string IGB, string Name, IEnumerable<string> TextureLines)
+        private static bool FixHUDs(string IGB, string Number, IEnumerable<string> TextureLines)
         {
-            if (!TextureLines.Any()) { return false; }
+            if (!TextureLines.Any()) { return false; } // There is no texture, the hud head won't work (throw an error?)
             IEnumerable<string> all = TextureLines.Select(l => l.Split('|')[0].Trim());
             int maxLen = all.Min(t => t.Length) - 4;
             string main = (TextureLines.FirstOrDefault(l => !char.IsAsciiDigit(l.Trim()[^1]) || l.Trim()[^1] == '0')
                 ?? TextureLines.First()).Split('|')[0].Trim();
-            return Util.HexEdit([.. all.Select(l => l[..maxLen])],
-                (Name.Split('_')[^1] + "_" + main.Split('_', 2)[1])[..maxLen],
-                IGB);
+            int di, mi; if (maxLen < Number.Length || (di = main.IndexOf('_') + 1) > (mi = di + maxLen - Number.Length - 1)) { return false; }
+            return Util.HexEdit([.. all.Select(l => l[..maxLen])], $"{Number}_{main[di..mi]}", IGB);
         }
         /// <summary>
-        /// Platform enum values to work with the selected platform
+        /// Platform enum values, corresponding with the selected platform
         /// </summary>
         private enum Platform
         {
@@ -140,7 +139,7 @@ namespace OpenHeroSelectGUI.Controls
         /// <summary>
         /// Alchemy version enum with hex version ID/number and corresponding known actual version
         /// </summary>
-        private enum AlchemyV
+        private enum AlchemyV : byte
         {
             AV_Unknown = 0,
             AV_2_5 = 4,
@@ -242,7 +241,7 @@ namespace OpenHeroSelectGUI.Controls
                 catch { Msg.SE_Error.Message = $"Failed to install skin to '{IGB}'."; return; }
             }
             optimized = optimized || (HexEdit && Util.HexEdit([igSkin ?? "igActor01Appearance"], Name, IGB));
-            if (GamePath == "hud") { _ = FixHUDs(IGB, Name); }
+            if (GamePath == "hud" && Name.Length > 4) { _ = FixHUDs(IGB, Name[^(Name[^5] is '_' ? 4 : 5)..]); }
 
             if (optimized && HexEdit)
             {

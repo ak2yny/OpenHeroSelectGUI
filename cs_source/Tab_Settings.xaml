@@ -60,10 +60,7 @@
             <Run Text="Settings for"/>
             <Run Text="{x:Bind Cfg.GUI.Game}"/>
         </TextBlock>
-        <ScrollViewer x:Name="SettingsList"
-                      Grid.Row="1"
-                      IsTabStop="False"
-                      Padding="36 8">
+        <ScrollView x:Name="SettingsList" Grid.Row="1" IsTabStop="False" Padding="36 8">
             <StackPanel Spacing="3" Margin="0 0 0 10">
                 <!--<StackPanel.ChildrenTransitions>
                     <EntranceThemeTransition FromVerticalOffset="50" />
@@ -396,6 +393,6 @@
                     </controls:SettingsCardContent>
                 </Grid>
             </StackPanel>
-        </ScrollViewer>
+        </ScrollView>
     </Grid>
 </Page>

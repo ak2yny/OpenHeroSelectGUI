@@ -192,4 +192,31 @@
   <data name="Available_Context_Rename_Fail.Message" xml:space="preserve">
     <value>Not renamed. Nothing changed. Try renaming in file explorer instead.</value>
   </data>
+  <data name="Info_CheckUpdate.Content" xml:space="preserve">
+    <value>Check for updates</value>
+  </data>
+  <data name="Info_Update.Content" xml:space="preserve">
+    <value>Update now</value>
+  </data>
+  <data name="Update_IsCurrent.Message" xml:space="preserve">
+    <value>This is the latest OHS GUI version.</value>
+  </data>
+  <data name="Update_FailA.Message" xml:space="preserve">
+    <value>Failed to access the GitHub API.</value>
+  </data>
+  <data name="Update_FailA.Title" xml:space="preserve">
+    <value>Update failed</value>
+  </data>
+  <data name="Update_FailR.Title" xml:space="preserve">
+    <value>Update failed</value>
+  </data>
+  <data name="Update_FailR.Message" xml:space="preserve">
+    <value>The update information could not be retrieved from GitHub.</value>
+  </data>
+  <data name="Info_CancelUpdate.Content" xml:space="preserve">
+    <value>Cancel update</value>
+  </data>
+  <data name="Update_Fail.Title" xml:space="preserve">
+    <value>Update failed</value>
+  </data>
 </root>

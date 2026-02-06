@@ -73,6 +73,7 @@
 - Load the default roster or create a random roster
 - Free-up saves for the selected roster
 - Change the location of the upside-down arrow in the CSS
+- Add CSS name and battle callouts
 - Supports Mod Organizer 2
 - Notifies character number clashes and provides a button to fix
 - Modern UI with support for Windows 11's dark mode and Windows 10+'s accent colours
@@ -114,7 +115,7 @@
 <br/><br/>
 
 ## Build Instructions
-- Use Visual Studio and install .Net with its installer dialogue (.Net 8). Install Windows App SDK in the same dialogue (it's not possible to build a WinUI project with another application).
+- Use Visual Studio and install .Net with its installer dialogue (.Net 10). Install Windows App SDK in the same dialogue (it's not possible to build a WinUI project with another application).
 - Make sure to add the dependencies before building, as always.
 - I recommend to leave the project as self contained (no dependencies), since WinUI is contained anyway.
 - A Windows App SDK can be built [unpackaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-unpackaged) or [packaged](https://github.com/microsoft/WindowsAppSDK-Samples/tree/f1a30c2524c785739fee842d02a1ea15c1362f8f/Samples/SelfContainedDeployment/cs-winui-packaged) (MSIX). As a WinUI3 project, it can be easily re-targeted to a UWP project, but it lacks permission (file access, running OHS) and signature details.

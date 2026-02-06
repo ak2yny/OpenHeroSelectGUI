@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -718,8 +717,8 @@ namespace Zsnd.Lib
         {
             try
             {
-                // For release: OHSpath.CD, "OHSGUI" instead of Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!
-                JsonHashes ??= JsonSerializer.Deserialize<Dictionary<uint, string>>(File.ReadAllText(Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!, "Assets", "zsnd_hashes.json")));
+                // WIP! For release: OHSpath.CD, "OHSGUI" instead of Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!
+                JsonHashes ??= JsonSerializer.Deserialize<Dictionary<uint, string>>(File.ReadAllText(Path.Combine(OpenHeroSelectGUI.Functions.OHSpath.CD, "OHSGUI", "Assets", "zsnd_hashes.json")));
             }
             catch { } // leave JsonHashes null. Does it make sense to report somewhere?
             return Random().Replace(JsonHashes is not null

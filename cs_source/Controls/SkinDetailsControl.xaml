@@ -94,7 +94,7 @@
             </TextBlock>
             <TextBlock x:Name="CharacterPath" Text="{x:Bind Cfg.Var.FloatingCharacter, Mode=OneWay}"/>
         </StackPanel>
-        <ScrollViewer Grid.Row="1" Margin="10 0">
+        <ScrollView Grid.Row="1" Margin="10 0">
             <StackPanel Spacing="10">
                 <ListView x:Name="Skins"
                           ItemsSource="{x:Bind Stats.SkinsList}"
@@ -131,13 +131,13 @@
                     <Button x:Name="SaveSkinDetails" Content="Save" Click="SaveSkinDetails_Click" HorizontalAlignment="Right" IsEnabled="{x:Bind Stats.AnySkins, Mode=OneWay}" Margin="88 0"/>
                 </Grid>
             </StackPanel>
-        </ScrollViewer>
+        </ScrollView>
         <!--Skin Installer-->
         <StackPanel Grid.Column="1" Margin="10 10 10 0" Spacing="10">
             <TextBlock Style="{ThemeResource SubtitleTextBlockStyle}" Text="Skin Installer"/>
             <TextBlock><Run Text="{x:Bind Stats.CharNum, Mode=OneWay}"/><Run x:Name="SelectedSkinNumber"/></TextBlock>
         </StackPanel>
-        <ScrollViewer Grid.Column="1" Grid.Row="1" Margin="10 0" VerticalScrollBarVisibility="Auto">
+        <ScrollView Grid.Column="1" Grid.Row="1" Margin="10 0" VerticalScrollBarVisibility="Auto">
             <StackPanel Spacing="5">
                 <ComboBox x:Name="MUAplatforms" Header="Select the target platform:" MinWidth="200" Visibility="{x:Bind Cfg.GUI.IsMua}">
                     <ComboBoxItem Content="PC 2006"/>
@@ -248,7 +248,7 @@
                     </StackPanel>
                 </Grid>
             </StackPanel>
-        </ScrollViewer>
+        </ScrollView>
         <ContentDialog x:Name="EnterSkinNumber" Title="Install Extra Skin" PrimaryButtonText="OK" MaxWidth="400">
             <StackPanel>
                 <TextBlock Text="Enter the number that the swap skin should be installed to:" TextWrapping="Wrap"/>

@@ -18,7 +18,6 @@ REM Add required files and make build
  echo if exist OHSGUI_new rmdir /q /s OHSGUI
  echo ren OHSGUI_new OHSGUI
  echo robocopy stages_new stages /s /nfl /ndl /njh /njs /nc /ns /np
- echo if exist stages_new\.models\config.xml move /y stages_new\.models\config.xml stages\.models\config.xml
  echo rmdir /q /s stages_new
  echo mklink OpenHeroSelectGUI .\OHSGUI\OpenHeroSelectGUI.exe
  echo del MkLink.bat

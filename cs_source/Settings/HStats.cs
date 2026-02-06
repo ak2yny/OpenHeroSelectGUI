@@ -89,6 +89,7 @@ namespace OpenHeroSelectGUI.Settings
                 if (IsXML)
                 {
                     XmlDocument xd = new();
+                    fs.Position--;
                     xd.Load(fs);
                     XML = xd.DocumentElement;
                     // For future use of additional attributes:

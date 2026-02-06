@@ -222,6 +222,31 @@ namespace OpenHeroSelectGUI.Functions
             while (char.IsWhiteSpace(Format = (char)filestream.ReadByte())) { }
             return Format == '<';
         }
+        /// <summary>
+        /// Asynchronously reads the bytes from the <paramref name="source"/> stream and writes them to the <paramref name="destination"/> stream.
+        /// Both stream positions are advanced by the number of bytes copied.
+        /// Reports the <paramref name="progress"/> by counting the bytes copied, relative to the <paramref name="totalSize"/>.
+        /// </summary>
+        /// <returns>A <see cref="System.Threading.Tasks.Task"/> that represents the asynchronous copy operation.</returns>
+        public static async System.Threading.Tasks.Task CopyToWithProgressAsync(
+            this Stream source, FileStream destination,
+            int totalSize, IProgress<double> progress,
+            System.Threading.CancellationToken cancellationToken = default)
+        {
+            byte[] buffer = System.Buffers.ArrayPool<byte>.Shared.Rent(0x14000); // to 0x40000 (i depends on buffer size)
+            Memory<byte> mbuffer = buffer;
+            try
+            {
+                int i = 0, progressB = 0, bytesRead; while ((bytesRead = await source.ReadAsync(mbuffer, cancellationToken).ConfigureAwait(false)) != 0)
+                {
+                    await destination.WriteAsync(new ReadOnlyMemory<byte>(buffer, 0, bytesRead), cancellationToken).ConfigureAwait(false);
+                    progressB += bytesRead; i++;
+                    if (i % 4 == 0 && progressB < totalSize) { progress.Report(progressB); }
+                }
+                progress.Report(totalSize);
+            }
+            finally { System.Buffers.ArrayPool<byte>.Shared.Return(buffer); }
+        }
     }
 
     public static class GUIHelpers

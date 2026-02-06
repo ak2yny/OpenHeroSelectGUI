@@ -13,6 +13,10 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
         <StackPanel Margin="0 0 20 0" Spacing="10">
             <TextBlock x:Uid="Info_About" Style="{ThemeResource SubtitleTextBlockStyle}"/>
             <TextBlock Text=" "/>
@@ -31,9 +35,42 @@
                        MaxWidth="300"
                        Style="{ThemeResource BodyTextBlockStyle}"
                        TextWrapping="Wrap"/>
-            <HyperlinkButton x:Uid="Info_Link" Margin="-12 0" NavigateUri="{x:Bind Cfg.GUI.GitHub}" />
+            <StackPanel Margin="-10 0" Orientation="Horizontal" Spacing="5">
+                <HyperlinkButton x:Uid="Info_Link" NavigateUri="{x:Bind Cfg.GUI.GitHub}" />
+                <HyperlinkButton x:Uid="Info_CheckUpdate" Click="CheckUpdate_Click"/>
+            </StackPanel>
+            <ProgressBar x:Name="Info_Progress"
+                         Minimum="0" Maximum="100"
+                         Visibility="Collapsed"/>
+            <InfoBar x:Name="UpdateIsCurrent" x:Uid="Update_IsCurrent"/>
+            <InfoBar x:Name="UpdateFailedAccess" x:Uid="Update_FailA" Severity="Error"/>
+            <InfoBar x:Name="UpdateFailedRetrieve" x:Uid="Update_FailR" Severity="Error"/>
+            <InfoBar x:Name="UpdateFailed" x:Uid="Update_Fail" Severity="Error"/>
         </StackPanel>
-        <StackPanel Grid.Column="1" Spacing="10">
+        <ScrollView x:Name="UpdateInfo" Grid.Row="1" MaxWidth="400" Visibility="Collapsed">
+            <Grid Padding="10">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Rectangle Grid.RowSpan="3" Margin="-10"
+                           Fill="{ThemeResource TextBoxBackgroundThemeBrush}"
+                           Opacity="0.5"
+                           RadiusX="4"
+                           RadiusY="4"
+                           Style="{ThemeResource ColorPickerBorderStyle}"/>
+                <TextBlock x:Name="UpdateInfoTitle" Margin="0 8"
+                           Style="{ThemeResource BodyStrongTextBlockStyle}"
+                           TextWrapping="Wrap"/>
+                <TextBlock x:Name="UpdateInfoBody"
+                           Grid.Row="1"
+                           TextWrapping="Wrap"/>
+                <Button x:Name="UpdateButton" x:Uid="Info_Update" Click="Update_Click" Grid.Row="2" Margin="5"/>
+                <Button x:Name="CancelButton" x:Uid="Info_CancelUpdate" Click="Cancel_Click" Grid.Row="2" Margin="5" Visibility="Collapsed"/>
+            </Grid>
+        </ScrollView>
+        <StackPanel Grid.Column="1" Grid.RowSpan="2" Spacing="10">
             <TextBlock x:Uid="Info_Credits" Style="{ThemeResource SubtitleTextBlockStyle}"/>
             <TextBlock Text=" "/>
             <Grid>
