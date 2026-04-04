@@ -34,11 +34,19 @@ namespace OpenHeroSelectGUI
 
         private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
-            using StreamWriter sw = File.AppendText(Path.Combine(Directory.GetCurrentDirectory(), "error.log"));
-            sw.WriteLine("");
-            sw.Write(e.Exception); // Provides details
-            sw.Write(e.Message); // or .ToString() for more details
-            sw.Close();
+            try
+            {
+                using StreamWriter sw = File.AppendText(Path.Combine(Directory.GetCurrentDirectory(), "error.log"));
+                sw.Write($@"
+====================================================
+Logged  {System.DateTime.Now}
+Version {System.Reflection.Assembly.GetExecutingAssembly().GetName().Version}
+----------------------------------------------------
+{e.Exception /*Provides details, less details: e.Message*/}
+");
+                sw.Close();
+            }
+            catch { }
             e.Handled = true; // Set to true to indicate that the exception has been handled
             MainWindow?.Close();
         }

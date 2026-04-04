@@ -391,10 +391,11 @@ namespace OpenHeroSelectGUI.Settings
         /// <returns><see langword="True"/>, if saved successfully; otherwise <see langword="false"/>.</returns>
         public static bool SaveSettings(string Oini, string rv)
         {
-            return SaveIniXml(Oini, $"{Oini[..Oini.LastIndexOf('.')]}_GUI.xml")
+            string OiniWoExt = Oini[..Oini.LastIndexOf('.')];
+            return SaveIniXml(Oini, $"{OiniWoExt}_GUI.xml")
                 && GenerateCfgFiles(rv, rv)
                 && (CfgSt.Roster.Teams.Count == 0
-                || BonusSerializer.Serialize($"{Oini[..Oini.LastIndexOf('.')]}_team_bonus.xml"));
+                || BonusSerializer.Serialize($"{OiniWoExt}_team_bonus.xml"));
         }
         /// <summary>
         /// Save OHS settings in JSON (<paramref name="Oini"/>) &amp; GUI settings in XML (<paramref name="Gini"/>) by providing both paths.

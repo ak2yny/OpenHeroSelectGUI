@@ -159,16 +159,16 @@ namespace OpenHeroSelectGUI.Controls
             if (Cfg.Var.FloatingCharacter is string FC)
             {
                 var position = e.GetPosition(SelectedCharactersList);
-                int i = 0; for (; i < SelectedCharactersList.Items.Count; i++)
+                for (int i = 0; i < SelectedCharactersList.Items.Count; i++)
                 {
                     if (SelectedCharactersList.ContainerFromIndex(i) is ListViewItem LVI
                         && position.Y < (double)(LVI.TransformToVisual(SelectedCharactersList)
                         .TransformPoint(new(0, 0)).Y + (LVI.ActualHeight / 2)))
                     {
+                        CharacterListCommands.AddToSelected(FC, i);
                         break;
                     }
                 }
-                CharacterListCommands.AddToSelected(FC, i);
             }
             else if (e.DataView.Properties["Roster"] is string r) { CharacterListCommands.LoadRosterVal(r, CfgCmd.MatchingMV(r)); }
         }

@@ -1135,7 +1135,7 @@ namespace Zsnd.Lib
                 {
                     SoundTemplate[0] = (byte)(PlatIs7thGen ? index >> 8 : index & 0xFF);
                     SoundTemplate[1] = (byte)(PlatIs7thGen ? index & 0xFF : index >> 8);
-                    SoundTemplate[7] = Lists.Sounds[i].Flags;
+                    SoundTemplate[6] = Lists.Sounds[i].Flags;
                     zs.Write(SoundTemplate);
                 }
                 else

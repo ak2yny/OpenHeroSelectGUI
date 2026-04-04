@@ -28,6 +28,7 @@ namespace OpenHeroSelectGUI.Settings
 
         internal ObservableCollection<SelectedCharacter> Selected { get; set; } = [];
 
+        // Setting/getting from bool[] is 1.7x faster, but setting all is 3x slower than SetAll
         internal readonly BitArray SelectedLocs = new(100);
 
         [ObservableProperty]
@@ -147,6 +148,7 @@ namespace OpenHeroSelectGUI.Settings
             }
             if (IsDir) { PopulateAvailable(child, Nodes[1], PathInfo); }
         }
+        // AddSelected do not check whether herostat file exists. Currently leave it that way.
         /// <summary>
         /// Add <see cref="SelectedCharacter"/> <paramref name="SC"/>.
         /// </summary>
@@ -156,6 +158,10 @@ namespace OpenHeroSelectGUI.Settings
             SelectedLocs.Set(SC.LocNum, true);
             if (UpdateBoxes) { CfgSt.CSS.UpdateLocBoxes(SC.LocNum, true); }
         }
+        /// <summary>
+        /// Add <see cref="SelectedCharacter"/> <paramref name="SC"/>.
+        /// </summary>
+        internal void AddSelected(SelectedCharacter SC) { Selected.Add(SC); SelectedLocs.Set(SC.LocNum, true); }
         /// <summary>
         /// Remove <see cref="SelectedCharacter"/> <paramref name="SC"/>, using optional <paramref name="index"/> for faster removal. Upates MUA location boxes.
         /// </summary>
@@ -244,10 +250,10 @@ namespace OpenHeroSelectGUI.Settings
             int Count = Math.Min(Locs.Length, Roster.Length);
             for (int i = 0; i < Count; i++)
             {
-                AddToSelectedBulk(Locs[i],
+                CfgSt.Roster.AddSelected(ToSelected(Locs[i],
                     Roster[i].Replace('\\', '/').Replace("*", "").Replace("?", "").Trim().Trim('/'),
                     Roster[i].Contains('?'),
-                    Roster[i].Contains('*'));
+                    Roster[i].Contains('*')));
             }
             if (CfgSt.GUI.IsMua) { CfgSt.CSS.UpdateLocBoxes(); }
             UpdateClashes();
@@ -298,8 +304,6 @@ namespace OpenHeroSelectGUI.Settings
             CfgSt.Roster.AddSelected(New, CfgSt.GUI.IsMua, Index);
             if (Removed) { UpdateClashes(); }
         }
-
-        internal static void AddToSelectedBulk(int Loc, string PathInfo, bool Unl = false, bool Start = false) => CfgSt.Roster.AddSelected(ToSelected(Loc, PathInfo, Unl, Start));
 
         internal static SelectedCharacter ToSelected(int Loc, string? PathInfo, bool Unl, bool Start)
         {

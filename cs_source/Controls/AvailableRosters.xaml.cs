@@ -74,8 +74,10 @@ namespace OpenHeroSelectGUI.Controls
         {
             if (AvailableRostersList.SelectedItem is string Roster)
             {
-                CfgSt.MUA.MenulocationsValue = CfgSt.OHS.RosterValue = CfgCmd.FilterDefaultRV(Roster);
-                CharacterListCommands.LoadRosterVal(Roster, CfgCmd.MatchingMV(Roster));
+                CfgSt.OHS.RosterValue = CfgCmd.FilterDefaultRV(Roster);
+                if (CfgSt.GUI.IsMua) { CfgSt.MUA.MenulocationsValue = CfgCmd.MatchingMV(Roster); }
+                CharacterListCommands.LoadRosterVal();
+                // WIP: Load a matching team bonus file as well?
             }
         }
         /// <summary>

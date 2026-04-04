@@ -154,6 +154,9 @@ namespace OpenHeroSelectGUI.Settings
         public bool SelectedStageRiser { get; set; }
 
         [XmlIgnore]
+        private int[] _locsMUA = [];
+
+        [XmlIgnore]
         public int[] Locs { get; private set; } = [];
 
         [XmlIgnore]
@@ -251,7 +254,7 @@ namespace OpenHeroSelectGUI.Settings
         {
             // Checking Locs length to avoid re-initialization
             if (Locs.Length != 0) { return; }
-            Locs = [.. LocationSetup.Locations.Select(static l => l.Number)];
+            _locsMUA = Locs = [.. LocationSetup.Locations.Select(static l => l.Number)];
             if (Locs.Length == 0) { return; }
             Vector2D[]? Co = CfgSt.GUI.RowLayout ? RowLayoutCoordinates : BVLayoutCoordinates;
             CfgSt.Roster.Total = Locs.Length;
@@ -267,6 +270,10 @@ namespace OpenHeroSelectGUI.Settings
                 LocIx[Number] = (byte)i;
             }
         }
+        /// <summary>
+        /// Resets the <see cref="Locs"/> to the previously set MUA locations.
+        /// </summary>
+        public void ResetLocationsMUA() { Locs = _locsMUA; CfgSt.Roster.Total = Locs.Length; }
         /// <summary>
         /// Switches the layout of the location <see cref="Buttons"/> between row and bird views, based on <see cref="GUIsettings.RowLayout"/>, by modifying the margin values.
         /// </summary>

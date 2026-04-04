@@ -56,7 +56,7 @@ namespace OpenHeroSelectGUI
                 UpdateFailedRetrieve.IsOpen = update_info is null || update_info.assets is null || update_info.assets.Count == 0;
                 if (!UpdateFailedRetrieve.IsOpen)
                 {
-                    UpdateIsCurrent.IsOpen = update_info!.prerelease || update_info.draft || $"vv{Info_Version.Text}" == update_info.tag_name;
+                    UpdateIsCurrent.IsOpen = update_info!.prerelease || update_info.draft || $"v{Info_Version.Text}" == update_info.tag_name;
                     if (!UpdateIsCurrent.IsOpen)
                     {
                         UpdateInfoTitle.Text = $"Update available {update_info.tag_name} ({update_info.updated_at})";

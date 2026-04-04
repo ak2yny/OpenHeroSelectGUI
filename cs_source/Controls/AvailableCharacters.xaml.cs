@@ -158,7 +158,7 @@ namespace OpenHeroSelectGUI.Controls
                 {
                     if (!Node.Children[i].HasChildren && Node.Children[i].Content is Character C && C.Path is not null)
                     {
-                        AddToSelectedBulk(AvailLocs[a], C.Path);
+                        CfgSt.Roster.AddSelected(ToSelected(AvailLocs[a], C.Path, false, false));
                     }
                 }
                 if (CfgSt.GUI.IsMua) { CfgSt.CSS.UpdateLocBoxes(); }

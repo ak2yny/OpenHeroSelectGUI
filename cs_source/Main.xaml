@@ -15,7 +15,7 @@
         </Grid.RowDefinitions>
         <Image Source="/Assets/MM_Banner.png" Stretch="UniformToFill" HorizontalAlignment="Center" VerticalAlignment="Center" />
         <Grid x:Name="AppTitleBar" Margin="8" Height="28" VerticalAlignment="Top">
-            <Image Source="/Assets/SHIELD_Logo_GUI.png"
+            <Image x:Name="AppTitleIcon" Source="/Assets/SHIELD_Logo_GUI.png"
                    HorizontalAlignment="Left" VerticalAlignment="Top"
                    Width="20" Height="20"/>
             <TextBlock x:Name="AppTitleTextBlock"

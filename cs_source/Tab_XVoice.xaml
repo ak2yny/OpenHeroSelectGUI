@@ -91,7 +91,11 @@
                 <InfoBar x:Name="NotLoadedError"
                          Title="X_voice Not Loaded"
                          Message="There are currently no sounds loaded. Please add an x_voice package to the OHS/mua or OHS/xml2 folder or load an x_voice file."
-                         Severity="Error"/>
+                         Severity="Error">
+                    <InfoBar.ActionButton>
+                        <HyperlinkButton Content="More information" NavigateUri="https://github.com/ak2yny/OpenHeroSelectGUI/wiki/Instructions#adding-a-call-out-for-a-character-mod"/>
+                    </InfoBar.ActionButton>
+                </InfoBar>
                 <InfoBar x:Name="NotAppliedError"
                          Title="X_voice Not Saved/Applied"
                          Severity="Error"/>

@@ -39,20 +39,17 @@ namespace OpenHeroSelectGUI
 
             InitializeComponent();
 
-            AppWindow m_AppWindow = AppWindow.GetFromWindowId(Win32Interop.GetWindowIdFromWindow(WindowNative.GetWindowHandle(this)));
-            m_AppWindow.TitleBar.ExtendsContentIntoTitleBar = true;
+            ExtendsContentIntoTitleBar = true;
             SetTitleBar(AppTitleBar);
-            //AppTitleTextBlock.Text = AppInfo.Current.DisplayInfo.DisplayName;
-            //AppWindow.Resize(new SizeInt32(1150, 640));
+            AppWindow.TitleBar.ButtonForegroundColor = Colors.AliceBlue;
         }
         /// <summary>
         /// Make the title dim when the app is not in focus
         /// </summary>
         private void MainWindow_Activated(object sender, WindowActivatedEventArgs args)
         {
-            AppTitleTextBlock.Foreground = args.WindowActivationState == WindowActivationState.Deactivated
-                ? new SolidColorBrush(Colors.Black)
-                : new SolidColorBrush(Colors.AliceBlue);
+            AppTitleTextBlock.Opacity = AppTitleIcon.Opacity =
+                args.WindowActivationState == WindowActivationState.Deactivated ? 0.5 : 1.0;
         }
         /// <summary>
         /// Navigation View: Determine the selected page, when not already selected.
@@ -83,8 +80,13 @@ namespace OpenHeroSelectGUI
             {
                 SaveError.IsOpen = !SaveSettings();
                 CfgSt.GUI.Game = Game;
+                if (Game == "MUA")
+                {
+                    if (InternalSettings.Models is null) { InternalSettings.LoadModels(); }
+                    CfgSt.CSS.ResetLocationsMUA();
+                }
                 LoadRoster();
-                if (Game == "MUA" && InternalSettings.Models is null) { InternalSettings.LoadModels(); }
+                OHSpath.SetHsFolder(CfgSt.OHS.HerostatFolder);
                 return true;
             }
             // The ShowClashes setting is only relevant if we come back to another page, so calling this here keeps the switch more responsive

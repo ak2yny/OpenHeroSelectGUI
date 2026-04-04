@@ -875,6 +875,61 @@ Do not add new categories, as they are not recognized unless added to the compat
         	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
+        	<Name>Avengers Night (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/Avengers Night</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Haasenstadt (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/Haasenstadt</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>O.S.C.O.R.P. Lab (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/OSCORP</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>The Kyln Prison MCU (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/Prison</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>S.H.I.E.L.D. City</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/S.H.I.E.L.D. City</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Savage Land (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/Savage</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Sanctum Sanctorum (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/Strange Room</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Astral Plane (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/Strange Sky</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Thanos' Throne (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/Thanos Throne</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Danger Room (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/X-Men</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Red Stage from March 2026</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026 AI</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
             <Name>Cherry World</Name>
             <Path>Custom MUA Stages by Nuhverah/cherryworld</Path>
             <Creator>Nuhverah</Creator>
