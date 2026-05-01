@@ -25,10 +25,10 @@ namespace OpenHeroSelectGUI.Settings
         }
 
         [XmlAttribute("descname1")]
-        public string descname1 = "";
+        public string Descname1 { get; set; } = "";
 
         [XmlAttribute("descname2")]
-        public string? descname2;
+        public string? Descname2 { get; set; }
 
         [XmlIgnore]
         public string? Name { get; set; }
@@ -60,7 +60,7 @@ namespace OpenHeroSelectGUI.Settings
         /// </summary>
         public void OnDeserialized(StandardUICommand? DeleteCommand)
         {
-            Name = descname2 is null ? descname1 : $"{descname1} {descname2}";
+            Name = Descname2 is null ? Descname1 : $"{Descname1} {Descname2}";
             Members ??= [];
             Command = DeleteCommand;
         }
@@ -82,13 +82,13 @@ namespace OpenHeroSelectGUI.Settings
                 {
                     ni = cl;
                 }
-                descname1 = NormalizedName[..(ni - 1)];
-                descname2 = NormalizedName[ni..];
+                Descname1 = NormalizedName[..(ni - 1)];
+                Descname2 = NormalizedName[ni..];
             }
             else
             {
-                descname1 = Name ?? "";
-                descname2 = null;
+                Descname1 = Name ?? "";
+                Descname2 = null;
             }
             Powerup = PU[Descbonus];
         }
