@@ -13,14 +13,22 @@ namespace OpenHeroSelectGUI.Settings
     /// </summary>
     public class Bonus
     {
-        [XmlAttribute("descbonus")]
+
+        [XmlIgnore]
         public string Descbonus { get; set; } = "+5% Damage";
 
+        [XmlAttribute("descbonus")]
+        public string DescbonusEscaped
+        {
+            get => Descbonus.Replace("%", "%%");
+            set => Descbonus = value.Replace("%%", "%");
+        }
+
         [XmlAttribute("descname1")]
-        public string DescName1 { get; set; } = "";
+        public string descname1 = "";
 
         [XmlAttribute("descname2")]
-        public string? DescName2 { get; set; }
+        public string? descname2;
 
         [XmlIgnore]
         public string? Name { get; set; }
@@ -40,12 +48,49 @@ namespace OpenHeroSelectGUI.Settings
         [XmlIgnore]
         public StandardUICommand? Command;
 
+        /// <summary>
+        /// Ignore the <see cref="Members"/> collection if it's null or empty, or if the <see cref="Skinset"/> is specified.
+        /// </summary>
+        public bool ShouldSerializeMembers()
+        {
+            return Members != null && Members.Count > 0 && string.IsNullOrWhiteSpace(Skinset);
+        }
+        /// <summary>
+        /// Called after! deserialization to set the <see cref="Name"/> UI property from the XML attributes, add the <paramref name="DeleteCommand"/> and initialize <see cref="Members"/> if the XML didn't specify any.
+        /// </summary>
         public void OnDeserialized(StandardUICommand? DeleteCommand)
         {
-            Descbonus = Descbonus.Replace("%%", "%");
-            Name = DescName2 is null ? DescName1 : $"{DescName1} {DescName2}";
+            Name = descname2 is null ? descname1 : $"{descname1} {descname2}";
             Members ??= [];
             Command = DeleteCommand;
+        }
+        /// <summary>
+        /// Called before! serialization to split the <see cref="Name"/> to the XML attributes and update <see cref="Powerup"/> based on <paramref name="PU"/>.
+        /// </summary>
+        public void OnSerializing(Dictionary<string, string> PU)
+        {
+            // Age of Apocalypse is split differently than original
+            if (Name is not null && Name.Length > 8
+                && Name.Split(' ', StringSplitOptions.RemoveEmptyEntries) is string[] Words
+                && Words.Length > 1)
+            {
+                string NormalizedName = string.Join(' ', Words);
+                int ni = NormalizedName.Length;
+                for (int il = NormalizedName.Length / 2, cl = Words[0].Length + 1, wi = 1;
+                    wi < Words.Length && Math.Abs(il - cl) < Math.Abs(il - ni);
+                    cl += Words[wi].Length + 1, wi++)
+                {
+                    ni = cl;
+                }
+                descname1 = NormalizedName[..(ni - 1)];
+                descname2 = NormalizedName[ni..];
+            }
+            else
+            {
+                descname1 = Name ?? "";
+                descname2 = null;
+            }
+            Powerup = PU[Descbonus];
         }
     }
 
@@ -138,34 +183,7 @@ namespace OpenHeroSelectGUI.Settings
             if (CfgSt.Roster.Teams.Count == 0) { return false; }
             Dictionary<string, string> PU = CfgSt.GUI.IsMua ? Powerups : PowerupsXML2;
             Bonuses B = new() { Teams = [.. CfgSt.Roster.Teams] };
-            for (int i = 0; i < B.Teams.Count; i++)
-            {
-                // Age of Apocalypse is split differently than original
-                Bonus b = B.Teams[i];
-                if (b.Name is not null && b.Name.Length > 8
-                    && b.Name.Split(' ', StringSplitOptions.RemoveEmptyEntries) is string[] Words
-                    && Words.Length > 1)
-                {
-                    string NormalizedName = string.Join(' ', Words);
-                    int ni = NormalizedName.Length;
-                    for (int il = NormalizedName.Length / 2, cl = Words[0].Length + 1, wi = 1;
-                        wi < Words.Length && Math.Abs(il - cl) < Math.Abs(il - ni);
-                        cl += Words[wi].Length + 1, wi++)
-                    {
-                        ni = cl;
-                    }
-                    b.DescName1 = NormalizedName[..(ni - 1)];
-                    b.DescName2 = NormalizedName[ni..];
-                }
-                else
-                {
-                    b.DescName1 = b.Name ?? "";
-                    b.DescName2 = null;
-                }
-                b.Descbonus = b.Descbonus.Replace("%", "%%");
-                b.Powerup = PU[b.Descbonus];
-                if (!string.IsNullOrWhiteSpace(b.Skinset)) { b.Members = null; }
-            }
+            for (int i = 0; i < B.Teams.Count; i++) { B.Teams[i].OnSerializing(PU); }
             XmlSerializer XS = new(typeof(Bonuses));
             try
             {
