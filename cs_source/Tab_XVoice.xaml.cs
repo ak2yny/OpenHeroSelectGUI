@@ -401,6 +401,7 @@ namespace OpenHeroSelectGUI
         {
             // Lists.Samples[SampleComboBox.SelectedIndex].Sample_rate;
             // SampleRateComboBox.SelectedIndex = SampleRates.IndexOf(ZsndLists.Samples[SampleComboBox.SelectedIndex].Sample_rate);
+            if (SampleComboBox.SelectedItem is null) { return; }
             SampleRateComboBox.SelectedItem = ((JsonSample)SampleComboBox.SelectedItem).Sample_rate;
         }
 
