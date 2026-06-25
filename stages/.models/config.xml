@@ -925,8 +925,18 @@ Do not add new categories, as they are not recognized unless added to the compat
         	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
+        	<Name>Wakandan Necropolis (MCoC)</Name>
+        	<Path>Super Team Stage Marvel Mods/March 2026/Black Panther</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
         	<Name>Red Stage from March 2026</Name>
         	<Path>Super Team Stage Marvel Mods/March 2026 AI</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Test Stage (MFF)</Name>
+        	<Path>Super Team Stage Marvel Mods/MFF/Tutorial Stage</Path>
         	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>

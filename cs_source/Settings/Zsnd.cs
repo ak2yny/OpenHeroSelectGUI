@@ -322,18 +322,19 @@ namespace Zsnd.Lib
 
         [ObservableProperty]
         public partial string? IntName { get; set; }
+
         /// <summary>
-        /// Updates the <see cref="UISoundBase.Hash"/> based on the changed <paramref name="newValue"/> and <see cref="IntName"/> (must always be set first).
+        /// Updates the <see cref="UISoundBase.Hash"/> based on the changed <paramref name="value"/> and <see cref="IntName"/> (must always be set first).
         /// </summary>
-        partial void OnPrefChanged(Events.XVprefix? oldValue, Events.XVprefix? newValue)
+        partial void OnPrefChanged(Events.XVprefix? value)
         {
-            if (newValue is null || IntName is null || oldValue is null) { return; }
-            if (newValue is Events.XVprefix.AN or Events.XVprefix.BREAK)
+            if (value is null || IntName is null) { return; }
+            if (value is Events.XVprefix.AN or Events.XVprefix.BREAK)
             {
-                Hash = $"COMMON/MENUS/CHARACTER/{newValue}_{IntName}";
-                Events.LastCharPrefix = (Events.XVprefix)newValue;
+                Hash = $"COMMON/MENUS/CHARACTER/{value}_{IntName}";
+                Events.LastCharPrefix = (Events.XVprefix)value;
             }
-            else if (newValue is Events.XVprefix.TEAM)
+            else if (value is Events.XVprefix.TEAM)
             {
                 // If no internal name, hash stays unchanged. Hash must be managed externally in such cases.
                 Hash = $"COMMON/TEAM_BONUS_{(IntName.StartsWith("TEAM_BONUS_", StringComparison.OrdinalIgnoreCase)

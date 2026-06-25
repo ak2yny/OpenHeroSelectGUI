@@ -349,9 +349,8 @@ namespace OpenHeroSelectGUI
 
         private async void XVoiceList_Drop(object sender, DragEventArgs e)
         {
-            if (e.DataView.Properties["Character"] is not null) // is Character SC
+            if (e.DataView.Properties["Character"] is not null)
             {
-                // IntName = Herostat.GetInternalName(SC.Path);
                 AddSound(new XVSound
                 {
                     IntName = _intName,
