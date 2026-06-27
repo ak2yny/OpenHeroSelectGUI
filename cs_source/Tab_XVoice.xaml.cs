@@ -59,7 +59,9 @@ namespace OpenHeroSelectGUI
             AddSound(new XVSound
             {
                 SampleIndex = Index,
-                IntName = IsChar ? _intName : TeamName,
+                IntName = IsChar ? _intName
+                    : Cfg.Var.FloatingCharacter is string TH && TH.StartsWith("COMMON/TEAM_BONUS_", StringComparison.OrdinalIgnoreCase)
+                    ? TH[..18].ToUpper() : TeamName.ToUpper(),
                 Pref = IsChar ? Events.LastCharPrefix : Events.XVprefix.TEAM
             });
             if (IsChar) { _ = Lists.XVInternalNames.Add(_intName); }

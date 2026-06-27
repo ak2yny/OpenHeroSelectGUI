@@ -31,7 +31,7 @@
                                            CommandParameter="{x:Bind}"/>
                             </SwipeItems>
                         </SwipeControl.RightItems>
-                        <Grid Padding="5" Margin="20 0" MaxHeight="100" VerticalAlignment="Center">
+                        <Grid Padding="5" Margin="20 0 0 0" MaxHeight="100" VerticalAlignment="Center">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition MinWidth="160"/>
                                 <ColumnDefinition/>
