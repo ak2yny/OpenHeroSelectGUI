@@ -640,14 +640,24 @@ Do not add new categories, as they are not recognized unless added to the compat
             <Creator>The Outsider</Creator>
         </Model>
         <Model>
+        	<Name>Castillo de Hades</Name>
+        	<Path>UMM/CastilloDeHades</Path>
+        	<Creator>UltraMegaMagnus</Creator>
+        </Model>
+        <Model>
             <Name>Default Stage from the first 36RH and 50RH</Name>
             <Path>50RH</Path>
             <Creator>The Outsider &amp; UltraMegaMagnus</Creator>
         </Model>
         <Model>
-        	<Name>Castillo de Hades</Name>
-        	<Path>UMM/CastilloDeHades</Path>
-        	<Creator>UltraMegaMagnus</Creator>
+        	<Name>Default Stage from the 36RH and 50RH</Name>
+        	<Path>50RH-MUAXP</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>New Default Stage for the 36RH and 50RH</Name>
+        	<Path>50RH-MUAXP-new</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>
             <Name>Stage 0 from Pack 1</Name>
@@ -937,6 +947,11 @@ Do not add new categories, as they are not recognized unless added to the compat
         <Model>
         	<Name>Test Stage (MFF)</Name>
         	<Path>Super Team Stage Marvel Mods/MFF/Tutorial Stage</Path>
+        	<Creator>Emanuel(MUAXP)</Creator>
+        </Model>
+        <Model>
+        	<Name>Titan (MFF)</Name>
+        	<Path>Super Team Stage Marvel Mods/MFF/Titan</Path>
         	<Creator>Emanuel(MUAXP)</Creator>
         </Model>
         <Model>

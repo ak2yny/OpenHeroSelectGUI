@@ -22,6 +22,7 @@ namespace OpenHeroSelectGUI.Controls
         {
             DisableDoubleTap = IsXvoiceTab;
             Cfg.Roster.NeedyCharsOnly = Needy;
+            Cfg.Var.FloatingCharacter = null; // To reflect that there is no character selected
             InitializeComponent();
         }
         /// <summary>
@@ -39,7 +40,7 @@ namespace OpenHeroSelectGUI.Controls
                     foreach (string Source in OHSpath.GetModSource(ExtModPath))
                     {
                         if (OHSpath.GetHsFiles(Source).FirstOrDefault() is string Hs
-                            && Herostat.Add(Hs, Path.GetExtension(Hs.AsSpan()).ToString(), new Stats(Hs).CharacterName))
+                            && Herostat.Add(Hs, Path.GetExtension(Hs.AsSpan()).ToString(), HsPathToHsName(Hs)))
                         {
                             i++;
                         }
@@ -56,9 +57,17 @@ namespace OpenHeroSelectGUI.Controls
             }
             else
             {
-                try { HSsuccess.IsOpen = Herostat.Add(Mod.Path, Mod.FileType, new Stats(Mod.Path).CharacterName); }
+                try { HSsuccess.IsOpen = Herostat.Add(Mod.Path, Mod.FileType, HsPathToHsName(Mod.Path)); }
                 catch { HSsuccess.IsOpen = false; }
             }
+        }
+        /// <summary>
+        /// Extract the charactername from a herostat <paramref name="filename"/> and remove invalid path characters.
+        /// </summary>
+        /// <returns>The extracted and cleaned charactername.</returns>
+        private static string HsPathToHsName(string filename)
+        {
+            return string.Concat(new Stats(filename).CharacterName.Split(Path.GetInvalidFileNameChars()));
         }
         /// <summary>
         /// Remove the selected tree view node and all its child nodes recursively, including the herostat files.

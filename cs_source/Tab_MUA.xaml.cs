@@ -125,7 +125,21 @@ namespace OpenHeroSelectGUI
                     USDnum.Text = LB.NumberString;
                     Cfg.Var.FloatingCharacter = null;
                 }
-                else { AddToSelectedMUA(LB); }
+                else { AddToSelectedMUA(Loc, LB); }
+            }
+        }
+        /// <summary>
+        /// Removes the assigned character from the <paramref name="sender"/> location, if any.
+        /// </summary>
+        private void LocButton_RightTapped(object sender, RoutedEventArgs e)
+        {
+            if (sender is ToggleButton Loc && Loc.DataContext is LocationButton LB && LB.IsChecked)
+            {
+                for (int i = CfgSt.Roster.Selected.Count - 1; i >= 0; i--)
+                {
+                    SelectedCharacter SC = CfgSt.Roster.Selected[i];
+                    if (SC.LocNum == LB.Number) { CfgSt.Roster.RemoveSelected(SC, i); break; }
+                }
             }
         }
         /// <summary>
@@ -133,17 +147,15 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void LocButton_Drop(object sender, DragEventArgs e)
         {
-            if (sender is ToggleButton Loc && Loc.DataContext is LocationButton LB) { AddToSelectedMUA(LB); }
+            if (sender is ToggleButton Loc && Loc.DataContext is LocationButton LB) { AddToSelectedMUA(Loc, LB); }
         }
         /// <summary>
         /// Add the floating character to the selected list on location <paramref name="Loc"/>
         /// </summary>
-        private void AddToSelectedMUA(LocationButton LB)
+        private void AddToSelectedMUA(ToggleButton Loc, LocationButton LB)
         {
-            if (!string.IsNullOrEmpty(Cfg.Var.FloatingCharacter) && Cfg.Var.FloatingCharacter != "<")
-            {
-                AddToSelected(LB.Number, Cfg.Var.FloatingCharacter);
-            }
+            if (string.IsNullOrEmpty(Cfg.Var.FloatingCharacter) || Cfg.Var.FloatingCharacter == "<") { Loc.IsChecked = LB.IsChecked; }
+            else { AddToSelected(LB.Number, Cfg.Var.FloatingCharacter); }
         }
         /// <summary>
         /// When the pointer enters a location button: Write the location number in the FloatingLoc variable.
@@ -163,7 +175,7 @@ namespace OpenHeroSelectGUI
             if (sender is ToolTip Tt && FloatingLoc is not null)
             {
                 if (Cfg.Roster.Selected.FirstOrDefault(c => c.Loc == FloatingLoc) is SelectedCharacter SC)
-                { Tt.Content = SC.Path; }
+                { Tt.Content = $"{SC.Path}\nRight-click to remove"; }
                 else
                 { Tt.IsOpen = false; }
             }
@@ -191,9 +203,14 @@ namespace OpenHeroSelectGUI
         /// </summary>
         private void SelectedCharacters_DragOver(object sender, DragEventArgs e)
         {
-            e.AcceptedOperation = DataPackageOperation.Copy;
-            e.DragUIOverride.Caption = e.DataView.Properties["Roster"] is string r
-                ? $"Replace {Cfg.MUA.RosterValue} with {r}" : $"{Cfg.Var.FloatingCharacter}";
+            string? r = e.DataView.Properties["Roster"] as string;
+            if (e.DataView.Properties.ContainsKey("Character") || r is not null
+                || e.DataView.Properties.ContainsKey("SelectedCharacter"))
+            {
+                e.AcceptedOperation = DataPackageOperation.Copy;
+                e.DragUIOverride.Caption = r is null
+                    ? $"{Cfg.Var.FloatingCharacter}" : $"Replace {Cfg.MUA.RosterValue} with {r}";
+            }
         }
         /// <summary>
         /// Define the drop event for dropped characters

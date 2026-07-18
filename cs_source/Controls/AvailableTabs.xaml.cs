@@ -130,6 +130,7 @@ namespace OpenHeroSelectGUI.Controls
                 //case AvailableCharacters AC:
                 default:
                     CfgSt.Roster.AvailableInitialized = false;
+                    AvailSearch.Text = ""; // Alternatively, PopulateAvailable(AvailSearch.Text), but need to call UpdateAvailable() first
                     CfgSt.Roster.PopulateAvailable();
                     break;
             }

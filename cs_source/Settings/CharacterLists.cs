@@ -152,11 +152,11 @@ namespace OpenHeroSelectGUI.Settings
         /// <summary>
         /// Add <see cref="SelectedCharacter"/> <paramref name="SC"/>.
         /// </summary>
-        internal void AddSelected(SelectedCharacter SC, bool UpdateBoxes = false, int Index = -1)
+        internal void AddSelected(SelectedCharacter SC, int Index = -1)
         {
             if (Index == -1) { Selected.Add(SC); } else { Selected.Insert(Index, SC); }
             SelectedLocs.Set(SC.LocNum, true);
-            if (UpdateBoxes) { CfgSt.CSS.UpdateLocBoxes(SC.LocNum, true); }
+            if (CfgSt.GUI.IsMua) { CfgSt.CSS.UpdateLocBoxes(SC.LocNum, true); }
         }
         /// <summary>
         /// Add <see cref="SelectedCharacter"/> <paramref name="SC"/>.
@@ -301,7 +301,7 @@ namespace OpenHeroSelectGUI.Settings
                 }
                 else if (ClashesWithNew) { CfgSt.Roster.NumClash = SC.NumClash = New.NumClash = true; }
             }
-            CfgSt.Roster.AddSelected(New, CfgSt.GUI.IsMua, Index);
+            CfgSt.Roster.AddSelected(New, Index);
             if (Removed) { UpdateClashes(); }
         }
 
@@ -328,7 +328,7 @@ namespace OpenHeroSelectGUI.Settings
                 Path = PathInfo,
                 Character_Number = CharNum.Any(static c => !char.IsDigit(c))
                     ? "00" : $"{CharNum:00}",
-                Unlock = Unl,
+                Unlock = Unl || Start,
                 Starter = Start
             };
         }

@@ -168,19 +168,44 @@
                   AllowDrop="True"
                   CanDragItems="True"
                   CanReorderItems="True"
+                  DragItemsCompleted="SelectedCharactersList_DragItemsCompleted"
                   DragItemsStarting="SelectedCharactersList_DragItemsStarting"
                   DragOver="SelectedCharactersList_DragOver"
                   Drop="SelectedCharactersList_Drop"
                   HorizontalAlignment="Stretch"
                   KeyboardAcceleratorPlacementMode="Hidden"
+                  RightTapped="SelectedCharactersList_RightTapped"
                   SelectionChanged="SelectionChanged"
                   SelectionMode="Extended"
                   Margin="0 5">
+            <!--BorderThickness="1"
+                  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem" BasedOn="{StaticResource DefaultListViewItemStyle}">
+                    <Setter Property="ContextFlyout">
+                        <Setter.Value>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Icon="Delete" Text="Remove" Click="ListViewItem_DeleteClick"/>
+                                <MenuFlyoutItem Icon="Rename" Text="Renumber" Click="ListViewItem_RenumberClick"/>
+                                <MenuFlyoutSeparator/>
+                                <MenuFlyoutItem Text="Unlock" Click="ListViewItem_UnlockClick">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE785;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                                <MenuFlyoutItem Text="Set as starter" Click="ListViewItem_StarterClick">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon Glyph="&#xE819;"/>
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </ListView.ItemContainerStyle>
             <ListView.KeyboardAccelerators>
                 <KeyboardAccelerator Key="Delete" Invoked="Selected_Characters_Delete" ScopeOwner="{x:Bind SelectedCharactersList}"/>
             </ListView.KeyboardAccelerators>
-            <!--BorderThickness="1"
-                  BorderBrush="{ThemeResource SystemControlForegroundBaseMediumLowBrush}"-->
         </ListView>
 
         <StackPanel Grid.Row="3">

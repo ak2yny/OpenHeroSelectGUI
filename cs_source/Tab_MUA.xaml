@@ -71,11 +71,12 @@
                                               DragOver="SelectedCharacters_DragOver"
                                               Drop="LocButton_Drop"
                                               HorizontalAlignment ="Left"
-                                              IsChecked="{x:Bind IsChecked, Mode=TwoWay}"
+                                              IsChecked="{x:Bind IsChecked, Mode=OneWay}"
                                               Margin="{x:Bind Margin}"
+                                              Opacity="{x:Bind settings:CfgSt.GUI.ButtonOpacity, Mode=OneTime}"
                                               Padding="5 2 5 2"
                                               PointerEntered="LocButton_PointerEntered"
-                                              Opacity="{x:Bind settings:CfgSt.GUI.ButtonOpacity, Mode=OneTime}"
+                                              RightTapped="LocButton_RightTapped"
                                               VerticalAlignment="Bottom">
                                     <ToolTipService.ToolTip>
                                         <ToolTip Opened="LocButton_ToolTip"/>

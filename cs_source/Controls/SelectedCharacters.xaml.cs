@@ -28,7 +28,6 @@ namespace OpenHeroSelectGUI.Controls
         /// <returns>An error message if the operation encounters an error; otherwise <see cref="string.Empty"/> if aborted; otherwise the new number.</returns>
         private async Task<ModOps.Result> ResolveClash(SelectedCharacter SC)
         {
-            if (!SC.NumClash) { return ModOps.Result.Failure($"{SC.Character_Name} is not clashing."); }
             if (string.IsNullOrEmpty(SC.Path) || string.IsNullOrEmpty(SC.Character_Number))
             { return ModOps.Result.Failure("No herostat found or the old number can't be identified."); }
             string? HF = null;
@@ -59,6 +58,24 @@ namespace OpenHeroSelectGUI.Controls
             });
         }
         /// <summary>
+        /// Convert the renumber <paramref name="Result"/> (new number) to the selected character's (<paramref name="SC"/>) properties and update the roster.
+        /// </summary>
+        private void ResultToCharacter(ModOps.Result Result, SelectedCharacter SC)
+        {
+            if (!Result.Critical)
+            {
+                SC.Path = Cfg.Var.FloatingCharacter;
+                SC.Character_Number = Result.NewNumber;
+                // user has the chance to change selection and move selected (index) while waiting -- ignoring
+                Cfg.Roster.Selected[SelectedCharactersList.SelectedIndex] = SC;
+                CharacterListCommands.UpdateClashes();
+                Cfg.Roster.AddAvailable(SC.Path!);
+                ClsRes.IsOpen = true;
+            }
+            Cfg.Var.FloatingCharacter = Mod = null;
+            ClsResProg.Visibility = Visibility.Collapsed;
+        }
+        /// <summary>
         /// List sorting function
         /// </summary>
         private void LV_Sorting(object sender, RoutedEventArgs e)
@@ -87,13 +104,13 @@ namespace OpenHeroSelectGUI.Controls
             }
         }
         /// <summary>
-        /// Disable unlocks on starters. Unlocks can be turned on again separately. Unlocks are restored when starters are disabled.
+        /// Sync unlocks when starters set (enabled). Unlocks remain, when starters are disabled.
         /// </summary>
         private void Starter_Click(object sender, RoutedEventArgs e)
         {
-            if (sender is CheckBox CB && CB.DataContext is SelectedCharacter SC)
+            if (sender is CheckBox CB && CB.DataContext is SelectedCharacter SC && CB.IsChecked == true)
             {
-                SC.Unlock = !SC.Starter;
+                SC.Unlock = true;
             }
         }
         /// <summary>
@@ -142,6 +159,17 @@ namespace OpenHeroSelectGUI.Controls
             }
         }
         /// <summary>
+        /// If the drop was not accepted, remove the selected character from the list (dragged out of the list).
+        /// </summary>
+        private void SelectedCharactersList_DragItemsCompleted(ListViewBase sender, DragItemsCompletedEventArgs args)
+        {
+            if (args.DropResult == DataPackageOperation.None && args.Items[0] is SelectedCharacter SC)
+            {
+                Cfg.Roster.RemoveSelected(SC);
+                CharacterListCommands.UpdateClashes();
+            }
+        }
+        /// <summary>
         /// If <see cref="GUIsettings.SelectedDnDInsert"/> is on, show insert caption (depending on source) and enable drop.
         /// </summary>
         private void SelectedCharactersList_DragOver(object sender, DragEventArgs e)
@@ -173,6 +201,51 @@ namespace OpenHeroSelectGUI.Controls
             else if (e.DataView.Properties["Roster"] is string r) { CharacterListCommands.LoadRosterVal(r, CfgCmd.MatchingMV(r)); }
         }
         /// <summary>
+        /// Right click to select
+        /// </summary>
+        private void SelectedCharactersList_RightTapped(object sender, RightTappedRoutedEventArgs e)
+        {
+            SelectedCharactersList.SelectedItem = ((FrameworkElement)e.OriginalSource).DataContext;
+            e.Handled = true;
+        }
+        /// <summary>
+        /// Delete selected character from the list (context menu).
+        /// </summary>
+        private void ListViewItem_DeleteClick(object sender, RoutedEventArgs e)
+        {
+            if (SelectedCharactersList.SelectedItem is SelectedCharacter SC)
+            {
+                Cfg.Roster.RemoveSelected(SC);
+                CharacterListCommands.UpdateClashes();
+            }
+        }
+        /// <summary>
+        /// Renumber selected character.
+        /// </summary>
+        private async void ListViewItem_RenumberClick(object sender, RoutedEventArgs e)
+        {
+            if (SelectedCharactersList.SelectedItem is SelectedCharacter SC)
+            {
+                ModOps.Result Result = await ResolveClash(SC);
+                ResultToCharacter(Result, SC);
+                if (ClsResNo.IsOpen = !Result.NoError) { ClsResNo.Message = Result.Message; }
+            }
+        }
+        /// <summary>
+        /// Set selected character as unlocked.
+        /// </summary>
+        private void ListViewItem_UnlockClick(object sender, RoutedEventArgs e)
+        {
+            if (SelectedCharactersList.SelectedItem is SelectedCharacter SC) { SC.Unlock = true; }
+        }
+        /// <summary>
+        /// Set selected character as starter and Sync unlock.
+        /// </summary>
+        private void ListViewItem_StarterClick(object sender, RoutedEventArgs e)
+        {
+            if (SelectedCharactersList.SelectedItem is SelectedCharacter SC) { SC.Unlock = SC.Starter = true; }
+        }
+        /// <summary>
         /// Resolve clashes when clicked on button (only available on clashes, if show enabled),
         /// replacing the selected charater's properties to the resolved ones or showing errors depending on the resolving results.
         /// </summary>
@@ -181,19 +254,10 @@ namespace OpenHeroSelectGUI.Controls
             ModOps.Result Result;
             if (SelectedCharactersList.SelectedItem is SelectedCharacter SC)
             {
-                Result = await ResolveClash(SC);
-                if (!Result.Critical)
-                {
-                    SC.Path = Cfg.Var.FloatingCharacter;
-                    SC.Character_Number = Result.NewNumber;
-                    // user has the chance to change selection and move selected (index) while waiting -- ignoring
-                    Cfg.Roster.Selected[SelectedCharactersList.SelectedIndex] = SC;
-                    CharacterListCommands.UpdateClashes();
-                    Cfg.Roster.AddAvailable(SC.Path!);
-                    ClsRes.IsOpen = true;
-                }
-                Cfg.Var.FloatingCharacter = Mod = null;
-                ClsResProg.Visibility = Visibility.Collapsed;
+                Result = SC.NumClash
+                    ? await ResolveClash(SC)
+                    : ModOps.Result.Failure($"{SC.Character_Name} is not clashing.");
+                ResultToCharacter(Result, SC);
             }
             else { Result = ModOps.Result.Failure("Please select a clashing character."); }
             if (ClsResNo.IsOpen = !Result.NoError) { ClsResNo.Message = Result.Message; }

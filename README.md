@@ -84,7 +84,6 @@
 
 #### Original Plans by adamatti
 - Change items based on the roster (by modifying `data/items.engb`)
-- (Make a tutorial and/or presentation video)
 
 #### Updated Plans by ak2yny
 - [Planned Features #14](https://github.com/ak2yny/OpenHeroSelectGUI/issues/14)
@@ -93,6 +92,8 @@
 ## Usage Instructions
 
  [Full installation and usage instructions](https://github.com/ak2yny/OpenHeroSelectGUI/wiki/Instructions)
+
+ [Getting started video tutorial](https://youtu.be/8JgJ60jeOk0)
 
  Run OpenHeroSelectGUI. Navigate to the games and settings on the left pane (navigation view). For MUA, select a character and a menulocation to assign it or drag the the character on a menulocation or the selected list (and drop it). For XML2, drag the character on the selected list or double-click on a character to add it at the end. Alternatively, populate the selected list with a random, default, or custom roster loaded from a file. Remove assigned heroes with the `Clear` button or by selecting them in the list and pressing the Delete key.
  Click `Run OHS` to run OHS and let it build herostat.engb and other files.
